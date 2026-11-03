@@ -4,6 +4,14 @@
 
 分发管理后台已部署到 [DSH 陪伴管理页](https://license-host.invalid/dsh-companion/manage/)。管理员登录信息保存在本机 `.local/cloud/admin-login.txt`，不要将该文件发给插件用户。
 
+## 仓库信息
+
+- GitHub 仓库：[sssswwwwbbbb/dsh-companion](https://github.com/sssswwwwbbbb/dsh-companion)。
+- 可见性：私有（Private，2026-11-03 创建并核验）。
+- 默认分支：`main`；当前本地分支跟踪 `origin/main`。
+- 远程仓库：`origin` → `https://github.com/sssswwwwbbbb/dsh-companion.git`。
+- 初始化状态：2026-11-03 已完成本地 Git 初始化及首次推送，初始提交为 [`653d687`](https://github.com/sssswwwwbbbb/dsh-companion/commit/653d687d158c5a4168150f9c2bae8c7158a10f9e)（`chore: initialize DSH companion project`）。
+
 ## 从发码到使用，体验一次
 
 1. 登录管理页，点击「生成激活码」，先生成 1 个、1 台设备的测试码，填写备注便于查找。有效天数填 **0 表示永久有效**，填 1～3650 则按天计算。复制完整的 `DSHC-…` 激活码或下载 CSV。
