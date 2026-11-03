@@ -1,0 +1,10 @@
+{
+  "checkedDate": "2026-11-02",
+  "source": "GitHub official repository API, read-only queries",
+  "repositories": [
+    { "repository": "https://github.com/PC2005-cloud/dsh-pet", "stars": 5251, "forks": 420, "pushedAtUtc": "2026-11-02T05:47:46Z", "selected": true, "transparentWebmFilesAtPinnedRevision": 109 },
+    { "repository": "https://github.com/1190fasheqi/dafeiyu-pet", "stars": 299, "forks": 36, "pushedAtUtc": "2026-08-11T05:40:58Z", "selected": false },
+    { "repository": "https://github.com/YunYueSama/codex-deepseek-pet", "stars": 83, "forks": 5, "pushedAtUtc": "2026-09-23T04:41:28Z", "selected": false }
+  ],
+  "caveat": "Counts are a dated observation, not a claim that this is the most popular project across all repositories."
+}

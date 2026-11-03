@@ -1,0 +1,111 @@
+{
+  "repository": "https://github.com/PC2005-cloud/dsh-pet",
+  "revision": "2265f24a941e6d6736d8a069cc06cf4216df4539",
+  "retrievedDate": "2026-11-02",
+  "usage": "Non-commercial local prototype requested by user",
+  "characterCredits": [
+    "上善无形：溟月原型",
+    "ZipZipPipe：DeepSeek版女仆鲸鱼娘形象",
+    "PC2005-cloud：dsh-pet动画素材"
+  ],
+  "assetsLicense": "CC BY-NC-SA 4.0 / upstream non-commercial asset terms",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans",
+  "files": [
+    {
+      "name": "idle",
+      "originalPath": "dsh-pet/assets/webm/待机呼吸休闲.webm",
+      "file": "assets/whale-maid/idle.webm",
+      "bytes": 441437,
+      "sha256": "deb965d05a85dacf5ff4a20faa757846f0d11679598c3ec578a5571487660395",
+      "source": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/2265f24a941e6d6736d8a069cc06cf4216df4539/dsh-pet/assets/webm/%E5%BE%85%E6%9C%BA%E5%91%BC%E5%90%B8%E4%BC%91%E9%97%B2.webm"
+    },
+    {
+      "name": "look",
+      "originalPath": "dsh-pet/assets/webm/东张西望.webm",
+      "file": "assets/whale-maid/look.webm",
+      "bytes": 427005,
+      "sha256": "a20ed02ccc5e72075a3ca83fabb57d9aac5ded699f52d00ec6de72069799fcd5",
+      "source": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/2265f24a941e6d6736d8a069cc06cf4216df4539/dsh-pet/assets/webm/%E4%B8%9C%E5%BC%A0%E8%A5%BF%E6%9C%9B.webm"
+    },
+    {
+      "name": "walk",
+      "originalPath": "dsh-pet/assets/webm/螃蟹走路.webm",
+      "file": "assets/whale-maid/walk.webm",
+      "bytes": 596902,
+      "sha256": "5696b0878be38cc450d6eaace837aef1c1b5834f1382bc6c11c2de582f284673",
+      "source": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/2265f24a941e6d6736d8a069cc06cf4216df4539/dsh-pet/assets/webm/%E8%9E%83%E8%9F%B9%E8%B5%B0%E8%B7%AF.webm"
+    },
+    {
+      "name": "run",
+      "originalPath": "dsh-pet/assets/webm/原地左转奔跑.webm",
+      "file": "assets/whale-maid/run.webm",
+      "bytes": 614526,
+      "sha256": "79882aedd7b77caaacce1a34dece68e2f001a3dbfa5f9d049c1ce2fc04518d52",
+      "source": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/2265f24a941e6d6736d8a069cc06cf4216df4539/dsh-pet/assets/webm/%E5%8E%9F%E5%9C%B0%E5%B7%A6%E8%BD%AC%E5%A5%94%E8%B7%91.webm"
+    },
+    {
+      "name": "stretch",
+      "originalPath": "dsh-pet/assets/webm/超大伸懒腰.webm",
+      "file": "assets/whale-maid/stretch.webm",
+      "bytes": 396987,
+      "sha256": "0ac66d918cc5efd49be1273c3830de73eae5f9bdcd5fcb968d1b2f9b487705ad",
+      "source": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/2265f24a941e6d6736d8a069cc06cf4216df4539/dsh-pet/assets/webm/%E8%B6%85%E5%A4%A7%E4%BC%B8%E6%87%92%E8%85%B0.webm"
+    },
+    {
+      "name": "eat",
+      "originalPath": "dsh-pet/assets/webm/吃白饭.webm",
+      "file": "assets/whale-maid/eat.webm",
+      "bytes": 459590,
+      "sha256": "b620413d6fa303a0ed9168dc71453c3bddc10141a0b7edeff87dc2e6e054d502",
+      "source": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/2265f24a941e6d6736d8a069cc06cf4216df4539/dsh-pet/assets/webm/%E5%90%83%E7%99%BD%E9%A5%AD.webm"
+    },
+    {
+      "name": "play",
+      "originalPath": "dsh-pet/assets/webm/撸猫.webm",
+      "file": "assets/whale-maid/play.webm",
+      "bytes": 348432,
+      "sha256": "068d84e944dfce17de1c5a2ee2a4bc391e2848dad88a7df4877ebf23cf38bcec",
+      "source": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/2265f24a941e6d6736d8a069cc06cf4216df4539/dsh-pet/assets/webm/%E6%92%B8%E7%8C%AB.webm"
+    },
+    {
+      "name": "greet",
+      "originalPath": "dsh-pet/assets/webm/女仆屈膝礼仪.webm",
+      "file": "assets/whale-maid/greet.webm",
+      "bytes": 365712,
+      "sha256": "6536fb519ba73bbc338d30cf7286b14ffde1278b6d469c64573536dc0f896918",
+      "source": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/2265f24a941e6d6736d8a069cc06cf4216df4539/dsh-pet/assets/webm/%E5%A5%B3%E4%BB%86%E5%B1%88%E8%86%9D%E7%A4%BC%E4%BB%AA.webm"
+    },
+    {
+      "name": "react",
+      "originalPath": "dsh-pet/assets/webm/点击回应-害羞惊讶.webm",
+      "file": "assets/whale-maid/react.webm",
+      "bytes": 538281,
+      "sha256": "a04968bbc46d1ebea07f81e5dabd93b0b67a9d07f1371e9887b33075134ad00d",
+      "source": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/2265f24a941e6d6736d8a069cc06cf4216df4539/dsh-pet/assets/webm/%E7%82%B9%E5%87%BB%E5%9B%9E%E5%BA%94-%E5%AE%B3%E7%BE%9E%E6%83%8A%E8%AE%B6.webm"
+    },
+    {
+      "name": "sleep-in",
+      "originalPath": "dsh-pet/assets/webm/睡觉-开始.webm",
+      "file": "assets/whale-maid/sleep-in.webm",
+      "bytes": 331611,
+      "sha256": "5352a208925e01e191c1529d07c61ae61bcda90d92f2b89549c25c949f207e11",
+      "source": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/2265f24a941e6d6736d8a069cc06cf4216df4539/dsh-pet/assets/webm/%E7%9D%A1%E8%A7%89-%E5%BC%80%E5%A7%8B.webm"
+    },
+    {
+      "name": "sleep",
+      "originalPath": "dsh-pet/assets/webm/睡觉-循环.webm",
+      "file": "assets/whale-maid/sleep.webm",
+      "bytes": 237002,
+      "sha256": "b49deb9b8dae4b83f84b6dc49efd41fdb654b05ad08ac6c5083977e17ef1122c",
+      "source": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/2265f24a941e6d6736d8a069cc06cf4216df4539/dsh-pet/assets/webm/%E7%9D%A1%E8%A7%89-%E5%BE%AA%E7%8E%AF.webm"
+    },
+    {
+      "name": "wake",
+      "originalPath": "dsh-pet/assets/webm/睡觉-起来.webm",
+      "file": "assets/whale-maid/wake.webm",
+      "bytes": 379582,
+      "sha256": "a2a4832e546e7639782b74f998d8a6ebc2ec3b3b933c0bcc709487fb4d19ab46",
+      "source": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/2265f24a941e6d6736d8a069cc06cf4216df4539/dsh-pet/assets/webm/%E7%9D%A1%E8%A7%89-%E8%B5%B7%E6%9D%A5.webm"
+    }
+  ]
+}

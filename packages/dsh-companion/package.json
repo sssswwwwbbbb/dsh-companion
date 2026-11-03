@@ -1,0 +1,67 @@
+{
+  "name": "dsh-plugin-companion",
+  "version": "0.1.0-dev.11",
+  "description": "DSH 陪伴：激活授权、配置包、启动动画与 Mac 桌宠完整流程验证版",
+  "type": "module",
+  "engines": {
+    "dsh": "0.2.1-rc.5"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-typert-protocol": "*",
+    "@deepseek-ai/dsh-http-proxy": "0.2.1-rc.5"
+  },
+  "dependencies": {
+    "undici": "8.11.2"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "src/*.mjs",
+    "config",
+    "packs",
+    "bin",
+    "runtime-bundles",
+    "locale",
+    "icon.svg",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar",
+        "@deepseek-ai/dsh-api-remotes",
+        "@deepseek-ai/dsh-client-ui-plugin-manager"
+      ]
+    }
+  },
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public",
+    "tag": "latest"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "desktop-pet",
+    "startup-animation"
+  ]
+}

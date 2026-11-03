@@ -1,0 +1,326 @@
+{
+  "reviewDate": "2026-11-03",
+  "timezone": "Asia/Shanghai",
+  "scope": "Read-only source research; README, metadata, license notices and selected core implementation sections; no install, code execution, deployment or real DSH acceptance.",
+  "aliases": [
+    {
+      "provided": [
+        "zouyuxuan122/Deepseek-Harness-EAC",
+        "DSH-EAC/DSH-Desktop-EAC"
+      ],
+      "resolved": "Ebony-Vinyl/EAC-Desktop",
+      "repositoryId": 1334373503
+    },
+    {
+      "provided": [
+        "DSH-EAC/dsh-ui-skin-loader"
+      ],
+      "resolved": "Ebony-Vinyl/EAC-skin-loader",
+      "repositoryId": 1387401606
+    }
+  ],
+  "repositories": [
+    {
+      "repo": "lxj5820/dsh-boot-animation",
+      "commit": "b7786cd749ef18608340a8f5e2071a3656ebf009",
+      "allReadFilesMatchPinnedTree": true,
+      "reviewedFiles": [
+        {
+          "path": "README.md",
+          "blobSha": "1865f4df70e92efeb18be4d7484c1c13527c500a",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/lxj5820/dsh-boot-animation/blob/b7786cd749ef18608340a8f5e2071a3656ebf009/README.md"
+        },
+        {
+          "path": "entry.js",
+          "blobSha": "8714a38a0eaa2921847c361704f65d2e82b1a4c9",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/lxj5820/dsh-boot-animation/blob/b7786cd749ef18608340a8f5e2071a3656ebf009/entry.js"
+        },
+        {
+          "path": "src/boot-screen.js",
+          "blobSha": "d87181251eec627ae26cefa87637bfc9fd3a531b",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/lxj5820/dsh-boot-animation/blob/b7786cd749ef18608340a8f5e2071a3656ebf009/src/boot-screen.js"
+        },
+        {
+          "path": "src/renderers.js",
+          "blobSha": "9bf30383ad67d3570ede82473a090f5a283a5703",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/lxj5820/dsh-boot-animation/blob/b7786cd749ef18608340a8f5e2071a3656ebf009/src/renderers.js"
+        },
+        {
+          "path": "LICENSE",
+          "blobSha": "55e48ceabaaaa72810a4b2d03287378ff1d05583",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/lxj5820/dsh-boot-animation/blob/b7786cd749ef18608340a8f5e2071a3656ebf009/LICENSE"
+        },
+        {
+          "path": "package.json",
+          "blobSha": "5b2282c486ace5f769cfd7b6fba6ea14d64d7d0d",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/lxj5820/dsh-boot-animation/blob/b7786cd749ef18608340a8f5e2071a3656ebf009/package.json"
+        }
+      ]
+    },
+    {
+      "repo": "elysia395/dsh-wallpaper-engine",
+      "commit": "9aeaf5d1484466f7d677a0bc45d2037fc7582394",
+      "allReadFilesMatchPinnedTree": true,
+      "reviewedFiles": [
+        {
+          "path": "README.md",
+          "blobSha": "77f516b89e6e1ea2862dd929673874df5a2b46bb",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/elysia395/dsh-wallpaper-engine/blob/9aeaf5d1484466f7d677a0bc45d2037fc7582394/README.md"
+        },
+        {
+          "path": "src/adapter.js",
+          "blobSha": "ed61f538c745195e388939176923d4b5d6823ed4",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/elysia395/dsh-wallpaper-engine/blob/9aeaf5d1484466f7d677a0bc45d2037fc7582394/src/adapter.js"
+        },
+        {
+          "path": "src/preset-store.js",
+          "blobSha": "6405db488f1b8dd9fe949a3dda9ad7798de5f1a3",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/elysia395/dsh-wallpaper-engine/blob/9aeaf5d1484466f7d677a0bc45d2037fc7582394/src/preset-store.js"
+        },
+        {
+          "path": "packages/glass/src/client.js",
+          "blobSha": "f9cd6ce2ee8f45d64ec1ae23bf2b62d79ec65531",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/elysia395/dsh-wallpaper-engine/blob/9aeaf5d1484466f7d677a0bc45d2037fc7582394/packages/glass/src/client.js"
+        },
+        {
+          "path": "docs/HOW-IT-WORKS.md",
+          "blobSha": "e836b137325925bddb45b3687f6c0d5f07748aeb",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/elysia395/dsh-wallpaper-engine/blob/9aeaf5d1484466f7d677a0bc45d2037fc7582394/docs/HOW-IT-WORKS.md"
+        },
+        {
+          "path": "LICENSE",
+          "blobSha": "96c583d694da61afddc43c0280aa4a4b46137eb2",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/elysia395/dsh-wallpaper-engine/blob/9aeaf5d1484466f7d677a0bc45d2037fc7582394/LICENSE"
+        },
+        {
+          "path": "package.json",
+          "blobSha": "0726816961ae47b1e6606d1af4d57d61dc8df3a7",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/elysia395/dsh-wallpaper-engine/blob/9aeaf5d1484466f7d677a0bc45d2037fc7582394/package.json"
+        }
+      ]
+    },
+    {
+      "repo": "zhang66633/dsh-pixel-ui",
+      "commit": "ebbbec1ae661a69a9b85b00a2a53234219ad62a6",
+      "allReadFilesMatchPinnedTree": true,
+      "reviewedFiles": [
+        {
+          "path": "README.md",
+          "blobSha": "e6336879187e3416eee971e7989cf272779edef0",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/zhang66633/dsh-pixel-ui/blob/ebbbec1ae661a69a9b85b00a2a53234219ad62a6/README.md"
+        },
+        {
+          "path": "src/client/index.js",
+          "blobSha": "ba251f53f87a56b3d034c21ea85bc14917905add",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/zhang66633/dsh-pixel-ui/blob/ebbbec1ae661a69a9b85b00a2a53234219ad62a6/src/client/index.js"
+        },
+        {
+          "path": "lib/index.js",
+          "blobSha": "0a58217f8c7c37cbbc5ce91367256ab34eaab47e",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/zhang66633/dsh-pixel-ui/blob/ebbbec1ae661a69a9b85b00a2a53234219ad62a6/lib/index.js"
+        },
+        {
+          "path": "src/client/pixel.css",
+          "blobSha": "eb826f28672edb647f3a007538020d9aa0b6ea7e",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/zhang66633/dsh-pixel-ui/blob/ebbbec1ae661a69a9b85b00a2a53234219ad62a6/src/client/pixel.css"
+        },
+        {
+          "path": "LICENSE",
+          "blobSha": "1de61c98e7379a894ba05059d6224d93b570b1ee",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/zhang66633/dsh-pixel-ui/blob/ebbbec1ae661a69a9b85b00a2a53234219ad62a6/LICENSE"
+        },
+        {
+          "path": "package.json",
+          "blobSha": "ea5c3f792b45fbe982bc3a7e14eb8d81be21c1ad",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/zhang66633/dsh-pixel-ui/blob/ebbbec1ae661a69a9b85b00a2a53234219ad62a6/package.json"
+        }
+      ]
+    },
+    {
+      "repo": "LeeRolling/da-feiyu-player",
+      "commit": "b2642c160d20a1957bbecce65cd10e649cb64af3",
+      "allReadFilesMatchPinnedTree": true,
+      "reviewedFiles": [
+        {
+          "path": "README.md",
+          "blobSha": "7967bd077231d0b05b40cfe54ccc8153520aa766",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/LeeRolling/da-feiyu-player/blob/b2642c160d20a1957bbecce65cd10e649cb64af3/README.md"
+        },
+        {
+          "path": "index.html",
+          "blobSha": "308b771bfdbd7d2e45d7c025cd32807f3b8d7c3c",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/LeeRolling/da-feiyu-player/blob/b2642c160d20a1957bbecce65cd10e649cb64af3/index.html"
+        },
+        {
+          "path": "LICENSE",
+          "blobSha": "da6ab6cc8f333d7e89a99812866df8f24374d47c",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/LeeRolling/da-feiyu-player/blob/b2642c160d20a1957bbecce65cd10e649cb64af3/LICENSE"
+        }
+      ]
+    },
+    {
+      "repo": "Ebony-Vinyl/EAC-Desktop",
+      "commit": "f97635e89ff9f41af11fe51614c5613a684a1f1d",
+      "allReadFilesMatchPinnedTree": true,
+      "reviewedFiles": [
+        {
+          "path": "README.md",
+          "blobSha": "acec791d9f3112b85d43f0ecfcb1dc25f162c937",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/Ebony-Vinyl/EAC-Desktop/blob/f97635e89ff9f41af11fe51614c5613a684a1f1d/README.md"
+        },
+        {
+          "path": "tauri-shell/host-profile.json",
+          "blobSha": "e264ddae4585525b0e441c8b8d55e92a22d56a01",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/Ebony-Vinyl/EAC-Desktop/blob/f97635e89ff9f41af11fe51614c5613a684a1f1d/tauri-shell/host-profile.json"
+        },
+        {
+          "path": "tauri-shell/skin-manager-artifact.lock.json",
+          "blobSha": "fab3ae5130d9470ef2d87bb746955f09a77f3a8b",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/Ebony-Vinyl/EAC-Desktop/blob/f97635e89ff9f41af11fe51614c5613a684a1f1d/tauri-shell/skin-manager-artifact.lock.json"
+        },
+        {
+          "path": "docs/adr/0010-ui-skin-manager-integration.md",
+          "blobSha": "c87791a41ec3994aad271464a1fb957d16fc4f76",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/Ebony-Vinyl/EAC-Desktop/blob/f97635e89ff9f41af11fe51614c5613a684a1f1d/docs/adr/0010-ui-skin-manager-integration.md"
+        },
+        {
+          "path": "LICENSE",
+          "blobSha": "0d5e2a61dc66dd531b7894bcd038599c5b723888",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/Ebony-Vinyl/EAC-Desktop/blob/f97635e89ff9f41af11fe51614c5613a684a1f1d/LICENSE"
+        },
+        {
+          "path": "dsh-desktop/package.json",
+          "blobSha": "621324936e33bfbc2e0cd890695aa033df0a5db0",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/Ebony-Vinyl/EAC-Desktop/blob/f97635e89ff9f41af11fe51614c5613a684a1f1d/dsh-desktop/package.json"
+        }
+      ]
+    },
+    {
+      "repo": "Ebony-Vinyl/EAC-skin-loader",
+      "commit": "43e9236c162332058754c7e84dc76aefa8ac40b7",
+      "allReadFilesMatchPinnedTree": true,
+      "reviewedFiles": [
+        {
+          "path": "README.md",
+          "blobSha": "0b30342d905bdb5b20bce5a92c0804526ba7dc74",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/Ebony-Vinyl/EAC-skin-loader/blob/43e9236c162332058754c7e84dc76aefa8ac40b7/README.md"
+        },
+        {
+          "path": "packages/loader/src/protocol.ts",
+          "blobSha": "d70d7621b0c6316e0016d90183b0ad2a52d6b1c6",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/Ebony-Vinyl/EAC-skin-loader/blob/43e9236c162332058754c7e84dc76aefa8ac40b7/packages/loader/src/protocol.ts"
+        },
+        {
+          "path": "packages/loader/src/client/runtime/runtime.ts",
+          "blobSha": "7f87a9ab83f54353c24915926ff5f2df3f37f8b2",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/Ebony-Vinyl/EAC-skin-loader/blob/43e9236c162332058754c7e84dc76aefa8ac40b7/packages/loader/src/client/runtime/runtime.ts"
+        },
+        {
+          "path": "packages/loader/src/adapter/dsh-0.1.7.ts",
+          "blobSha": "9c34051b01a78a380598b8903dc6cbf59a6fe971",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/Ebony-Vinyl/EAC-skin-loader/blob/43e9236c162332058754c7e84dc76aefa8ac40b7/packages/loader/src/adapter/dsh-0.1.7.ts"
+        },
+        {
+          "path": "packages/skins/aurora/src/client/session.ts",
+          "blobSha": "3a6f465425fb76db130b5f570d85878d23baefa3",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/Ebony-Vinyl/EAC-skin-loader/blob/43e9236c162332058754c7e84dc76aefa8ac40b7/packages/skins/aurora/src/client/session.ts"
+        },
+        {
+          "path": "LICENSE",
+          "blobSha": "489ed55a9458c70e0733431ad16d4293181a9523",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/Ebony-Vinyl/EAC-skin-loader/blob/43e9236c162332058754c7e84dc76aefa8ac40b7/LICENSE"
+        },
+        {
+          "path": "packages/loader/package.json",
+          "blobSha": "dcfec17fd6d0f3486ad7cf495a428a1e4f9b8320",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/Ebony-Vinyl/EAC-skin-loader/blob/43e9236c162332058754c7e84dc76aefa8ac40b7/packages/loader/package.json"
+        }
+      ]
+    },
+    {
+      "repo": "kingOfSoySauce/dsh-skin-market",
+      "commit": "6f5fb3bbc87d5ee6086a57afdf21cd3af8d993e0",
+      "allReadFilesMatchPinnedTree": true,
+      "reviewedFiles": [
+        {
+          "path": "README.md",
+          "blobSha": "bbf296271fc930e04ddc55729d85b0f69a2e2304",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/kingOfSoySauce/dsh-skin-market/blob/6f5fb3bbc87d5ee6086a57afdf21cd3af8d993e0/README.md"
+        },
+        {
+          "path": "src/index.ts",
+          "blobSha": "8cabc7d55e2f91667cff72217a31ab4d623b864e",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/kingOfSoySauce/dsh-skin-market/blob/6f5fb3bbc87d5ee6086a57afdf21cd3af8d993e0/src/index.ts"
+        },
+        {
+          "path": "src/loader-ownership.ts",
+          "blobSha": "3445050b3bd1019293743588a72d72d760164311",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/kingOfSoySauce/dsh-skin-market/blob/6f5fb3bbc87d5ee6086a57afdf21cd3af8d993e0/src/loader-ownership.ts"
+        },
+        {
+          "path": "src/official-desktop.ts",
+          "blobSha": "4604c9bb7f474a5c2e0f7be425734d8d997c3895",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/kingOfSoySauce/dsh-skin-market/blob/6f5fb3bbc87d5ee6086a57afdf21cd3af8d993e0/src/official-desktop.ts"
+        },
+        {
+          "path": "src/lifecycle.ts",
+          "blobSha": "1cdd8dc89ca1d52c741d629daed7dc741e9d0704",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/kingOfSoySauce/dsh-skin-market/blob/6f5fb3bbc87d5ee6086a57afdf21cd3af8d993e0/src/lifecycle.ts"
+        },
+        {
+          "path": "LICENSE",
+          "blobSha": "fb9e178ace191538cc96a0aa0a2e14b3dccb0f60",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/kingOfSoySauce/dsh-skin-market/blob/6f5fb3bbc87d5ee6086a57afdf21cd3af8d993e0/LICENSE"
+        },
+        {
+          "path": "package.json",
+          "blobSha": "aa1f31fd801dad886accebbd957b290ee2189aef",
+          "matchesPinnedTree": true,
+          "url": "https://github.com/kingOfSoySauce/dsh-skin-market/blob/6f5fb3bbc87d5ee6086a57afdf21cd3af8d993e0/package.json"
+        }
+      ]
+    }
+  ]
+}
+

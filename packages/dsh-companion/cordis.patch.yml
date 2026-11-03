@@ -1,0 +1,4 @@
+- insert:
+    - id: local-dsh-companion
+      name: 'dsh-plugin-companion'
+      config: {}

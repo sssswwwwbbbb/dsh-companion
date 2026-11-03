@@ -1,0 +1,23 @@
+{
+  "type": "design",
+  "designSystems": [],
+  "primaryDesignSystem": null,
+  "assets": {
+    "轻量分发管理后台": {
+      "versions": [
+        {
+          "path": "build/index.html",
+          "createdAt": "2026-11-03T02:50:09.741Z",
+          "status": "needs-review",
+          "subtitle": "在线安装链接与永久授权管理",
+          "viewport": {
+            "width": 1200,
+            "height": 800
+          }
+        }
+      ]
+    }
+  },
+  "createdAt": "2026-11-03T02:50:09.744Z",
+  "updatedAt": "2026-11-03T06:07:13.312Z"
+}

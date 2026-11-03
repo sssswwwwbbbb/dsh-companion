@@ -1,0 +1,28 @@
+.cache/
+.local/
+dist/
+node_modules/
+**/node_modules/
+*.log
+**/bridge.json
+**/bridge.json.*
+**/.DS_Store
+packages/dsh-companion/runtime/
+packages/dsh-companion/runtime-bundles/
+packages/dsh-companion/bin/
+
+# Generated admin build and local verification records
+designs/dsh-companion-admin/build/
+/reports/
+__pycache__/
+*.py[cod]
+
+# Local environment configuration and private key material
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.p12
+*.pfx

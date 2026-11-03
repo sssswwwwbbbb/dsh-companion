@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-02",
+  "scope": "Local browser character and behavior prototype; not native desktop or DSH acceptance",
+  "behaviorTests": { "command": "node --test designs/dsh-companion-v1/tests/behavior.test.mjs", "passed": 5, "failed": 0 },
+  "browser": {
+    "engine": "Codex in-app Chromium browser",
+    "checks": [
+      "12 of 12 local 640x360 transparent WebM clips reached loaded frame state; no media errors",
+      "Feeding selected eat animation, updated energy and displayed the feeding response",
+      "Sleep entry transitioned to sleep loop; separate wake action exists",
+      "Profile and size controls updated live and survived a reload",
+      "Exported configuration was downloaded and its role, profile and size read back",
+      "Pointer press, move and release through CDP exercised actual drag capture and landed inside the scene",
+      "Opening animation inspected at 1.6 seconds and completed its fade back to the scene",
+      "Final default state restored to free profile, 100 percent scale, autonomous behavior enabled",
+      "Final viewport and document both 1218x760, without page overflow",
+      "No captured browser console warnings or errors"
+    ],
+    "screenshots": ["../../preview-desktop.jpg", "../../preview-intro.jpg"]
+  },
+  "notVerified": ["Mac native desktop window", "Windows native desktop window", "DSH installation and integration", "activation-code service", "desktop startup patch", "packaging, signing and updates"]
+}

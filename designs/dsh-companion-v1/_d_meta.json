@@ -1,0 +1,23 @@
+{
+  "type": "design",
+  "designSystems": [],
+  "primaryDesignSystem": null,
+  "assets": {
+    "DSH 陪伴 · 大肥鱼": {
+      "versions": [
+        {
+          "path": "index.html",
+          "createdAt": "2026-11-02T06:17:25.827Z",
+          "status": "needs-review",
+          "subtitle": "Mac 与 Windows 共用角色效果样机；12 段动画与自主行为",
+          "viewport": {
+            "width": 1218,
+            "height": 760
+          }
+        }
+      ]
+    }
+  },
+  "createdAt": "2026-11-02T06:17:25.831Z",
+  "updatedAt": "2026-11-02T06:29:05.882Z"
+}

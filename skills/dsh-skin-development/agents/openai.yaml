@@ -1,0 +1,4 @@
+interface:
+  display_name: "DSH 整套皮肤开发"
+  short_description: "为 DSH 制作整套皮肤，统一界面主题、启动动画、桌宠、素材与版本验收"
+  default_prompt: "使用 $dsh-skin-development 为 DSH 开发一整套皮肤，先确认风格、覆盖范围与素材，再按流程完成适配和验收。"

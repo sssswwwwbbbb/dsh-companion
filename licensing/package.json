@@ -1,0 +1,19 @@
+{
+  "name": "dsh-companion-private-service",
+  "version": "0.2.0-console.1",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.12" },
+  "overrides": {"@fastify/static": {"glob": "14.0.3"}},
+  "dependencies": {
+    "@fastify/csrf-protection": "8.0.2",
+    "@fastify/helmet": "13.2.0",
+    "@fastify/rate-limit": "11.2.2",
+    "@fastify/secure-session": "8.4.2",
+    "@fastify/static": "10.1.8",
+    "@node-rs/argon2": "2.2.2",
+    "csv-stringify": "6.9.0",
+    "fastify": "5.12.8",
+    "jose": "6.2.15"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "rolePack": "whale-maid-demo",
+  "profile": "lively",
+  "size": 105,
+  "autonomous": false,
+  "followMouse": false,
+  "sourceRevision": "2265f24a941e6d6736d8a069cc06cf4216df4539"
+}

@@ -1,0 +1,6 @@
+const video=document.querySelector('#character'),greeting=document.querySelector('#greeting'),subtitle=document.querySelector('#subtitle'),progress=document.querySelector('#progress'),status=document.querySelector('#status'),skip=document.querySelector('#skip'),open=document.querySelector('#open');
+let currentPack;
+async function applyPack(id){if(id===currentPack)return;currentPack=id;const pack=await fetch('/selected-pack.json').then(r=>r.json());document.body.classList.toggle('night',pack.startup.theme==='night');greeting.textContent=pack.startup.greeting;subtitle.textContent=pack.startup.subtitle;video.src='/'+pack.animations[pack.startup.animation].file;video.play().catch(()=>{});}
+window.companion.onIntroState(state=>{void applyPack(state.packId);const percent=Math.min(state.hostReady?1:.94,state.elapsed/state.pack.seconds);progress.style.width=Math.round(percent*100)+'%';status.textContent=state.errorCode?'DSH 启动较慢，可以直接打开 DSH 查看。':state.hostReady?'DSH 已就绪，马上见。':'正在打开 DSH…';skip.disabled=!state.hostReady;open.hidden=!state.errorCode;});
+skip.addEventListener('click',()=>window.companion.introControl('skip'));open.addEventListener('click',()=>window.companion.introControl('open-dsh'));
+const initial=await fetch('/selected-pack.json').then(r=>r.json());await applyPack(initial.id);window.companion.introReady();

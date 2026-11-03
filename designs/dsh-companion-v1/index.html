@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>DSH 陪伴 · 大肥鱼角色样机</title>
+  <!-- Context: Mac/Windows DSH companion. This is a browser interaction preview,
+       using attributed non-commercial community art, not an installed DSH plugin.
+       DSH's blue/neutral controls frame a quiet, spacious desktop pet playground. -->
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.mjs"></script>
+</head>
+<body>
+  <div class="app-shell" data-screen-label="DSH 大肥鱼角色效果样机">
+    <header class="app-header">
+      <a class="brand" href="./" aria-label="DSH 陪伴首页"><span class="brand-mark" aria-hidden="true">D<span>·</span></span><span>DSH <b>陪伴</b></span></a>
+      <div class="header-divider"></div><span class="header-caption">角色效果样机</span>
+      <span class="build-tag">MAC + WINDOWS · V1 预览</span>
+      <button class="icon-text" id="about-button" type="button">素材与说明 <span aria-hidden="true">↗</span></button>
+    </header>
+
+    <main class="workspace">
+      <aside class="control-panel" aria-label="角色和行为设置">
+        <div class="section-kicker">当前角色包 <span class="version">01</span></div>
+        <div class="character-portrait"><div class="portrait-halo"></div><img src="assets/whale-maid/idle-preview.gif" alt="蓝发鲸尾的 Q 版女仆大肥鱼" draggable="false"><span class="portrait-caption">鲸鱼娘 · 社区角色</span></div>
+        <div class="character-title"><h1>大肥鱼</h1><span class="role-label">蓝色小女仆</span></div>
+        <p class="character-description">蓝发、鲸尾，还有一点贪吃的小心思。</p>
+        <div class="companion-status"><span class="status-dot"></span><span id="status-label">在你身边</span><span class="local-label">本地行为</span></div>
+
+        <section class="settings-section" aria-labelledby="profile-heading">
+          <h2 id="profile-heading">相处模式</h2>
+          <label class="sr-only" for="profile-select">相处模式</label>
+          <select id="profile-select"><option value="free">自在漫游</option><option value="gentle">安静陪伴</option><option value="lively">活力满格</option></select>
+          <p class="field-help" id="profile-description">走走停停，偶尔给自己找点乐子。</p>
+          <label class="switch-row"><span>自主活动</span><input id="autonomous-toggle" type="checkbox" role="switch" checked><span class="switch-track" aria-hidden="true"></span></label>
+          <label class="switch-row"><span>跟随鼠标</span><input id="follow-toggle" type="checkbox" role="switch"><span class="switch-track" aria-hidden="true"></span></label>
+          <label class="range-label" for="size-range"><span>桌宠大小</span><output id="size-output">100%</output></label>
+          <input id="size-range" type="range" min="70" max="140" step="5" value="100">
+        </section>
+
+        <section class="settings-section" aria-labelledby="actions-heading">
+          <h2 id="actions-heading">陪她玩一会儿</h2>
+          <div class="action-grid">
+            <button type="button" class="action-button" data-action="react"><span aria-hidden="true">♡</span>摸摸头</button>
+            <button type="button" class="action-button" data-action="eat"><span aria-hidden="true">♧</span>喂白饭</button>
+            <button type="button" class="action-button" data-action="play"><span aria-hidden="true">♩</span>撸猫时间</button>
+            <button type="button" class="action-button" data-action="stretch"><span aria-hidden="true">↟</span>伸懒腰</button>
+            <button type="button" class="action-button" data-action="sleep-in"><span aria-hidden="true">☾</span>睡一会儿</button>
+            <button type="button" class="action-button" data-action="wake"><span aria-hidden="true">☼</span>叫她起床</button>
+          </div>
+        </section>
+        <button class="export-button" id="export-button" type="button">导出当前配置 <span aria-hidden="true">↓</span></button>
+        <p class="panel-footnote">一个角色包，统一管理开场与桌宠。</p>
+      </aside>
+
+      <section class="preview-column" aria-label="桌面互动预览">
+        <header class="preview-header"><div><div class="section-kicker">DESKTOP COMPANION</div><h2>让她在你身边，<span>自在一点。</span></h2></div><button class="primary-button" id="intro-button" type="button"><span aria-hidden="true">▷</span> 重播开场</button></header>
+        <div class="desktop-frame">
+          <div class="desktop-toolbar"><span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>桌面效果预览</span><div class="toolbar-actions"><button id="reset-button" type="button" title="回到原位" aria-label="回到原位">↺</button><button id="fullscreen-button" type="button" title="全屏预览" aria-label="全屏预览">⛶</button></div></div>
+          <div class="desktop" id="desktop">
+            <div class="desktop-art" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="desktop-greeting"><span class="desktop-eyebrow">A LITTLE COMPANY.</span><p>忙你的，<br>我在旁边陪你。</p></div>
+            <div class="interaction-hint" id="interaction-hint">拖动她试试 <span>·</span> 点击摸头 <span>·</span> 双击喂饭</div>
+            <div class="world" id="world">
+              <div class="pet" id="pet" tabindex="0" role="button" aria-label="大肥鱼，点击摸头、双击喂饭，也可以拖动" data-state="idle">
+                <div class="pet-bubble" id="pet-bubble" role="status" aria-live="polite">嗯？你叫我？</div>
+                <div class="pet-art" id="pet-art"><div class="pet-shadow"></div><div class="video-stack" id="video-stack"></div><span class="pet-hearts" id="pet-hearts" aria-hidden="true">♡</span></div>
+              </div>
+            </div>
+            <div class="intro" id="intro" hidden>
+              <div class="intro-beam beam-one"></div><div class="intro-beam beam-two"></div><div class="intro-orbit"></div><div class="intro-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              <span class="intro-brand">DSH <b>COMPANION</b></span><video id="intro-video" src="assets/whale-maid/greet.webm" muted playsinline preload="auto"></video>
+              <div class="intro-copy"><p>欢迎回来。</p><span>今天也一起，慢慢把事情做好。</span></div>
+              <button id="skip-intro" type="button">跳过 <kbd>Esc</kbd></button><div class="intro-progress"></div>
+            </div>
+            <div class="desktop-taskbar"><div class="taskbar-center"><span class="windows-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="taskbar-search">⌕ <span>搜索</span></span><span class="taskbar-app" aria-hidden="true">D<span></span></span><span class="taskbar-pet" aria-hidden="true">♡</span></div><div class="taskbar-clock"><time id="desktop-clock">14:00</time><span>2026/11/02</span></div></div>
+          </div>
+        </div>
+        <div class="preview-bottom"><div class="now-playing"><span class="status-dot"></span><span id="now-playing">安静陪伴</span><span class="now-mode" id="now-mode">自主活动中</span></div><button class="pause-button" id="pause-button" type="button" aria-pressed="false">Ⅱ 暂停活动</button></div>
+        <div class="behavior-footer"><div class="state-pills"><span>精力 <b id="energy-value">82</b></span><span>亲近 <b id="affection-value">68</b></span></div><p id="decision-text">见到你啦，先在旁边待一会儿。</p></div>
+        <div class="page-note">当前展示浏览器内的角色互动效果。Mac、Windows 桌面运行与 DSH 接入将在后续分别验证。</div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="about-dialog"><form method="dialog"><button class="dialog-close" aria-label="关闭说明">×</button></form><span class="section-kicker">ABOUT THIS PREVIEW</span><h2>大肥鱼角色效果样机</h2><p>首轮使用社区公开角色，验证动作表现、自由走动、拖拽落地与配置切换。本样机没有接入模型、激活服务或 DSH，也不会修改 DSH 程序。</p><h3>素材署名</h3><p>动画素材：PC2005-cloud / dsh-pet。形象原型「溟月」：上善无形；DeepSeek 女仆鲸鱼娘设计：ZipZipPipe。</p><p>素材按上游非商业要求及 CC BY-NC-SA 4.0 使用；来源、版本及每个文件的校验记录随样机保留。激活码仅为后续产品方案，本样机未对公开素材添加授权锁。</p><p><a href="https://github.com/PC2005-cloud/dsh-pet" target="_blank" rel="noopener">查看素材项目 ↗</a> <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans" target="_blank" rel="noopener">查看素材许可 ↗</a></p><p class="dialog-note">同一角色包包含 12 段选用动画。开场是本地编排的展示效果，未使用参考视频的画面或音乐。</p></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

@@ -1,0 +1,140 @@
+import { spawn, execFile } from 'node:child_process';
+import { readFileSync, existsSync, mkdirSync, lstatSync, mkdtempSync, renameSync, rmSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { createHash } from 'node:crypto';
+import { homedir } from 'node:os';
+import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
+import { Entitlement } from './entitlement.mjs';
+import { PackStore } from './packs.mjs';
+import { Integration, profileGate } from './integration.mjs';
+import { readJson, writeJson } from './storage.mjs';
+import { validatedSettings, defaults } from './settings.mjs';
+import { hostWindowBounds } from './host-window.mjs';
+
+const packageRoot=dirname(dirname(fileURLToPath(import.meta.url)));
+const metadata=JSON.parse(readFileSync(join(packageRoot,'package.json')));
+const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const execute=promisify(execFile);
+export const alive=pid=>{try{process.kill(pid,0);return true;}catch{return false;}};
+export function childEnvironment(source,extra){
+  const allowed=['HOME','USER','LOGNAME','TMPDIR','PATH','LANG','LC_ALL','SystemRoot','WINDIR','USERPROFILE','APPDATA','LOCALAPPDATA','DISPLAY','WAYLAND_DISPLAY','XDG_RUNTIME_DIR'];
+  return {...Object.fromEntries(allowed.filter(key=>source[key]!==undefined).map(key=>[key,source[key]])),...extra};
+}
+export class CompanionController {
+  constructor({profileDir=process.cwd(),stateDir,dshVersion='unknown',config,deviceId,launcherDirectory,fetcher}={}){
+    this.profileDir=profileDir;this.dshVersion=dshVersion;
+    this.stateDir=stateDir||join(process.env.DSH_HOME||join(homedir(),'.dsh'),'companion',createHash('sha256').update(profileDir).digest('hex').slice(0,16));
+    mkdirSync(this.stateDir,{recursive:true,mode:0o700});
+    this.bridgePath=join(this.stateDir,'bridge.json');this.settingsFile=join(this.stateDir,'settings.json');
+    this.config=config||readJson(join(packageRoot,'config/service.json'));
+    this.entitlement=new Entitlement({stateDir:this.stateDir,config:this.config,...(deviceId?{deviceId}:{}),...(fetcher?{fetcher}:{})});
+    this.packs=new PackStore(join(packageRoot,'packs'),this.stateDir);
+    this.integration=new Integration({stateDir:this.stateDir,profileDir,packageRoot,launcherDirectory});
+    this.phase='stopped';this.child=undefined;this.pending=undefined;this.disposed=false;
+    this.build=Number(metadata.version.match(/dev\.(\d+)/)?.[1]||1);
+  }
+  credentials(){
+    try{const file=lstatSync(this.bridgePath);if(!file.isFile()||file.isSymbolicLink()||process.platform!=='win32'&&(file.mode&0o077)!==0)return;
+      const value=JSON.parse(readFileSync(this.bridgePath,'utf8'));if(!Number.isInteger(value.pid)||value.pid<1||!alive(value.pid)||!Number.isInteger(value.port)||value.port<1||value.port>65535||!/^[a-f0-9]{64}$/.test(value.token||''))return;return value;
+    }catch{return;}
+  }
+  async request(route,body){
+    const bridge=this.credentials();if(!bridge)throw new Error('DESKTOP_NOT_RUNNING');
+    const response=await fetch('http://127.0.0.1:'+bridge.port+route,{method:body===undefined?'GET':'POST',headers:{Authorization:'Bearer '+bridge.token,'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)}),signal:AbortSignal.timeout(3000)});
+    const value=await response.json();if(!response.ok)throw new Error(/^[A-Z_]+$/.test(value.error||'')?value.error:'DESKTOP_REQUEST_FAILED');return value;
+  }
+  settings(){return validatedSettings(readJson(this.settingsFile,{}).settings||{},defaults);}
+  async nativeStatus(){try{return await this.request('/status');}catch{return {running:false,ready:false,phase:this.phase,errorCode:this.errorCode||null};}}
+  async status(){
+    const native=await this.nativeStatus(), license=this.entitlement.status(), settings=native.settings||this.settings();
+    const update=readJson(join(this.stateDir,'update.json'),null), download=readJson(join(this.stateDir,'download.json'),null);
+    return JSON.parse(JSON.stringify({...native,version:metadata.version,desktopVersion:native.version||null,platform:process.platform,phase:!license.active?'locked':native.phase,settings,license,packs:this.packs.summaries(),selectedPack:settings.packId,launcher:this.integration.status(),compatibility:{dshVersion:this.dshVersion,supported:this.config.supportedDsh.includes(this.dshVersion),testedVersions:this.config.supportedDsh},update:update?{version:update.release.version,available:update.release.build>this.build,checkedAt:update.checkedAt}:null,download:download?{version:download.version,filename:download.file.split('/').pop(),verified:true}:null}));
+  }
+  async boot({playIntro=false}={}){
+    this.integration.record(this.dshVersion);
+    if(this.entitlement.status().active){await this.entitlement.refresh();if(this.entitlement.status().active){
+      const live=await this.nativeStatus();
+      if(live.running)await this.request('/attach',{ownerPid:process.pid,dshVersion:this.dshVersion});
+      if(this.settings().autoStart)await this.start({playIntro});
+      if(profileGate(this.profileDir).enabled&&this.settings().launcherEnabled)await this.installLauncher();
+    }else await this.stop();}else await this.stop();
+    this.heartbeat=setInterval(()=>{void this.maintain().catch(()=>{});},2000);this.heartbeat.unref?.();
+    return this.status();
+  }
+  async maintain(){
+    if(this.disposed||this.maintaining)return;this.maintaining=true;
+    try{
+      const license=await this.entitlement.refresh();const live=await this.nativeStatus();
+      if(!license.active&&live.running)await this.stop();
+      else if(license.active&&live.running&&live.needsHost)await this.request('/attach',{ownerPid:process.pid,dshVersion:this.dshVersion});
+    }finally{this.maintaining=false;}
+  }
+  async start({playIntro=false}={}){
+    if(this.disposed)throw new Error('PLUGIN_DISPOSED');this.entitlement.require();
+    if(!this.config.supportedDsh.includes(this.dshVersion))throw new Error('DSH_UNSUPPORTED_VERSION');
+    if(this.pending)return this.pending;this.pending=this.launch({playIntro}).finally(()=>{this.pending=undefined;});await this.pending;return this.status();
+  }
+  async executable(){
+    if(process.platform!=='darwin'||process.arch!=='arm64')throw new Error('DESKTOP_COMPONENT_MISSING');
+    const relative='DSHCompanion.app/Contents/MacOS/Electron',development=join(packageRoot,'runtime','darwin-arm64',relative);
+    if(existsSync(development))return development;
+    const directory=join(packageRoot,'runtime-bundles'),archive=join(directory,'DSHCompanion-darwin-arm64.zip');
+    const manifest=readJson(join(directory,'manifest.json'),null);
+    if(!manifest||manifest.platform!=='darwin-arm64'||!/^[a-f0-9]{64}$/.test(manifest.sha256||'')||!existsSync(archive))throw new Error('DESKTOP_COMPONENT_MISSING');
+    const cache=join(this.stateDir,'runtime'),destination=join(cache,manifest.sha256.slice(0,20)),executable=join(destination,relative);
+    if(existsSync(executable))return executable;
+    if(createHash('sha256').update(readFileSync(archive)).digest('hex')!==manifest.sha256)throw new Error('DESKTOP_ARCHIVE_INVALID');
+    mkdirSync(cache,{recursive:true,mode:0o700});const temporary=mkdtempSync(join(cache,'.extract-'));
+    try{await execute('/usr/bin/ditto',['-x','-k',archive,temporary],{env:childEnvironment(process.env,{}),timeout:30000});if(!existsSync(join(temporary,relative)))throw new Error();renameSync(temporary,destination);}
+    catch{rmSync(temporary,{recursive:true,force:true});throw new Error('DESKTOP_EXTRACT_FAILED');}return executable;
+  }
+  async launch({playIntro=false}={}){
+    let live=await this.nativeStatus();
+    if(live.running&&live.version!==metadata.version){await this.stop();live={running:false};}
+    if(live.running){await this.request('/attach',{ownerPid:process.pid,dshVersion:this.dshVersion});return live;}
+    this.phase='starting';this.errorCode=null;this.integration.record(this.dshVersion);
+    let executable;try{executable=await this.executable();}catch(error){this.phase='error';this.errorCode=error.message;throw error;}
+    if(this.disposed)throw new Error('PLUGIN_DISPOSED');
+    const child=spawn(executable,[],{env:childEnvironment(process.env,{DSH_COMPANION_STATE_DIR:this.stateDir,DSH_COMPANION_OWNER_PID:String(process.pid),DSH_COMPANION_MODE:'managed',DSH_COMPANION_PLAY_INTRO:playIntro?'1':'0'}),stdio:'ignore',windowsHide:true});this.child=child;
+    child.on('error',()=>{this.phase='error';this.errorCode='DESKTOP_LAUNCH_FAILED';});
+    child.on('exit',()=>{if(this.child===child){this.child=undefined;this.phase='stopped';}});
+    for(let i=0;i<100;i++){
+      if(this.disposed){await this.stop();throw new Error('PLUGIN_DISPOSED');}
+      const state=await this.nativeStatus();if(state.ready){this.phase=state.phase;return state;}if(this.errorCode)throw new Error(this.errorCode);await delay(150);
+    }
+    this.errorCode='DESKTOP_READY_TIMEOUT';await this.stop();throw new Error(this.errorCode);
+  }
+  async configure(value){
+    const next=validatedSettings(value,this.settings());this.packs.get(next.packId);
+    if((await this.nativeStatus()).running)await this.request('/settings',value);
+    else writeJson(this.settingsFile,{...readJson(this.settingsFile,{}),schemaVersion:1,settings:next});return this.status();
+  }
+  async selectPack(value){const pack=this.packs.get(value);return this.configure({packId:pack.id,...pack.defaults});}
+  async importPack(value){this.packs.import(value);return this.status();}
+  exportPack(value){return this.packs.export(value||this.settings().packId);}
+  async action(value){this.entitlement.require();await this.request('/action',{action:value});return this.status();}
+  async replayIntro(){this.entitlement.require();if(!(await this.nativeStatus()).running)await this.start();await this.request('/intro/replay',{});return this.status();}
+  async syncHostWindow(value){
+    const bounds=hostWindowBounds(value);if(!bounds)throw new Error('HOST_WINDOW_INVALID');
+    const file=join(this.stateDir,'host-window.json'),previous=readJson(file,null);
+    if(JSON.stringify(previous?.bounds)!==JSON.stringify(bounds))writeJson(file,{format:1,bounds,updatedAt:Date.now()});
+    if(this.credentials()&&this.entitlement.status().active)await this.request('/host-window',{bounds}).catch(()=>{});
+    return {saved:true};
+  }
+  async activate(value){await this.entitlement.activate(value);if(this.settings().autoStart)await this.start({playIntro:true});if(this.settings().launcherEnabled)await this.installLauncher();return this.status();}
+  async refreshLicense(){const value=await this.entitlement.refresh(true);if(!value.active)await this.stop();return this.status();}
+  async deactivate(){await this.entitlement.deactivate();await this.stop();return this.status();}
+  async installLauncher(){this.entitlement.require();this.integration.record(this.dshVersion);if(!this.settings().launcherEnabled)await this.configure({launcherEnabled:true});await this.integration.install(await this.executable());return this.status();}
+  async removeLauncher(){await this.configure({launcherEnabled:false});await this.integration.remove();return this.status();}
+  async revealLauncher(){if(!this.integration.status().installed)throw new Error('LAUNCHER_NOT_FOUND');await execute('/usr/bin/open',['-R',this.integration.appPath]);return this.status();}
+  async checkUpdate(){const update=await this.entitlement.latest({dshVersion:this.dshVersion,build:this.build});writeJson(join(this.stateDir,'update.json'),{...update,checkedAt:Date.now()});return this.status();}
+  async downloadUpdate(){await this.entitlement.download({dshVersion:this.dshVersion,build:this.build});return this.status();}
+  async revealDownload(){const value=readJson(join(this.stateDir,'download.json'),null);if(!value||!existsSync(value.file))throw new Error('DOWNLOAD_NOT_FOUND');await execute('/usr/bin/open',['-R',value.file]);return this.status();}
+  async stop(){
+    const bridge=this.credentials();if(bridge){try{await this.request('/shutdown',{});}catch{}}
+    for(let i=0;i<30&&bridge&&alive(bridge.pid);i++)await delay(100);
+    if(this.child&&this.child.exitCode===null)this.child.kill('SIGTERM');this.phase='stopped';return this.status();
+  }
+  async dispose(){this.disposed=true;clearInterval(this.heartbeat);await this.stop();if(!profileGate(this.profileDir).enabled)await this.integration.remove();}
+}
