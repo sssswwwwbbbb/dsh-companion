@@ -25,10 +25,15 @@ function system(){
  const m=manifest(),state={selected:{manifest:m,contentKey:'a'.repeat(64)},generation:1,stopped:false,pending:null,results:{pet:{status:'ready'}},disabled:{},overrides:{}};
  const core={state,generation:1,phase:'ready',pendingSelections:0,disposed:false,store:{hasStops:()=>false},view:()=>resolveSettings(m,state,available)};
  const page={active:true,client:{id:randomUUID()},available:()=>true};page.lastReady={clientId:page.client.id,generation:1,contentKey:state.selected.contentKey};
- const actions=[],native=new NativeWorkFeedback({snapshot:()=>state.stopped?null:{generation:core.generation,contentKey:state.selected.contentKey,...core.view()},act:action=>{actions.push(action);return action;}});
+ const actions=[];let playback;
+ const play=action=>{actions.push(action);return playback={action};};
+ const native=new NativeWorkFeedback({snapshot:()=>state.stopped?null:{generation:core.generation,contentKey:state.selected.contentKey,...core.view()},playReaction:()=>{
+  if(playback&&playback.action!=='idle')return null;
+  const reaction=play('react');return ()=>playback===reaction?play('idle').action:null;
+ }});
  const controller={credentials:()=>({}),request:async(_route,body)=>native.deliver(body)},skins={core,page,controller},work=new WorkFeedback(skins);
  const packet=(revision,state='completed',extra={})=>({clientId:page.client.id,work:{generation:1,contentKey:core.state.selected.contentKey,revision,bindingId:'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',sessionId:'session-a',seq:12,state,reducedMotion:false,...extra}});
- return {m,state,core,page,controller,work,native,actions,packet};
+ return {m,state,core,page,controller,work,native,actions,packet,play};
 }
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 test('current page echoes once; stale ownership, stop, action permission and reduced motion suppress actions',async()=>{
@@ -43,6 +48,20 @@ test('current page echoes once; stale ownership, stop, action permission and red
  delete s.state.overrides[s.m.id];s.work.accept(s.packet(7,'completed',{seq:23,reducedMotion:true}),{});await tick();assert.equal(s.native.reactions,1);
  s.state.disabled.pet=true;s.work.accept(s.packet(8,'completed',{seq:24}),{});await tick();assert.equal(s.native.reactions,1);
 });
+test('work status and completion leave independent pet actions alone',async()=>{
+ const s=system();s.play('walk');
+ s.work.accept(s.packet(1,'running'),{});await tick();
+ s.work.accept(s.packet(2,'attention'),{});await tick();
+ s.work.accept(s.packet(3,'completed'),{});await tick();
+ assert.deepEqual(s.actions,['walk']);
+ s.play('idle');
+ s.work.accept(s.packet(4,'completed',{seq:13}),{});await tick();
+ assert.equal(s.actions.at(-1),'react');
+ s.play('react'); // A manual reaction can use the same asset.
+ s.work.accept(s.packet(5,'running'),{});await tick();
+ assert.deepEqual(s.actions,['walk','idle','react','react']);
+ assert.equal(s.native.last.action,null);
+});
 test('late completion cannot overtake the newer binding cancellation at Native',async()=>{
  const s=system();let release;const wait=new Promise(r=>release=r);
  s.controller.request=async(_route,body)=>{if(body.state==='completed')await wait;return s.native.deliver(body);};
@@ -53,11 +72,11 @@ function store(value){const listeners=new Set();return {getSnapshot:()=>value,su
 function session(){const feed=store({entries:[],change:{kind:'replace',entries:[]}}),questions=store({active:[]}),inbox=store({'next-step':[],'next-turn':[]});return {eventSource:feed,questions,inbox,projections:{faceOf:key=>key==='userQuestions'?questions:inbox},append(type,seq,reason){const event={type,seq,data:{turn:1,...reason?{reason:{kind:reason}}:{}}},row={type:'durable',event};feed.set({entries:[...feed.getSnapshot().entries,row],change:{kind:'append',entries:[row]}});}};}
 test('observer uses live typed events, durable pending questions and current binding; history and disposed sources stay silent',()=>{
  const a=session(),b=session();a.append('turn/end',5,'completed');
- const current=store({key:'a',hooks:{session:a}}),status=store(new Map([['a',{running:false}]]));let slots=0;const packets=[];
- const dispose=installSessionFeedback({ctx:{get:()=>({adapter:{current},sessionStatus:status}),slots:{register(){slots++;return()=>slots--;}}},React:{createElement(){},useSyncExternalStore(){}},onChange:p=>packets.push(p)});
+ const current=store({key:'a',hooks:{session:a}}),status=store(new Map([['a',{running:false}]]));let slots=0,Feedback;const packets=[];
+ const dispose=installSessionFeedback({ctx:{get:()=>({adapter:{current},sessionStatus:status}),slots:{register(_slot,component){Feedback=component;slots++;return()=>slots--;}}},React:{createElement:(...args)=>args,useSyncExternalStore:(_subscribe,read)=>read()},onChange:p=>packets.push(p)});
  assert.equal(packets.some(p=>p.state==='completed'),false);
  a.append('turn/start',6);status.set(new Map([['a',{running:true}]]));a.append('turn/end',7,'error');assert.equal(packets.at(-1).state,'idle');
- a.append('turn/start',8);a.questions.set({active:[{callId:'q',state:'open'}]});status.set(new Map([['a',{running:true}]]));assert.equal(packets.at(-1).state,'attention');
+ a.append('turn/start',8);assert.ok(Feedback({sessionId:'a'}));assert.equal(Feedback({sessionId:'b'}),null);a.questions.set({active:[{callId:'q',state:'open'}]});status.set(new Map([['a',{running:true}]]));assert.equal(packets.at(-1).state,'attention');
  a.questions.set({active:[]});a.append('turn/end',9,'completed');assert.equal(packets.filter(p=>p.state==='completed').length,1);
  current.set({key:'b',hooks:{session:b}});const before=packets.length;a.append('turn/end',10,'completed');assert.equal(packets.length,before);
  b.append('turn/start',1);b.append('turn/end',2,'completed');assert.equal(packets.at(-1).sessionId,'b');

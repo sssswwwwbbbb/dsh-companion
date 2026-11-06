@@ -14,6 +14,7 @@ export class PetBehavior {
     this.vy = 0;
     this.facing = 1;
     this.action = 'idle';
+    this.actionRevision = 0;
     this.remaining = 4;
     this.target = this.x;
     this.energy = 82;
@@ -54,6 +55,7 @@ export class PetBehavior {
   perform(action, seconds = 5, message) {
     if (this.dragging || this.falling) return false;
     this.action = action;
+    this.actionRevision++;
     this.remaining = seconds;
     this.vx = 0;
     this.target = this.x;

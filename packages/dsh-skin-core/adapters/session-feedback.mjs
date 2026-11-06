@@ -4,7 +4,7 @@ export function installSessionFeedback({ctx,React,onChange}){
   const current=ui.adapter.current,status=ui.sessionStatus;
   const motion=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')||{matches:false,addEventListener(){},removeEventListener(){}};
   let active=true,session,id=null,bindingId=crypto.randomUUID(),lastSeq=-1,ended=false,phase='idle',completionSeq=-1,run=0,terminalReason=null;
-  let offSession=[],lastPacket='',snapshot={state:'idle',run:0};const listeners=new Set();
+  let offSession=[],lastPacket='',snapshot={state:'idle',run:0,sessionId:null};const listeners=new Set();
   const source={getSnapshot:()=>snapshot,subscribe:listener=>{listeners.add(listener);return()=>listeners.delete(listener);}};
   function attention(){
     if(!session||id===null)return false;
@@ -22,7 +22,7 @@ export function installSessionFeedback({ctx,React,onChange}){
     phase=next;if(next==='completed')completionSeq=seq;
     const packet={bindingId,sessionId:id,seq:next==='completed'?completionSeq:seq,state:next,reducedMotion:motion.matches};
     const key=JSON.stringify(packet);if(key===lastPacket)return;lastPacket=key;
-    snapshot={state:next,run};for(const listener of listeners)listener();onChange(packet,{reason:terminalReason});
+    snapshot={state:next,run,sessionId:id};for(const listener of listeners)listener();onChange(packet,{reason:terminalReason});
   }
   function refresh(){
     if(!active)return;
@@ -60,9 +60,9 @@ export function installSessionFeedback({ctx,React,onChange}){
   const offCurrent=current.subscribe(bind),offStatus=status.subscribe(refresh);bind();
   motion.addEventListener('change',refresh);
   const h=React.createElement;
-  const Feedback=()=>{
+  const Feedback=({sessionId})=>{
     const value=React.useSyncExternalStore(source.subscribe,source.getSnapshot);
-    if(value.state==='idle')return null;
+    if(!sessionId||value.sessionId!==sessionId||value.state==='idle')return null;
     const label=value.state==='attention'?'有事项需要处理':value.state==='completed'?'本轮回复完成':'正在执行';
     return h(React.Fragment,null,h('style',null,
       '.dsh-skin-work{display:inline-flex;align-items:center;gap:7px;font-size:12px;line-height:20px;color:var(--dsw-alias-label-secondary);white-space:nowrap}.dsh-skin-work-dots{display:inline-flex;gap:3px}.dsh-skin-work-dots i{width:3px;height:3px;border-radius:50%;background:currentColor;opacity:.5;animation:dsh-skin-work-dot .8s ease-out 2}.dsh-skin-work-dots i:nth-child(2){animation-delay:.12s}.dsh-skin-work-dots i:nth-child(3){animation-delay:.24s}@keyframes dsh-skin-work-dot{40%{transform:translateY(-2px);opacity:1}}@media(prefers-reduced-motion:reduce){.dsh-skin-work-dots i{animation:none}}'),

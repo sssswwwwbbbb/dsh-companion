@@ -6,12 +6,12 @@ import {requestStop,stopRequests,StateStore} from './skin-core/src/state.mjs';
 import {NativeWorkFeedback} from './work-feedback.mjs';
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
 export class NativeSkinRuntime {
-  constructor({stateDir,loadPack,apply,hide,isReady,workAction=()=>null}){
+  constructor({stateDir,loadPack,apply,hide,isReady,workReaction=()=>null}){
     Object.assign(this,{stateDir,loadPack,apply,hide,isReady});this.store=new StateStore(stateDir);this.generation=0;this.visible=false;this.resources={};this.contentKey=null;this.pausedMedia=true;this.localRevision=0;this.stopRequested=stopRequests(stateDir).length>0;
     this.owned=process.env.DSH_COMPANION_SKIN_STANDBY==='1';
     try{const s=JSON.parse(fs.readFileSync(path.join(stateDir,'skin-state.json'),'utf8'));this.owned=!!(s.selected||s.pending||s.stopped);this.stopRequested ||= s.stopped===true;}catch(e){if(e.code!=='ENOENT'){this.owned=true;this.stopRequested=true;}}
     this.owned ||= this.stopRequested;
-    this.work=new NativeWorkFeedback({snapshot:()=>this.workSettings(),act:workAction});
+    this.work=new NativeWorkFeedback({snapshot:()=>this.workSettings(),playReaction:workReaction});
   }
   status(){return {protocolVersion:1,generation:this.generation,contentKey:this.contentKey,visible:this.visible,mediaPaused:this.pausedMedia,owned:this.owned,stopRequested:this.stopRequested,workFeedback:this.work.last};}
   canShow(){return this.visible&&!this.pausedMedia&&!this.stopRequested;}

@@ -4,7 +4,7 @@ DeepSeek Harness 桌面插件，提供启动动画、桌宠、皮肤配置和设
 
 已验收的基线为 **Mac arm64 `0.1.0-dev.27`** 和 **Windows x64 `0.1.0-dev.31`**，对应提交 `5963502`。[验收基线复建说明](docs/accepted-build-baseline.md)
 
-Windows 已验收 `0.1.0-dev.35` 的工作区回复风格。当前 `0.1.0-dev.36` 修订了入口徽记优先级。皮肤作者使用对应版本的[制作与校验说明](docs/skin-author-reference.md)。Windows DSH `0.2.2-rc.1` 上的 W3 覆盖升级基线为 `0.1.0-dev.32`。Mac 用 `npm run package:mac` 构建，Windows 用 `python3 experiments/dsh-windows-w1/build.py` 从同一次 Mac 构建及固定 Electron 输入出包。授权和设置沿用原插件身份。Windows 首次跨版本通过 DSH「添加插件」覆盖安装本地包，之后可从「授权与更新」查找私有安装包。
+Windows 已验收 `0.1.0-dev.35` 的工作区回复风格。当前 `0.1.0-dev.37` 修订工作反馈和桌宠动作共存。皮肤作者使用对应版本的[制作与校验说明](docs/skin-author-reference.md)。Windows DSH `0.2.2-rc.1` 上的 W3 覆盖升级基线为 `0.1.0-dev.32`。Mac 用 `npm run package:mac` 构建，Windows 用 `python3 experiments/dsh-windows-w1/build.py` 从同一次 Mac 构建及固定 Electron 输入出包。授权和设置沿用原插件身份。Windows 首次跨版本通过 DSH「添加插件」覆盖安装本地包，之后可从「授权与更新」查找私有安装包。
 
 - `packages/dsh-companion`：插件入口、Host 逻辑及页面模板。
 - `packages/dsh-skin-core`：皮肤合同、状态协调和适配器。

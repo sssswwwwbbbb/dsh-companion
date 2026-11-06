@@ -49,11 +49,18 @@ function desktopOpeningHeld(){
 const startup=new NativeStartupRuntime({stateDir,dshVersion:integration.dshVersion,onCancel:reason=>{if(activeIntro?.custom)cancelIntro(reason);}});
 const usesWorker=()=>backend?.supports(skin.contentKey)===true;
 const desktopReady=()=>usesWorker()?backend.status().ready:ready;
-const skin=new NativeSkinRuntime({stateDir,loadPack:id=>packs.get(id),workAction:(action,current)=>{
-  if(usesWorker())return backend.act(action,current);
-  if(!ready||!model||!readyActions.includes(action)||!pack.animations[action])return null;
-  if(!model.perform(action,pack.animations[action].seconds))return null;
-  sendState();return action;
+const skin=new NativeSkinRuntime({stateDir,loadPack:id=>packs.get(id),workReaction:current=>{
+  if(usesWorker())return backend.workReaction(current);
+  const pet=model;
+  if(!ready||pet?.action!=='idle'||!readyActions.includes('react')||!pack.animations.react)return null;
+  if(!pet.perform('react',pack.animations.react.seconds))return null;
+  const reaction=pet.actionRevision;
+  sendState();
+  return (assertCurrent=()=>{})=>{
+    assertCurrent();
+    if(model!==pet||pet.action!=='react'||pet.actionRevision!==reaction||!pet.perform('idle',pack.animations.idle.seconds))return null;
+    sendState();return 'idle';
+  };
 },hide:async({stop=false}={})=>{
   if(stop){startup.stop();cancelIntro('skin-stop');}
   pendingInteraction=null;closeLegacyPet();await backend?.stop();updateMenu();sendState();

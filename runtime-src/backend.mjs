@@ -31,7 +31,7 @@ export class WholePetBackend {
  }
  async stop(){
   if(this.stopping)return this.stopping;
-  this.revision++;this.sequence++;this.ready=false;this.suspended=false;this.visibilityHeld=false;this.token=null;this.lastAction=null;
+  this.revision++;this.sequence++;this.ready=false;this.suspended=false;this.visibilityHeld=false;this.token=null;this.lastAction=null;this.pendingAction=undefined;
   const child=this.child;if(!child)return {cleared:true,windows:0};
   this.stopping=(async()=>{
    child.kill('SIGTERM');
@@ -126,12 +126,30 @@ export class WholePetBackend {
    if(!inside(target-halfBody-18)||!inside(target+halfBody+18))throw new Error('WALK_LEFT_SPACE_REQUIRED');
   }
   const sequence=++this.sequence,revision=this.revision,lock=this.lock;
-  const current=()=>{assertCurrent();if(sequence!==this.sequence||revision!==this.revision||!this.ready)throw new Error('SKIN_OPERATION_SUPERSEDED');};
-  current();await this.releasing;current();const lockId=await lock.ensure();current();
-  const receipt=await this.api('anim?pet=main&lock='+encodeURIComponent(lockId),{name:this.names[action],...(action==='walk'?{facing:'left'}:{})});current();
-  await this.wait(()=>{current();const r=this.snapshot().windows[0]?.renderer;return r?.sprites[0]?.playback===receipt.playbackId&&r.videos.some(v=>v.front&&v.source===this.names[action]+'.webm'&&!v.paused);},'BACKEND_ACTION_NOT_PLAYING',3000);
-  this.lastAction={action,playbackId:receipt.playbackId,status:'playing',at:Date.now()};this.event('backend-action',{...this.lastAction});
-  void (async()=>{try{const polls=action==='walk'?240:180;for(let i=0;i<polls;i++){await delay(60);current();const r=await this.api('playback/'+receipt.playbackId);current();if(['ended','cancelled','failed'].includes(r.status)){this.releasing=lock.release();await this.releasing;current();this.lastAction={...this.lastAction,status:r.status};this.event('backend-action-terminal',{action,playbackId:receipt.playbackId,status:r.status});return;}}}catch{}})();
-  return action;
+  this.pendingAction=sequence;
+  const ownsPlayback=()=>{if(sequence!==this.sequence||revision!==this.revision||!this.ready)throw new Error('SKIN_OPERATION_SUPERSEDED');};
+  const current=()=>{assertCurrent();ownsPlayback();};
+  try{
+   current();await this.releasing;current();const lockId=await lock.ensure();current();
+   const receipt=await this.api('anim?pet=main&lock='+encodeURIComponent(lockId),{name:this.names[action],...(action==='walk'?{facing:'left'}:{})});current();
+   await this.wait(()=>{current();const r=this.snapshot().windows[0]?.renderer;return r?.sprites[0]?.playback===receipt.playbackId&&r.videos.some(v=>v.front&&v.source===this.names[action]+'.webm'&&!v.paused);},'BACKEND_ACTION_NOT_PLAYING',3000);
+   this.lastAction={action,playbackId:receipt.playbackId,status:'playing',at:Date.now()};this.event('backend-action',{...this.lastAction});
+   void (async()=>{try{const polls=action==='walk'?240:180;for(let i=0;i<polls;i++){await delay(60);ownsPlayback();const r=await this.api('playback/'+receipt.playbackId);ownsPlayback();if(['ended','cancelled','failed'].includes(r.status)){this.releasing=lock.release();await this.releasing;ownsPlayback();this.lastAction={...this.lastAction,status:r.status};this.event('backend-action-terminal',{action,playbackId:receipt.playbackId,status:r.status});return;}}}catch{}})();
+   return action;
+  }finally{if(this.pendingAction===sequence)this.pendingAction=undefined;}
+ }
+
+ async workReaction(assertCurrent){
+  const renderer=this.snapshot().windows[0]?.renderer,sprite=renderer?.sprites?.[0];
+  if(!this.ready||this.pendingAction!==undefined||!sprite||sprite.dragging||sprite.moving||!idlePresented(renderer,this.names.idle))return null;
+  const pending=this.act('react',assertCurrent),sequence=this.sequence;
+  await pending;
+  const playbackId=this.lastAction.playbackId;
+  return current=>{
+   if(!this.ready||this.sequence!==sequence)return null;
+   const sprite=this.snapshot().windows[0]?.renderer?.sprites?.[0];
+   if(sprite?.playback!==playbackId||sprite.dragging||sprite.moving)return null;
+   return this.act('idle',current);
+  };
  }
 }
