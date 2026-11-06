@@ -69,7 +69,7 @@ function applyContent(content){
   document.body.classList.toggle('cinematic',!!content.handoffSeconds);
   const showRole=!!(content.roleName&&content.roleModel);
   openingLabel.toggleAttribute('data-skin-role',showRole);
-  openingLabel.textContent=showRole?[content.name,content.roleName,content.roleModel].join(' · '):'DSH COMPANION';
+  openingLabel.textContent=showRole?[content.name,content.roleName,content.roleModel].join(' · '):'THEME BOX';
   for(const [property,name] of [['--intro-bg','--dsw-alias-bg-base'],['--intro-text','--dsw-alias-label-primary'],['--intro-accent','--dsw-alias-state-business-primary']]){
     const pair=content.tokens?.[name],scheme=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
     if(pair)document.body.style.setProperty(property,pair[scheme]);else document.body.style.removeProperty(property);

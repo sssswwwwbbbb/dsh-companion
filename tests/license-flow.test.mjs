@@ -9,6 +9,7 @@ import {fileURLToPath} from 'node:url';
 import {createLicenseService} from '../licensing/server.mjs';
 import {verifyLicense} from '../packages/dsh-companion/src/license-core.mjs';
 import {Entitlement} from '../packages/dsh-companion/src/entitlement.mjs';
+import {releaseFixture} from './fixtures/release-package.mjs';
 const device=name=>createHash('sha256').update(name).digest('hex');
 
 test('activation diagnostics correlate failures without recording codes, receipts or device IDs',async()=>{
@@ -70,11 +71,13 @@ test('private activation, signed offline access, device limits, download and rev
     await first.deactivate();assert.equal(first.status().active,false);
     assert.equal((await post('/v1/renew',{receipt,deviceId:device('a')})).value.error,'LICENSE_DEVICE_RELEASED');
     await second.activate(issued.code);assert.equal(second.status().active,true);
-    const artifact=path.join(directory,'private.tgz');fs.writeFileSync(artifact,Buffer.from('private-package-test-content'));
+    const originalArtifact=releaseFixture(directory,'0.1.0-dev.3');
+    const artifact=path.join(directory,'private.tgz');
+    fs.copyFileSync(originalArtifact,artifact);
     const publication=(await post('/admin/releases',{artifact,version:'0.1.0-dev.3',build:3,supportedDsh:['0.2.1-rc.5']},true)).value;
     const repeated=(await post('/admin/releases',{artifact,version:'0.1.0-dev.3',build:3,supportedDsh:['0.2.1-rc.5']},true)).value;
     assert.equal(repeated.releaseId,publication.releaseId);
-    fs.writeFileSync(artifact,'different package with the same version');
+    fs.copyFileSync(releaseFixture(directory,'0.1.0-dev.3',{description:'different package with the same version'}),artifact);
     assert.equal((await post('/admin/releases',{artifact,version:'0.1.0-dev.3',build:3,supportedDsh:['0.2.1-rc.5']},true)).value.error,'RELEASE_CONFLICT');
     const database=path.join(directory,'server/database.json');
     fs.utimesSync(database,new Date(0),new Date(0));
@@ -85,6 +88,9 @@ test('private activation, signed offline access, device limits, download and rev
     assert.equal(fs.statSync(database).mtimeMs,0,'renewal/update reads must not rewrite the authorization database');
     const source=path.join(directory,'server/releases',publication.sha256+'.tgz');const bytes=fs.readFileSync(source);bytes[0]^=1;fs.writeFileSync(source,bytes);
     await assert.rejects(second.download({dshVersion:'0.2.1-rc.5',build:2}),/DOWNLOAD_HASH_INVALID/);
+    const repaired=(await post('/admin/releases',{artifact:originalArtifact,version:'0.1.0-dev.3',build:3,supportedDsh:['0.2.1-rc.5']},true)).value;
+    assert.equal(repaired.releaseId,publication.releaseId);
+    assert.equal((await second.download({dshVersion:'0.2.1-rc.5',build:2})).verified,true);
     await post('/admin/revoke',{licenseId:issued.licenseId},true);assert.equal((await second.refresh(true)).active,false);assert.equal(second.status().errorCode,'LICENSE_REVOKED');
   }finally{await service.close();fs.rmSync(directory,{recursive:true,force:true});}
 });
@@ -130,7 +136,7 @@ test('authorization and package downloads both use the supplied host network tra
     const issued=await admin('/admin/issue',{devices:1,days:30});
     const entitlement=new Entitlement({stateDir:path.join(directory,'device'),config:{serviceUrl:origin,publicKey:service.publicKey},deviceId:device('transport'),fetcher});
     await entitlement.activate(issued.code);await entitlement.refresh(true);
-    const artifact=path.join(directory,'package.tgz');fs.writeFileSync(artifact,'transport-test');
+    const artifact=releaseFixture(directory,'0.1.0-dev.6');
     await admin('/admin/releases',{artifact,version:'0.1.0-dev.6',build:6,supportedDsh:['0.2.1-rc.5']});
     assert.equal((await entitlement.download({dshVersion:'0.2.1-rc.5',build:5})).verified,true);
     await assert.rejects(entitlement.download({dshVersion:'0.2.1-rc.5',build:7}),/UPDATE_DOWNGRADE_BLOCKED/);
@@ -143,13 +149,14 @@ test('explicit public installation links work before activation and never expose
   const directory=fs.mkdtempSync(path.join(os.tmpdir(),'dsh-public-install-')),stateDir=path.join(directory,'state'),service=await createLicenseService({stateDir}),base='http://127.0.0.1:'+service.port;
   const admin=async input=>{const response=await fetch(base+'/admin/releases',{method:'POST',headers:{authorization:'Bearer '+service.adminToken,'content-type':'application/json'},body:JSON.stringify(input)});return {status:response.status,value:await response.json()};};
   try{
-    const artifact=path.join(directory,'package.tgz'),bytes=Buffer.from('public-install-archive-fixture');fs.writeFileSync(artifact,bytes);
-    const common={artifact,supportedDsh:['0.2.1-rc.5']};
-    assert.equal((await admin({...common,version:'0.1.0-dev.7',build:7})).status,200);
+    const privateArtifact=releaseFixture(directory,'0.1.0-dev.7');
+    const publicArtifact=releaseFixture(directory,'0.1.0-dev.8'),bytes=fs.readFileSync(publicArtifact);
+    const common={supportedDsh:['0.2.1-rc.5']};
+    assert.equal((await admin({...common,artifact:privateArtifact,version:'0.1.0-dev.7',build:7})).status,200);
     assert.equal((await fetch(base+'/install/dsh-companion-0.1.0-dev.7.tgz')).status,404);
-    assert.equal((await admin({...common,version:'0.1.0-dev.7',build:7,publicInstall:true})).value.error,'RELEASE_VISIBILITY_CONFLICT');
-    assert.equal((await admin({...common,version:'0.1.0-dev.8',build:8,publicInstall:'yes'})).status,400);
-    assert.equal((await admin({...common,version:'0.1.0-dev.8',build:8,publicInstall:true})).status,200);
+    assert.equal((await admin({...common,artifact:privateArtifact,version:'0.1.0-dev.7',build:7,publicInstall:true})).value.error,'RELEASE_VISIBILITY_CONFLICT');
+    assert.equal((await admin({...common,artifact:publicArtifact,version:'0.1.0-dev.8',build:8,publicInstall:'yes'})).status,400);
+    assert.equal((await admin({...common,artifact:publicArtifact,version:'0.1.0-dev.8',build:8,publicInstall:true})).status,200);
     const database=path.join(stateDir,'database.json');fs.utimesSync(database,new Date(0),new Date(0));
     const url=base+'/install/dsh-companion-0.1.0-dev.8.tgz',response=await fetch(url);assert.equal(response.status,200);assert.ok(Buffer.from(await response.arrayBuffer()).equals(bytes));assert.equal(Number(response.headers.get('content-length')),bytes.length);assert.match(response.headers.get('cache-control'),/public.*immutable/);
     const head=await fetch(url,{method:'HEAD'});assert.equal(head.status,200);assert.equal((await head.arrayBuffer()).byteLength,0);
@@ -160,5 +167,51 @@ test('explicit public installation links work before activation and never expose
     assert.equal(fs.statSync(database).mtimeMs,0,'anonymous installation must not mutate authorization state');
     assert.equal(JSON.parse(fs.readFileSync(database)).licenses.length,0,'downloading before activation must not issue or bind a license');
     assert.equal((await fetch(base+'/v1/releases/download',{method:'POST',headers:{'content-type':'application/json'},body:'{}'})).status,400);
+  }finally{await service.close();fs.rmSync(directory,{recursive:true,force:true});}
+});
+
+test('private release publication and download keep Mac and Windows packages separate',async()=>{
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'dsh-platform-releases-'));
+  const service=await createLicenseService({stateDir:path.join(directory,'server')});
+  const serviceUrl='http://127.0.0.1:'+service.port;
+  const version='0.1.0-dev.32',build=32,supportedDsh=['0.2.1-rc.5','0.2.2-rc.1'];
+  const post=(route,input,admin=false)=>fetch(serviceUrl+route,{method:'POST',headers:{'content-type':'application/json',...(admin?{authorization:'Bearer '+service.adminToken}:{})},body:JSON.stringify(input)});
+  const macRoute='/admin/releases',winRoute='/admin/releases/win32-x64';
+  try{
+    const macArtifact=releaseFixture(directory,version,{supportedDsh});
+    const winArtifact=releaseFixture(directory,version,{platform:'win32-x64',supportedDsh});
+    const macInput={artifact:macArtifact,platform:'darwin-arm64',version,build,supportedDsh};
+    const winInput={artifact:winArtifact,platform:'win32-x64',version,build,supportedDsh};
+    assert.equal((await post(winRoute,winInput)).status,403);
+    assert.equal((await (await post(macRoute,winInput,true)).json()).error,'PACKAGE_PLATFORM_MISMATCH');
+    assert.equal((await (await post(macRoute,{artifact:winArtifact,version,build,supportedDsh},true)).json()).error,'PACKAGE_PLATFORM_MISMATCH');
+    assert.equal((await (await post(winRoute,{...winInput,supportedDsh:['0.2.2']},true)).json()).error,'PACKAGE_DSH_VERSIONS_MISMATCH');
+    const macRelease=await (await post(macRoute,macInput,true)).json();
+    const winRelease=await (await post(winRoute,winInput,true)).json();
+    assert.equal(macRelease.platform,'darwin-arm64');
+    assert.equal(winRelease.platform,'win32-x64');
+    assert.notEqual(macRelease.releaseId,winRelease.releaseId);
+    assert.equal((await (await post(winRoute,winInput,true)).json()).releaseId,winRelease.releaseId);
+    assert.equal((await fetch(serviceUrl+'/install/dsh-companion-'+version+'-win32-x64.tgz')).status,404);
+
+    const {code}=await (await post('/admin/issue',{devices:1},true)).json();
+    const config={serviceUrl,publicKey:service.publicKey},deviceId=device('platform-fixture');
+    const mac=new Entitlement({stateDir:path.join(directory,'mac-client'),config,deviceId});
+    await mac.activate(code);
+    const win=new Entitlement({stateDir:path.join(directory,'win-client'),config,deviceId,releasePlatform:'win32-x64'});
+    win.save(mac.record().receipt);
+    for(const [client,release,artifact] of [[mac,macRelease,macArtifact],[win,winRelease,winArtifact]]){
+      const update=await client.latest({dshVersion:supportedDsh[1],build});
+      assert.equal(update.release.id,release.releaseId);
+      const result=await client.download({dshVersion:supportedDsh[1],build});
+      const suffix=release.platform==='win32-x64'?'-win32-x64':'';
+      assert.equal(result.filename,'dsh-companion-'+version+suffix+'.tgz');
+      assert.deepEqual(fs.readFileSync(path.join(client.stateDir,'downloads',result.filename)),fs.readFileSync(artifact));
+      assert.equal(client.status().active,true);
+    }
+    const binding={receipt:win.record().receipt,deviceId,platform:'win32-x64',dshVersion:supportedDsh[1]};
+    const crossed=await post('/v1/releases/download',{...binding,releaseId:macRelease.releaseId});
+    assert.equal((await crossed.json()).error,'NO_COMPATIBLE_RELEASE');
+    await assert.rejects(win.latest({dshVersion:'0.2.2',build}),/NO_COMPATIBLE_RELEASE/);
   }finally{await service.close();fs.rmSync(directory,{recursive:true,force:true});}
 });

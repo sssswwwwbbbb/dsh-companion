@@ -8,8 +8,8 @@ import { readJson, writeJson } from './storage.mjs';
 import { updateInfo } from './update-info.mjs';
 
 export class Entitlement {
-  constructor({stateDir,config,deviceId=deviceIdentity(),now=Date.now,fetcher=globalThis.fetch}) {
-    this.stateDir=stateDir;this.config=config;this.deviceId=deviceId;this.now=now;this.fetcher=fetcher;this.file=path.join(stateDir,'license.json');this.pending=undefined;
+  constructor({stateDir,config,deviceId=deviceIdentity(),now=Date.now,fetcher=globalThis.fetch,releasePlatform=process.platform==='win32'?'win32-x64':'darwin-arm64'}) {
+    this.stateDir=stateDir;this.config=config;this.deviceId=deviceId;this.now=now;this.fetcher=fetcher;this.releasePlatform=releasePlatform;this.file=path.join(stateDir,'license.json');this.pending=undefined;
     const url=new URL(config.serviceUrl);
     if(url.protocol!=='https:'&&!(url.protocol==='http:'&&['127.0.0.1','localhost','[::1]'].includes(url.hostname)))throw new Error('LICENSE_ENDPOINT_INVALID');
   }
@@ -55,9 +55,9 @@ export class Entitlement {
   }
   async deactivate(){const record=this.record();if(record)await this.post('/v1/deactivate',{receipt:record.receipt,deviceId:this.deviceId});if(fs.existsSync(this.file))fs.unlinkSync(this.file);return this.status();}
   async latest({dshVersion,build}){
-    this.require();const result=await this.post('/v1/releases/latest',{receipt:this.record().receipt,deviceId:this.deviceId,platform:'darwin-arm64',dshVersion});
+    this.require();const result=await this.post('/v1/releases/latest',{receipt:this.record().receipt,deviceId:this.deviceId,platform:this.releasePlatform,dshVersion});
     const release=verifiedEnvelope(result.manifest,this.config.publicKey);
-    if(release.product!=='dsh-companion'||release.platform!=='darwin-arm64'||release.channel!=='private'||!release.supportedDsh?.includes(dshVersion)||!Number.isSafeInteger(release.build)||!/^[a-f0-9]{64}$/.test(release.sha256||'')||!Number.isSafeInteger(release.size)||release.size<1||release.size>1073741824||!/^[a-zA-Z0-9.+-]+\.tgz$/.test(release.filename||''))throw new Error('RELEASE_INVALID');
+    if(release.product!=='dsh-companion'||release.platform!==this.releasePlatform||release.channel!=='private'||!release.supportedDsh?.includes(dshVersion)||!Number.isSafeInteger(release.build)||!/^[a-f0-9]{64}$/.test(release.sha256||'')||!Number.isSafeInteger(release.size)||release.size<1||release.size>1073741824||!/^[a-zA-Z0-9.+-]+\.tgz$/.test(release.filename||''))throw new Error('RELEASE_INVALID');
     return {manifest:result.manifest,release,...updateInfo(release,build)};
   }
   async download({dshVersion,build}){
@@ -66,7 +66,7 @@ export class Entitlement {
     const directory=path.join(this.stateDir,'downloads');fs.mkdirSync(directory,{recursive:true,mode:0o700});
     const file=path.join(directory,release.filename), temporary=file+'.'+randomUUID()+'.part';
     let response;
-    try{response=await this.fetcher(this.config.serviceUrl+'/v1/releases/download',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({receipt:this.record().receipt,deviceId:this.deviceId,platform:'darwin-arm64',dshVersion,releaseId:release.id}),signal:AbortSignal.timeout(30*60*1000)});}catch(cause){throw new Error('DOWNLOAD_FAILED',{cause});}
+    try{response=await this.fetcher(this.config.serviceUrl+'/v1/releases/download',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({receipt:this.record().receipt,deviceId:this.deviceId,platform:this.releasePlatform,dshVersion,releaseId:release.id}),signal:AbortSignal.timeout(30*60*1000)});}catch(cause){throw new Error('DOWNLOAD_FAILED',{cause});}
     if(!response.ok)throw new Error((await response.json().catch(()=>({}))).error||'DOWNLOAD_FAILED');
     const hash=createHash('sha256');let bytes=0;
     try{

@@ -6,6 +6,7 @@ import path from 'node:path';
 import {randomUUID,randomBytes,createHash} from 'node:crypto';
 import {createLicenseService} from '../licensing/server.mjs';
 import {Entitlement} from '../packages/dsh-companion/src/entitlement.mjs';
+import {releaseFixture} from './fixtures/release-package.mjs';
 
 const device=name=>createHash('sha256').update(name).digest('hex');
 async function setup(){
@@ -79,10 +80,10 @@ test('console issuance, encrypted export and device controls connect to the real
     const exported=await env.request('/manage/api/licenses/export',{method:'POST',body:{ids:issued.value.licenses.map(row=>row.id)}});assert.equal(exported.status,200);assert.match(exported.headers.get('content-type'),/text\/csv/);assert.ok(exported.bytes.includes(Buffer.from(first.code)));assert.ok(exported.bytes.toString().includes("'=test-formula"));
     assert.equal((await env.request('/manage/api/licenses',{cookies:false})).status,401);
     assert.equal((await env.request('/v1/activate',{method:'POST',body:{code:first.code,deviceId:device('browser')}})).status,403);
-    const artifact=path.join(env.directory,'package.tgz');fs.writeFileSync(artifact,'private-console-package-test');
+    const artifact=releaseFixture(env.directory,'0.1.0-dev.6');
     const publication=await env.request('/admin/releases',{method:'POST',body:{artifact,version:'0.1.0-dev.6',build:6,supportedDsh:['0.2.1-rc.5']},headers:{origin:'',authorization:'Bearer '+env.service.adminToken}});assert.equal(publication.status,200);
     const releases=(await env.request('/manage/api/releases')).value.rows;assert.equal(releases.length,1);
-    const download=await env.request('/manage/api/releases/'+releases[0].id+'/download');assert.equal(download.status,200);assert.ok(download.bytes.toString()==='private-console-package-test');
+    const download=await env.request('/manage/api/releases/'+releases[0].id+'/download');assert.equal(download.status,200);assert.deepEqual(download.bytes,fs.readFileSync(artifact));
     assert.equal((await env.request('/manage/api/releases/'+releases[0].id+'/download',{cookies:false})).status,401);
   }finally{await env.close();}
 });

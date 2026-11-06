@@ -5,7 +5,7 @@ export function createSkinSettingsUi(React,assets){
   const paths={library:'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',install:'M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5',settings:'M4 6h16M4 12h16M4 18h16',more:'M5 12h.01M12 12h.01M19 12h.01',shield:'m12 2 8 4v7c0 5-8 9-8 9s-8-4-8-9V6Z',pause:'M8 5v14M16 5v14',play:'m8 4 12 8-12 8Z',reset:'M4 9a8 8 0 1 1 0 7M4 3v6h6',arrow:'M5 12h14m-5-5 5 5-5 5'};
   const Icon=({name})=>{const pair=assets.workspace?.controlIcons?.[name];return pair?h('span',{className:'r3-icon r3-semantic-icon','aria-hidden':true},h('img',{className:'r3-icon-light',src:pair.light,alt:''}),h('img',{className:'r3-icon-dark',src:pair.dark,alt:''})):h('svg',{className:'r3-icon',viewBox:'0 0 24 24','aria-hidden':true},h('path',{d:paths[name]||paths.settings}));};
   const Pill=({children,tone=''})=>h('span',{className:'r3-pill '+tone},children);
-  const Button=({children,icon,kind='',...props})=>h('button',{type:'button',...props,className:'r3-button '+kind},icon&&h(Icon,{name:icon}),children);
+  const Button=({children,icon,kind='',buttonRef,...props})=>h('button',{type:'button',ref:buttonRef,...props,className:'r3-button '+kind},icon&&h(Icon,{name:icon}),children);
   function Toggle({label,value,onChange,disabled=false}){
     const [pending,setPending]=React.useState(null);
     const checked=pending??value;
@@ -38,48 +38,143 @@ export function createSkinSettingsUi(React,assets){
     return h('textarea',{'aria-label':label,value:draft??value,maxLength,rows:4,disabled,
       onChange:e=>setDraft(e.currentTarget.value),onBlur:()=>{if(draft!==null&&draft!==value)onChange(draft);setDraft(null);}});
   }
-  const Row=({title,description,children,...props})=>h('div',{className:'r3-setting-row',...props},h('div',{className:'r3-setting-copy'},h('strong',null,title),description&&h('p',null,description)),h('div',{className:'r3-setting-control'},children));
+  const Row=({title,description,feedback,children,...props})=>h('div',{className:'r3-setting-row',...props},h('div',{className:'r3-setting-copy'},h('strong',null,title),description&&h('p',null,description),feedback),h('div',{className:'r3-setting-control'},children));
   const Section=({title,children,tag})=>h('section',{className:'r3-setting-section'},h('header',null,h('h3',null,title),tag),children);
-  function Shell({tab,view,setSection,skin,busy,stopping,active,status,error,notice,footer,scheme,work,stopSkin,children}){
+  function Shell({tab,view,setSection,skin,busy,stopping,active,status,error,notice,footer,scheme,work,stopSkin,replyStyle,children}){
     const selected=skin?.selected,canRestore=!!(skin?.stopped&&selected),body=React.useRef(null),hasMore=!!skin?.settings?.pet;
+    const [resetKey,setResetKey]=React.useState(null);
+    const resetButton=React.useRef(null),cancelReset=React.useRef(null);
+    const selectedKey=selected?.contentKey;
+    const confirmingReset=tab==='skin'&&resetKey!==null&&resetKey===selectedKey;
     React.useEffect(()=>{body.current?.scrollTo({top:0});},[tab,view]);
+    React.useEffect(()=>{setResetKey(null);},[tab,selectedKey]);
+    React.useEffect(()=>{if(confirmingReset)cancelReset.current?.focus();},[confirmingReset]);
+    function closeReset(){setResetKey(null);resetButton.current?.focus();}
+    async function reset(){
+      const result=await work('skinReset',{contentKey:selectedKey});
+      if(result)setResetKey(null);
+    }
     const nav=(title,to,icon,disabled=false)=>h('button',{type:'button',className:'r3-sideitem'+(tab===to?' selected':''),'aria-current':tab===to?'page':undefined,disabled,onClick:()=>setSection(to,to==='skin'?'common':undefined)},h(Icon,{name:icon}),title);
-    return h('section',{className:'dshc-page dshc-r3','data-theme':scheme,'data-screen-label':'皮肤与陪伴','data-skin-preset':skin?.selected?.contentKey===assets.workspace?.contentKey?assets.workspace.preset:undefined},h('style',null,skinSettingsCss+commanderSettingsCss),
-      h('aside',{className:'r3-settings-nav','aria-label':'陪伴导航'},h('h2',null,'皮肤与陪伴'),
+    return h('section',{className:'dshc-page dshc-r3','data-theme':scheme,'data-screen-label':'主题盒子','data-skin-preset':skin?.selected?.contentKey===assets.workspace?.contentKey?assets.workspace.preset:undefined},h('style',null,skinSettingsCss+commanderSettingsCss),
+      h('aside',{className:'r3-settings-nav','aria-label':'主题盒子导航'},h('h2',null,'主题盒子'),
         nav('皮肤库','library','library'),nav('本套设置','skin','settings',!selected),nav('开始使用','setup','arrow'),!selected&&nav('桌宠控制','control','play'),nav('授权与更新','account','shield'),
-        h('button',{type:'button',className:'r3-sideitem r3-stop','aria-label':canRestore?'恢复本套皮肤':'停止全部皮肤效果',disabled:stopping||canRestore&&(busy||!active)||skin?.stopped&&!selected,onClick:()=>canRestore?void work('skinSelect',{contentKey:selected.contentKey}):void stopSkin()},h(Icon,{name:canRestore?'play':'pause'}),canRestore?'恢复效果':'停止效果'),
+        (tab!=='library'||!selected&&active)&&h('button',{type:'button',className:'r3-sideitem r3-stop','aria-label':canRestore?'恢复本套皮肤':'停止全部皮肤效果',disabled:stopping||canRestore&&(busy||!active)||skin?.stopped&&!selected,onClick:()=>canRestore?void work('skinSelect',{contentKey:selected.contentKey}):void stopSkin()},h(Icon,{name:canRestore?'play':'pause'}),canRestore?'恢复效果':'停止效果'),
         h('p',{className:'r3-navfooter'},active?'插件已激活':'插件尚未激活',h('br'),'本地皮肤共用插件授权')),
       h('div',{className:'r3-settings-main'},h('header',{className:'r3-settings-head'},h('div',null,
         h('h1',null,tab==='library'?'本地皮肤库':tab==='skin'?'按你的习惯，刚刚好。':tab==='account'?'授权与更新':tab==='control'?'桌面陪伴':'开始使用'),
-        h('p',{className:'r3-caption'},tab==='library'?'装好一套，点一下就换上。偏好按每套皮肤保留。':tab==='skin'?(selected?.name||'本套设置')+' · 只调整这套已提供的偏好。':'从同一处管理你的皮肤与陪伴。')),
-        tab==='library'?h(Button,{kind:'primary',icon:'install',disabled:busy||!active,title:'选择根目录含 skin.json 的普通 ZIP 包',onClick:()=>void work('skinInstall')},busy?'正在处理…':'安装本地皮肤'):h(Pill,{tone:skin?.stopped?'orange':''},status)),
+        h('p',{className:'r3-caption'},tab==='library'?'管理工作区主题、桌宠和开场。':tab==='skin'?(selected?.name||'本套设置')+' · 只调整这套已提供的偏好。':'从同一处管理你的皮肤与陪伴。')),
+        tab==='library'?h(Button,{icon:'install',disabled:busy||!active,onClick:()=>void work('skinInstall')},'导入本地 ZIP'):h(Pill,{tone:skin?.stopped?'orange':''},status)),
         tab==='skin'&&hasMore&&h('div',{className:'r3-settings-tabs',role:'tablist','aria-label':'本套设置层级'},...['common','more'].map(value=>h('button',{key:value,type:'button',role:'tab','aria-selected':view===value,onClick:()=>setSection('skin',value)},value==='common'?'常用':'更多'))),
         h('div',{className:'r3-settings-body',ref:body},error&&h('p',{className:'r3-notice error',role:'alert'},error),notice&&h('p',{className:'r3-notice',role:'status'},notice),children),
-        h('footer',{className:'r3-settings-foot'},h('div',null,h('p',null,footer),h('small',null,tab==='library'?'选择在皮肤库，参数在本套设置。':skin?.stopped?'效果已停止，参数与关闭选择已保留。':'工作区与左侧导航使用本套配色。')),
-          h('div',{className:'r3-actions'},tab==='skin'&&h(Button,{icon:'reset',disabled:busy||!selected,onClick:()=>void work('skinReset',{contentKey:selected.contentKey})},'重置本套'),canRestore&&h(Button,{kind:'primary',icon:'play',disabled:busy||!active,onClick:()=>void work('skinSelect',{contentKey:selected.contentKey})},'恢复本套皮肤')))));
+        tab!=='library'&&h('footer',{className:'r3-settings-foot'},h('div',null,h('p',null,footer),h('small',null,skin?.stopped?'效果已停止，参数与关闭选择已保留。':'工作区与左侧导航使用本套配色。')),
+          h('div',{className:'r3-actions'},tab==='skin'&&h(Button,{buttonRef:resetButton,icon:'reset',disabled:busy||!active||!selected,'aria-expanded':confirmingReset,onClick:()=>confirmingReset?closeReset():setResetKey(selectedKey)},'重置本套'),canRestore&&h(Button,{kind:'primary',icon:'play',disabled:busy||!active,onClick:()=>void work('skinSelect',{contentKey:selected.contentKey})},'恢复本套皮肤')),
+          confirmingReset&&h('div',{className:'r3-reset-confirm',role:'group','aria-label':'确认重置本套设置',onKeyDown:event=>{if(event.key==='Escape'&&!busy){event.stopPropagation();closeReset();}}},
+            h('p',null,replyStyle?'将主题、桌宠与开场参数恢复为默认值。模块开关、自动播放与回复风格照旧。':'将本套自定义参数恢复为默认值。模块开关与启动时自动播放设置照旧。'),
+            h('div',{className:'r3-actions'},
+              h(Button,{buttonRef:cancelReset,disabled:busy,onClick:closeReset},'取消'),
+              h(Button,{kind:'primary',disabled:busy||!active,onClick:()=>void reset()},'确认重置'))))));
+
   }
-  function Library({skin,active,busy,selection,setSection,select,work}){
+  function Library({skin,active,busy,selection,importedKey,setSection,select,work,stopSkin}){
+    const importedCard=React.useRef(null),currentHeading=React.useRef(null),focusAfterApply=React.useRef(null);
+    const selectedKey=skin?.selected?.contentKey;
+    const applied=skin?.phase==='ready'&&!skin.stopped;
+    React.useEffect(()=>{
+      if(!applied||!selectedKey||focusAfterApply.current!==selectedKey)return;
+      focusAfterApply.current=null;
+      currentHeading.current?.focus();
+    },[applied,selectedKey]);
+    React.useEffect(()=>{
+      if(!importedKey||!importedCard.current)return;
+      importedCard.current.scrollIntoView({block:'nearest'});
+      importedCard.current.focus({preventScroll:true});
+    },[importedKey]);
     if(!skin)return h('p',{className:'r3-caption',role:'status'},'正在读取已安装皮肤…');
-    const rows=(skin.catalog||[]).filter(row=>!row.example),selected=skin.selected,applying=selection?.status==='applying',selectedUnavailable=rows.some(row=>row.status==='unavailable'&&row.contentKey===selected?.contentKey);
-    const currentState=selectedUnavailable?'文件不可用':!selected?(applying?'正在应用':'尚未选择皮肤'):applying?(skin.stopped?'正在恢复':'正在切换'):skin.stopped?'已停止':skin.phase==='stopping'?'正在停止':skin.phase==='fault'?'需要恢复':skin.phase==='ready'?'正在使用':'等待恢复';
+
+    const rows=skin.catalog.filter(row=>!row.example);
+    const selected=skin.selected;
+    const current=rows.find(row=>row.contentKey===selected?.contentKey);
+    const unavailable=current?.status==='unavailable';
+    const switching=selection?.status==='applying';
+    const ready=skin.phase==='ready'&&!skin.stopped&&active&&!unavailable;
+    const canPreview=ready&&skin.settings?.startup?.status==='enabled'&&skin.results?.startup?.status==='ready';
+    const status=skin.phase==='stopping'?'正在停止':switching?'正在切换':unavailable?'文件不可用':!active?'等待激活':skin.phase==='fault'?'需要恢复':skin.stopped?'效果已停止':ready?'已应用':'等待生效';
     const modules={theme:'工作区主题',pet:'桌宠',startup:'开场'};
+    function apply(row){
+      focusAfterApply.current=row.contentKey;
+      select(row);
+    }
+    function moduleStatus(module){
+      if(skin.disabled?.[module])return '已关闭';
+      if(skin.settings?.[module]?.status==='unavailable'||skin.results?.[module]?.status==='unavailable')return '不可用';
+      if(!ready)return '未运行';
+      return skin.results?.[module]?.status==='ready'?'已启用':'未运行';
+    }
+
     return h('section',{className:'r3-library','data-skin-library':true},
-      !active&&h('div',{className:'r3-notice'},'先激活插件，再安装或使用本地皮肤。',h(Button,{onClick:()=>setSection('setup')},'前往激活')),
-      selectedUnavailable&&h('div',{className:'r3-notice warning',role:'status'},'当前皮肤文件不可用，选择与偏好已保留。可以切换到其他可用皮肤。'),
-      h('div',{className:'r3-library-current'},h(Icon,{name:'library'}),h('div',null,h('span',{className:'r3-caption'},'当前选择'),h('h2',null,selected?.name||'DSH 默认外观'),h('p',null,selected?selected.version+(applying?' · 等待本次应用结果。':skin.stopped?' · 选择与本套参数已保留。':' · 可进入本套设置调整偏好。'):'从已安装的皮肤中，选一套作为你的日常。')),h(Pill,{tone:selected?'orange':''},currentState),h(Button,{disabled:!selected,onClick:()=>setSection('skin','common')},'本套设置',h(Icon,{name:'arrow'}))),
-      h('div',{className:'r3-library-heading'},h('div',null,h('h2',null,'已安装',h('span',null,rows.length+' 套')),h('p',null,'点击卡片直接使用；安装只入库，不自动切换。')),h('span',{className:'r3-caption'},'本地皮肤')),
+      !active&&h('div',{className:'r3-notice'},'激活主题盒子后即可导入和应用皮肤。',h(Button,{onClick:()=>setSection('setup')},'前往激活')),
+      h('div',{className:'r3-library-current'},
+        h('div',{className:'r3-library-current-title'},
+          h('h2',{ref:currentHeading,tabIndex:-1},selected?.name||'DSH 默认外观'),
+          selected&&h(Pill,{tone:ready&&!switching?'blue':''},h('span',{role:'status'},status))),
+        h('p',null,!selected?(rows.length?'从下方选择一套皮肤。':'导入后即可在这里切换皮肤。'):unavailable?'部分皮肤文件不可用，可切换到其他皮肤。':skin.stopped?'本套皮肤的设置已保留。':'当前选择 · '+selected.version),
+        selected&&current?.modules.length>0&&h('ul',{className:'r3-current-modules','aria-label':'本套模块状态'},
+          ...current.modules.map(module=>h('li',{key:module},modules[module]+' · '+moduleStatus(module)))),
+        selected&&h('div',{className:'r3-actions'},
+          !unavailable&&(skin.stopped||skin.phase==='fault')&&h(Button,{kind:'primary',icon:'play',disabled:busy||!active,onClick:()=>apply(selected)},'恢复本套'),
+          h(Button,{disabled:busy,onClick:()=>setSection('skin','common')},'本套设置'),
+          canPreview&&h(Button,{icon:'play',disabled:busy,onClick:()=>void work('replayIntro')},'预览开场'),
+          (!skin.stopped||switching)&&h(Button,{disabled:skin.phase==='stopping',onClick:()=>void stopSkin()},'停止本套效果'))),
+      h('div',{className:'r3-library-heading'},h('h2',null,'已安装',h('span',null,rows.length+' 套'))),
       h('div',{className:'r3-library-grid'},...rows.map(row=>{
-        const current=selected?.contentKey===row.contentKey,pending=selection?.contentKey===row.contentKey&&applying,failed=selection?.contentKey===row.contentKey&&selection.status==='failed',whale=row.contentKey===assets.contentKey||row.contentKey===assets.workspace?.contentKey,r2=row.contentKey===assets.workspace?.contentKey,commander=r2&&assets.workspace.preset==='commander-v1';
-        const unavailable=row.status==='unavailable',state=unavailable?'文件不可用':pending?'应用中':failed?'应用失败':current?(skin.stopped?'当前选择 · 已停止':applying?'当前选择':skin.phase==='ready'?'当前使用':'当前选择'):'已安装';
-        const sameLabel=rows.filter(other=>other.id===row.id&&other.version===row.version).length>1;
-        const roleLabel=commander?assets.workspace.roleLabel:null;
-        return h('button',{key:row.contentKey||'unavailable-library',type:'button',className:'r3-library-card','aria-pressed':current,'aria-label':[row.name+' '+row.version,roleLabel,state].filter(Boolean).join(' · '),'data-skin-key':row.contentKey,disabled:busy||!active||unavailable,onClick:()=>select(row)},
-          h('span',{className:'r3-library-cover'+(commander?' commander':whale?' whale':''),style:whale?{'--library-grid':'url("'+assets.background+'")'}:undefined},commander&&h('img',{className:'commander-cover',src:assets.workspace.cover,alt:row.name+'主题封面'}),row.contentKey===assets.contentKey&&h('span',{className:'commander-legacy-tag'},'旧版对照'),h('span',{className:'r3-library-cover-title'},whale&&!commander?'档案暖白':row.name),whale?h('span',{className:'r3-library-portrait'+(r2?' workspace-role':'')},h('img',{src:r2?assets.workspace.portrait:assets.portrait,alt:'',draggable:false})):h(Icon,{name:'library'}),current&&h('span',{className:'r3-library-marker'},state)),
-          h('span',{className:'r3-library-card-body'},h('span',{className:'r3-library-card-title'},h('strong',null,row.name),h('span',null,row.version)),sameLabel&&row.contentKey&&h('span',{className:'r3-caption'},'内容快照 '+row.contentKey.slice(0,8)),h('span',{className:'r3-library-modules'},...row.modules.map(module=>h('span',{key:module},modules[module]||module))),unavailable&&h('span',{className:'r3-caption'},row.reason==='SKIN_RESOURCE_MISSING'?'部分文件缺失，其他皮肤仍可使用。':'文件校验未通过，选择与偏好继续保留。'),h('span',{className:'r3-library-card-foot'},h('span',null,state),h('span',null,unavailable?'暂时无法使用':pending?'正在应用…':current&&!skin.stopped?(applying?'等待应用结果':skin.phase==='ready'?'使用中':skin.phase==='stopping'?'正在停止':'等待恢复'):current?'点击恢复':'点击使用'))));
-      }),!rows.length&&h('div',{className:'r3-library-empty'},h('h2',null,'从第一套皮肤开始'),h('p',null,'安装本地皮肤后，它会出现在这里。'),h(Button,{disabled:busy||!active,onClick:()=>void work('skinInstall')},'安装本地皮肤'))),
-      h('p',{className:'r3-library-note'},'皮肤装进库，授权留在插件。桌宠人设只作用于本套桌宠。'));
+        const isCurrent=selected?.contentKey===row.contentKey;
+        const isTarget=selection?.contentKey===row.contentKey;
+        const pending=isTarget&&switching;
+        const failed=isTarget&&selection.status==='failed';
+        const imported=importedKey===row.contentKey;
+        const available=row.status!=='unavailable';
+        const r2=row.contentKey===assets.workspace?.contentKey;
+        const whale=row.contentKey===assets.contentKey||r2;
+        const commander=r2&&assets.workspace.preset==='commander-v1';
+        const sameLabel=rows.some(other=>other!==row&&other.id===row.id&&other.version===row.version);
+        const label=!available?'文件不可用':pending?'应用中':failed?'应用失败':isCurrent?status:imported?'已入库':'';
+        const action=!available||isCurrent&&!failed?null:pending?'正在应用…':failed?'重试应用':'应用皮肤';
+        return h('article',{key:row.contentKey||'unavailable-library',className:'r3-library-card','data-current':isCurrent,'data-skin-key':row.contentKey,ref:imported?importedCard:null,tabIndex:imported?-1:undefined},
+          h('div',{className:'r3-library-cover'+(commander?' commander':whale?' whale':''),'aria-hidden':true,style:whale?{'--library-grid':'url("'+assets.background+'")'}:undefined},
+            commander&&h('img',{className:'commander-cover',src:assets.workspace.cover,alt:''}),
+            row.contentKey===assets.contentKey&&h('span',{className:'commander-legacy-tag'},'旧版对照'),
+            h('span',{className:'r3-library-cover-title'},whale&&!commander?'档案暖白':row.name),
+            whale?h('span',{className:'r3-library-portrait'+(r2?' workspace-role':'')},h('img',{src:r2?assets.workspace.portrait:assets.portrait,alt:'',draggable:false})):h(Icon,{name:'library'})),
+          h('div',{className:'r3-library-card-body'},
+            h('div',{className:'r3-library-card-title'},h('h3',null,row.name),h('span',null,row.version)),
+            sameLabel&&row.contentKey&&h('p',{className:'r3-caption'},'内容快照 '+row.contentKey.slice(0,8)),
+            h('div',{className:'r3-library-modules'},...row.modules.map(module=>h('span',{key:module},modules[module]||module))),
+            !available&&h('p',{className:'r3-caption'},row.reason==='SKIN_RESOURCE_MISSING'?'部分文件缺失。':'文件校验未通过。'),
+            (label||action)&&h('div',{className:'r3-library-card-foot'},
+              label&&h('span',{className:'r3-caption',role:pending||failed?'status':undefined},label),
+              action&&h(Button,{kind:imported?'primary':'',disabled:busy||!active,onClick:()=>apply(row),'aria-label':action+' · '+row.name},action))));
+      }),!rows.length&&h('div',{className:'r3-library-empty'},h('h2',null,'还没有安装皮肤'),h('p',null,'导入包含 skin.json 的 ZIP 文件，皮肤会出现在这里。'))));
   }
-  function Settings({state,skin,view,active,busy,fieldBusy,fieldDrafts,saveField,work,stopSkin,stopping,modelDirectory,petText,setPetText,sendPet,petReply,setSection}){
+  function ReplyStyleEditor({style,active,busy,work}){
+    const [draft,setDraft]=React.useState(null);
+    const value=draft??style;
+    const changed=value.address!==style.address||value.tone!==style.tone;
+    async function save(){
+      const result=await work('replyStyleSave',{contentKey:style.contentKey,address:value.address,tone:value.tone});
+      if(result)setDraft(null);
+    }
+    return h(Section,{title:'工作区回复风格'},
+      h('p',{className:'r3-caption'},'称呼和语气按皮肤保存。在会话标题旁开启后，下一次模型请求会使用这里的设置。'),
+      h('form',{className:'r3-reply-style-editor',onSubmit:event=>{event.preventDefault();void save();}},
+        h('label',{className:'r3-input-label'},'称呼',
+          h('input',{value:value.address,maxLength:32,disabled:busy||!active,placeholder:'留空时不指定称呼',onChange:event=>setDraft({...value,address:event.target.value})})),
+        h('label',{className:'r3-input-label'},'语气',
+          h('textarea',{value:value.tone,maxLength:280,rows:3,disabled:busy||!active,onChange:event=>setDraft({...value,tone:event.target.value})})),
+        h('div',{className:'r3-actions'},
+          h(Button,{type:'submit',kind:'primary',disabled:busy||!active||!changed||!value.tone.trim()},'保存回复风格'),
+          h(Button,{disabled:busy||!active||value.address===style.defaults.address&&value.tone===style.defaults.tone,onClick:()=>setDraft(style.defaults)},'填入默认风格'))));
+  }
+  function Settings({state,skin,view,active,busy,fieldBusy,fieldDrafts,fieldFailures,saveField,work,stopSkin,stopping,modelDirectory,petText,setPetText,sendPet,petReply,setSection}){
     const selected=skin?.selected,candidate=selected,modules=skin?.settings||{},r2=candidate?.contentKey===assets.workspace?.contentKey,commander=r2&&assets.workspace.preset==='commander-v1';
     const candidateArt=r2?assets.workspace.portrait:candidate?.contentKey===assets.contentKey?assets.portrait:null;
     const roleLabel=commander?assets.workspace.roleLabel:null;
@@ -92,7 +187,9 @@ export function createSkinSettingsUi(React,assets){
     function fieldRow(module,c,title,description){
       if(!c)return null;
       const key=module+'.'+c.field,pending=Object.hasOwn(fieldDrafts,key);
+      const failed=pending?null:fieldFailures[key];
       const fieldValue=pending?fieldDrafts[key]:c.value,change=value=>saveField(module,c.field,value);
+      const feedback=failed&&h('p',{className:'r3-field-failure',role:'status'},'保存未确认，当前显示已读取的设置。');
       let input;
       if(c.type==='boolean')input=h(Toggle,{label:title||c.label,value:fieldValue,disabled:fieldBusy,onChange:change});
       else if(c.type==='text')input=h(TextField,{label:title||c.label,value:fieldValue,maxLength:c.maxLength,disabled:fieldBusy,onChange:change});
@@ -102,7 +199,8 @@ export function createSkinSettingsUi(React,assets){
         input=h('select',{'aria-label':title||c.label,value,disabled:fieldBusy,onChange:e=>change(JSON.parse(e.target.value))},...choices.map(m=>h('option',{key:JSON.stringify(m.value),value:JSON.stringify(m.value)},m.label)));
       }else if(c.type==='enum')input=h('select',{'aria-label':title||c.label,value:fieldValue,disabled:fieldBusy,onChange:e=>change(e.target.value)},...c.options.map(value=>h('option',{key:value,value},value)));
       else input=h(RangeField,{label:title||c.label,field:c.field,value:fieldValue,min:c.min,max:c.max,disabled:fieldBusy,onChange:change});
-      return h(Row,{key,title:title||c.label,description,'data-skin-field':key},pending?h(Pill,null,'保存中…'):tag(c),input);
+      return h(Row,{key,title:title||c.label,description,feedback,'data-skin-field':key},pending?h(Pill,null,'保存中…'):tag(c),input,
+        failed&&h(Button,{disabled:busy||!active,'aria-label':'重试保存 · '+(title||c.label),onClick:()=>saveField(module,c.field,failed.value,true)},'重试保存'));
     }
     const moduleRow=(module,title,description)=>{
       const item=modules[module];if(!item)return null;const unavailable=item.status==='unavailable';
@@ -121,9 +219,10 @@ export function createSkinSettingsUi(React,assets){
       legacyExample&&h('div',{className:'r3-notice warning'},'当前保留的是历史技术样例。可返回皮肤库选择已安装的整套皮肤。'),
       view==='common'?h(React.Fragment,null,h('div',{className:'r3-skin-banner'},h('div',null,h('div',{className:'r3-eyebrow'},candidate?.contentKey===assets.contentKey?'ARCHIVE WARM / COMPANION':'本套皮肤'),h('h2',null,candidate?.name||'选择你的日常'),h('p',null,roleLabel||'这是当前皮肤的参数。换一套时，保留这一套的偏好。'),h('div',{className:'r3-actions'},h(Pill,null,candidate?.version||'本套偏好'),h(Pill,{tone:'blue'},skin.stopped?'当前选择 · 已停止':'当前选择'))),candidateArt&&h('span',{className:'r3-banner-pet'+(r2?' workspace-role':''),role:'img','aria-label':roleLabel||(commander?'机械姬 · 母版04':'鲸鱼娘 · 安静待机')},h('img',{src:candidateArt,alt:'',draggable:false}))),
         
+        state?.replyStyle&&h(ReplyStyleEditor,{style:state.replyStyle,active,busy,work}),
         modules.theme&&h(Section,{title:'阅读与表面'},moduleRow('theme','工作区主题','为会话工作区和左侧导航应用本套配色。'),supported('theme')&&h(React.Fragment,null,
           fieldRow('theme',control('theme','backgroundOpacity'),'背景浓度','0 为纯色；保留本套的图案与浓度。'),
-          fieldRow('theme',control('theme','entryMarkEnabled'),'入口标识','在陪伴入口使用本套标识。'))),
+          fieldRow('theme',control('theme','entryMarkEnabled'),'入口标识','在主题盒子入口使用本套标识。'))),
         supported('theme')&&control('theme','workspaceDetailsEnabled')&&h(Section,{title:'主题细节'},fieldRow('theme',control('theme','workspaceDetailsEnabled'),'工作区细节',commander?'成套图标、指挥链路与导航陪伴。':'成套图标、纸面与导航陪伴。'),control('theme','workspaceMotionEnabled')&&fieldRow('theme',control('theme','workspaceMotionEnabled'),'界面动效',commander?'完成回应留在陪伴位；输入、停止或切换会话会取消，系统减少动态优先。':'开卷与归档演出可随时跳过；系统减少动态优先。')),
         supported('theme')&&control('theme','workFeedbackEnabled')&&h(Section,{title:'工作反馈'},
           fieldRow('theme',control('theme','workFeedbackEnabled'),'工作反馈','显示当前会话的执行与待处理状态。'),
@@ -157,15 +256,16 @@ export const skinSettingsCss=`
 
 .r3-library-portrait.workspace-role img,.r3-banner-pet.workspace-role img{width:100%;height:100%;object-fit:contain;max-width:100%}
 /* Library extends the existing R3 vocabulary; cards are actual installed content. */
-.r3-library{max-width:1060px;margin:auto}.r3-library-current{display:flex;align-items:center;gap:16px;background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:15px 18px;margin-bottom:22px}.r3-library-current>div{flex:1;min-width:0}.r3-library-current h2{font:500 20px/1.5 var(--font-title);overflow-wrap:anywhere}.r3-library-current p{font-size:12px;color:var(--muted)}.r3-library-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.r3-library-heading h2{font-size:15px}.r3-library-heading h2 span{font-size:12px;font-weight:400;color:var(--muted);margin-left:12px}.r3-library-heading p{font-size:12px;color:var(--muted);margin-top:5px}
+.r3-library{max-width:1060px;margin:auto}.r3-library-current{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:15px 18px;margin-bottom:22px}.r3-library-current-title{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.r3-current-modules{margin:8px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;color:var(--muted)}.r3-library-current h2{font:500 20px/1.5 var(--font-title);overflow-wrap:anywhere}.r3-library-current p{font-size:12px;color:var(--muted)}.r3-library-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.r3-library-heading h2{font-size:15px}.r3-library-heading h2 span{font-size:12px;font-weight:400;color:var(--muted);margin-left:12px}
 /* Two cards share the canvas: 2 * minmax(0, 1fr) + one 18px gutter. */
-.r3-library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.r3-library-card{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);text-align:left;padding:0;min-width:0}.r3-library-card:hover{background:var(--surface)!important;border-color:var(--accent)}.r3-library-card[aria-pressed=true]{border-color:var(--accent)}.r3-library-cover{display:block;height:142px;background:var(--paper);position:relative;overflow:hidden}.r3-library-cover.whale:before{content:'';position:absolute;inset:0;background-image:var(--library-grid);background-size:cover;background-position:center;opacity:.12}.r3-library-cover-title{position:absolute;left:18px;bottom:24px;max-width:65%;font:500 26px/1.4 var(--font-title);overflow-wrap:anywhere}.r3-library-cover>.r3-icon{position:absolute;right:28px;bottom:28px;width:38px;height:38px;color:var(--muted)}.r3-library-portrait{position:absolute;right:4px;bottom:0;width:140px;height:140px;overflow:hidden}.r3-library-portrait img{display:block;width:200%;height:200%;max-width:none}.r3-library-marker{position:absolute;right:10px;top:10px;background:var(--surface);border:1px solid var(--line);color:var(--accent);padding:4px 8px;border-radius:5px;font-size:11px}.r3-library-card-body{display:flex;flex-direction:column;gap:12px;padding:16px 18px}.r3-library-card-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.r3-library-card-title strong{font-size:14px;font-weight:600;overflow-wrap:anywhere}.r3-library-card-title>span{font-size:12px;color:var(--muted);white-space:nowrap}.r3-library-modules{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--muted)}.r3-library-modules>span{background:var(--paper);padding:3px 7px;border-radius:4px}.r3-library-card-foot{display:flex;justify-content:space-between;gap:12px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}.r3-library-card-foot>span:last-child{color:var(--accent)}.r3-library-note{margin-top:20px!important;color:var(--muted);font-size:12px}.r3-library-empty{grid-column:1/-1;border:1px solid var(--line);border-radius:9px;padding:35px 22px;text-align:center}.r3-library-empty h2{font:500 22px var(--font-title);margin-bottom:8px}.r3-library-empty p{color:var(--muted);font-size:13px;margin-bottom:16px}
+.r3-library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.r3-library-card{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);text-align:left;padding:0;min-width:0}.r3-library-card[data-current=true]{border-color:var(--accent)}.r3-library-card:focus{outline:2px solid var(--accent);outline-offset:3px}.r3-library-cover{display:block;aspect-ratio:8/5;background:var(--paper);position:relative;overflow:hidden}.r3-library-cover.whale:before{content:'';position:absolute;inset:0;background-image:var(--library-grid);background-size:cover;background-position:center;opacity:.12}.r3-library-cover-title{position:absolute;left:18px;bottom:24px;max-width:65%;font:500 26px/1.4 var(--font-title);overflow-wrap:anywhere}.r3-library-cover>.r3-icon{position:absolute;right:28px;bottom:28px;width:38px;height:38px;color:var(--muted)}.r3-library-portrait{position:absolute;right:4px;bottom:0;width:140px;height:140px;overflow:hidden}.r3-library-portrait img{display:block;width:200%;height:200%;max-width:none}.r3-library-card-body{display:flex;flex-direction:column;gap:12px;padding:16px 18px}.r3-library-card-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.r3-library-card-title h3{font-size:14px;font-weight:600;overflow-wrap:anywhere}.r3-library-card-title>span{font-size:12px;color:var(--muted);white-space:nowrap}.r3-library-modules{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--muted)}.r3-library-modules>span{background:var(--paper);padding:3px 7px;border-radius:4px}.r3-library-card-foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding-top:10px;border-top:1px solid var(--line)}.r3-library-card-foot button{margin-left:auto}.r3-library-empty{grid-column:1/-1;border:1px solid var(--line);border-radius:9px;padding:35px 22px;text-align:center}.r3-library-empty h2{font:500 22px var(--font-title);margin-bottom:8px}.r3-library-empty p{color:var(--muted);font-size:13px;margin-bottom:16px}
 .dshc-r3 .r3-settings-head{padding:20px 28px}.dshc-r3 .r3-settings-body{padding:20px 28px}.dshc-r3 .r3-settings-foot{padding:12px 24px}.dshc-r3 .r3-setting-section{margin:20px 0}.dshc-r3 .r3-setting-row{padding:13px 0}.dshc-r3 .r3-skin-banner{min-height:136px;padding:18px;margin-top:14px}.dshc-r3 .r3-skin-banner h2{font-size:23px}.dshc-r3 .r3-banner-pet{width:135px;height:135px}
-@media(max-width:980px){.r3-library-current{flex-wrap:wrap}.r3-library-current>div{flex-basis:65%}.r3-library-cover-title{font-size:23px}.r3-library-portrait{width:120px;height:120px}.r3-library-card-body{padding:14px}.dshc-r3 .r3-settings-head,.dshc-r3 .r3-settings-body{padding:18px 22px}}
-@media(max-width:700px){.r3-library-grid{grid-template-columns:1fr}.r3-library-heading{align-items:flex-start}.r3-library-current{gap:10px}.r3-library-card-title strong{font-size:14px}.dshc-r3 .r3-settings-head,.dshc-r3 .r3-settings-body{padding:16px}.r3-settings-head{flex-wrap:wrap}.r3-library-cover{height:138px}}
+@media(max-width:980px){.r3-library-cover-title{font-size:23px}.r3-library-portrait{width:120px;height:120px}.r3-library-card-body{padding:14px}.dshc-r3 .r3-settings-head,.dshc-r3 .r3-settings-body{padding:18px 22px}}
+@media(max-width:700px){.r3-library-grid{grid-template-columns:1fr}.r3-library-heading{align-items:flex-start}.r3-library-current{gap:10px}.r3-library-card-title h3{font-size:14px}.dshc-r3 .r3-settings-head,.dshc-r3 .r3-settings-body{padding:16px}.r3-settings-head{flex-wrap:wrap}}
+.r3-reply-style-editor{margin-top:10px;display:grid;gap:10px;max-width:36rem}.r3-reply-style-editor textarea{resize:vertical;width:100%;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 10px}.r3-reply-style-editor .r3-actions{margin-top:0}.r3-setting-copy .r3-field-failure{color:var(--danger)}.r3-setting-control{flex-wrap:wrap}.r3-reset-confirm{flex:0 0 100%;display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:10px}.r3-reset-confirm .r3-actions{margin-top:0}
 @media(prefers-reduced-motion:reduce){.dshc-r3 *{transition:none!important;scroll-behavior:auto!important}}
 `;
 
 // Existing prepared portrait is a whole PNG, not the old four-cell atlas.
 
-export const commanderSettingsCss=".dshc-r3[data-skin-preset=commander-v1]{--paper:#e9eff4;--surface:#f7fafc;--surface-soft:#e0e9f0;--ink:#1d3147;--muted:#52697e;--line:#cbd7e2;--accent:#17627d;--accent-soft:#d7eaf1;--signal:#1b6683;--signal-soft:#dfedf3;--positive:#28675d;--danger:#9c3d36;--font-title:'Avenir Next','PingFang SC',sans-serif}\n.dshc-r3[data-skin-preset=commander-v1][data-theme=dark]{--paper:#091321;--surface:#101c2c;--surface-soft:#1b2b40;--ink:#e1ecf5;--muted:#9badc2;--line:#2b3c52;--accent:#83d5ec;--accent-soft:#193b4d;--signal:#8bd5eb;--signal-soft:#142e40;--positive:#9dd9c9;--danger:#ffb2ab}\n.dshc-r3[data-skin-preset=commander-v1] :is(.r3-library-card,.r3-skin-banner,.r3-library-current){border-radius:6px}\n.dshc-r3[data-skin-preset=commander-v1] .r3-settings-head h1{font-size:28px;font-weight:550}\n.dshc-r3[data-skin-preset=commander-v1] .r3-skin-banner{min-height:174px;padding:22px;background:var(--paper)}\n.dshc-r3[data-skin-preset=commander-v1] .r3-banner-pet.workspace-role{height:164px;width:146px}\n.r3-library-cover.commander{height:auto;aspect-ratio:8/5;background:#091321}\n.r3-library-cover.commander>.commander-cover{display:block;width:100%;height:100%;object-fit:contain}\n.r3-library-cover.commander>:is(.r3-library-cover-title,.r3-library-portrait){display:none}\n.commander-legacy-tag{position:absolute;left:12px;top:10px;font-size:11px;color:var(--muted);z-index:1;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:3px 6px}\n.r3-semantic-icon{display:inline-grid;pointer-events:none}.r3-semantic-icon>img{grid-area:1/1;width:100%;height:100%;object-fit:contain}.r3-icon-dark{display:none}[data-theme=dark] .r3-icon-light{display:none}[data-theme=dark] .r3-icon-dark{display:block}\n@media(max-width:980px){.dshc-r3[data-skin-preset=commander-v1] .r3-skin-banner{padding:18px;min-height:164px}.dshc-r3[data-skin-preset=commander-v1] .r3-banner-pet.workspace-role{width:125px;height:145px}}\n";
+export const commanderSettingsCss=".dshc-r3[data-skin-preset=commander-v1]{--paper:#e9eff4;--surface:#f7fafc;--surface-soft:#e0e9f0;--ink:#1d3147;--muted:#52697e;--line:#cbd7e2;--accent:#17627d;--accent-soft:#d7eaf1;--signal:#1b6683;--signal-soft:#dfedf3;--positive:#28675d;--danger:#9c3d36;--font-title:'Avenir Next','PingFang SC',sans-serif}\n.dshc-r3[data-skin-preset=commander-v1][data-theme=dark]{--paper:#091321;--surface:#101c2c;--surface-soft:#1b2b40;--ink:#e1ecf5;--muted:#9badc2;--line:#2b3c52;--accent:#83d5ec;--accent-soft:#193b4d;--signal:#8bd5eb;--signal-soft:#142e40;--positive:#9dd9c9;--danger:#ffb2ab}\n.dshc-r3[data-skin-preset=commander-v1] :is(.r3-library-card,.r3-skin-banner,.r3-library-current){border-radius:6px}\n.dshc-r3[data-skin-preset=commander-v1] .r3-settings-head h1{font-size:28px;font-weight:550}\n.dshc-r3[data-skin-preset=commander-v1] .r3-skin-banner{min-height:174px;padding:22px;background:var(--paper)}\n.dshc-r3[data-skin-preset=commander-v1] .r3-banner-pet.workspace-role{height:164px;width:146px}\n.r3-library-cover.commander{background:#091321}\n.r3-library-cover.commander>.commander-cover{display:block;width:100%;height:100%;object-fit:contain}\n.r3-library-cover.commander>:is(.r3-library-cover-title,.r3-library-portrait){display:none}\n.commander-legacy-tag{position:absolute;left:12px;top:10px;font-size:11px;color:var(--muted);z-index:1;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:3px 6px}\n.r3-semantic-icon{display:inline-grid;pointer-events:none}.r3-semantic-icon>img{grid-area:1/1;width:100%;height:100%;object-fit:contain}.r3-icon-dark{display:none}[data-theme=dark] .r3-icon-light{display:none}[data-theme=dark] .r3-icon-dark{display:block}\n@media(max-width:980px){.dshc-r3[data-skin-preset=commander-v1] .r3-skin-banner{padding:18px;min-height:164px}.dshc-r3[data-skin-preset=commander-v1] .r3-banner-pet.workspace-role{width:125px;height:145px}}\n";

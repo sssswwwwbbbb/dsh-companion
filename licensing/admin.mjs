@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {readReleasePackage} from './release-package.mjs';
 const stateDir=path.resolve(process.env.DSH_LICENSE_STATE||'.local/license-service');
 const service=JSON.parse(fs.readFileSync(path.join(stateDir,'service.json')));
 const token=fs.readFileSync(path.join(stateDir,'admin.token'),'utf8');
@@ -8,7 +9,11 @@ const option=(name,fallback)=>{const index=args.indexOf('--'+name);if(index<0)re
 let route,input;
 if(command==='issue'){if(!args[0])throw new Error('Private output file required');route='/admin/issue';input={label:args[1]&&!args[1].startsWith('--')?args[1]:'Mac workflow validation',days:option('days',30),devices:option('devices',1)};}
 else if(command==='revoke'){route='/admin/revoke';input={licenseId:args[0]};}
-else if(command==='publish'){route='/admin/releases';input={artifact:path.resolve(args[0]),version:args[1],build:Number(args[2]),supportedDsh:['0.2.1-rc.5']};}
+else if(command==='publish'){
+ const artifact=path.resolve(args[0]),version=args[1],metadata=await readReleasePackage(artifact,version);
+ route=metadata.platform==='win32-x64'?'/admin/releases/win32-x64':'/admin/releases';
+ input={artifact,version,build:Number(args[2]),...metadata};
+}
 else throw new Error('Expected issue <private-output-file>, revoke <license-id>, or publish <artifact> <version> <build>');
 const response=await fetch(service.serviceUrl+route,{method:'POST',headers:{authorization:'Bearer '+token,'content-type':'application/json'},body:JSON.stringify(input)});
 const value=await response.json();if(!response.ok)throw new Error(value.error);

@@ -1,4 +1,4 @@
-"""Build the Windows DSH plugin from the rebuilt dev.27 package and the official Electron archive."""
+"""Build the Windows DSH plugin from the matching Mac package and the official Electron archive."""
 
 import argparse
 import hashlib
@@ -13,9 +13,8 @@ from pathlib import Path, PurePosixPath
 
 
 ROOT = Path(__file__).resolve().parents[2]
-VERSION = "0.1.0-dev.31"
+VERSION = json.loads((ROOT / "packages/dsh-companion/package.json").read_bytes())["version"]
 PLATFORM = "win32-x64"
-MAC_VERSION = "0.1.0-dev.27"
 MAC_RUNTIME = "DSHCompanion-darwin-arm64.zip"
 ELECTRON_SHA = "7c342aee45d5b4ccafe5dfe9037028796b082735a576e21e2b4e2d8422ebb727"
 MAC_APP = "DSHCompanion.app/Contents/Resources/app/"
@@ -45,7 +44,7 @@ def adapt_plugin(plugin):
     package = json.loads(metadata.read_bytes())
     package.update(
         version=VERSION,
-        description="DSH 陪伴 · Windows x64 测试版",
+        description="主题盒子 · DSH Windows x64 主题插件",
         os=["win32"],
         cpu=["x64"],
     )
@@ -73,12 +72,6 @@ def adapt_plugin(plugin):
     try{await execute(tar,['-xf',archive,'-C',temporary],{env:childEnvironment(process.env,{}),timeout:90000,windowsHide:true});""")
     replace(controller, "async installLauncher(){this.entitlement.require();this.integration.record(this.dshVersion);if(!this.settings().launcherEnabled)await this.configure({launcherEnabled:true});await this.integration.install(await this.executable());return this.status();}",
         "async installLauncher(){throw new Error('PLATFORM_UNSUPPORTED');}")
-    for start, end in (("checkUpdate", "downloadUpdate"), ("downloadUpdate", "revealDownload"), ("revealDownload", "stop")):
-        source = controller.read_text(encoding="utf-8")
-        original = source.split(f"  async {start}()", 1)[1].split(f"  async {end}()", 1)[0]
-        replace(controller, f"  async {start}()" + original,
-                f"  async {start}(){{throw new Error('PLATFORM_UNSUPPORTED');}}\n")
-
     license_core = plugin / "src/license-core.mjs"
     replace(license_core, "import { execFileSync } from 'node:child_process';",
         "import { execFileSync } from 'node:child_process';\nimport { join } from 'node:path';")
@@ -123,19 +116,7 @@ def adapt_plugin(plugin):
     replace(client, "h(Row,{title:autoPlayLabel,description:",
             "modules.startup?.values?.handoffSeconds&&h(Row,{title:autoPlayLabel,description:")
     replace(client, "macOS 的减少动态效果同样生效。", "系统的减少动态效果同样生效。")
-    remove_client_row(client, "const channel=state?.update,")
-    remove_client_row(client, "state?.download&&h('div',{className:'dshc-card','data-download-history':true}")
-    source = client.read_text(encoding="utf-8")
-    update_row = next(line for line in source.splitlines() if "h('div',{className:'dshc-card','data-update-panel':true}" in line)
-    replace(client, update_row, """              h('div',{className:'dshc-card'},h('h2',null,t('currentVersion')),h('p',{'data-installed-version':true},state?.version||'…'),h('p',{className:'dshc-note'},'DSH '+(state?.compatibility?.dshVersion||'…')+' · '+t(state?.compatibility?.supported?'compatible':'incompatible'))),""")
-
     (plugin / "README.md").write_text((Path(__file__).parent / "plugin-readme.md").read_text(encoding="utf-8"), encoding="utf-8")
-
-
-def remove_client_row(client, fragment):
-    source = client.read_text(encoding="utf-8")
-    line, = (line for line in source.splitlines() if fragment in line)
-    replace(client, line + "\n", "")
 
 
 def build_runtime(mac_runtime, electron_zip, plugin, work):
@@ -216,9 +197,9 @@ def unpack_mac(mac_package, work):
         manifest = json.load(donor.extractfile("package/runtime-bundles/manifest.json"))
         metadata = json.load(donor.extractfile("package/package.json"))
         if (manifest["platform"], manifest["version"], metadata["version"], metadata["name"]) != (
-            "darwin-arm64", MAC_VERSION, MAC_VERSION, "dsh-plugin-companion"
+            "darwin-arm64", VERSION, VERSION, "dsh-plugin-companion"
         ):
-            raise ValueError("Windows build requires a Mac dev.27 plugin package")
+            raise ValueError(f"Windows build requires the matching Mac plugin package ({VERSION})")
         with donor.extractfile(f"package/runtime-bundles/{MAC_RUNTIME}") as source, runtime.open("xb") as target:
             shutil.copyfileobj(source, target)
         if sha256(runtime) != manifest["sha256"]:
@@ -265,7 +246,7 @@ def build(mac_package, electron_zip, output):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--mac-package", type=Path, default=ROOT / "dist/dsh-plugin-companion-0.1.0-dev.27.tgz")
+    parser.add_argument("--mac-package", type=Path, default=ROOT / f"dist/dsh-plugin-companion-{VERSION}.tgz")
     parser.add_argument("--electron-zip", type=Path, default=ROOT / ".cache/electron/45.2.1/electron-v45.2.1-win32-x64.zip")
     parser.add_argument("--output", type=Path, default=ROOT / f"dist/dsh-plugin-companion-{VERSION}-{PLATFORM}.tgz")
     args = parser.parse_args()

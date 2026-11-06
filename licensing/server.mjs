@@ -6,6 +6,7 @@ import { randomBytes, randomUUID, generateKeyPairSync, createHash, timingSafeEqu
 import { fileURLToPath } from 'node:url';
 import {pipeline} from 'node:stream';
 import {createManagementConsole} from './console.mjs';
+import {readReleasePackage} from './release-package.mjs';
 import { signedEnvelope, verifyLicense, productId, isPermanentLicense } from '../packages/dsh-companion/src/license-core.mjs';
 
 const day = 86400000;
@@ -108,17 +109,29 @@ export async function createLicenseService({ stateDir, port=0, now=Date.now, gra
       if(request.method==='POST'&&url.pathname==='/admin/revoke'){
         await transaction(db=>{const license=db.licenses.find(row=>row.id===input.licenseId);if(!license)failure('LICENSE_NOT_FOUND');license.revoked=true;db.audit.push({at:now(),type:'revoked',licenseId:license.id});});json({ok:true});return;
       }
-      if(request.method==='POST'&&url.pathname==='/admin/releases'){
+      if(request.method==='POST'&&['/admin/releases','/admin/releases/win32-x64'].includes(url.pathname)){
         if(!path.isAbsolute(input.artifact||'')||!String(input.artifact).endsWith('.tgz')||!Number.isSafeInteger(input.build)||input.build<1||!Array.isArray(input.supportedDsh)||input.supportedDsh.length<1||!input.supportedDsh.every(s=>typeof s==='string'&&s.length<50)||!/^[0-9A-Za-z.+-]{1,80}$/.test(input.version||''))failure('INVALID_RELEASE');
         if(input.publicInstall!==undefined&&typeof input.publicInstall!=='boolean')failure('INVALID_RELEASE');
+        const platform=url.pathname.endsWith('/win32-x64')?'win32-x64':'darwin-arm64';
+        const metadata=await readReleasePackage(input.artifact,input.version);
+        if((input.platform??platform)!==platform||metadata.platform!==platform)failure('PACKAGE_PLATFORM_MISMATCH');
+        if(!input.supportedDsh.every(version=>metadata.supportedDsh.includes(version)))failure('PACKAGE_DSH_VERSIONS_MISMATCH');
         const bytes=fs.readFileSync(input.artifact), sha256=createHash('sha256').update(bytes).digest('hex');
-        const artifactDir=path.join(stateDir,'releases');fs.mkdirSync(artifactDir,{recursive:true,mode:0o700});fs.writeFileSync(path.join(artifactDir,sha256+'.tgz'),bytes,{mode:0o600});
-        const release={id:'rel_'+randomUUID(),product:productId,version:input.version,build:input.build,platform:'darwin-arm64',channel:'private',supportedDsh:input.supportedDsh,sha256,size:bytes.length,filename:'dsh-companion-'+input.version+'.tgz',publishedAt:now(),publicInstall:input.publicInstall===true};
+        const artifactDir=path.join(stateDir,'releases');
+        const suffix=platform==='win32-x64'?'-win32-x64':'';
+        const release={id:'rel_'+randomUUID(),product:productId,version:input.version,build:input.build,platform,channel:'private',supportedDsh:input.supportedDsh,sha256,size:bytes.length,filename:'dsh-companion-'+input.version+suffix+'.tgz',publishedAt:now(),publicInstall:input.publicInstall===true};
         const published=await transaction(db=>{
           const existing=db.releases.find(row=>row.platform===release.platform&&(row.version===release.version||row.build===release.build));
-          if(existing){if(existing.version!==release.version||existing.build!==release.build||existing.sha256!==sha256)failure('RELEASE_CONFLICT');if(release.publicInstall&&!existing.publicInstall)failure('RELEASE_VISIBILITY_CONFLICT');return existing;}
+          if(existing){if(existing.version!==release.version||existing.build!==release.build||existing.sha256!==sha256)failure('RELEASE_CONFLICT');if(release.publicInstall&&!existing.publicInstall)failure('RELEASE_VISIBILITY_CONFLICT');}
+          else if(db.releases.some(row=>row.filename===release.filename))failure('RELEASE_FILENAME_CONFLICT');
+          const archive=path.join(artifactDir,sha256+'.tgz');
+          fs.mkdirSync(artifactDir,{recursive:true,mode:0o700});
+          const temporary=archive+'.'+process.pid+'.part';
+          fs.writeFileSync(temporary,bytes,{mode:0o600});
+          fs.renameSync(temporary,archive);
+          if(existing)return existing;
           db.releases.push(release);db.audit.push({at:now(),type:'release-published',releaseId:release.id});return release;
-        });json({releaseId:published.id,sha256,size:bytes.length});return;
+        });json({releaseId:published.id,sha256,size:bytes.length,platform:published.platform});return;
       }
       if(request.method==='POST'&&url.pathname==='/v1/activate'){
         if(!/^[a-f0-9]{64}$/.test(input.deviceId||''))failure('INVALID_DEVICE');

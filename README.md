@@ -1,13 +1,15 @@
-# DSH 陪伴
+# 主题盒子
 
 DeepSeek Harness 桌面插件，提供启动动画、桌宠、皮肤配置和设备授权。
 
-当前仓库基线是已验收的 **Mac arm64 `0.1.0-dev.27`** 和 **Windows x64 `0.1.0-dev.31`**。构建与验证见 [验收基线复建说明](docs/accepted-build-baseline.md)。两个平台各自保留原安装包身份；复建仅用于开发验证。
+已验收的基线为 **Mac arm64 `0.1.0-dev.27`** 和 **Windows x64 `0.1.0-dev.31`**，对应提交 `5963502`。[验收基线复建说明](docs/accepted-build-baseline.md)
+
+当前 `0.1.0-dev.35` 是「主题盒子」工作区回复风格候选。Windows 已验收 dev.34 的本套设置优化。Windows DSH `0.2.2-rc.1` 上的 W3 覆盖升级基线为 `0.1.0-dev.32`。Mac 用 `npm run package:mac` 构建，Windows 用 `python3 experiments/dsh-windows-w1/build.py` 从同一次 Mac 构建及固定 Electron 输入出包。授权和设置沿用原插件身份。Windows 首次跨版本通过 DSH「添加插件」覆盖安装本地包，之后可从「授权与更新」查找私有安装包。
 
 - `packages/dsh-companion`：插件入口、Host 逻辑及页面模板。
 - `packages/dsh-skin-core`：皮肤合同、状态协调和适配器。
 - `runtime-src`：桌面运行时和桌宠适配代码。
-- `experiments/dsh-windows-w0`、`experiments/dsh-windows-w1`：Windows 探针与 dev.31 打包配方。
+- `experiments/dsh-windows-w0`、`experiments/dsh-windows-w1`：Windows 历史探针与当前打包配方。
 
 项目的私有 GitHub 仓库为 [sssswwwwbbbb/dsh-companion](https://github.com/sssswwwwbbbb/dsh-companion)，默认分支 `main`。
 

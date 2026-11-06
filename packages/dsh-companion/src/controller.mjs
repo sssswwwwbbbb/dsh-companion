@@ -1,6 +1,6 @@
 import { spawn, execFile } from 'node:child_process';
 import { readFileSync, existsSync, mkdirSync, lstatSync, mkdtempSync, renameSync, rmSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -52,7 +52,7 @@ export class CompanionController {
   async status(){
     const native=await this.nativeStatus(), license=this.entitlement.status(), settings=native.settings||this.settings();
     const update=readJson(join(this.stateDir,'update.json'),null), download=readJson(join(this.stateDir,'download.json'),null);
-    return JSON.parse(JSON.stringify({...native,desktopSkin:native.skin||null,skin:this.skins.status(),petInteraction:this.interactions?.status()||null,version:metadata.version,desktopVersion:native.version||null,platform:process.platform,phase:!license.active?'locked':native.phase,settings,license,packs:this.packs.summaries(),selectedPack:settings.packId,launcher:this.integration.status(),compatibility:{dshVersion:this.dshVersion,supported:this.config.supportedDsh.includes(this.dshVersion),testedVersions:this.config.supportedDsh},update:update?{...updateInfo(update.release,this.build),checkedAt:update.checkedAt}:null,download:download?{version:download.version,filename:download.file.split('/').pop(),verified:true}:null}));
+    return JSON.parse(JSON.stringify({...native,desktopSkin:native.skin||null,skin:this.skins.status(),replyStyle:license.active?this.replyStyle?.status()||null:null,petInteraction:this.interactions?.status()||null,version:metadata.version,desktopVersion:native.version||null,platform:process.platform,phase:!license.active?'locked':native.phase,settings,license,packs:this.packs.summaries(),selectedPack:settings.packId,launcher:this.integration.status(),compatibility:{dshVersion:this.dshVersion,supported:this.config.supportedDsh.includes(this.dshVersion),testedVersions:this.config.supportedDsh},update:update?{...updateInfo(update.release,this.build),checkedAt:update.checkedAt}:null,download:download?{version:download.version,filename:basename(download.file),verified:true}:null}));
   }
   async boot({playIntro=false}={}){
     this.bootIntroRequested=playIntro&&this.settings().autoStart&&this.settings().startupEnabled;
@@ -143,7 +143,19 @@ export class CompanionController {
   }
   async checkUpdate(){const update=await this.entitlement.latest({dshVersion:this.dshVersion,build:this.build});writeJson(join(this.stateDir,'update.json'),{...update,checkedAt:Date.now()});return this.status();}
   async downloadUpdate(){await this.entitlement.download({dshVersion:this.dshVersion,build:this.build});return this.status();}
-  async revealDownload(){const value=readJson(join(this.stateDir,'download.json'),null);if(!value||!existsSync(value.file))throw new Error('DOWNLOAD_NOT_FOUND');await execute('/usr/bin/open',['-R',value.file]);return this.status();}
+  async revealDownload(){
+    const value=readJson(join(this.stateDir,'download.json'),null);
+    if(!value||!existsSync(value.file))throw new Error('DOWNLOAD_NOT_FOUND');
+    if(process.platform==='win32'){
+      const explorer=join(process.env.SystemRoot||process.env.WINDIR||'C:\\Windows','explorer.exe');
+      await new Promise((resolve,reject)=>{
+        const child=spawn(explorer,[dirname(value.file)],{stdio:'ignore',detached:true});
+        child.once('error',reject);
+        child.once('spawn',()=>{child.unref();resolve();});
+      });
+    }else await execute('/usr/bin/open',['-R',value.file]);
+    return this.status();
+  }
   async stop(){
     this.interactions?.cancel();
     const bridge=this.credentials();if(bridge){try{await this.request('/shutdown',{},12000);}catch{}}

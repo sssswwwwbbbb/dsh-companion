@@ -235,10 +235,10 @@ function attach(value){
 function updateMenu(){
   if(!tray)return;
   tray.setTitle(usesWorker()?'07':'鲸');
-  tray.setToolTip('DSH 陪伴 · '+pack.name);
+  tray.setToolTip('主题盒子 · '+pack.name);
   if(usesWorker()){
     const built=Menu.buildFromTemplate([
-      {label:'DSH 陪伴 · '+pack.name,enabled:false},
+      {label:'主题盒子 · '+pack.name,enabled:false},
       {label:'向左走',enabled:desktopReady()&&showPet(),click:()=>void runAction('walk').catch(error=>eventError('pet-action-failed',error))},
       {label:'重播启动动画',enabled:introAvailable(),click:()=>void showIntro().catch(()=>{})},
       {label:'回到 DSH',click:bringDsh},
@@ -246,7 +246,7 @@ function updateMenu(){
     ]);
     tray.setContextMenu(built);return built;
   }
-  const built=Menu.buildFromTemplate([{label:'DSH 陪伴 · '+pack.name,enabled:false},...(skin.owned?[{label:'停止皮肤效果',click:()=>skin.requestStop()}]:[]),{label:settings.visible?'隐藏大肥鱼':'显示大肥鱼',enabled:!skin.owned,click:()=>applySettings({visible:!settings.visible})},{label:'重播启动动画',enabled:introAvailable(),click:()=>void showIntro().catch(()=>{})},{label:'相处模式',enabled:!skin.owned,submenu:Object.entries(pack.profiles).map(([id,profile])=>({label:profile.label,type:'radio',checked:settings.profile===id,click:()=>applySettings({profile:id})}))},{label:'自主活动',enabled:!skin.owned,type:'checkbox',checked:settings.autonomous,click:item=>applySettings({autonomous:item.checked})},{type:'separator'},...[[ 'react','摸摸头'],['eat','喂白饭'],['play','撸猫时间'],['stretch','伸懒腰'],['sleep-in','睡一会儿'],['wake','叫她起床']].filter(([action])=>readyActions.includes(action)).map(([action,label])=>({label,click:()=>perform(action)})),{type:'separator'},{label:'回到屏幕中间',click:()=>{model.dragging=false;model.falling=false;model.x=workArea.width*.6;model.y=workArea.height;model.perform('idle',5);positionWindow();persist();}},{label:'回到 DSH',click:()=>void shell.openExternal('dsh://open').catch(()=>{})},{label:'退出桌宠',click:()=>{if(skin.owned)skin.requestStop();app.quit();}}]);tray.setContextMenu(built);return built;
+  const built=Menu.buildFromTemplate([{label:'主题盒子 · '+pack.name,enabled:false},...(skin.owned?[{label:'停止皮肤效果',click:()=>skin.requestStop()}]:[]),{label:settings.visible?'隐藏大肥鱼':'显示大肥鱼',enabled:!skin.owned,click:()=>applySettings({visible:!settings.visible})},{label:'重播启动动画',enabled:introAvailable(),click:()=>void showIntro().catch(()=>{})},{label:'相处模式',enabled:!skin.owned,submenu:Object.entries(pack.profiles).map(([id,profile])=>({label:profile.label,type:'radio',checked:settings.profile===id,click:()=>applySettings({profile:id})}))},{label:'自主活动',enabled:!skin.owned,type:'checkbox',checked:settings.autonomous,click:item=>applySettings({autonomous:item.checked})},{type:'separator'},...[[ 'react','摸摸头'],['eat','喂白饭'],['play','撸猫时间'],['stretch','伸懒腰'],['sleep-in','睡一会儿'],['wake','叫她起床']].filter(([action])=>readyActions.includes(action)).map(([action,label])=>({label,click:()=>perform(action)})),{type:'separator'},{label:'回到屏幕中间',click:()=>{model.dragging=false;model.falling=false;model.x=workArea.width*.6;model.y=workArea.height;model.perform('idle',5);positionWindow();persist();}},{label:'回到 DSH',click:()=>void shell.openExternal('dsh://open').catch(()=>{})},{label:'退出桌宠',click:()=>{if(skin.owned)skin.requestStop();app.quit();}}]);tray.setContextMenu(built);return built;
 }
 function closeLegacyPet(){
   if(window){
@@ -323,7 +323,7 @@ async function start(){
   });
   ipcMain.on('companion:menu',event=>{if(from(event,window))updateMenu().popup({window});});
   ipcMain.on('companion:drag',(event,mode)=>{if(!from(event,window))return;const cursor=screen.getCursorScreenPoint();if(mode==='begin'){model.startDrag();dragOffset={x:cursor.x-workArea.x-model.x,y:cursor.y-workArea.y-model.y};lastCursor={...cursor,at:Date.now()};window.setIgnoreMouseEvents(false);}else if(mode==='end'&&model.dragging){model.release(lastCursor?.vx||0,lastCursor?.vy||0);dragOffset=undefined;}});
-  tray=new Tray(nativeImage.createEmpty());if(process.platform==='darwin')tray.setTitle('鲸');tray.setToolTip('DSH 陪伴 · '+pack.name);updateMenu();
+  tray=new Tray(nativeImage.createEmpty());if(process.platform==='darwin')tray.setTitle('鲸');tray.setToolTip('主题盒子 · '+pack.name);updateMenu();
   bridge=await createBridge({dispatch:async(route,input)=>{
     if(route==='/status')return status();
     if(route==='/shutdown'){event('shutdown-requested');setTimeout(()=>app.quit(),100);return {stopping:true};}

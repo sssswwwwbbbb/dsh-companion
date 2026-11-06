@@ -6,8 +6,8 @@ window.__ModuleLoader__.load({
     __SKIN_SETTINGS_UI__
     const React=require('react'),z=require('zod').z,h=React.createElement,ns='dsh-plugin-companion',locales=__LOCALES__;
     const skinUi=createSkinSettingsUi(React,__SKIN_SETTINGS_ASSETS__);
-    const methods=['petInteract','petModels','skinSelect','skinConfigure','skinDisable','skinReset','skinStop','skinPage','skinInstall','status','start','stop','configure','action','activate','refreshLicense','deactivate','selectPack','importPack','exportPack','replayIntro','syncHostWindow','installLauncher','removeLauncher','revealLauncher','checkUpdate','downloadUpdate','revealDownload'];
-    const supplied=new Set(['skinReset','petInteract','skinSelect','skinConfigure','skinDisable','skinPage','configure','action','activate','selectPack','importPack','exportPack','syncHostWindow']);
+    const methods=['replyStyleSession','replyStyleSave','petInteract','petModels','skinSelect','skinConfigure','skinDisable','skinReset','skinStop','skinPage','skinInstall','status','start','stop','configure','action','activate','refreshLicense','deactivate','selectPack','importPack','exportPack','replayIntro','syncHostWindow','installLauncher','removeLauncher','revealLauncher','checkUpdate','downloadUpdate','revealDownload'];
+    const supplied=new Set(['replyStyleSession','replyStyleSave','skinReset','petInteract','skinSelect','skinConfigure','skinDisable','skinPage','configure','action','activate','selectPack','importPack','exportPack','syncHostWindow']);
     const codec=name=>({mode:'strict',typeSymbol:ns+'#'+name,create:()=>z.json()});
     const contribution={package:ns,descriptors:methods.map(method=>({id:ns+'#dshCompanion/'+method,service:'dshCompanion',namespace:'dshCompanion',method,invocation:{kind:'direct'},parameters:supplied.has(method)?[{name:'value',wire:'value',source:'json',codec:codec(method+':value')}]:[],result:codec(method+':result')}))};
     return {inject:['locale'],apply(ctx){
@@ -40,6 +40,7 @@ window.__ModuleLoader__.load({
           function download(filename,text){const url=URL.createObjectURL(new Blob([text],{type:'application/json;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=filename;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
           function Page(){
             const [state,setState]=React.useState(null),[tab,setTab]=React.useState('library'),[skinView,setSkinView]=React.useState('common'),[busy,setBusy]=React.useState(false),[stopping,setStopping]=React.useState(false),[error,setError]=React.useState(''),[notice,setNotice]=React.useState(''),[code,setCode]=React.useState(''),[confirmUnbind,setConfirmUnbind]=React.useState(false),[petText,setPetText]=React.useState(''),[petReply,setPetReply]=React.useState(null),[modelDirectory,setModelDirectory]=React.useState({current:null,models:[]}),[selection,setSelection]=React.useState(null);
+            const [importedKey,setImportedKey]=React.useState(null);
             React.useEffect(()=>{setPetReply(null);},[state?.skin?.selected?.contentKey]);
             React.useEffect(()=>{let active=true;void call('petModels').then(value=>{if(active)setModelDirectory(value);}).catch(()=>{});return()=>{active=false;};},[]);
             const gateRef=React.useRef(null);if(!gateRef.current)gateRef.current=createClientRequestGate();const gate=gateRef.current;
@@ -52,15 +53,18 @@ window.__ModuleLoader__.load({
             // not block the next gesture. Keep only the latest unsent value per field.
             const fieldBatch=React.useRef(null);
             const [fieldDrafts,setFieldDrafts]=React.useState({});
+            const [fieldFailures,setFieldFailures]=React.useState({});
+            const selectedKey=state?.skin?.selected?.contentKey;
+            React.useEffect(()=>{setFieldFailures({});},[selectedKey]);
             function discardFieldEdits(){fieldBatch.current=null;setFieldDrafts({});}
-            function saveField(module,field,value){
+            function saveField(module,field,value,retry=false){
               let batch=fieldBatch.current;
               if(!batch){
                 const ticket=gate.beginNormal();if(!ticket)return;
-                batch={ticket,contentKey:state?.skin?.selected?.contentKey,queue:new Map()};fieldBatch.current=batch;setBusy(true);setError('');setNotice('');
+                batch={ticket,contentKey:selectedKey,queue:new Map()};fieldBatch.current=batch;setBusy(true);setError('');setNotice('');
               }
               const key=module+'.'+field;
-              batch.queue.set(key,{module,field,value,contentKey:batch.contentKey});
+              batch.queue.set(key,{edit:{module,field,value,contentKey:batch.contentKey},retry});
               setFieldDrafts(previous=>({...previous,[key]:value}));
               if(!batch.saving)void flushFields(batch);
             }
@@ -68,16 +72,39 @@ window.__ModuleLoader__.load({
               batch.saving=true;
               try{
                 while(batch.queue.size&&gate.current(batch.ticket)){
-                  const [key,edit]=batch.queue.entries().next().value;batch.queue.delete(key);
-                  const result=await call('skinConfigure',edit);
-                  if(!gate.current(batch.ticket))return;
-                  setState(result);
-                  if(!batch.queue.has(key))setFieldDrafts(previous=>{
-                    const next={...previous};delete next[key];return next;
-                  });
+                  const [key,{edit,retry}]=batch.queue.entries().next().value;
+                  batch.queue.delete(key);
+                  let failed=false;
+                  try{
+                    let saved=false;
+                    if(retry){
+                      const current=await call('status');if(!gate.current(batch.ticket))return;
+                      setState(current);
+                      if(current.skin?.selected?.contentKey!==edit.contentKey)return;
+                      const value=current.skin.settings?.[edit.module]?.controls?.find(row=>row.field===edit.field)?.value;
+                      saved=value===edit.value||!!(value?.mode&&value.mode===edit.value?.mode&&value.provider===edit.value.provider&&value.model===edit.value.model);
+                    }
+                    if(!saved){
+                      const result=await call('skinConfigure',edit);
+                      if(!gate.current(batch.ticket))return;
+                      setState(result);
+                    }
+                  }catch(failure){
+                    if(!gate.current(batch.ticket)||gate.cancelled(failure))return;
+                    failed=true;
+                  }
+                  if(!batch.queue.has(key)){
+                    setFieldDrafts(previous=>{
+                      const next={...previous};delete next[key];return next;
+                    });
+                    setFieldFailures(previous=>{
+                      const next={...previous};
+                      if(failed)next[key]=edit;
+                      else delete next[key];
+                      return next;
+                    });
+                  }
                 }
-              }catch(failure){
-                if(gate.current(batch.ticket)&&!gate.cancelled(failure))setError(errorKey(failure));
               }finally{
                 if(fieldBatch.current===batch)discardFieldEdits();
                 if(gate.finish(batch.ticket))setBusy(gate.busy);
@@ -86,6 +113,7 @@ window.__ModuleLoader__.load({
             async function work(method,value){
               const ticket=gate.beginNormal();if(!ticket)return;setBusy(true);setError('');setNotice('');
               const returnPanel=method==='replayIntro'&&state?.startup?.workspaceHandoff?ctx.layout.panelInfo.getSnapshot().activePanelId:null;
+              if(method==='skinInstall')setImportedKey(null);
               if(method==='skinSelect')setSelection({contentKey:value.contentKey,status:'applying'});
               try{
                 if(['activate','start','replayIntro'].includes(method))await syncWindow();
@@ -94,11 +122,18 @@ window.__ModuleLoader__.load({
                 if(returnPanel!==null&&result.startup?.playing&&ctx.layout.panelInfo.getSnapshot().activePanelId===returnPanel)ctx.layout.selectPanel(null);
                 if(method==='exportPack'){download(result.filename,result.json);setNotice('exported');}else setState(result);
                 if(method==='skinSelect')setSelection(null);
-                if(method==='skinInstall')setNotice(result.skinImport?.canceled?'skinInstallCancelled':result.skinImport?.duplicate?'skinAlreadyInstalled':'skinInstalled');
+                if(method==='skinReset'){setFieldFailures({});setNotice('skinResetComplete');}
+                if(method==='replyStyleSave')setNotice('replyStyleSaved');
+                if(method==='skinInstall'){
+                  const imported=result.skinImport;
+                  setImportedKey(imported?.contentKey??null);
+                  setNotice(imported?.canceled?'skinInstallCancelled':imported?.duplicate?'skinAlreadyInstalled':'skinInstalled');
+                }
                 if(method==='activate'){setCode('');setNotice('activationSuccess');}if(method==='deactivate'){setCode('');setConfirmUnbind(false);setTab('setup');}if(method==='downloadUpdate')setNotice('downloadVerified');return result;
               }catch(failure){
                 if(gate.current(ticket)&&!gate.cancelled(failure)){
-                  setError(method==='skinInstall'&&errorKey(failure)==='failed'?'skinInstallFailed':errorKey(failure));
+                  const key=errorKey(failure);
+                  setError(method==='skinSelect'&&key==='SKIN_RESOURCE_MISSING'?'skinApplyMissingFiles':method==='skinInstall'&&key==='failed'?'skinInstallFailed':key);
                   if(method==='skinSelect'){
                     setSelection({contentKey:value.contentKey,status:'failed'});
                     const current=await call('status').catch(()=>null);if(current&&gate.current(ticket))setState(current);
@@ -144,8 +179,8 @@ window.__ModuleLoader__.load({
             function selectSkin(row){if(skin?.selected?.contentKey===row.contentKey&&!skin.stopped&&skin.phase==='ready')return;void work('skinSelect',{contentKey:row.contentKey});}
             const startupReady=skin?.settings?.startup?.status==='enabled'&&skin?.results?.startup?.status==='ready'&&!skin?.stopped;
             const managedSummary=()=>h('div',{className:'dshc-card','data-skin-summary':true},h('h2',null,'当前使用整套皮肤'),h('p',null,skin.selected.name+' · '+skin.selected.version),h('p',{className:'dshc-note'},'主题、桌宠与开场统一在皮肤页管理。停止后可恢复本套，保留已调整参数和模块开关。'),goSkin());
-            const skinContent=h(skinUi.Settings,{key:skin?.selected?.contentKey,state,skin,view:skinView,active,busy,fieldBusy:busy&&!fieldBatch.current,fieldDrafts,saveField,stopping,work,stopSkin,modelDirectory,petText,setPetText,sendPet,petReply,setSection});
-            const content=tab==='library'?h(skinUi.Library,{skin,active,busy,selection,setSection,select:selectSkin,work}):tab==='skin'?skinContent:tab==='setup'?h(React.Fragment,null,
+            const skinContent=h(skinUi.Settings,{key:skin?.selected?.contentKey,state,skin,view:skinView,active,busy,fieldBusy:busy&&!fieldBatch.current,fieldDrafts,fieldFailures,saveField,stopping,work,stopSkin,modelDirectory,petText,setPetText,sendPet,petReply,setSection});
+            const content=tab==='library'?h(skinUi.Library,{skin,active,busy,selection,importedKey,setSection,select:selectSkin,work,stopSkin}):tab==='skin'?skinContent:tab==='setup'?h(React.Fragment,null,
               h('div',{className:'dshc-card'},h('h2',null,t('licenseTitle')),active?h(React.Fragment,null,h('p',null,t(license.state==='offline'?'offlineActive':'deviceActive')),h('p',{className:'dshc-note'},t('expiresAt')+' '+expiry)):h(React.Fragment,null,h('p',{className:'dshc-note'},t('activationIntro')),h('label',{htmlFor:'dshc-code'},t('activationCode')),h('div',{className:'dshc-row'},h('input',{id:'dshc-code',type:'password',autoComplete:'off',value:code,placeholder:t('codePlaceholder'),onChange:event=>setCode(event.target.value),'aria-label':t('activationCode')}),button('activate','activate',code,!code.trim())),h('p',{className:'dshc-note'},t('unactivatedNote')))),
               skinManaged?managedSummary():h(React.Fragment,null,(skin?.catalog||[]).some(row=>!row.example)&&h('div',{className:'dshc-card'},h('h2',null,'试用整套皮肤'),h('p',null,'主题、桌宠与开场可一起应用，再按需关闭各个模块。'),goSkin()),h('div',{className:'dshc-card'},h('h2',null,t('choosePack')),h('p',{className:'dshc-note'},t('packIntro')),h('label',{htmlFor:'dshc-pack'},t('configurationPack')),h('select',{id:'dshc-pack',value:settings.packId||'whale-maid-demo',disabled:busy||!active,onChange:event=>void work('selectPack',event.target.value)},...(state?.packs||[]).map(pack=>h('option',{key:pack.id,value:pack.id},pack.name))),h('p',{className:'dshc-note'},currentPack?.description||''),h('div',{className:'dshc-row'},button('exportPack','exportPack',settings.packId,!active),h('label',{className:'dshc-file'},t('importPack'),h('input',{type:'file',accept:'.json',disabled:busy||!active,'aria-label':t('importPack'),onChange:async event=>{const file=event.target.files?.[0];event.target.value='';if(!file)return;if(file.size>65536){setError('PACK_TOO_LARGE');return;}try{const imported=await work('importPack',JSON.parse(await file.text()));if(imported)setNotice('packImported');}catch{setError('PACK_INVALID');}}}))),h('p',{className:'dshc-note'},t('packMaterialNote')))),
               h('div',{className:'dshc-card'},h('h2',null,t('startupTitle')),check('startupEnabled','startupEnabled',!active),check('autoStart','autoStart',!active),h('p',{className:'dshc-note'},t('desktopOpeningIntro')),h('div',{className:'dshc-row'},button('replayIntro','replayIntro',undefined,!active||skinManaged&&!startupReady)),h('div',{className:'dshc-row'},skinManaged?goSkin():h(React.Fragment,null,button('start','start',undefined,!active||running),h('button',{type:'button',onClick:()=>setTab('control')},t('controlTab')))))
@@ -160,9 +195,44 @@ window.__ModuleLoader__.load({
               h('div',{className:'dshc-card'},h('h2',null,t('recoveryTitle')),h('p',{className:'dshc-note'},t('recoveryIntro')),h('div',{className:'dshc-row'},h('span',null,t('pluginLabel')),h('button',{type:'button',disabled:busy,'aria-label':t('disablePluginAction'),onClick:()=>void disablePlugin()},t('disablePlugin'))),state?.launcher?.installed&&h(React.Fragment,null,h('div',{className:'dshc-row'},h('span',null,t('launcherLabel')),button('removeLauncher','removeLauncher')),h('p',{className:'dshc-note'},t('launcherRemovalNote'))))
             );
             const displaySkin=skin?.selected||(skin?.catalog||[]).find(row=>!row.example);
-            const footer=tab==='library'?(skin?(skin.catalog||[]).filter(row=>!row.example).length+' 套已安装 · '+(skin.selected?'当前选择：'+skin.selected.name:'尚未选择皮肤'):'正在读取皮肤库…'):tab==='skin'&&displaySkin?displaySkin.name+' · '+displaySkin.version+' · 素材来源与使用范围见本套随附说明。':skinManaged?skin.selected.name+' · '+skin.selected.version:t('source');
-            return h(skinUi.Shell,{tab,view:skinView,setSection,skin,busy,stopping,active,status:fieldBatch.current?'正在保存…':busy?t('busy'):skinManaged?(skinState[skin?.phase]||'加载中'):t(status),error:error?t(error):'',notice:notice?t(notice):'',footer,scheme:ctx.get('theme')?.getTheme()?.active?.colorScheme,work,stopSkin},content);
+            const footer=tab==='skin'&&displaySkin?displaySkin.name+' · '+displaySkin.version+' · 素材来源与使用范围见本套随附说明。':skinManaged?skin.selected.name+' · '+skin.selected.version:t('source');
+            return h(skinUi.Shell,{tab,view:skinView,setSection,skin,busy,stopping,active,status:fieldBatch.current?'正在保存…':busy?t('busy'):skinManaged?(skinState[skin?.phase]||'加载中'):t(status),error:error?t(error):'',notice:notice?t(notice):'',footer,replyStyle:state?.replyStyle,scheme:ctx.get('theme')?.getTheme()?.active?.colorScheme,work,stopSkin},content);
           }
+          function SessionReplyStyle({sessionId}){
+            const [style,setStyle]=React.useState(null),[saving,setSaving]=React.useState(false),[failed,setFailed]=React.useState(false);
+            const gateRef=React.useRef(null);if(!gateRef.current)gateRef.current=createClientRequestGate();const gate=gateRef.current;
+            const mounted=React.useRef(false);
+            React.useEffect(()=>{
+              mounted.current=true;
+              async function refresh(){
+                const stamp=gate.stamp();if(stamp===null)return;
+                const result=await call('replyStyleSession',{sessionId}).catch(()=>null);
+                if(mounted.current&&gate.refreshCurrent(stamp))setStyle(result);
+              }
+              void refresh();const timer=setInterval(refresh,1500);
+              return()=>{mounted.current=false;clearInterval(timer);};
+            },[sessionId]);
+            async function toggle(){
+              const ticket=gate.beginNormal();if(!ticket)return;
+              setSaving(true);setFailed(false);
+              try{
+                const value=await call('replyStyleSession',{sessionId,contentKey:style.contentKey,enabled:!style.enabled});
+                if(mounted.current)setStyle(value);
+              }catch{
+                if(mounted.current)setFailed(true);
+              }finally{
+                gate.finish(ticket);
+                if(mounted.current)setSaving(false);
+              }
+            }
+            if(!style)return null;
+            return h('span',{className:'dshc-reply-style'},
+              h('style',null,'.dshc-reply-style{display:inline-flex;gap:6px;align-items:center}.dshc-reply-style button{background:transparent;color:var(--dsw-alias-label-secondary);border:1px solid currentColor;border-radius:5px;padding:2px 7px;font:inherit;font-size:12px;white-space:nowrap;cursor:pointer}.dshc-reply-style button[aria-pressed=true]{color:var(--dsw-alias-label-primary)}.dshc-reply-style button:disabled{opacity:.55}.dshc-reply-style small{font-size:12px}'),
+              h('button',{type:'button','aria-label':'当前会话回复风格','aria-pressed':style.enabled,disabled:saving,onClick:()=>void toggle(),title:style.tone},style.enabled?'回复风格 · 已开':'回复风格'),
+              failed&&h('small',{role:'status'},'未更新，可重试'));
+          }
+          const ReplyStyleSlot=({sessionId})=>sessionId?h(SessionReplyStyle,{key:sessionId,sessionId}):null;
+          ctx.slots.inject('conversation.session.header.utilities',()=>ctx.slots.register({name:'conversation.session.header.utilities',id:'dsh-companion-reply-style',order:45},ReplyStyleSlot));
           function Icon({size=20}){
             const mark=React.useSyncExternalStore(markSource.subscribe,markSource.getSnapshot);
             if(mark)return h('span',{'aria-hidden':true,style:{width:24,height:24,display:'inline-grid'}},

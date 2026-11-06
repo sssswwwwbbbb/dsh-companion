@@ -17,7 +17,7 @@ function speak(text) {
 }
 function updateAccessibility(){
   const hints=[];if(decodedMedia.has('react'))hints.push('点击回应');if(decodedMedia.has('eat'))hints.push('双击喂饭');hints.push('拖动移动','右键打开菜单');
-  root.setAttribute('aria-label',pack.name+'：'+hints.join('，'));document.title='DSH 陪伴 · '+pack.name;
+  root.setAttribute('aria-label',pack.name+'：'+hints.join('，'));document.title='主题盒子 · '+pack.name;
 }
 function reportReady(){updateAccessibility();window.companion.ready({packId:pack.id,packToken,availableActions:[...decodedMedia]});}
 function selectClip(id) {

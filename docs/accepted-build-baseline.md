@@ -1,5 +1,7 @@
 # Mac dev.27 / Windows dev.31 验收基线
 
+以下复建命令对应基线提交 `5963502`。从该提交准备独立构建目录，即可还原文档所列版本。
+
 Mac 生产源码来自 `.local/dsh-cold-start-dev27-release/` 冻结目录，并与同版验收包核对。Windows dev.31 以本次从同一源码构建出的 Mac dev.27 包和 Windows Electron 为输入，应用原验收配方的 Windows 差异并打包。原始 Mac dev.27 归档提供构建素材；原始 W0、Windows dev.31 归档只用于历史复验和内容对照。
 
 ## 固定输入

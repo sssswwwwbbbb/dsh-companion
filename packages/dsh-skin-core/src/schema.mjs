@@ -72,10 +72,15 @@ export const definitions = {
     localReply:{fixed:true,default:'',valid:x=>text(x,120)},
   }},
 };
+export function validateReplyStyle(value) {
+  if(!object(value)||Object.keys(value).length!==2||!text(value.address,32)||!text(value.tone,280)||!value.tone.trim())fail('REPLY_STYLE_INVALID');
+  return {address:value.address.trim(),tone:value.tone.trim()};
+}
 export function validateManifest(input) {
   if (JSON.stringify(input)?.length > 65536) fail('SKIN_TOO_LARGE');
-  keys(input,['formatVersion','id','version','name','description','dshVersions','assets','modules'],'skin');
+  keys(input,['formatVersion','id','version','name','description','dshVersions','assets','modules','replyStyle'],'skin');
   if(input.formatVersion!==2) fail('SKIN_FORMAT_UNSUPPORTED');
+  if(own(input,'replyStyle'))validateReplyStyle(input.replyStyle);
   if(!id(input.id)||!/^\d+\.\d+\.\d+$/.test(input.version||'')||typeof input.name!=='string'||!input.name.length||input.name.length>80) fail('SKIN_ID_INVALID');
   if(input.description!==undefined&&(typeof input.description!=='string'||input.description.length>500))fail('SKIN_FIELDS_INVALID','description');
   if(!Array.isArray(input.dshVersions)||!input.dshVersions.length||input.dshVersions.length>10||!input.dshVersions.every(x=>typeof x==='string'&&/^\d+\.\d+\.\d+(?:-[a-z0-9.]+)?$/.test(x)))fail('SKIN_COMPATIBILITY_INVALID');
