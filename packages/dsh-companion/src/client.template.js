@@ -6,8 +6,8 @@ window.__ModuleLoader__.load({
     __SKIN_SETTINGS_UI__
     const React=require('react'),z=require('zod').z,h=React.createElement,ns='dsh-plugin-companion',locales=__LOCALES__;
     const skinUi=createSkinSettingsUi(React,__SKIN_SETTINGS_ASSETS__);
-    const methods=['replyStyleSession','replyStyleSave','petInteract','petModels','skinSelect','skinConfigure','skinDisable','skinReset','skinStop','skinPage','skinCover','skinInstall','status','start','stop','configure','action','activate','refreshLicense','deactivate','selectPack','importPack','exportPack','replayIntro','syncHostWindow','installLauncher','removeLauncher','revealLauncher','checkUpdate','downloadUpdate','revealDownload'];
-    const supplied=new Set(['replyStyleSession','replyStyleSave','skinReset','petInteract','skinSelect','skinConfigure','skinDisable','skinPage','skinCover','configure','action','activate','selectPack','importPack','exportPack','syncHostWindow']);
+    const methods=['workAutonomyConfigure','replyStyleSession','replyStyleSave','petInteract','petModels','skinSelect','skinConfigure','skinDisable','skinReset','skinStop','skinPage','skinCover','skinInstall','status','start','stop','configure','action','activate','refreshLicense','deactivate','selectPack','importPack','exportPack','replayIntro','syncHostWindow','installLauncher','removeLauncher','revealLauncher','checkUpdate','downloadUpdate','revealDownload'];
+    const supplied=new Set(['workAutonomyConfigure','replyStyleSession','replyStyleSave','skinReset','petInteract','skinSelect','skinConfigure','skinDisable','skinPage','skinCover','configure','action','activate','selectPack','importPack','exportPack','syncHostWindow']);
     const codec=name=>({mode:'strict',typeSymbol:ns+'#'+name,create:()=>z.json()});
     const contribution={package:ns,descriptors:methods.map(method=>({id:ns+'#dshCompanion/'+method,service:'dshCompanion',namespace:'dshCompanion',method,invocation:{kind:'direct'},parameters:supplied.has(method)?[{name:'value',wire:'value',source:'json',codec:codec(method+':value')}]:[],result:codec(method+':result')}))};
     return {inject:['locale'],apply(ctx){

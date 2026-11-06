@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {randomUUID} from 'node:crypto';
 import {validateManifest,resolveSettings} from '../packages/dsh-skin-core/src/schema.mjs';
+import {PetInteraction} from '../packages/dsh-companion/src/pet-interaction.mjs';
 import {WorkFeedback} from '../packages/dsh-companion/src/work-feedback.mjs';
 import {NativeWorkFeedback} from '../runtime-src/work-feedback.mjs';
 import {installSessionFeedback} from '../packages/dsh-skin-core/adapters/session-feedback.mjs';
@@ -21,9 +22,9 @@ test('declarations are opt-in, use package defaults and retain hidden choices wi
  const oldVersion=manifest();oldVersion.modules.theme.configVersion=1;assert.throws(()=>validateManifest(oldVersion),/SKIN_SETTING_UNSUPPORTED/);
  const missingAction=manifest();delete missingAction.modules.pet.config.animations.react;assert.throws(()=>validateManifest(missingAction),/SKIN_SETTING_UNSUPPORTED/);
 });
-function system(){
+function system(options){
  const m=manifest(),state={selected:{manifest:m,contentKey:'a'.repeat(64)},generation:1,stopped:false,pending:null,results:{pet:{status:'ready'}},disabled:{},overrides:{}};
- const core={state,generation:1,phase:'ready',pendingSelections:0,disposed:false,store:{hasStops:()=>false},view:()=>resolveSettings(m,state,available)};
+ const core={state,generation:1,phase:'ready',pendingSelections:0,disposed:false,store:{hasStops:()=>false,write(){}},queue:async operation=>operation(),view:()=>resolveSettings(m,core.state,available)};
  const page={active:true,client:{id:randomUUID()},available:()=>true};page.lastReady={clientId:page.client.id,generation:1,contentKey:state.selected.contentKey};
  const actions=[];let playback;
  const play=action=>{actions.push(action);return playback={action};};
@@ -31,7 +32,8 @@ function system(){
   if(playback&&playback.action!=='idle')return null;
   const reaction=play('react');return ()=>playback===reaction?play('idle').action:null;
  }});
- const controller={credentials:()=>({}),request:async(_route,body)=>native.deliver(body)},skins={core,page,controller},work=new WorkFeedback(skins);
+ const controller={credentials:()=>({}),request:async(_route,body)=>native.deliver(body)},skins={core,page,controller},work=new WorkFeedback(skins,options);
+ controller.skins={...skins,work};
  const packet=(revision,state='completed',extra={})=>({clientId:page.client.id,work:{generation:1,contentKey:core.state.selected.contentKey,revision,bindingId:'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',sessionId:'session-a',seq:12,state,reducedMotion:false,...extra}});
  return {m,state,core,page,controller,work,native,actions,packet,play};
 }
@@ -67,6 +69,78 @@ test('late completion cannot overtake the newer binding cancellation at Native',
  s.controller.request=async(_route,body)=>{if(body.state==='completed')await wait;return s.native.deliver(body);};
  s.work.accept(s.packet(1),{});s.work.accept(s.packet(2,'idle',{sessionId:'session-b',bindingId:randomUUID()}),{});await tick();release();await tick();
  assert.equal(s.native.reactions,0);assert.equal(s.actions.includes('react'),false);
+});
+function autonomy(){
+ let clock=0;
+ const s=system({now:()=>clock});
+ const calls=[];
+ const originalRequest=s.controller.request;
+ Object.assign(s.controller,{
+  entitlement:{require(){}},
+  nativeStatus:async()=>({workReactionAvailable:true,availableActions:['react']}),
+  request:(route,data)=>route==='/interaction'?Promise.resolve({action:data.action,speech:data.speech}):originalRequest(route,data),
+  status:async()=>s.work.status(s.core.view())
+ });
+ const pet=new PetInteraction(s.controller,{complete:input=>{
+  calls.push(input);
+  return s.complete(input);
+ }});
+ s.controller.interactions=pet;
+ return {...s,pet,calls,advance:()=>{clock+=60_000;},respond:fn=>{s.complete=fn;}};
+}
+test('opt-in work decisions can choose silence or react and only get the work state',async()=>{
+ const s=autonomy();
+ const contentKey=s.core.state.selected.contentKey;
+ assert.equal(s.work.status(s.core.view()).enabled,false);
+ await assert.rejects(s.work.configure({contentKey:'different',enabled:true}),/SKIN_OPERATION_SUPERSEDED/);
+ await s.work.configure({contentKey,enabled:true});
+ assert.equal(s.work.status(s.core.view()).enabled,true);
+ s.respond(async()=>({text:'{"speech":null,"action":null}'}));
+ s.work.accept(s.packet(1,'running'),{});
+ s.work.accept(s.packet(2,'completed'),{});await tick();
+ assert.equal(s.calls.length,1);
+ assert.deepEqual(s.calls[0].input.scene,{state:'completed',previousState:'running',posture:'idle',lastResult:null});
+ assert.equal(Object.hasOwn(s.calls[0].input,'user'),false);
+ assert.equal(Object.hasOwn(s.calls[0].input,'recent'),false);
+ assert.deepEqual(s.actions,[]);
+ assert.equal(s.work.status(s.core.view()).last,'quiet');
+ s.work.accept(s.packet(3,'completed',{seq:13}),{});await tick();
+ assert.equal(s.calls.length,1);
+ s.advance();
+ s.respond(async()=>({text:'{"speech":null,"action":"react"}'}));
+ s.work.accept(s.packet(4,'completed',{seq:14}),{});await tick();
+ assert.equal(s.calls.length,2);
+ assert.equal(s.calls[1].input.scene.lastResult,'quiet');
+ assert.deepEqual(s.actions,['react']);
+ assert.equal(s.work.status(s.core.view()).last,'reacted');
+});
+test('busy desktop, model failure and newer manual or session actions keep automatic responses quiet',async()=>{
+ const s=autonomy();
+ await s.work.configure({contentKey:s.core.state.selected.contentKey,enabled:true});
+ s.controller.nativeStatus=async()=>({workReactionAvailable:false,availableActions:['react']});
+ s.work.accept(s.packet(1),{});await tick();
+ assert.equal(s.calls.length,0);
+ s.controller.nativeStatus=async()=>({workReactionAvailable:true,availableActions:['react']});
+ s.respond(async()=>{throw new Error('MODEL_UNAVAILABLE');});
+ s.work.accept(s.packet(2,'completed',{seq:13}),{});await tick();
+ assert.equal(s.work.status(s.core.view()).last,'unavailable');
+ assert.deepEqual(s.actions,[]);
+ s.advance();
+ let resolve;
+ s.respond(({input})=>input.trigger==='click'?Promise.resolve({text:'{"speech":null,"action":null}'}):new Promise(done=>{resolve=done;}));
+ s.work.accept(s.packet(3,'completed',{seq:14}),{});await tick();
+ const previous=s.calls.at(-1);
+ await s.pet.interact({trigger:'click'});
+ assert.equal(previous.signal.aborted,true);
+ resolve({text:'{"speech":null,"action":"react"}'});await tick();
+ assert.deepEqual(s.actions,[]);
+ s.advance();
+ s.work.accept(s.packet(4,'completed',{seq:15}),{});await tick();
+ const oldSession=s.calls.at(-1);
+ s.work.accept(s.packet(5,'attention',{sessionId:'session-b',bindingId:randomUUID()}),{});await tick();
+ assert.equal(oldSession.signal.aborted,true);
+ resolve({text:'{"speech":null,"action":"react"}'});await tick();
+ assert.deepEqual(s.actions,[]);
 });
 function store(value){const listeners=new Set();return {getSnapshot:()=>value,subscribe:f=>{listeners.add(f);return()=>listeners.delete(f);},set:v=>{value=v;for(const f of [...listeners])f();},count:()=>listeners.size};}
 function session(){const feed=store({entries:[],change:{kind:'replace',entries:[]}}),questions=store({active:[]}),inbox=store({'next-step':[],'next-turn':[]});return {eventSource:feed,questions,inbox,projections:{faceOf:key=>key==='userQuestions'?questions:inbox},append(type,seq,reason){const event={type,seq,data:{turn:1,...reason?{reason:{kind:reason}}:{}}},row={type:'durable',event};feed.set({entries:[...feed.getSnapshot().entries,row],change:{kind:'append',entries:[row]}});}};}

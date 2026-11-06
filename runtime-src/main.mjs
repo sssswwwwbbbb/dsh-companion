@@ -49,10 +49,12 @@ function desktopOpeningHeld(){
 const startup=new NativeStartupRuntime({stateDir,dshVersion:integration.dshVersion,onCancel:reason=>{if(activeIntro?.custom)cancelIntro(reason);}});
 const usesWorker=()=>backend?.supports(skin.contentKey)===true;
 const desktopReady=()=>usesWorker()?backend.status().ready:ready;
+const legacyWorkReady=()=>ready&&model?.action==='idle'&&!model.dragging&&!model.falling&&readyActions.includes('react')&&!!pack.animations.react;
 const skin=new NativeSkinRuntime({stateDir,loadPack:id=>packs.get(id),workReaction:current=>{
+  if(pendingInteraction)return null;
   if(usesWorker())return backend.workReaction(current);
   const pet=model;
-  if(!ready||pet?.action!=='idle'||!readyActions.includes('react')||!pack.animations.react)return null;
+  if(!legacyWorkReady())return null;
   if(!pet.perform('react',pack.animations.react.seconds))return null;
   const reaction=pet.actionRevision;
   sendState();
@@ -97,7 +99,7 @@ function status(){
   const nativeWindow=worker?worker.windows[0]||null:window&&!window.isDestroyed()?{visible:window.isVisible(),bounds:window.getBounds(),alwaysOnTop:window.isAlwaysOnTop()}:null;
   return {running:!quitting,bridgeReady:!!bridge,ready:worker?.ready??ready,phase,version,skin:skin.status(),platform:process.platform,arch:process.arch,pid:process.pid,started,errorCode,settings,
     action:worker?worker.lastAction?.action||'idle':model?.action||'idle',needsHost:ownerPid<1,pack:{id:pack.id,name:pack.name,token:packToken},
-    backend:worker,position:model&&!worker?{x:Math.round(model.x),y:Math.round(model.y)}:null,window:nativeWindow,
+    backend:worker,workReactionAvailable:!!(!pendingInteraction&&skin.canShow()&&nativeWindow?.visible&&(worker?worker.ready&&backend.canWorkReact(nativeWindow.renderer):legacyWorkReady())),position:model&&!worker?{x:Math.round(model.x),y:Math.round(model.y)}:null,window:nativeWindow,
     startup:{...startup.status(),playing:introPlaying,rendererReady:introReady,media:introMedia,videoEnded:introVideoEnded,handoff:introHandoff,fallback:introFallback,audioMuted:introAudioMuted,audioAudible:openingAudioAudible(),
       hostReady:ownerPid>0,coldRequested,desktopOpeningHeld:desktopOpeningHeld(),elapsedSeconds:introPlaying?(Date.now()-introStartedAt)/1000:0,
       durationSeconds:introPlaying?introDuration:startup.descriptor?.seconds||pack.startup.seconds,completions:introCompletions,errorCode:introError||startup.errorCode||null,

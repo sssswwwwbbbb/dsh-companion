@@ -139,9 +139,13 @@ export class WholePetBackend {
   }finally{if(this.pendingAction===sequence)this.pendingAction=undefined;}
  }
 
+ canWorkReact(renderer=this.snapshot().windows[0]?.renderer){
+  const sprite=renderer?.sprites?.[0];
+  return !!(this.ready&&this.pendingAction===undefined&&sprite&&!sprite.dragging&&!sprite.moving&&idlePresented(renderer,this.names.idle));
+ }
+
  async workReaction(assertCurrent){
-  const renderer=this.snapshot().windows[0]?.renderer,sprite=renderer?.sprites?.[0];
-  if(!this.ready||this.pendingAction!==undefined||!sprite||sprite.dragging||sprite.moving||!idlePresented(renderer,this.names.idle))return null;
+  if(!this.canWorkReact())return null;
   const pending=this.act('react',assertCurrent),sequence=this.sequence;
   await pending;
   const playbackId=this.lastAction.playbackId;

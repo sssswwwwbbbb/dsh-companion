@@ -11,7 +11,7 @@ export function parsePetDecision(text,capabilities){
 }
 export class PetInteraction {
   constructor(controller,model){this.controller=controller;this.model=model;this.history=new Map();this.sequence=0;this.last=null;}
-  cancel(){this.sequence++;this.pending?.abort();this.pending=null;}
+  cancel(){this.sequence++;this.pending?.abort();this.pending=null;this.controller.skins.work?.cancelDecision();}
   current(){
     const core=this.controller.skins.core,pet=core.view().pet;
     // Module-local updates keep the committed skin live. Pet preference updates
@@ -25,11 +25,21 @@ export class PetInteraction {
     return {available:true,smartEnabled:context.config.smartEnabled,pending:!!this.pending,last:this.last?.skinId===context.skinId?this.last:null,historyCount:(this.history.get(context.skinId)||[]).length};
   }
   async models(){return this.model?this.model.models():{current:null,models:[],reason:'PET_MODEL_UNAVAILABLE'};}
+  async chooseWorkReaction({previousState,lastResult,signal}){
+    const {skinId,config}=this.current();
+    if(!this.model)fail('PET_MODEL_UNAVAILABLE');
+    const capabilities={speech:false,actions:[{id:'react',description:config.actionDescriptions.react}]};
+    const input={persona:config.persona,trigger:'work-completed',scene:{state:'completed',previousState,posture:'idle',lastResult},capabilities};
+    const reply=await this.model.complete({selection:config.modelSelection,input,skinId,signal});
+    signal.throwIfAborted();
+    return parsePetDecision(reply.text,capabilities).action;
+  }
   async interact({text='',trigger='input',generation,contentKey}={}){
     if(typeof text!=='string'||text.length>1000||!['input','click'].includes(trigger))fail('PET_INPUT_INVALID');
     if(this.pending)fail('PET_INTERACTION_BUSY');
     const context=this.current();
     if(generation!==undefined&&(generation!==context.generation||contentKey!==context.contentKey))fail('SKIN_OPERATION_SUPERSEDED');
+    this.controller.skins.work?.cancelDecision();
     const sequence=++this.sequence,abort=new AbortController();this.pending=abort;
     const assertCurrent=()=>{
       const current=this.current();

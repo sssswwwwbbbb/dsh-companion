@@ -25,7 +25,7 @@ export class CompanionSkins {
   status(){
     let settings={};try{settings=this.core.view();}catch{}
     const unavailable=this.unavailable.filter((row,index,rows)=>!this.snapshots.has(row.contentKey)&&rows.findIndex(other=>other.contentKey===row.contentKey)===index);
-    return {...this.core.status(),settings,catalog:[...this.snapshots.values()].map(s=>({id:s.manifest.id,contentKey:s.contentKey,name:s.manifest.name,description:s.manifest.description,version:s.manifest.version,hasCover:!!s.manifest.cover,modules:Object.keys(s.manifest.modules),example:this.examples.has(s.manifest.id)})).concat(unavailable)};
+    return {...this.core.status(),settings,workAutonomy:this.work.status(settings),catalog:[...this.snapshots.values()].map(s=>({id:s.manifest.id,contentKey:s.contentKey,name:s.manifest.name,description:s.manifest.description,version:s.manifest.version,hasCover:!!s.manifest.cover,modules:Object.keys(s.manifest.modules),example:this.examples.has(s.manifest.id)})).concat(unavailable)};
   }
   cover({contentKey}={}){
     this.controller.entitlement.require();

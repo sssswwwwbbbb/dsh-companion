@@ -15,6 +15,7 @@ export class CompanionService extends TypertRemoteService {
   replyStyleSession(value) { return this.controller.replyStyle?.session(value)??null; }
   replyStyleSave(value) { this.controller.replyStyle.save(value);return this.controller.status(); }
   skinSelect(value) { return this.controller.skins.select(value); }
+  workAutonomyConfigure(value) { return this.controller.skins.work.configure(value); }
   skinConfigure(value) { return this.controller.skins.configure(value); }
   skinDisable(value) { return this.controller.skins.disable(value); }
   skinReset(value) { return this.controller.skins.reset(value); }
@@ -44,7 +45,7 @@ export class CompanionService extends TypertRemoteService {
   revealDownload() { return this.controller.revealDownload(); }
 }
 // Apply the public Remote decorator in plain JS, without requiring a compiler.
-for (const name of ['replyStyleSession','replyStyleSave','petInteract','petModels','skinSelect','skinConfigure','skinDisable','skinReset','skinStop','skinPage','skinCover','skinInstall','status','start','stop','configure','action','activate','refreshLicense','deactivate','selectPack','importPack','exportPack','replayIntro','syncHostWindow','installLauncher','removeLauncher','revealLauncher','checkUpdate','downloadUpdate','revealDownload']) {
+for (const name of ['workAutonomyConfigure','replyStyleSession','replyStyleSave','petInteract','petModels','skinSelect','skinConfigure','skinDisable','skinReset','skinStop','skinPage','skinCover','skinInstall','status','start','stop','configure','action','activate','refreshLicense','deactivate','selectPack','importPack','exportPack','replayIntro','syncHostWindow','installLauncher','removeLauncher','revealLauncher','checkUpdate','downloadUpdate','revealDownload']) {
   const initializers = [];
   Remote(CompanionService.prototype[name], { kind: 'method', name, static: false, private: false, addInitializer: fn => initializers.push(fn) });
   for (const initialize of initializers) initialize.call(Object.create(CompanionService.prototype));
