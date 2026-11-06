@@ -45,7 +45,7 @@ export class WorkFeedback {
     decision?.abort();
   }
   allowed(config=this.skins.core.view()){
-    return config.theme?.status==='enabled'&&config.theme.values.workFeedbackEnabled&&config.theme.values.petEchoEnabled&&
+    return !this.skins.controller.focus?.quiet&&config.theme?.status==='enabled'&&config.theme.values.workFeedbackEnabled&&config.theme.values.petEchoEnabled&&
       config.pet?.status==='enabled'&&this.skins.core.state.results.pet?.status==='ready'&&config.pet.values.allowActions&&
       config.pet.values.animations?.idle&&config.pet.values.animations?.react&&config.pet.values.actionDescriptions?.react;
   }

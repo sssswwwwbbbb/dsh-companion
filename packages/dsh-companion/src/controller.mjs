@@ -6,6 +6,7 @@ import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { CompanionSkins } from './skins.mjs';
+import { FocusTimer } from './focus.mjs';
 import { Entitlement } from './entitlement.mjs';
 import { PackStore } from './packs.mjs';
 import { Integration, profileGate } from './integration.mjs';
@@ -34,6 +35,7 @@ export class CompanionController {
     this.packs=new PackStore(join(packageRoot,'packs'),this.stateDir);
     this.integration=new Integration({stateDir:this.stateDir,profileDir,packageRoot,launcherDirectory});
     this.phase='stopped';this.child=undefined;this.pending=undefined;this.disposed=false;
+    this.focus=new FocusTimer(this.stateDir);
     this.skins=new CompanionSkins(this);
     this.build=Number(metadata.version.match(/dev\.(\d+)/)?.[1]||1);
   }
@@ -52,7 +54,7 @@ export class CompanionController {
   async status(){
     const native=await this.nativeStatus(), license=this.entitlement.status(), settings=native.settings||this.settings();
     const update=readJson(join(this.stateDir,'update.json'),null), download=readJson(join(this.stateDir,'download.json'),null);
-    return JSON.parse(JSON.stringify({...native,desktopSkin:native.skin||null,skin:this.skins.status(),replyStyle:license.active?this.replyStyle?.status()||null:null,petInteraction:this.interactions?.status()||null,version:metadata.version,desktopVersion:native.version||null,platform:process.platform,phase:!license.active?'locked':native.phase,settings,license,packs:this.packs.summaries(),selectedPack:settings.packId,launcher:this.integration.status(),compatibility:{dshVersion:this.dshVersion,supported:this.config.supportedDsh.includes(this.dshVersion),testedVersions:this.config.supportedDsh},update:update?{...updateInfo(update.release,this.build),checkedAt:update.checkedAt}:null,download:download?{version:download.version,filename:basename(download.file),verified:true}:null}));
+    return JSON.parse(JSON.stringify({...native,desktopSkin:native.skin||null,skin:this.skins.status(),focus:this.focus.snapshot(),replyStyle:license.active?this.replyStyle?.status()||null:null,petInteraction:this.interactions?.status()||null,version:metadata.version,desktopVersion:native.version||null,platform:process.platform,phase:!license.active?'locked':native.phase,settings,license,packs:this.packs.summaries(),selectedPack:settings.packId,launcher:this.integration.status(),compatibility:{dshVersion:this.dshVersion,supported:this.config.supportedDsh.includes(this.dshVersion),testedVersions:this.config.supportedDsh},update:update?{...updateInfo(update.release,this.build),checkedAt:update.checkedAt}:null,download:download?{version:download.version,filename:basename(download.file),verified:true}:null}));
   }
   async boot({playIntro=false}={}){
     this.bootIntroRequested=playIntro&&this.settings().autoStart&&this.settings().startupEnabled;
@@ -110,6 +112,13 @@ export class CompanionController {
       if(state.ready||state.bridgeReady&&(skinStandby||state.startup?.ready===true)){this.phase=state.phase;return state;}if(this.errorCode)throw new Error(this.errorCode);await delay(150);
     }
     this.errorCode='DESKTOP_READY_TIMEOUT';await this.stop();throw new Error(this.errorCode);
+  }
+  async focusAction(value){
+    this.entitlement.require();
+    const wasQuiet=this.focus.quiet;
+    this.focus.change(value);
+    if(!wasQuiet&&this.focus.quiet)this.skins.work.cancel();
+    return this.status();
   }
   async configure(value){
     if(this.skins.core.state.selected&&Object.keys(value).some(key=>['packId','size','profile','autonomous','followMouse','visible'].includes(key)))throw new Error('SKIN_MANAGED_SETTINGS');

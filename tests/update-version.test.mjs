@@ -6,6 +6,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import {createHash,generateKeyPairSync} from 'node:crypto';
 import {Entitlement} from '../packages/dsh-companion/src/entitlement.mjs';
+import {FocusTimer} from '../packages/dsh-companion/src/focus.mjs';
 import {CompanionController} from '../packages/dsh-companion/src/controller.mjs';
 import {signedEnvelope} from '../packages/dsh-companion/src/license-core.mjs';
 import {writeJson} from '../packages/dsh-companion/src/storage.mjs';
@@ -48,7 +49,7 @@ for(const [build,relation,label] of [[10,'older',null],[18,'same','下载同版�
   const licenseBefore=fs.readFileSync(entitlement.file);
   const historicalFile=path.join(dir,'downloads/dev4.tgz');fs.mkdirSync(path.dirname(historicalFile));fs.writeFileSync(historicalFile,'historical package');
   writeJson(path.join(dir,'download.json'),{version:'0.1.0-dev.4',file:historicalFile,verified:true});const historyBefore=fs.readFileSync(path.join(dir,'download.json'));
-  const host={stateDir:dir,build:18,dshVersion,entitlement,config:{supportedDsh:[dshVersion]},nativeStatus:async()=>({running:false,settings:{}}),skins:{status:()=>({})},packs:{summaries:()=>[]},integration:{status:()=>({})},status(){return CompanionController.prototype.status.call(this);}};
+  const host={stateDir:dir,focus:new FocusTimer(dir),build:18,dshVersion,entitlement,config:{supportedDsh:[dshVersion]},nativeStatus:async()=>({running:false,settings:{}}),skins:{status:()=>({})},packs:{summaries:()=>[]},integration:{status:()=>({})},status(){return CompanionController.prototype.status.call(this);}};
   const status=await CompanionController.prototype.checkUpdate.call(host);
   assert.equal(status.update.relation,relation);assert.equal(status.update.available,build>18);assert.equal(status.download.version,'0.1.0-dev.4');
   // Source metadata deliberately stays dev.11; the installed18 label is fixture

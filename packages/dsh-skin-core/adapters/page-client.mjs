@@ -2,7 +2,7 @@
 import {installSessionFeedback} from './session-feedback.mjs';
 import {installWorkspaceR2} from './workspace-r2.mjs';
 import {installWorkspaceCommander} from './workspace-commander.mjs';
-export function installSkinPage({ctx,React,call,setEntryMark=()=>{}}) {
+export function installSkinPage({ctx,React,call,setEntryMark=()=>{},onFocus=()=>{}}) {
   const installWorkspace=options=>options.config.preset==='commander-v1'?installWorkspaceCommander(options):installWorkspaceR2(options);
   const clientId=crypto.randomUUID(),theme=ctx.get('theme'),layout=ctx.layout;
   let stopped=false,polling=false,ack,lastCommand='',generation=0,lease=0,selected,disposeLayer,disposeBackground,disposeSidebar,disposeWork,workspaceVisible,offPanel,workPacket,workRevision=0,backgroundNode,workspaceRuntime;
@@ -80,6 +80,7 @@ export function installSkinPage({ctx,React,call,setEntryMark=()=>{}}) {
     if(stopped||polling)return;polling=true;
     try{
       const result=await call('skinPage',{clientId,capable,ack,seenCommand:lastCommand,...(workPacket?{work:workPacket}:{})});if(stopped)return;
+      onFocus(result.focus??null);
       if(result.busy){selected=undefined;clear();return;}
       lease=Date.now()+result.leaseMs;ack=undefined;
       if(result.command&&result.command.id!==lastCommand){
@@ -90,5 +91,5 @@ export function installSkinPage({ctx,React,call,setEntryMark=()=>{}}) {
     finally{polling=false;}
   }
   const timer=setInterval(()=>{if(lease&&Date.now()>lease){selected=undefined;clear();lastCommand='';}void poll();},250);void poll();
-  return ()=>{stopped=true;generation++;clearInterval(timer);offPanel?.();selected=undefined;clear();};
+  return ()=>{stopped=true;generation++;clearInterval(timer);offPanel?.();selected=undefined;clear();onFocus(null);};
 }

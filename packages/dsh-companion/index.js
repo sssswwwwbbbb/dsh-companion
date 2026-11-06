@@ -20,7 +20,8 @@ export class CompanionService extends TypertRemoteService {
   skinDisable(value) { return this.controller.skins.disable(value); }
   skinReset(value) { return this.controller.skins.reset(value); }
   skinStop() { return this.controller.skins.stop(); }
-  skinPage(value) { return this.controller.skins.poll(value); }
+  skinPage(value) { return {...this.controller.skins.poll(value),focus:this.controller.focus.snapshot()}; }
+  focusAction(value) { return this.controller.focusAction(value); }
   skinCover(value) { return this.controller.skins.cover(value); }
   skinInstall() { return this.controller.installSkin(); }
   start() { return this.controller.start(); }
@@ -45,7 +46,7 @@ export class CompanionService extends TypertRemoteService {
   revealDownload() { return this.controller.revealDownload(); }
 }
 // Apply the public Remote decorator in plain JS, without requiring a compiler.
-for (const name of ['workAutonomyConfigure','replyStyleSession','replyStyleSave','petInteract','petModels','skinSelect','skinConfigure','skinDisable','skinReset','skinStop','skinPage','skinCover','skinInstall','status','start','stop','configure','action','activate','refreshLicense','deactivate','selectPack','importPack','exportPack','replayIntro','syncHostWindow','installLauncher','removeLauncher','revealLauncher','checkUpdate','downloadUpdate','revealDownload']) {
+for (const name of ['workAutonomyConfigure','replyStyleSession','replyStyleSave','petInteract','petModels','skinSelect','skinConfigure','skinDisable','skinReset','skinStop','skinPage','focusAction','skinCover','skinInstall','status','start','stop','configure','action','activate','refreshLicense','deactivate','selectPack','importPack','exportPack','replayIntro','syncHostWindow','installLauncher','removeLauncher','revealLauncher','checkUpdate','downloadUpdate','revealDownload']) {
   const initializers = [];
   Remote(CompanionService.prototype[name], { kind: 'method', name, static: false, private: false, addInitializer: fn => initializers.push(fn) });
   for (const initialize of initializers) initialize.call(Object.create(CompanionService.prototype));

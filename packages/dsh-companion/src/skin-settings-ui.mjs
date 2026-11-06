@@ -1,8 +1,11 @@
 // Faithful runtime port of the R3 settings vocabulary. State and actions stay in Page.
 // Sources: designs/dsh-skin-v1/{tokens.css,styles.css,screens.js,components.js}.
+function formatFocusTime(seconds){
+  return Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
+}
 export function createSkinSettingsUi(React,assets){
   const h=React.createElement;
-  const paths={library:'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',install:'M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5',settings:'M4 6h16M4 12h16M4 18h16',more:'M5 12h.01M12 12h.01M19 12h.01',shield:'m12 2 8 4v7c0 5-8 9-8 9s-8-4-8-9V6Z',pause:'M8 5v14M16 5v14',play:'m8 4 12 8-12 8Z',reset:'M4 9a8 8 0 1 1 0 7M4 3v6h6',arrow:'M5 12h14m-5-5 5 5-5 5'};
+  const paths={clock:'M12 6v6l4 2 M22 12a10 10 0 1 1-20 0 10 10 0 1 1 20 0Z',library:'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',install:'M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5',settings:'M4 6h16M4 12h16M4 18h16',more:'M5 12h.01M12 12h.01M19 12h.01',shield:'m12 2 8 4v7c0 5-8 9-8 9s-8-4-8-9V6Z',pause:'M8 5v14M16 5v14',play:'m8 4 12 8-12 8Z',reset:'M4 9a8 8 0 1 1 0 7M4 3v6h6',arrow:'M5 12h14m-5-5 5 5-5 5'};
   const Icon=({name})=>{const pair=assets.workspace?.controlIcons?.[name];return pair?h('span',{className:'r3-icon r3-semantic-icon','aria-hidden':true},h('img',{className:'r3-icon-light',src:pair.light,alt:''}),h('img',{className:'r3-icon-dark',src:pair.dark,alt:''})):h('svg',{className:'r3-icon',viewBox:'0 0 24 24','aria-hidden':true},h('path',{d:paths[name]||paths.settings}));};
   const Pill=({children,tone=''})=>h('span',{className:'r3-pill '+tone},children);
   const Button=({children,icon,kind='',buttonRef,...props})=>h('button',{type:'button',ref:buttonRef,...props,className:'r3-button '+kind},icon&&h(Icon,{name:icon}),children);
@@ -57,16 +60,16 @@ export function createSkinSettingsUi(React,assets){
     const nav=(title,to,icon,disabled=false)=>h('button',{type:'button',className:'r3-sideitem'+(tab===to?' selected':''),'aria-current':tab===to?'page':undefined,disabled,onClick:()=>setSection(to,to==='skin'?'common':undefined)},h(Icon,{name:icon}),title);
     return h('section',{className:'dshc-page dshc-r3','data-theme':scheme,'data-screen-label':'主题盒子','data-skin-preset':skin?.selected?.contentKey===assets.workspace?.contentKey?assets.workspace.preset:undefined},h('style',null,skinSettingsCss+commanderSettingsCss),
       h('aside',{className:'r3-settings-nav','aria-label':'主题盒子导航'},h('h2',null,'主题盒子'),
-        nav('皮肤库','library','library'),nav('本套设置','skin','settings',!selected),nav('开始使用','setup','arrow'),!selected&&nav('桌宠控制','control','play'),nav('授权与更新','account','shield'),
+        nav('皮肤库','library','library'),nav('本套设置','skin','settings',!selected),nav('专注与休息','focus','clock'),nav('开始使用','setup','arrow'),!selected&&nav('桌宠控制','control','play'),nav('授权与更新','account','shield'),
         (tab!=='library'||!selected&&active)&&h('button',{type:'button',className:'r3-sideitem r3-stop','aria-label':canRestore?'恢复本套皮肤':'停止全部皮肤效果',disabled:stopping||canRestore&&(busy||!active)||skin?.stopped&&!selected,onClick:()=>canRestore?void work('skinSelect',{contentKey:selected.contentKey}):void stopSkin()},h(Icon,{name:canRestore?'play':'pause'}),canRestore?'恢复效果':'停止效果'),
         h('p',{className:'r3-navfooter'},active?'插件已激活':'插件尚未激活',h('br'),'本地皮肤共用插件授权')),
       h('div',{className:'r3-settings-main'},h('header',{className:'r3-settings-head'},h('div',null,
-        h('h1',null,tab==='library'?'本地皮肤库':tab==='skin'?'按你的习惯，刚刚好。':tab==='account'?'授权与更新':tab==='control'?'桌面陪伴':'开始使用'),
-        h('p',{className:'r3-caption'},tab==='library'?'管理工作区主题、桌宠和开场。':tab==='skin'?(selected?.name||'本套设置')+' · 只调整这套已提供的偏好。':'从同一处管理你的皮肤与陪伴。')),
-        tab==='library'?h(Button,{icon:'install',disabled:busy||!active,onClick:()=>void work('skinInstall')},'导入本地 ZIP'):h(Pill,{tone:skin?.stopped?'orange':''},status)),
+        h('h1',null,tab==='library'?'本地皮肤库':tab==='skin'?'按你的习惯，刚刚好。':tab==='account'?'授权与更新':tab==='control'?'桌面陪伴':tab==='focus'?'专注与休息':'开始使用'),
+        h('p',{className:'r3-caption'},tab==='library'?'管理工作区主题、桌宠和开场。':tab==='skin'?(selected?.name||'本套设置')+' · 只调整这套已提供的偏好。':tab==='focus'?'用一段计时安排工作与休息。':'从同一处管理你的皮肤与陪伴。')),
+        tab==='library'?h(Button,{icon:'install',disabled:busy||!active,onClick:()=>void work('skinInstall')},'导入本地 ZIP'):tab!=='focus'&&h(Pill,{tone:skin?.stopped?'orange':''},status)),
         tab==='skin'&&hasMore&&h('div',{className:'r3-settings-tabs',role:'tablist','aria-label':'本套设置层级'},...['common','more'].map(value=>h('button',{key:value,type:'button',role:'tab','aria-selected':view===value,onClick:()=>setSection('skin',value)},value==='common'?'常用':'更多'))),
         h('div',{className:'r3-settings-body',ref:body},error&&h('p',{className:'r3-notice error',role:'alert'},error),notice&&h('p',{className:'r3-notice',role:'status'},notice),children),
-        tab!=='library'&&h('footer',{className:'r3-settings-foot'},h('div',null,h('p',null,footer),h('small',null,skin?.stopped?'效果已停止，参数与关闭选择已保留。':'工作区与左侧导航使用本套配色。')),
+        tab!=='library'&&tab!=='focus'&&h('footer',{className:'r3-settings-foot'},h('div',null,h('p',null,footer),h('small',null,skin?.stopped?'效果已停止，参数与关闭选择已保留。':'工作区与左侧导航使用本套配色。')),
           h('div',{className:'r3-actions'},tab==='skin'&&h(Button,{buttonRef:resetButton,icon:'reset',disabled:busy||!active||!selected,'aria-expanded':confirmingReset,onClick:()=>confirmingReset?closeReset():setResetKey(selectedKey)},'重置本套'),canRestore&&h(Button,{kind:'primary',icon:'play',disabled:busy||!active,onClick:()=>void work('skinSelect',{contentKey:selected.contentKey})},'恢复本套皮肤')),
           confirmingReset&&h('div',{className:'r3-reset-confirm',role:'group','aria-label':'确认重置本套设置',onKeyDown:event=>{if(event.key==='Escape'&&!busy){event.stopPropagation();closeReset();}}},
             h('p',null,replyStyle?'将主题、桌宠与开场参数恢复为默认值。模块开关、自动播放与回复风格照旧。':'将本套自定义参数恢复为默认值。模块开关与启动时自动播放设置照旧。'),
@@ -74,6 +77,32 @@ export function createSkinSettingsUi(React,assets){
               h(Button,{buttonRef:cancelReset,disabled:busy,onClick:closeReset},'取消'),
               h(Button,{kind:'primary',disabled:busy||!active,onClick:()=>void reset()},'确认重置'))))));
 
+  }
+  function FocusPanel({focusSource,active,busy,work}){
+    const focus=React.useSyncExternalStore(focusSource.subscribe,focusSource.getSnapshot);
+    const [minutes,setMinutes]=React.useState(25),[breakMinutes,setBreakMinutes]=React.useState(5);
+    if(!focus)return h('p',{className:'r3-caption',role:'status'},'正在读取计时状态…');
+    const {phase,kind,seconds,quiet}=focus;
+    const live=phase==='running'||phase==='paused',done=phase==='done';
+    const disabled=busy||!active;
+    const action=(name,value={})=>work('focusAction',{action:name,...value});
+    function startRow(mode,title,options,value,setValue){
+      return h(Row,{title},h('select',{className:'r3-focus-duration','aria-label':title+'时长',disabled,value,onChange:event=>setValue(Number(event.currentTarget.value))},...options.map(option=>h('option',{key:option,value:option},option+' 分钟'))),
+        h(Button,{kind:mode==='focus'?'primary':'',disabled,onClick:()=>void action('start',{kind:mode,minutes:value})},'开始'+title));
+    }
+    return h('div',{'data-focus-panel':true},
+      !active&&h('p',{className:'r3-notice'},'激活主题盒子后即可使用计时和陪伴勿扰。'),
+      h(Section,{title:'计时'},
+        (live||done)&&h(Row,{title:(kind==='break'?'休息':'专注')+(done?'结束':phase==='paused'?'已暂停':'中'),
+          description:done?'可以开始下一段计时。':'剩余时间也会显示在会话标题旁。',
+          feedback:live&&h('output',{className:'r3-focus-time','aria-label':'剩余时间','aria-live':'off'},formatFocusTime(seconds)),
+          ...(done?{role:'status'}:{})},
+          live&&h(Button,{kind:'primary',disabled,onClick:()=>void action(phase==='paused'?'resume':'pause')},phase==='paused'?'继续':'暂停'),
+          h(Button,{disabled,onClick:()=>void action('clear')},done?'清除提示':'结束计时')),
+        !live&&startRow('focus','专注',[15,25,45],minutes,setMinutes),
+        !live&&startRow('break','休息',[5,10],breakMinutes,setBreakMinutes)),
+      h(Section,{title:'陪伴提醒'},h(Row,{title:'陪伴勿扰',description:'暂停自动桌宠回应，仍可点击角色或主动和它说话。'},
+        h(Toggle,{label:'陪伴勿扰',value:quiet,disabled,onChange:enabled=>action('quiet',{enabled})}))));
   }
   function ImportedCover({contentKey,loadCover,children}){
     const [src,setSrc]=React.useState(null);
@@ -250,7 +279,7 @@ export function createSkinSettingsUi(React,assets){
       ):h(React.Fragment,null,modules.pet&&h(Section,{title:'互动与近期记忆',tag:h(Pill,null,'本套偏好')},supported('pet')?modules.pet.controls.filter(c=>!['size','smartEnabled'].includes(c.field)).map(c=>fieldRow('pet',c,null,c.field==='historyRounds'?'仅本次运行的近期互动，重启后清空。':c.field==='persona'?'用于本套桌宠的简短回应与陪伴。':null)):h('p',{className:'r3-caption'},modules.pet.status==='unavailable'?'桌宠能力当前不可用，原有设置继续保留。':'桌宠已关闭，原有设置继续保留。')),modules.pet&&interaction),
       h('p',{className:'r3-caption r3-scope-note'},'只显示本套已提供的能力。'+(candidate?.contentKey===assets.contentKey?'当前角色仅有待机与回应动作。':'')));
   }
-  return {Shell,Settings,Library};
+  return {Shell,Settings,Library,FocusPanel};
 }
 
 export const skinSettingsCss=`
@@ -272,10 +301,10 @@ export const skinSettingsCss=`
 /* Library extends the existing R3 vocabulary; cards are actual installed content. */
 .r3-library{max-width:1060px;margin:auto}.r3-library-current{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:15px 18px;margin-bottom:22px}.r3-library-current-title{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.r3-current-modules{margin:8px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;color:var(--muted)}.r3-library-current h2{font:500 20px/1.5 var(--font-title);overflow-wrap:anywhere}.r3-library-current p{font-size:12px;color:var(--muted)}.r3-library-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.r3-library-heading h2{font-size:15px}.r3-library-heading h2 span{font-size:12px;font-weight:400;color:var(--muted);margin-left:12px}
 /* Two cards share the canvas: 2 * minmax(0, 1fr) + one 18px gutter. */
-.r3-library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.r3-library-card{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);text-align:left;padding:0;min-width:0}.r3-library-card[data-current=true]{border-color:var(--accent)}.r3-library-card:focus{outline:2px solid var(--accent);outline-offset:3px}.r3-library-cover{display:block;aspect-ratio:8/5;background:var(--paper);position:relative;overflow:hidden}.r3-imported-cover{display:block;width:100%;height:100%;object-fit:cover}.r3-library-cover.whale:before{content:'';position:absolute;inset:0;background-image:var(--library-grid);background-size:cover;background-position:center;opacity:.12}.r3-library-cover-title{position:absolute;left:18px;bottom:24px;max-width:65%;font:500 26px/1.4 var(--font-title);overflow-wrap:anywhere}.r3-library-cover>.r3-icon{position:absolute;right:28px;bottom:28px;width:38px;height:38px;color:var(--muted)}.r3-library-portrait{position:absolute;right:4px;bottom:0;width:140px;height:140px;overflow:hidden}.r3-library-portrait img{display:block;width:200%;height:200%;max-width:none}.r3-library-card-body{display:flex;flex-direction:column;gap:12px;padding:16px 18px}.r3-library-card-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.r3-library-card-title h3{font-size:14px;font-weight:600;overflow-wrap:anywhere}.r3-library-card-title>span{font-size:12px;color:var(--muted);white-space:nowrap}.r3-library-modules{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--muted)}.r3-library-modules>span{background:var(--paper);padding:3px 7px;border-radius:4px}.r3-library-card-foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding-top:10px;border-top:1px solid var(--line)}.r3-library-card-foot button{margin-left:auto}.r3-library-empty{grid-column:1/-1;border:1px solid var(--line);border-radius:9px;padding:35px 22px;text-align:center}.r3-library-empty h2{font:500 22px var(--font-title);margin-bottom:8px}.r3-library-empty p{color:var(--muted);font-size:13px;margin-bottom:16px}
+.r3-focus-time{display:block;margin-top:6px;font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}.r3-focus-duration{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit}.r3-library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.r3-library-card{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);text-align:left;padding:0;min-width:0}.r3-library-card[data-current=true]{border-color:var(--accent)}.r3-library-card:focus{outline:2px solid var(--accent);outline-offset:3px}.r3-library-cover{display:block;aspect-ratio:8/5;background:var(--paper);position:relative;overflow:hidden}.r3-imported-cover{display:block;width:100%;height:100%;object-fit:cover}.r3-library-cover.whale:before{content:'';position:absolute;inset:0;background-image:var(--library-grid);background-size:cover;background-position:center;opacity:.12}.r3-library-cover-title{position:absolute;left:18px;bottom:24px;max-width:65%;font:500 26px/1.4 var(--font-title);overflow-wrap:anywhere}.r3-library-cover>.r3-icon{position:absolute;right:28px;bottom:28px;width:38px;height:38px;color:var(--muted)}.r3-library-portrait{position:absolute;right:4px;bottom:0;width:140px;height:140px;overflow:hidden}.r3-library-portrait img{display:block;width:200%;height:200%;max-width:none}.r3-library-card-body{display:flex;flex-direction:column;gap:12px;padding:16px 18px}.r3-library-card-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.r3-library-card-title h3{font-size:14px;font-weight:600;overflow-wrap:anywhere}.r3-library-card-title>span{font-size:12px;color:var(--muted);white-space:nowrap}.r3-library-modules{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--muted)}.r3-library-modules>span{background:var(--paper);padding:3px 7px;border-radius:4px}.r3-library-card-foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding-top:10px;border-top:1px solid var(--line)}.r3-library-card-foot button{margin-left:auto}.r3-library-empty{grid-column:1/-1;border:1px solid var(--line);border-radius:9px;padding:35px 22px;text-align:center}.r3-library-empty h2{font:500 22px var(--font-title);margin-bottom:8px}.r3-library-empty p{color:var(--muted);font-size:13px;margin-bottom:16px}
 .dshc-r3 .r3-settings-head{padding:20px 28px}.dshc-r3 .r3-settings-body{padding:20px 28px}.dshc-r3 .r3-settings-foot{padding:12px 24px}.dshc-r3 .r3-setting-section{margin:20px 0}.dshc-r3 .r3-setting-row{padding:13px 0}.dshc-r3 .r3-skin-banner{min-height:136px;padding:18px;margin-top:14px}.dshc-r3 .r3-skin-banner h2{font-size:23px}.dshc-r3 .r3-banner-pet{width:135px;height:135px}
 @media(max-width:980px){.r3-library-cover-title{font-size:23px}.r3-library-portrait{width:120px;height:120px}.r3-library-card-body{padding:14px}.dshc-r3 .r3-settings-head,.dshc-r3 .r3-settings-body{padding:18px 22px}}
-@media(max-width:700px){.r3-library-grid{grid-template-columns:1fr}.r3-library-heading{align-items:flex-start}.r3-library-current{gap:10px}.r3-library-card-title h3{font-size:14px}.dshc-r3 .r3-settings-head,.dshc-r3 .r3-settings-body{padding:16px}.r3-settings-head{flex-wrap:wrap}}
+@media(max-width:700px){.r3-focus-time{display:block;margin-top:6px;font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}.r3-focus-duration{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit}.r3-library-grid{grid-template-columns:1fr}.r3-library-heading{align-items:flex-start}.r3-library-current{gap:10px}.r3-library-card-title h3{font-size:14px}.dshc-r3 .r3-settings-head,.dshc-r3 .r3-settings-body{padding:16px}.r3-settings-head{flex-wrap:wrap}}
 .r3-reply-style-editor{margin-top:10px;display:grid;gap:10px;max-width:36rem}.r3-reply-style-editor textarea{resize:vertical;width:100%;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 10px}.r3-reply-style-editor .r3-actions{margin-top:0}.r3-setting-copy .r3-field-failure{color:var(--danger)}.r3-setting-control{flex-wrap:wrap}.r3-reset-confirm{flex:0 0 100%;display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:10px}.r3-reset-confirm .r3-actions{margin-top:0}
 @media(prefers-reduced-motion:reduce){.dshc-r3 *{transition:none!important;scroll-behavior:auto!important}}
 `;

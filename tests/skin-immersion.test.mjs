@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {randomUUID} from 'node:crypto';
 import {validateManifest,resolveSettings} from '../packages/dsh-skin-core/src/schema.mjs';
+import {CompanionController} from '../packages/dsh-companion/src/controller.mjs';
 import {PetInteraction} from '../packages/dsh-companion/src/pet-interaction.mjs';
 import {WorkFeedback} from '../packages/dsh-companion/src/work-feedback.mjs';
 import {NativeWorkFeedback} from '../runtime-src/work-feedback.mjs';
@@ -140,6 +141,25 @@ test('busy desktop, model failure and newer manual or session actions keep autom
  s.work.accept(s.packet(5,'attention',{sessionId:'session-b',bindingId:randomUUID()}),{});await tick();
  assert.equal(oldSession.signal.aborted,true);
  resolve({text:'{"speech":null,"action":"react"}'});await tick();
+ assert.deepEqual(s.actions,[]);
+});
+test('quiet cancels the pending automatic decision and allows manual interaction',async()=>{
+ const s=autonomy();
+ s.controller.focus={quiet:false,change({enabled}){this.quiet=enabled;}};
+ await s.work.configure({contentKey:s.core.state.selected.contentKey,enabled:true});
+ let finish;
+ s.respond(({input})=>input.trigger==='click'?Promise.resolve({text:'{"speech":null,"action":null}'}):new Promise(resolve=>{finish=resolve;}));
+ s.work.accept(s.packet(1),{});await tick();
+ await CompanionController.prototype.focusAction.call(s.controller,{action:'quiet',enabled:true});
+ assert.equal(s.calls[0].signal.aborted,true);
+ finish({text:'{"speech":null,"action":"react"}'});await tick();
+ s.advance();s.work.accept(s.packet(2,'completed',{seq:13}),{});await tick();
+ assert.equal(s.calls.length,1);
+ assert.deepEqual(s.actions,[]);
+ await s.pet.interact({trigger:'click'});
+ assert.equal(s.pet.last.trigger,'click');
+ await CompanionController.prototype.focusAction.call(s.controller,{action:'quiet',enabled:false});
+ s.work.accept(s.packet(2,'completed',{seq:13}),{});await tick();
  assert.deepEqual(s.actions,[]);
 });
 function store(value){const listeners=new Set();return {getSnapshot:()=>value,subscribe:f=>{listeners.add(f);return()=>listeners.delete(f);},set:v=>{value=v;for(const f of [...listeners])f();},count:()=>listeners.size};}

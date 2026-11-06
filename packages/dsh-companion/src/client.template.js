@@ -6,8 +6,8 @@ window.__ModuleLoader__.load({
     __SKIN_SETTINGS_UI__
     const React=require('react'),z=require('zod').z,h=React.createElement,ns='dsh-plugin-companion',locales=__LOCALES__;
     const skinUi=createSkinSettingsUi(React,__SKIN_SETTINGS_ASSETS__);
-    const methods=['workAutonomyConfigure','replyStyleSession','replyStyleSave','petInteract','petModels','skinSelect','skinConfigure','skinDisable','skinReset','skinStop','skinPage','skinCover','skinInstall','status','start','stop','configure','action','activate','refreshLicense','deactivate','selectPack','importPack','exportPack','replayIntro','syncHostWindow','installLauncher','removeLauncher','revealLauncher','checkUpdate','downloadUpdate','revealDownload'];
-    const supplied=new Set(['workAutonomyConfigure','replyStyleSession','replyStyleSave','skinReset','petInteract','skinSelect','skinConfigure','skinDisable','skinPage','skinCover','configure','action','activate','selectPack','importPack','exportPack','syncHostWindow']);
+    const methods=['workAutonomyConfigure','replyStyleSession','replyStyleSave','petInteract','petModels','skinSelect','skinConfigure','skinDisable','skinReset','skinStop','skinPage','focusAction','skinCover','skinInstall','status','start','stop','configure','action','activate','refreshLicense','deactivate','selectPack','importPack','exportPack','replayIntro','syncHostWindow','installLauncher','removeLauncher','revealLauncher','checkUpdate','downloadUpdate','revealDownload'];
+    const supplied=new Set(['workAutonomyConfigure','replyStyleSession','replyStyleSave','skinReset','petInteract','skinSelect','skinConfigure','skinDisable','skinPage','focusAction','skinCover','configure','action','activate','selectPack','importPack','exportPack','syncHostWindow']);
     const codec=name=>({mode:'strict',typeSymbol:ns+'#'+name,create:()=>z.json()});
     const contribution={package:ns,descriptors:methods.map(method=>({id:ns+'#dshCompanion/'+method,service:'dshCompanion',namespace:'dshCompanion',method,invocation:{kind:'direct'},parameters:supplied.has(method)?[{name:'value',wire:'value',source:'json',codec:codec(method+':value')}]:[],result:codec(method+':result')}))};
     return {inject:['locale'],apply(ctx){
@@ -20,7 +20,14 @@ window.__ModuleLoader__.load({
           const errorKey=error=>Object.keys(locales.zh).find(key=>/^[A-Z_]+$/.test(key)&&String(error?.message||'').includes(key))||'failed';
           async function call(method,value){const result=await ctx.remote.dshCompanion[method](...(supplied.has(method)?[value]:[]));if(!result.ok)throw new Error(result.error?.message||'REQUEST_FAILED');return result.value;}
           const loadCover=contentKey=>call('skinCover',{contentKey});
-          ctx.effect(()=>installSkinPage({ctx,React,call,setEntryMark}));
+          let focus=null,openFocusPanel=false;
+          const focusListeners=new Set();
+          const focusSource={getSnapshot:()=>focus,subscribe:fn=>{focusListeners.add(fn);return()=>focusListeners.delete(fn);}};
+          function onFocus(next){
+            if(focus?.phase===next?.phase&&focus?.kind===next?.kind&&focus?.seconds===next?.seconds&&focus?.quiet===next?.quiet)return;
+            focus=next;for(const listener of focusListeners)listener();
+          }
+          ctx.effect(()=>installSkinPage({ctx,React,call,setEntryMark,onFocus}));
           let lastWindow='',lastWindowSync=0,syncingWindow;
           async function syncWindow(){
             if(syncingWindow)await syncingWindow;
@@ -40,8 +47,9 @@ window.__ModuleLoader__.load({
           });
           function download(filename,text){const url=URL.createObjectURL(new Blob([text],{type:'application/json;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=filename;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
           function Page(){
-            const [state,setState]=React.useState(null),[tab,setTab]=React.useState('library'),[skinView,setSkinView]=React.useState('common'),[busy,setBusy]=React.useState(false),[stopping,setStopping]=React.useState(false),[error,setError]=React.useState(''),[notice,setNotice]=React.useState(''),[code,setCode]=React.useState(''),[confirmUnbind,setConfirmUnbind]=React.useState(false),[petText,setPetText]=React.useState(''),[petReply,setPetReply]=React.useState(null),[modelDirectory,setModelDirectory]=React.useState({current:null,models:[]}),[selection,setSelection]=React.useState(null);
+            const [state,setState]=React.useState(null),[tab,setTab]=React.useState(()=>openFocusPanel?'focus':'library'),[skinView,setSkinView]=React.useState('common'),[busy,setBusy]=React.useState(false),[stopping,setStopping]=React.useState(false),[error,setError]=React.useState(''),[notice,setNotice]=React.useState(''),[code,setCode]=React.useState(''),[confirmUnbind,setConfirmUnbind]=React.useState(false),[petText,setPetText]=React.useState(''),[petReply,setPetReply]=React.useState(null),[modelDirectory,setModelDirectory]=React.useState({current:null,models:[]}),[selection,setSelection]=React.useState(null);
             const [importedKey,setImportedKey]=React.useState(null);
+            React.useEffect(()=>{openFocusPanel=false;},[]);
             React.useEffect(()=>{setPetReply(null);},[state?.skin?.selected?.contentKey]);
             React.useEffect(()=>{let active=true;void call('petModels').then(value=>{if(active)setModelDirectory(value);}).catch(()=>{});return()=>{active=false;};},[]);
             const gateRef=React.useRef(null);if(!gateRef.current)gateRef.current=createClientRequestGate();const gate=gateRef.current;
@@ -122,6 +130,7 @@ window.__ModuleLoader__.load({
                 const result=await call(method,value);if(!gate.current(ticket))return null;
                 if(returnPanel!==null&&result.startup?.playing&&ctx.layout.panelInfo.getSnapshot().activePanelId===returnPanel)ctx.layout.selectPanel(null);
                 if(method==='exportPack'){download(result.filename,result.json);setNotice('exported');}else setState(result);
+                if(method==='focusAction')onFocus(result.focus);
                 if(method==='skinSelect')setSelection(null);
                 if(method==='skinReset'){setFieldFailures({});setNotice('skinResetComplete');}
                 if(method==='replyStyleSave')setNotice('replyStyleSaved');
@@ -181,7 +190,7 @@ window.__ModuleLoader__.load({
             const startupReady=skin?.settings?.startup?.status==='enabled'&&skin?.results?.startup?.status==='ready'&&!skin?.stopped;
             const managedSummary=()=>h('div',{className:'dshc-card','data-skin-summary':true},h('h2',null,'当前使用整套皮肤'),h('p',null,skin.selected.name+' · '+skin.selected.version),h('p',{className:'dshc-note'},'主题、桌宠与开场统一在皮肤页管理。停止后可恢复本套，保留已调整参数和模块开关。'),goSkin());
             const skinContent=h(skinUi.Settings,{key:skin?.selected?.contentKey,state,skin,view:skinView,active,busy,fieldBusy:busy&&!fieldBatch.current,fieldDrafts,fieldFailures,saveField,stopping,work,stopSkin,modelDirectory,petText,setPetText,sendPet,petReply,setSection});
-            const content=tab==='library'?h(skinUi.Library,{skin,active,busy,selection,importedKey,setSection,select:selectSkin,work,stopSkin,loadCover}):tab==='skin'?skinContent:tab==='setup'?h(React.Fragment,null,
+            const content=tab==='library'?h(skinUi.Library,{skin,active,busy,selection,importedKey,setSection,select:selectSkin,work,stopSkin,loadCover}):tab==='skin'?skinContent:tab==='focus'?h(skinUi.FocusPanel,{focusSource,active,busy,work}):tab==='setup'?h(React.Fragment,null,
               h('div',{className:'dshc-card'},h('h2',null,t('licenseTitle')),active?h(React.Fragment,null,h('p',null,t(license.state==='offline'?'offlineActive':'deviceActive')),h('p',{className:'dshc-note'},t('expiresAt')+' '+expiry)):h(React.Fragment,null,h('p',{className:'dshc-note'},t('activationIntro')),h('label',{htmlFor:'dshc-code'},t('activationCode')),h('div',{className:'dshc-row'},h('input',{id:'dshc-code',type:'password',autoComplete:'off',value:code,placeholder:t('codePlaceholder'),onChange:event=>setCode(event.target.value),'aria-label':t('activationCode')}),button('activate','activate',code,!code.trim())),h('p',{className:'dshc-note'},t('unactivatedNote')))),
               skinManaged?managedSummary():h(React.Fragment,null,(skin?.catalog||[]).some(row=>!row.example)&&h('div',{className:'dshc-card'},h('h2',null,'试用整套皮肤'),h('p',null,'主题、桌宠与开场可一起应用，再按需关闭各个模块。'),goSkin()),h('div',{className:'dshc-card'},h('h2',null,t('choosePack')),h('p',{className:'dshc-note'},t('packIntro')),h('label',{htmlFor:'dshc-pack'},t('configurationPack')),h('select',{id:'dshc-pack',value:settings.packId||'whale-maid-demo',disabled:busy||!active,onChange:event=>void work('selectPack',event.target.value)},...(state?.packs||[]).map(pack=>h('option',{key:pack.id,value:pack.id},pack.name))),h('p',{className:'dshc-note'},currentPack?.description||''),h('div',{className:'dshc-row'},button('exportPack','exportPack',settings.packId,!active),h('label',{className:'dshc-file'},t('importPack'),h('input',{type:'file',accept:'.json',disabled:busy||!active,'aria-label':t('importPack'),onChange:async event=>{const file=event.target.files?.[0];event.target.value='';if(!file)return;if(file.size>65536){setError('PACK_TOO_LARGE');return;}try{const imported=await work('importPack',JSON.parse(await file.text()));if(imported)setNotice('packImported');}catch{setError('PACK_INVALID');}}}))),h('p',{className:'dshc-note'},t('packMaterialNote')))),
               h('div',{className:'dshc-card'},h('h2',null,t('startupTitle')),check('startupEnabled','startupEnabled',!active),check('autoStart','autoStart',!active),h('p',{className:'dshc-note'},t('desktopOpeningIntro')),h('div',{className:'dshc-row'},button('replayIntro','replayIntro',undefined,!active||skinManaged&&!startupReady)),h('div',{className:'dshc-row'},skinManaged?goSkin():h(React.Fragment,null,button('start','start',undefined,!active||running),h('button',{type:'button',onClick:()=>setTab('control')},t('controlTab')))))
@@ -232,6 +241,16 @@ window.__ModuleLoader__.load({
               h('button',{type:'button','aria-label':'当前会话回复风格','aria-pressed':style.enabled,disabled:saving,onClick:()=>void toggle(),title:style.tone},style.enabled?'回复风格 · 已开':'回复风格'),
               failed&&h('small',{role:'status'},'未更新，可重试'));
           }
+          function FocusSlot(){
+            const value=React.useSyncExternalStore(focusSource.subscribe,focusSource.getSnapshot);
+            if(!value||value.phase==='idle'&&!value.quiet)return null;
+            const mode=value.kind==='break'?'休息':'专注';
+            const label=value.phase==='idle'?'陪伴勿扰':value.phase==='done'?mode+'结束':mode+' '+formatFocusTime(value.seconds)+(value.phase==='paused'?' · 已暂停':'');
+            return h('button',{type:'button','aria-label':'打开专注与休息 · '+label,title:'专注与休息',
+              style:{background:'transparent',color:'var(--dsw-alias-label-secondary)',border:'1px solid currentColor',borderRadius:5,padding:'2px 7px',font:'inherit',fontSize:12,fontVariantNumeric:'tabular-nums',whiteSpace:'nowrap',cursor:'pointer'},
+              onClick:()=>{openFocusPanel=true;ctx.layout.selectPanel('dsh-companion');}},label);
+          }
+          ctx.slots.inject('conversation.session.header.utilities',()=>ctx.slots.register({name:'conversation.session.header.utilities',id:'dsh-companion-focus',order:46},FocusSlot));
           const ReplyStyleSlot=({sessionId})=>sessionId?h(SessionReplyStyle,{key:sessionId,sessionId}):null;
           ctx.slots.inject('conversation.session.header.utilities',()=>ctx.slots.register({name:'conversation.session.header.utilities',id:'dsh-companion-reply-style',order:45},ReplyStyleSlot));
           function Icon({size=20}){
