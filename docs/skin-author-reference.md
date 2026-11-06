@@ -38,6 +38,10 @@ node scripts/skin-author-check.mjs sample --dsh-version 0.2.2-rc.1 --platform wi
 | 工具与提示 | `--dsw-specific-menu`、`--dsw-specific-selector`、`--dsw-alias-tooltip-bg`、`--dsw-alias-toast-bg`、`--dsw-alias-toast-label` | 菜单、下拉、提示和遮罩在窄窗口保持可读 |
 | 成功、待处理、失败 | `--dsw-alias-state-success-primary`、`--dsw-alias-state-warn-primary`、`--dsw-alias-state-error-primary` | 颜色和文字一起表达状态 |
 
+## 皮肤库封面
+
+主题盒子 dev.38 起支持可选的顶层 `"cover": "library-cover"`。`library-cover` 是 `assets` 中声明的资源 ID。照其他图片填写路径、MIME、字节数和 SHA-256。封面支持 PNG 和 WebP，单张最多 2 MiB，建议交 960×600。卡片按 8∶5 居中铺满，皮肤名称和版本显示在封面下方。省略 `cover` 时使用现有占位。若仍需交给 dev.37 或更早的版本导入，另交一份省略该字段的清单。
+
 ## 图标替换位
 
 以下 **50 个键**来自当前工作区替换表。它们是作者可声明的替换名，具体落点以目标 DSH 上的实机界面为准。PNG 保留透明背景，浅深分别提供，验收时按 16–20 像素查看识别度。
@@ -50,6 +54,8 @@ node scripts/skin-author-check.mjs sample --dsh-version 0.2.2-rc.1 --platform wi
 | 状态与媒体控制 | `check` 完成、`clock` 等待、`alert` 待处理、`info` 说明、`play` 播放、`pause` 暂停、`close` 关闭 |
 | 设置和权限 | `settings` 设置、`sliders` 偏好、`sun` 浅色、`moon` 深色、`palette` 外观、`download` 下载、`shield` 权限、`expand` 展开 |
 | DSH 能力 | `plugin` 插件、`skill` 技能、`model` 模型、`agent` 助手、`question` 问答、`plan` 计划、`inbox` 收件箱、`git-diff` 差异 |
+
+DSH 0.2.2-rc.1 的侧栏导航和工作区按钮请用主题盒子 dev.38 或后续版本验收。已有语义图标配置沿用。当前覆盖范围是工作区，设置、技能和终端等独立面板按各自页面核对。
 
 插件入口徽记单独交。历史 `history`、书签 `bookmark`、引用 `quote`、音量 `volume`、静音 `mute` 当前没有专属替换键，移到「待接入」。已经交付的素材可留档。
 

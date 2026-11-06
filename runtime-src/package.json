@@ -1,6 +1,6 @@
 {
   "name": "dsh-companion-desktop",
-  "version": "0.1.0-dev.37",
+  "version": "0.1.0-dev.38",
   "private": true,
   "type": "module",
   "main": "entry.mjs"

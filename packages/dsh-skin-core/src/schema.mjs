@@ -78,7 +78,7 @@ export function validateReplyStyle(value) {
 }
 export function validateManifest(input) {
   if (JSON.stringify(input)?.length > 65536) fail('SKIN_TOO_LARGE');
-  keys(input,['formatVersion','id','version','name','description','dshVersions','assets','modules','replyStyle'],'skin');
+  keys(input,['formatVersion','id','version','name','description','dshVersions','assets','modules','replyStyle','cover'],'skin');
   if(input.formatVersion!==2) fail('SKIN_FORMAT_UNSUPPORTED');
   if(own(input,'replyStyle'))validateReplyStyle(input.replyStyle);
   if(!id(input.id)||!/^\d+\.\d+\.\d+$/.test(input.version||'')||typeof input.name!=='string'||!input.name.length||input.name.length>80) fail('SKIN_ID_INVALID');
@@ -98,6 +98,11 @@ export function validateManifest(input) {
     if(own(a,'alpha')&&typeof a.alpha!=='boolean')fail('SKIN_ASSET_INVALID',key+'.alpha');
     for(const p of ['source','license'])if(own(a,p)&&(typeof a[p]!=='string'||a[p].length>1000))fail('SKIN_ASSET_INVALID',key+'.'+p);
     total+=a.bytes;
+  }
+  if(own(input,'cover')){
+    const cover=id(input.cover)&&input.assets[input.cover];
+    if(!cover||!['image/png','image/webp'].includes(cover.mime))fail('SKIN_RESOURCE_MISSING','cover');
+    if(cover.bytes>2*1024*1024)fail('SKIN_ASSET_INVALID','cover');
   }
   if(total>128*1024*1024)fail('SKIN_TOO_LARGE');
   if(!object(input.modules)||!Object.keys(input.modules).length||Object.keys(input.modules).length>8)fail('SKIN_MODULES_INVALID');

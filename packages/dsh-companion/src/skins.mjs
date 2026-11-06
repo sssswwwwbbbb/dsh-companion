@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {StateStore,SkinCoordinator,loadSkin,cacheSkin,fail} from '../skin-core/src/index.mjs';
+import {StateStore,SkinCoordinator,loadSkin,cacheSkin,readAsset,fail} from '../skin-core/src/index.mjs';
 import {PageMailbox} from '../skin-core/adapters/page-mailbox.mjs';
 import {NativePetAdapter} from '../skin-core/adapters/native.mjs';
 import {NativeStartupAdapter} from '../skin-core/adapters/startup.mjs';
@@ -25,7 +25,14 @@ export class CompanionSkins {
   status(){
     let settings={};try{settings=this.core.view();}catch{}
     const unavailable=this.unavailable.filter((row,index,rows)=>!this.snapshots.has(row.contentKey)&&rows.findIndex(other=>other.contentKey===row.contentKey)===index);
-    return {...this.core.status(),settings,catalog:[...this.snapshots.values()].map(s=>({id:s.manifest.id,contentKey:s.contentKey,name:s.manifest.name,description:s.manifest.description,version:s.manifest.version,modules:Object.keys(s.manifest.modules),example:this.examples.has(s.manifest.id)})).concat(unavailable)};
+    return {...this.core.status(),settings,catalog:[...this.snapshots.values()].map(s=>({id:s.manifest.id,contentKey:s.contentKey,name:s.manifest.name,description:s.manifest.description,version:s.manifest.version,hasCover:!!s.manifest.cover,modules:Object.keys(s.manifest.modules),example:this.examples.has(s.manifest.id)})).concat(unavailable)};
+  }
+  cover({contentKey}={}){
+    this.controller.entitlement.require();
+    const skin=this.snapshots.get(contentKey),coverId=skin?.manifest.cover;
+    if(!coverId)return null;
+    const asset=skin.manifest.assets[coverId];
+    return 'data:'+asset.mime+';base64,'+readAsset(skin.root,asset).toString('base64');
   }
   async install(file){this.controller.entitlement.require();const result=this.library.install(file),duplicate=result.duplicate||this.snapshots.has(result.skin.contentKey);this.registerSnapshot(result.skin);this.unavailable=this.unavailable.filter(row=>row.contentKey!==result.skin.contentKey);return {contentKey:result.skin.contentKey,duplicate};}
   async select(value){

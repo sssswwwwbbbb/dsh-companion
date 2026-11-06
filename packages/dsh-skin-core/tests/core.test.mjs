@@ -36,6 +36,17 @@ test('defaults, types, unknown modules and host compatibility fail before disrup
   const incompatible={...a,manifest:{...a.manifest,dshVersions:['9.0.0']}};await assert.rejects(core.select(incompatible),/SKIN_HOST_UNSUPPORTED/);assert.equal(adapters.theme.visible,'sample-a');
   assert.equal(core.state.selected.manifest.id,'sample-a');
 });
+test('library cover is optional and references a PNG or WebP asset within the card size limit',()=>{
+  const {manifest}=loadSkin(path.join(base,'../examples/author-no-pet-v3'));
+  assert.equal(validateManifest(manifest).cover,undefined);
+  const valid={...manifest,cover:'opening-poster'};
+  assert.equal(validateManifest(valid).cover,'opening-poster');
+  assert.throws(()=>validateManifest({...manifest,cover:'missing-cover'}),/SKIN_RESOURCE_MISSING: cover/);
+  assert.throws(()=>validateManifest({...manifest,cover:'opening-video'}),/SKIN_RESOURCE_MISSING: cover/);
+  const oversize=structuredClone(valid);
+  oversize.assets[valid.cover].bytes=2*1024*1024+1;
+  assert.throws(()=>validateManifest(oversize),/SKIN_ASSET_INVALID: cover/);
+});
 test('required failure rolls back prior effects and snapshot; cleanup uncertainty enters fault',async t=>{
   const {core,adapters}=fixture(t);await core.select(a);adapters.pet.fail=true;await assert.rejects(core.select(b),/TEST_APPLY_FAILED/);
   assert.equal(core.state.selected.manifest.id,'sample-a');assert.equal(adapters.theme.visible,'sample-a');assert.equal(core.phase,'ready');
