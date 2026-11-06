@@ -94,7 +94,7 @@ export function createSkinSettingsUi(React,assets){
       !active&&h('p',{className:'r3-notice'},'激活主题盒子后即可使用计时和陪伴勿扰。'),
       h(Section,{title:'计时'},
         (live||done)&&h(Row,{title:(kind==='break'?'休息':'专注')+(done?'结束':phase==='paused'?'已暂停':'中'),
-          description:done?'可以开始下一段计时。':'剩余时间也会显示在会话标题旁。',
+          description:done?'可以开始下一段计时。':'回到会话后，窗口底部会显示剩余时间。',
           feedback:live&&h('output',{className:'r3-focus-time','aria-label':'剩余时间','aria-live':'off'},formatFocusTime(seconds)),
           ...(done?{role:'status'}:{})},
           live&&h(Button,{kind:'primary',disabled,onClick:()=>void action(phase==='paused'?'resume':'pause')},phase==='paused'?'继续':'暂停'),

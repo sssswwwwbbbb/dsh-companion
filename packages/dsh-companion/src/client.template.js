@@ -241,16 +241,20 @@ window.__ModuleLoader__.load({
               h('button',{type:'button','aria-label':'当前会话回复风格','aria-pressed':style.enabled,disabled:saving,onClick:()=>void toggle(),title:style.tone},style.enabled?'回复风格 · 已开':'回复风格'),
               failed&&h('small',{role:'status'},'未更新，可重试'));
           }
+          const subscribeFocusPanel=listener=>ctx.layout.panelInfo.subscribe(listener);
+          const activePanel=()=>ctx.layout.panelInfo.getSnapshot().activePanelId;
           function FocusSlot(){
             const value=React.useSyncExternalStore(focusSource.subscribe,focusSource.getSnapshot);
-            if(!value||value.phase==='idle'&&!value.quiet)return null;
+            const panel=React.useSyncExternalStore(subscribeFocusPanel,activePanel);
+            if(panel!==null||!value||value.phase==='idle'&&!value.quiet)return null;
             const mode=value.kind==='break'?'休息':'专注';
             const label=value.phase==='idle'?'陪伴勿扰':value.phase==='done'?mode+'结束':mode+' '+formatFocusTime(value.seconds)+(value.phase==='paused'?' · 已暂停':'');
-            return h('button',{type:'button','aria-label':'打开专注与休息 · '+label,title:'专注与休息',
-              style:{background:'transparent',color:'var(--dsw-alias-label-secondary)',border:'1px solid currentColor',borderRadius:5,padding:'2px 7px',font:'inherit',fontSize:12,fontVariantNumeric:'tabular-nums',whiteSpace:'nowrap',cursor:'pointer'},
-              onClick:()=>{openFocusPanel=true;ctx.layout.selectPanel('dsh-companion');}},label);
+            return h('div',{style:{display:'flex',justifyContent:'flex-end',borderTop:'1px solid var(--dsw-alias-border-l2)',padding:'3px 12px'}},
+              h('button',{type:'button','aria-label':'打开专注与休息 · '+label,title:'专注与休息',
+                style:{background:'transparent',color:'var(--dsw-alias-label-secondary)',border:'1px solid currentColor',borderRadius:5,padding:'2px 7px',font:'inherit',fontSize:12,fontVariantNumeric:'tabular-nums',whiteSpace:'nowrap',cursor:'pointer'},
+                onClick:()=>{openFocusPanel=true;ctx.layout.selectPanel('dsh-companion');}},label));
           }
-          ctx.slots.inject('conversation.session.header.utilities',()=>ctx.slots.register({name:'conversation.session.header.utilities',id:'dsh-companion-focus',order:46},FocusSlot));
+          ctx.slots.inject('shell.bottom',()=>ctx.slots.register({name:'shell.bottom',id:'dsh-companion-focus'},FocusSlot));
           const ReplyStyleSlot=({sessionId})=>sessionId?h(SessionReplyStyle,{key:sessionId,sessionId}):null;
           ctx.slots.inject('conversation.session.header.utilities',()=>ctx.slots.register({name:'conversation.session.header.utilities',id:'dsh-companion-reply-style',order:45},ReplyStyleSlot));
           function Icon({size=20}){
