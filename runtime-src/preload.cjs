@@ -1,7 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('companion', {
   ready: value => ipcRenderer.send('companion:ready', value),
-  introReady: () => ipcRenderer.send('companion:intro-ready'),
+  introReady: value => ipcRenderer.send('companion:intro-ready', value),
   introControl: value => ipcRenderer.send('companion:intro-control', value),
   onIntroState(callback) {
     const listener = (_event, value) => callback(value);

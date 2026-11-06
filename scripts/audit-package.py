@@ -17,6 +17,7 @@ with tarfile.open(artifact) as archive:
     config = json.load(archive.extractfile('package/config/service.json'))
     patch = 'package/' + package['dsh']['bundle']['patch'].removeprefix('./')
     zipped = archive.extractfile('package/runtime-bundles/DSHCompanion-darwin-arm64.zip').read()
+    manifest = json.load(archive.extractfile('package/runtime-bundles/manifest.json'))
     with zipfile.ZipFile(BytesIO(zipped)) as app:
         base = 'DSHCompanion.app/Contents/Resources/app/'
         inner = json.loads(app.read(base + 'config/service.json'))
@@ -26,9 +27,11 @@ with tarfile.open(artifact) as archive:
 checks = {'privateFilesExcluded': not private, 'bundlePatchIncluded': patch in names,
           'desktopAndPluginConfigMatch': inner == config, 'desktopVersionMatches': runtime['version'] == version,
           'cloudEndpoint': config['serviceUrl'] == 'https://license-host.invalid/dsh-companion',
-          'assetNoticeIncluded': notice, 'dshEnginePinned': package['engines']['dsh'] == '0.2.1-rc.5',
+          'assetNoticeIncluded': notice, 'dshEnginePinned': package['engines']['dsh'].split(' || ') == config['supportedDsh'],
+          'runtimeBundleHashMatches': manifest['sha256'] == hashlib.sha256(zipped).hexdigest(),
+          'runtimeBundleVersionMatches': manifest['version'] == version,
           'nativeLicenseVerifierMatchesPlugin':core_matches,
-          'officialProxyPeerDeclared': package['peerDependencies'].get('@deepseek-ai/dsh-http-proxy') == '0.2.1-rc.5'}
+          'officialProxyPeerDeclared': package['peerDependencies'].get('@deepseek-ai/dsh-http-proxy') == package['engines']['dsh']}
 report = {'at': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'version': version,
           'name': package['name'], 'files': len(names), 'sizeBytes': artifact.stat().st_size,
           'sha256': hashlib.sha256(artifact.read_bytes()).hexdigest(), 'checks': checks,

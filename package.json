@@ -1,10 +1,10 @@
 {
   "name": "dsh-companion-local-project",
-  "version": "0.1.0-dev.11",
+  "version": "0.1.0-dev.27",
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.19.0"
   },
   "scripts": {
     "build:client": "node scripts/build-client.mjs",
@@ -12,7 +12,16 @@
     "package:mac": "npm run build:mac && node scripts/package-mac.mjs",
     "service:local": "node scripts/license-service.mjs",
     "verify:geometry:mac": ".cache/electron/45.2.1/darwin-arm64/Electron.app/Contents/MacOS/Electron scripts/verify-native-geometry.cjs",
-    "test": "node --test tests/*.test.mjs designs/dsh-companion-v1/tests/behavior.test.mjs",
-    "check": "node scripts/check.mjs"
+    "test": "node --test tests/*.test.mjs packages/dsh-skin-core/tests/*.test.mjs designs/dsh-companion-v1/tests/behavior.test.mjs",
+    "check": "node scripts/check.mjs",
+    "test:skin": "node --test packages/dsh-skin-core/tests/*.test.mjs",
+    "check:skin": "node packages/dsh-skin-core/scripts/check.mjs",
+    "pretest": "npm run build:client",
+    "pretest:skin": "npm run build:client"
+  },
+  "packageManager": "npm@11.9.0",
+  "devDependencies": {
+    "fflate": "0.8.2",
+    "undici": "8.11.2"
   }
 }

@@ -133,7 +133,7 @@ test('authorization and package downloads both use the supplied host network tra
     const artifact=path.join(directory,'package.tgz');fs.writeFileSync(artifact,'transport-test');
     await admin('/admin/releases',{artifact,version:'0.1.0-dev.6',build:6,supportedDsh:['0.2.1-rc.5']});
     assert.equal((await entitlement.download({dshVersion:'0.2.1-rc.5',build:5})).verified,true);
-    await assert.rejects(entitlement.download({dshVersion:'0.2.1-rc.5',build:7}),/NO_COMPATIBLE_RELEASE/);
+    await assert.rejects(entitlement.download({dshVersion:'0.2.1-rc.5',build:7}),/UPDATE_DOWNGRADE_BLOCKED/);
     await entitlement.deactivate();assert.equal(entitlement.status().active,false);
     for(const route of ['/v1/activate','/v1/renew','/v1/deactivate','/v1/releases/latest','/v1/releases/download'])assert.ok(requests.includes(route));
   }finally{await service.close();fs.rmSync(directory,{recursive:true,force:true});}

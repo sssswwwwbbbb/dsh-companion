@@ -5,6 +5,7 @@ import { Transform, Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { verifyLicense, verifiedEnvelope, deviceIdentity, isPermanentLicense } from './license-core.mjs';
 import { readJson, writeJson } from './storage.mjs';
+import { updateInfo } from './update-info.mjs';
 
 export class Entitlement {
   constructor({stateDir,config,deviceId=deviceIdentity(),now=Date.now,fetcher=globalThis.fetch}) {
@@ -57,11 +58,11 @@ export class Entitlement {
     this.require();const result=await this.post('/v1/releases/latest',{receipt:this.record().receipt,deviceId:this.deviceId,platform:'darwin-arm64',dshVersion});
     const release=verifiedEnvelope(result.manifest,this.config.publicKey);
     if(release.product!=='dsh-companion'||release.platform!=='darwin-arm64'||release.channel!=='private'||!release.supportedDsh?.includes(dshVersion)||!Number.isSafeInteger(release.build)||!/^[a-f0-9]{64}$/.test(release.sha256||'')||!Number.isSafeInteger(release.size)||release.size<1||release.size>1073741824||!/^[a-zA-Z0-9.+-]+\.tgz$/.test(release.filename||''))throw new Error('RELEASE_INVALID');
-    return {manifest:result.manifest,release,available:release.build>build};
+    return {manifest:result.manifest,release,...updateInfo(release,build)};
   }
   async download({dshVersion,build}){
     const update=await this.latest({dshVersion,build});const {release}=update;
-    if(release.build<build)throw new Error('NO_COMPATIBLE_RELEASE');
+    if(release.build<build)throw new Error('UPDATE_DOWNGRADE_BLOCKED');
     const directory=path.join(this.stateDir,'downloads');fs.mkdirSync(directory,{recursive:true,mode:0o700});
     const file=path.join(directory,release.filename), temporary=file+'.'+randomUUID()+'.part';
     let response;

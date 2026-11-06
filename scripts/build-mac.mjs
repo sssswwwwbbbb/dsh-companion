@@ -8,24 +8,27 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const version = '45.2.1';
 const expected = 'a9a1a0a5b64df714957f83467c84823cb34792205922c6f136550b2403605922';
 const cache = path.join(root, '.cache/electron', version);
-let archive = path.join(cache, `electron-v${version}-darwin-arm64.zip`);
-if (!fs.existsSync(archive) && fs.existsSync(archive + '.part')) {
-  if (createHash('sha256').update(fs.readFileSync(archive + '.part')).digest('hex') !== expected) throw new Error('ELECTRON_ARCHIVE_HASH_MISMATCH');
-  fs.renameSync(archive + '.part', archive);
-}
+if(process.platform!=='darwin'||process.arch!=='arm64')throw new Error('Mac dev.27 requires macOS arm64');
+const archive = path.join(cache, `electron-v${version}-darwin-arm64.zip`);
 if (!fs.existsSync(archive)) throw new Error('DOWNLOAD_VERIFIED_ELECTRON_FIRST');
 if (createHash('sha256').update(fs.readFileSync(archive)).digest('hex') !== expected) throw new Error('ELECTRON_ARCHIVE_HASH_MISMATCH');
 const unpacked = path.join(cache, 'darwin-arm64');
-if (!fs.existsSync(path.join(unpacked, 'Electron.app'))) {
-  fs.mkdirSync(unpacked, { recursive: true });
-  execFileSync('/usr/bin/ditto', ['-x', '-k', archive, unpacked]);
-}
+fs.rmSync(unpacked, { recursive: true, force: true });
+fs.mkdirSync(unpacked, { recursive: true });
+execFileSync('/usr/bin/ditto', ['-x', '-k', archive, unpacked]);
 const target = path.join(root, 'packages/dsh-companion/runtime/darwin-arm64/DSHCompanion.app');
-if (!fs.existsSync(target)) { fs.mkdirSync(path.dirname(target), { recursive: true });execFileSync('/usr/bin/ditto', [path.join(unpacked, 'Electron.app'), target]); }
+fs.rmSync(target, { recursive: true, force: true });
+fs.mkdirSync(path.dirname(target), { recursive: true });
+execFileSync('/usr/bin/ditto', [path.join(unpacked, 'Electron.app'), target]);
 const contents = path.join(target, 'Contents');
 const payload = path.join(contents, 'Resources/app');
 fs.mkdirSync(payload, { recursive: true });
 fs.cpSync(path.join(root, 'runtime-src'), payload, { recursive: true });
+const petInputs=path.join(root,'.local/accepted-inputs/pet-backend');
+const petPayload=path.join(payload,'pet-backend/dsh-pet');
+fs.cpSync(path.join(petInputs,'lib'),path.join(petPayload,'lib'),{recursive:true});
+fs.cpSync(path.join(petInputs,'assets/pic'),path.join(petPayload,'assets/pic'),{recursive:true});
+fs.cpSync(path.join(root,'packages/dsh-skin-core'),path.join(payload,'skin-core'),{recursive:true,filter:source=>!/[\\/](tests|scripts|examples)([\\/]|$)/.test(source)});
 for(const name of ['license-core.mjs','packs.mjs','storage.mjs','integration.mjs','host-window.mjs'])fs.copyFileSync(path.join(root,'packages/dsh-companion/src',name),path.join(payload,name));
 fs.cpSync(path.join(root,'packages/dsh-companion/config'),path.join(payload,'config'),{recursive:true});
 fs.copyFileSync(path.join(root, 'designs/dsh-companion-v1/behavior.mjs'), path.join(payload, 'behavior.mjs'));

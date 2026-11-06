@@ -1,0 +1,1 @@
+globalThis.DSH_GEOMETRY_ENDPOINT="http://127.0.0.1:61433";

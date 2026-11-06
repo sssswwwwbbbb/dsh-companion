@@ -1,0 +1,108 @@
+{
+  "formatVersion": 2,
+  "id": "sample-interaction",
+  "version": "1.0.0",
+  "name": "样例 · 桌宠连续互动",
+  "description": "M3模块验证样例；复用现有鲸鱼娘资源，人设来自首套R4设计声明",
+  "dshVersions": [
+    "0.2.1-rc.5"
+  ],
+  "assets": {},
+  "modules": {
+    "theme": {
+      "interfaceVersion": 1,
+      "configVersion": 1,
+      "required": true,
+      "config": {
+        "tokens": {
+          "--dsw-alias-bg-base": {
+            "light": "#faf3e7",
+            "dark": "#30291f"
+          },
+          "--dsw-alias-bg-layer-1": {
+            "light": "#faf3e7",
+            "dark": "#30291f"
+          },
+          "--dsw-alias-label-primary": {
+            "light": "#253449",
+            "dark": "#e3eafa"
+          },
+          "--dsw-alias-border-l2": {
+            "light": "#ccd7e2",
+            "dark": "#445169"
+          }
+        }
+      },
+      "settings": {}
+    },
+    "pet": {
+      "interfaceVersion": 1,
+      "configVersion": 1,
+      "required": true,
+      "config": {
+        "builtinPack": "whale-maid-demo",
+        "actionDescriptions": {
+          "react": "轻轻回应用户的触碰",
+          "stretch": "伸懒腰，提醒一起活动",
+          "play": "和小猫玩一会儿",
+          "eat": "吃一口白饭",
+          "greet": "向用户打招呼",
+          "look": "安静看看周围",
+          "idle": "回到待机",
+          "sleep-in": "准备睡一会儿",
+          "sleep": "安静休息",
+          "wake": "醒来继续陪伴"
+        },
+        "localReply": "我在这里，陪你慢慢来。"
+      },
+      "settings": {
+        "size": {
+          "label": "桌宠大小",
+          "default": 90
+        },
+        "autonomous": {
+          "label": "自主活动",
+          "default": false
+        },
+        "profile": {
+          "label": "活动节奏",
+          "default": "gentle",
+          "showWhen": {
+            "field": "autonomous",
+            "equals": true
+          }
+        },
+        "followMouse": {
+          "label": "跟随鼠标",
+          "default": false
+        },
+        "smartEnabled": {
+          "label": "智能互动",
+          "default": true
+        },
+        "persona": {
+          "label": "本套人设",
+          "default": "你是温柔又有点俏皮的鲸鱼娘，陪伴用户工作。回应自然简短，结合刚才的互动选择合适的动作，也可以安静陪伴。"
+        },
+        "modelSelection": {
+          "label": "互动使用的模型",
+          "default": {
+            "mode": "current"
+          }
+        },
+        "historyRounds": {
+          "label": "最近互动轮数",
+          "default": 10
+        },
+        "allowSpeech": {
+          "label": "允许说话",
+          "default": true
+        },
+        "allowActions": {
+          "label": "允许动作",
+          "default": true
+        }
+      }
+    }
+  }
+}

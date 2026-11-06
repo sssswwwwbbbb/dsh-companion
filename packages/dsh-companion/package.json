@@ -1,17 +1,19 @@
 {
   "name": "dsh-plugin-companion",
-  "version": "0.1.0-dev.11",
+  "version": "0.1.0-dev.27",
   "description": "DSH 陪伴：激活授权、配置包、启动动画与 Mac 桌宠完整流程验证版",
   "type": "module",
   "engines": {
-    "dsh": "0.2.1-rc.5"
+    "dsh": "0.2.1-rc.5 || 0.2.2-rc.1"
   },
   "peerDependencies": {
     "@deepseek-ai/dsh-typert-protocol": "*",
-    "@deepseek-ai/dsh-http-proxy": "0.2.1-rc.5"
+    "@deepseek-ai/dsh-llm": "0.2.1-rc.5 || 0.2.2-rc.1",
+    "@deepseek-ai/dsh-http-proxy": "0.2.1-rc.5 || 0.2.2-rc.1"
   },
   "dependencies": {
-    "undici": "8.11.2"
+    "undici": "8.11.2",
+    "fflate": "0.8.2"
   },
   "exports": {
     ".": "./index.js",
@@ -30,7 +32,9 @@
     "locale",
     "icon.svg",
     "cordis.patch.yml",
-    "README.md"
+    "README.md",
+    "skin-core",
+    "skins"
   ],
   "dsh": {
     "bundle": {
@@ -43,7 +47,10 @@
         "@deepseek-ai/dsh-client-ui-layout",
         "@deepseek-ai/dsh-client-ui-sidebar",
         "@deepseek-ai/dsh-api-remotes",
-        "@deepseek-ai/dsh-client-ui-plugin-manager"
+        "@deepseek-ai/dsh-client-ui-plugin-manager",
+        "@deepseek-ai/dsh-client-ui-theme",
+        "@deepseek-ai/dsh-client-ui-session",
+        "@deepseek-ai/dsh-client-ui-conversation"
       ]
     }
   },

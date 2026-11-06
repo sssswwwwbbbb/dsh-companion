@@ -1,0 +1,7 @@
+{
+  "name": "dsh-pet",
+  "version": "0.4.1",
+  "type": "module",
+  "license": "MIT",
+  "private": true
+}

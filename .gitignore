@@ -26,3 +26,8 @@ __pycache__/
 *.key
 *.p12
 *.pfx
+
+# Generated plugin assets and client; reconstruct from the accepted input archive.
+/packages/dsh-companion/client.js
+/packages/dsh-companion/skin-core/
+/packages/dsh-companion/skins/

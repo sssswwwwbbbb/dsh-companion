@@ -1,0 +1,31 @@
+/* All hashed rc.5 leaves are scoped here; official Theme/Slots retain ownership. */
+body.dsh-workspace-commander{--paper:var(--dsw-alias-bg-base);--surface:var(--dsw-alias-bg-layer-1);--ink:var(--dsw-alias-label-primary);--muted:var(--dsw-alias-label-secondary);--line:var(--dsw-alias-border-l2);--line-strong:var(--dsw-alias-border-l3);--accent:var(--dsw-alias-state-business-primary);--accent-soft:var(--dsw-alias-state-business-tertiary);--signal:var(--dsw-alias-label-primary-bluish);--attention:var(--dsw-alias-state-warn-primary);--font-title:'Avenir Next','PingFang SC',sans-serif;caret-color:var(--accent)}
+body.dsh-workspace-commander ::selection{background:var(--dsw-alias-bg-document-selection);color:var(--ink)}
+body.dsh-workspace-commander :is(button,a,[role=button],[contenteditable]):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+body.dsh-workspace-commander [data-slot=sidebar]{border-right:1px solid var(--line)}
+body.dsh-workspace-commander .kB3qhq_newSession{border:1px solid var(--line-strong);border-radius:5px;background:var(--surface);box-shadow:none}
+body.dsh-workspace-commander .kB3qhq_panelActive{background:var(--accent-soft);border-radius:5px}
+body.dsh-workspace-commander .Kjh-qa_root :is([role=row],[role=treeitem])[aria-selected=true]{background:var(--accent-soft);box-shadow:inset 2px 0 var(--accent);border-radius:4px}
+body.dsh-workspace-commander .kiGsTW_header{border-bottom:1px solid var(--line);background:var(--surface)}
+body.dsh-workspace-commander .kiGsTW_scrollBody{background:var(--surface);scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
+body.dsh-workspace-commander .AkCqbG_bubble{border-radius:6px;background:var(--dsw-alias-bg-layer-2);border:1px solid var(--line);box-shadow:none}
+body.dsh-workspace-commander .gTO55a_root{border-block:1px solid var(--line);border-radius:0;color:var(--muted)}
+body.dsh-workspace-commander .JZLxKW_card{position:relative;border:1px solid var(--line-strong);border-radius:7px;background:var(--dsw-alias-bg-layer-3);box-shadow:none}
+body.dsh-workspace-commander .JZLxKW_card:focus-within{border-color:var(--accent)}
+body.dsh-workspace-commander .JZLxKW_card:focus-within:before{content:'';position:absolute;top:-1px;left:16px;right:16px;height:1px;background:var(--accent);pointer-events:none}
+body.dsh-workspace-commander .JZLxKW_primary{border-radius:4px;background:var(--accent)!important;color:var(--paper)}
+body.dsh-workspace-commander .htuFrW_trigger>.htuFrW_triggerIcon{display:inline-block!important;width:16px!important;height:16px!important;flex:none}
+body.dsh-workspace-commander .h_iMMG_root{background:var(--paper);border-left:1px solid var(--line)}
+body.dsh-workspace-commander .h_iMMG_header{border-bottom:1px solid var(--line)}
+body.dsh-workspace-commander .h_iMMG_row{border-radius:4px}
+body.dsh-workspace-commander .dsh-skin-work{font-size:12px;color:var(--muted)}
+body.dsh-workspace-commander .dsh-skin-work[data-dsh-work-state=attention]{color:var(--attention)}
+body.dsh-workspace-commander .dsh-skin-work[data-dsh-work-state=completed]{color:var(--dsw-alias-state-success-primary)}
+.dsh-commander-icon{display:inline-grid;flex:none;width:18px;height:18px;vertical-align:middle;pointer-events:none}.dsh-commander-icon>img{grid-area:1/1;width:100%;height:100%;object-fit:contain}.commander-dark{display:none}[data-ds-dark-theme] .commander-light{display:none}[data-ds-dark-theme] .commander-dark{display:block}
+.dsh-commander-companion{box-sizing:border-box;display:flex;align-items:center;gap:8px;width:100%;min-width:0;padding:6px 3px;border-top:1px solid var(--line)}
+.commander-portrait{flex:0 0 32px;width:32px;height:32px;overflow:hidden;border-radius:4px;background:var(--surface)}
+.commander-portrait>img{display:block;width:100%;height:100%;object-fit:contain}
+.commander-companion-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-size:12px;font-weight:550;line-height:1.5}
+.commander-companion-status{flex:none;color:var(--signal);font-size:11px;line-height:1.5;white-space:nowrap}
+.dsh-commander-companion[data-state=attention] .commander-companion-status{color:var(--attention)}
+@media(prefers-reduced-motion:reduce){body.dsh-workspace-commander :is(.JZLxKW_card,.Kjh-qa_root){transition:none;scroll-behavior:auto}}

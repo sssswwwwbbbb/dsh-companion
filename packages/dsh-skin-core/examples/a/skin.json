@@ -1,0 +1,39 @@
+{
+  "formatVersion": 2,
+  "id": "sample-a",
+  "version": "1.0.0",
+  "name": "样例 A · 雾蓝",
+  "description": "仅会话工作区主题",
+  "dshVersions": [
+    "0.2.1-rc.5"
+  ],
+  "assets": {},
+  "modules": {
+    "theme": {
+      "interfaceVersion": 1,
+      "configVersion": 1,
+      "required": true,
+      "config": {
+        "tokens": {
+          "--dsw-alias-bg-base": {
+            "light": "#edf4fa",
+            "dark": "#1c2835"
+          },
+          "--dsw-alias-bg-layer-1": {
+            "light": "#edf4fa",
+            "dark": "#1c2835"
+          },
+          "--dsw-alias-label-primary": {
+            "light": "#253449",
+            "dark": "#e3eafa"
+          },
+          "--dsw-alias-border-l2": {
+            "light": "#ccd7e2",
+            "dark": "#445169"
+          }
+        }
+      },
+      "settings": {}
+    }
+  }
+}

@@ -1,4 +1,4 @@
-export const defaults = Object.freeze({ packId:'whale-maid-demo', profile: 'free', size: 100, autonomous: true, followMouse: false, visible: true, autoStart:true, startupEnabled:true, launcherEnabled:true });
+export const defaults = Object.freeze({ packId:'whale-maid-demo', profile: 'free', size: 100, autonomous: true, followMouse: false, visible: true, autoStart:true, startupEnabled:true, launcherEnabled:false });
 export const actions = new Set(['idle', 'look', 'stretch', 'eat', 'play', 'greet', 'react', 'sleep-in', 'sleep', 'wake']);
 
 export function validatedSettings(value, previous = defaults) {

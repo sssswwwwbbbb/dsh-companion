@@ -1,0 +1,31 @@
+{
+  "name": "dsh-plugin-companion-windows-check",
+  "version": "0.1.0-w0.1",
+  "description": "DSH Windows x64 桌宠验证插件",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js"
+  },
+  "files": ["index.js", "client.js", "cordis.patch.yml", "runtime.zip", "README.md"],
+  "engines": {
+    "dsh": "0.2.1-rc.5 || 0.2.2-rc.1"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-typert-protocol": "*"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar",
+        "@deepseek-ai/dsh-api-remotes"
+      ]
+    }
+  }
+}

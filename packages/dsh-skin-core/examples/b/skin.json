@@ -1,0 +1,69 @@
+{
+  "formatVersion": 2,
+  "id": "sample-b",
+  "version": "1.0.0",
+  "name": "样例 B · 沙色与桌宠",
+  "description": "会话工作区主题＋现有桌宠",
+  "dshVersions": [
+    "0.2.1-rc.5"
+  ],
+  "assets": {},
+  "modules": {
+    "theme": {
+      "interfaceVersion": 1,
+      "configVersion": 1,
+      "required": true,
+      "config": {
+        "tokens": {
+          "--dsw-alias-bg-base": {
+            "light": "#faf3e7",
+            "dark": "#30291f"
+          },
+          "--dsw-alias-bg-layer-1": {
+            "light": "#faf3e7",
+            "dark": "#30291f"
+          },
+          "--dsw-alias-label-primary": {
+            "light": "#253449",
+            "dark": "#e3eafa"
+          },
+          "--dsw-alias-border-l2": {
+            "light": "#ccd7e2",
+            "dark": "#445169"
+          }
+        }
+      },
+      "settings": {}
+    },
+    "pet": {
+      "interfaceVersion": 1,
+      "configVersion": 1,
+      "required": true,
+      "config": {
+        "builtinPack": "whale-maid-demo"
+      },
+      "settings": {
+        "size": {
+          "label": "桌宠大小",
+          "default": 90
+        },
+        "autonomous": {
+          "label": "自主活动",
+          "default": false
+        },
+        "profile": {
+          "label": "活动节奏",
+          "default": "gentle",
+          "showWhen": {
+            "field": "autonomous",
+            "equals": true
+          }
+        },
+        "followMouse": {
+          "label": "跟随鼠标",
+          "default": false
+        }
+      }
+    }
+  }
+}

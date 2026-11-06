@@ -1,0 +1,4 @@
+- insert:
+    - id: local-dsh-companion-windows-check
+      name: dsh-plugin-companion-windows-check
+      config: {}
