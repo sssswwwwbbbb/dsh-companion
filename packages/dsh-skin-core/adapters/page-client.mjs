@@ -22,7 +22,7 @@ export function installSkinPage({ctx,React,call,setEntryMark=()=>{}}) {
   }
   function present(){
     if(stopped||!selected)return;
-    setEntryMark(selected.workspace?.icons?.companion||selected.entryMarks||null);
+    setEntryMark(selected.entryMarks||null);
     // The official sidebar outlet spans its entire column. Its Mac root is
     // transparent over native glass, so a token override on body alone is insufficient.
     if(!disposeSidebar&&selected.tokens['--dsw-specific-sidebar-fill']){
@@ -59,7 +59,7 @@ export function installSkinPage({ctx,React,call,setEntryMark=()=>{}}) {
       if(payload.background!==selected.background||JSON.stringify(payload.tokens)!==JSON.stringify(selected.tokens)||JSON.stringify(payload.entryMarkImages)!==JSON.stringify(selected.entryMarkImages))throw new Error('SKIN_UPDATE_RESOURCE_CHANGED');
       const latest=await call('skinPage',{clientId,capable,verify:true});
       if(stopped||command.generation!==generation||latest.command?.id!==command.id)throw new Error('STALE_PAGE_OPERATION');
-      selected={...payload,generation:command.generation,contentKey:command.contentKey};setEntryMark(selected.workspace?.icons?.companion||selected.entryMarks||null);
+      selected={...payload,generation:command.generation,contentKey:command.contentKey};setEntryMark(selected.entryMarks||null);
       if(backgroundNode)backgroundNode.style.opacity=String(selected.backgroundOpacity);
       if(workspaceVisible&&selected.workspace?.enabled){if(workspaceRuntime)workspaceRuntime.update(selected.workspace);else workspaceRuntime=installWorkspace({ctx,React,config:selected.workspace,identity:{generation:selected.generation,contentKey:selected.contentKey}});}else {workspaceRuntime?.dispose();workspaceRuntime=undefined;}
       syncFeedback();return;

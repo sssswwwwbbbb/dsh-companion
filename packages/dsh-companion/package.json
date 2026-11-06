@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-companion",
-  "version": "0.1.0-dev.35",
+  "version": "0.1.0-dev.36",
   "description": "主题盒子 · DSH 主题、开场和桌宠管理",
   "type": "module",
   "engines": {

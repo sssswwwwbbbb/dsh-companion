@@ -1,0 +1,161 @@
+{
+  "formatVersion": 2,
+  "id": "author-no-pet-v3",
+  "version": "1.0.0",
+  "name": "无桌宠 v3 制作样例",
+  "description": "原创几何占位素材。演示主题、入口标识和 MP4 开场。",
+  "dshVersions": [
+    "0.2.2-rc.1"
+  ],
+  "assets": {
+    "opening-poster": {
+      "path": "assets/poster.png",
+      "mime": "image/png",
+      "sha256": "56014e01738a29f0414baceb9dd88179e0b3206b4f1713ff62accaee6c07a51f",
+      "bytes": 1225,
+      "width": 480,
+      "height": 270,
+      "source": "主题盒子原创几何占位素材"
+    },
+    "opening-video": {
+      "path": "assets/opening.mp4",
+      "mime": "video/mp4",
+      "sha256": "18f3394dcde071f48a55a45cddef0ca02cfce8d308c4e75105aa5a67f0c84e91",
+      "bytes": 4960,
+      "width": 480,
+      "height": 270,
+      "source": "主题盒子原创几何占位素材"
+    },
+    "mark-light": {
+      "path": "assets/mark-light.png",
+      "mime": "image/png",
+      "sha256": "862cdc5b5cf4300699d5a941ee262787aa792e7bd0f5d7a7b3b062b6ca12389f",
+      "bytes": 429,
+      "width": 96,
+      "height": 96,
+      "source": "主题盒子原创几何占位素材"
+    },
+    "mark-dark": {
+      "path": "assets/mark-dark.png",
+      "mime": "image/png",
+      "sha256": "716951553d147d8b136e7f4d21fd9969f39a85c6c33c544e1b5cb0e4032266ad",
+      "bytes": 430,
+      "width": 96,
+      "height": 96,
+      "source": "主题盒子原创几何占位素材"
+    }
+  },
+  "modules": {
+    "theme": {
+      "interfaceVersion": 1,
+      "configVersion": 3,
+      "required": true,
+      "config": {
+        "tokens": {
+          "--dsw-alias-bg-base": {
+            "light": "#F2F6F8",
+            "dark": "#121D29"
+          },
+          "--dsw-alias-bg-layer-1": {
+            "light": "#FFFFFF",
+            "dark": "#172534"
+          },
+          "--dsw-alias-bg-layer-2": {
+            "light": "#EDF3F6",
+            "dark": "#1B2D40"
+          },
+          "--dsw-alias-bg-layer-3": {
+            "light": "#FAFCFD",
+            "dark": "#21364A"
+          },
+          "--dsw-alias-label-primary": {
+            "light": "#172D3A",
+            "dark": "#EAF5FA"
+          },
+          "--dsw-alias-label-secondary": {
+            "light": "#385767",
+            "dark": "#B4CEDA"
+          },
+          "--dsw-alias-label-tertiary": {
+            "light": "#4B6571",
+            "dark": "#A5BFCC"
+          },
+          "--dsw-alias-border-l2": {
+            "light": "#CAD7DF",
+            "dark": "#405668"
+          },
+          "--dsw-alias-border-l3": {
+            "light": "#AABFCB",
+            "dark": "#536C7E"
+          },
+          "--dsw-alias-state-business-primary": {
+            "light": "#19566B",
+            "dark": "#8ED3E5"
+          },
+          "--dsw-alias-state-business-tertiary": {
+            "light": "#CDE7EF",
+            "dark": "#25485A"
+          },
+          "--dsw-specific-sidebar-fill": {
+            "light": "#E7EFF3",
+            "dark": "#101C28"
+          },
+          "--dsw-specific-sidebar-nav-item-active": {
+            "light": "#D5E8F0",
+            "dark": "#25485A"
+          }
+        },
+        "background": "opening-poster",
+        "workspacePreset": "commander-v1",
+        "semanticIcons": {
+          "workspace": {
+            "light": "mark-light",
+            "dark": "mark-dark"
+          }
+        },
+        "entryMarks": {
+          "light": "mark-light",
+          "dark": "mark-dark"
+        }
+      },
+      "settings": {
+        "backgroundOpacity": {
+          "label": "背景浓度",
+          "default": 0.04
+        },
+        "entryMarkEnabled": {
+          "label": "入口标识",
+          "default": true
+        },
+        "workspaceDetailsEnabled": {
+          "label": "工作区细节",
+          "default": true
+        }
+      }
+    },
+    "startup": {
+      "interfaceVersion": 1,
+      "configVersion": 3,
+      "required": false,
+      "config": {
+        "poster": "opening-poster",
+        "video": "opening-video",
+        "seconds": 2,
+        "handoffSeconds": 0.35,
+        "stillSeconds": 1.2,
+        "greeting": "准备工作区",
+        "subtitle": "无桌宠开场样例"
+      },
+      "settings": {
+        "reducedMotion": {
+          "label": "减少开场动态",
+          "default": false
+        },
+        "soundEnabled": {
+          "label": "开场声音",
+          "default": false
+        }
+      }
+    }
+  }
+}

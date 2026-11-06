@@ -45,7 +45,8 @@ export class PageMailbox {
     }
     const workspace=config.workspacePreset?{preset:config.workspacePreset,enabled:config.workspaceDetailsEnabled===true,motion:config.workspaceMotionEnabled===true,petEcho:config.petEchoEnabled===true,opening:config.workspacePreset==='archive-warm-r2'&&resumeStop===true,feedback:config.workFeedbackEnabled===true,icons:Object.fromEntries(Object.entries(config.semanticIcons).map(([name,pair])=>[name,{light:image(pair.light),dark:image(pair.dark)}])),role}:null;
     return {tokens:config.tokens,backgroundOpacity:config.backgroundOpacity,...(workspace?{workspace}:{}),...(config.background?{background:image(config.background)}:{}),
-      ...(marks?{entryMarkImages:marks,entryMarks:config.entryMarkEnabled?marks:null}:{}),
+      entryMarks:marks?(config.entryMarkEnabled?marks:null):workspace?.icons.companion||null,
+      ...(marks?{entryMarkImages:marks}:{}),
       ...(typeof config.workFeedbackEnabled==='boolean'?{workFeedback:{enabled:config.workFeedbackEnabled,petEcho:config.petEchoEnabled===true}}:{})};
   }
   apply(context,prepared){return this.execute('apply',context,prepared);}

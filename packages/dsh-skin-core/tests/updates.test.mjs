@@ -28,6 +28,28 @@ test('background update reuses only the live acknowledged Page payload without r
  await f.core.update({module:'theme',field:'backgroundOpacity',value:.09,contentKey:f.skin.contentKey});assert.equal(f.payload.backgroundOpacity,.09);assert.equal(f.payload.background,old);assert.equal(f.core.view().theme.values.backgroundOpacity,.09);assert.equal(f.core.generation,generation);assert.deepEqual(f.calls,[]);assert.deepEqual(reads,{count:0,bytes:0});assert.equal(f.commands.at(-1).kind,'update');
  const asset=Object.values(f.skin.manifest.assets)[0];fs.writeFileSync(path.join(f.skin.root,asset.path),Buffer.alloc(asset.bytes));await assert.rejects(f.core.select(f.skin),/SKIN_RESOURCE_HASH/);assert.ok(reads.count>0,'a new selection revalidates resource bytes');
 });
+test('explicit entry marks take precedence and disabling them restores the default icon',()=>{
+ const page=new PageMailbox();
+ const image=value=>({mime:'image/png',data:Buffer.from(value)});
+ const resources={badgeLight:image('badge-light'),badgeDark:image('badge-dark'),iconLight:image('icon-light'),iconDark:image('icon-dark')};
+ const base={workspacePreset:'commander-v1',workspaceDetailsEnabled:true,semanticIcons:{companion:{light:'iconLight',dark:'iconDark'}}};
+ const legacy=page.prepare({config:base,resources});
+ assert.deepEqual(legacy.entryMarks,legacy.workspace.icons.companion);
+ const config={...base,entryMarks:{light:'badgeLight',dark:'badgeDark'},entryMarkEnabled:true};
+ const prepared=page.prepare({config,resources});
+ assert.deepEqual(prepared.entryMarks,prepared.entryMarkImages);
+ assert.notDeepEqual(prepared.entryMarks,prepared.workspace.icons.companion);
+ assert.equal(page.prepare({config:{...config,entryMarkEnabled:false},resources}).entryMarks,null);
+ const clientId=randomUUID();
+ page.poll({clientId,capable:true});
+ page.active=true;page.lastReady={clientId,generation:1,contentKey:'example'};page.appliedPayload=prepared;
+ const context={assertCurrent(){},generation:1,contentKey:'example'};
+ const disabled=page.prepareUpdate({...context,config:{...config,entryMarkEnabled:false}});
+ assert.equal(disabled.entryMarks,null);
+ assert.deepEqual(disabled.entryMarkImages,prepared.entryMarkImages);
+ page.appliedPayload=disabled;
+ assert.deepEqual(page.prepareUpdate({...context,config}).entryMarks,prepared.entryMarkImages);
+});
 test('local Page failure rolls back just its config and preserves pet/startup plus committed preferences',async t=>{
  const f=fixture(t);await f.core.select(f.skin);const generation=f.core.generation,previous=f.core.view().theme.values.backgroundOpacity;f.calls.length=0;f.rejectUpdates(1);
  await assert.rejects(f.core.update({module:'theme',field:'backgroundOpacity',value:.11}),/SKIN_PAGE_APPLY_FAILED/);assert.equal(f.payload.backgroundOpacity,previous);assert.equal(f.core.view().theme.values.backgroundOpacity,previous);assert.equal(f.core.phase,'ready');assert.equal(f.core.generation,generation);assert.deepEqual(f.calls,[]);assert.equal(f.core.state.error.code,'SKIN_PAGE_APPLY_FAILED');

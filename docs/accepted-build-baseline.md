@@ -65,3 +65,15 @@ python3 scripts/compare-accepted-package.py \
 ## 比对口径
 
 与原验收包相比，Mac 外层 189 个、桌面 ZIP 内 386 个常规文件；Windows 外层 188 个、桌面 ZIP 内 187 个常规文件。两平台的路径和内容均一致；ZIP 本身及记录其摘要的 manifest 会因打包元数据变化而改变，Mac 复建去掉了 AppleDouble 条目。原验收包的身份和原生验收记录继续独立保留。复建、自动回归和归档比对不代表重新安装、分发或实机验收。旧独立启动器说明与 `scripts/verify-workflow-host.mjs` 属于早期 MVP 流程，不作为此版本的验收入口。已有私有发布命令仍以 DSH rc.5 为发布参数，Windows 私有更新渠道尚未实施，留待后续 W3；本基线不改授权服务或管理页。
+
+
+## dev.35 制作基线
+
+源码提交为 `77730c2`。从该提交使用同一套历史素材输入和固定 Electron 归档重建。Mac 使用 `npm run package:mac`，Windows 使用本提交的 `experiments/dsh-windows-w1/build.py`，供给同版 Mac 包与固定 Windows Electron。111 项测试通过。重建的 Mac 和 Windows 包均与原归档逐文件核对，比较包内常规文件、运行时文件及运行时清单元数据。
+
+| dev.35 原归档 | SHA-256 |
+| --- | --- |
+| Mac ARM64 | `ce4171100738460388c747d9614c23198c46206c80be77b0c53530a313b17d1d` |
+| Windows x64 | `75d94845e152f82e6df1995bd45dab96d09fc2977dbba7126c373eab075d580c` |
+
+归档时间等封装元数据可产生不同的包摘要。需要比对源码复建结果时，用 `scripts/compare-accepted-package.py` 对照原包内容。制作方优先使用原验收包及[离线工具](skin-author-reference.md)。
