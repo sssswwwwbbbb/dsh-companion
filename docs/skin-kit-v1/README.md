@@ -4,7 +4,7 @@
 
 | 接收人 | 请先读 |
 | --- | --- |
-| 你本地自行制作／自己的 Agent 制作 | [制作与自行上架流程 A](developer-guide.md#3-两套制作与交付流程)，完成后执行第 9 节云端发布 |
+| 你本地自行制作／自己的 Agent 制作 | [制作与自行交付流程 A](developer-guide.md#3-两套制作与交付流程)，完成后执行第 9 节本地导入与验收 |
 | 第三方独立制作 | [独立制作交付流程 B](developer-guide.md#b-第三方在自己的环境中制作并交付)，再读 [配置与校验参考](configuration-reference.md) |
 | 无桌宠主题的 UI、美术、动效和音频人员 | [无桌宠版全量素材清单](materials-without-pet.md) |
 | 带桌宠主题的制作人员 | [带桌宠版全量素材清单](materials-with-pet.md) |
