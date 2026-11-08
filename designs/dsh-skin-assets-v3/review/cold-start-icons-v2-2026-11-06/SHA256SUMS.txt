@@ -1,1 +1,1 @@
-ea112a57b5acd0f3ca1121d11b366e4e147dc77fa03dfd2b505ca54ec9b586fd  commander-workspace-private-1.0.0.zip
+e14f9f3b9abd7530e624ab974df268bb12a2a6bafeb01fdcef09cb6868754519  commander-workspace-private-1.0.1.zip

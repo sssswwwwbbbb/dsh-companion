@@ -162,10 +162,10 @@ const tokens = {
 const manifest = {
   formatVersion: 2,
   id: 'duelist-sky-dragon',
-  version: '1.0.9',
+  version: '1.1.0',
   name: '决斗者 · 天空龙',
   description: '无桌宠版：决斗盘米白与夜空神卡两套配色、成套题材化工作区图标、10 秒有声开场、场景提示与回复风格。作者 Dr.S。',
-  dshVersions: ['0.2.2-rc.1'],
+  dshVersions: ['0.2.1-rc.5', '0.2.2-rc.1'],
   cover: 'library-cover',
   character: {
     name: '亚图姆',

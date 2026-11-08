@@ -249,5 +249,15 @@ if __name__ == "__main__":
     parser.add_argument("--mac-package", type=Path, default=ROOT / f"dist/dsh-plugin-companion-{VERSION}.tgz")
     parser.add_argument("--electron-zip", type=Path, default=ROOT / ".cache/electron/45.2.1/electron-v45.2.1-win32-x64.zip")
     parser.add_argument("--output", type=Path, default=ROOT / f"dist/dsh-plugin-companion-{VERSION}-{PLATFORM}.tgz")
+    parser.add_argument("--profile", choices=["official", "community"], default="official")
     args = parser.parse_args()
     build(args.mac_package, args.electron_zip, args.output.resolve())
+    if args.profile == "community":
+        target = args.output.resolve()
+        renamed = target.with_name(target.stem + "-community-" + PLATFORM + ".tgz")
+        with zipfile.ZipFile(target) as package:
+            data = json.load(package.open("package/config/service.json"))
+        if "license-host.invalid" not in data.get("serviceUrl", ""):
+            raise RuntimeError("COMMUNITY_BUILD_HAS_REAL_ENDPOINT")
+        target.rename(renamed)
+        print(json.dumps({"artifact": str(renamed), "sha256": sha256(renamed), "bytes": renamed.stat().st_size}))

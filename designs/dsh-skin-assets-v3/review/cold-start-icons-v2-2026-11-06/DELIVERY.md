@@ -1,13 +1,13 @@
-# 冷启动 · commander-workspace-private 1.0.0 正式交付说明
+# 冷启动 · commander-workspace-private 1.0.1 正式交付说明
 
-冻结包：`commander-workspace-private-1.0.0.zip`
-SHA-256：`ea112a57b5acd0f3ca1121d11b366e4e147dc77fa03dfd2b505ca54ec9b586fd`
-大小：9994285 字节
-内容键：`294ce7618878113c7b8ffc627e286b9a741c2e32af9811f4a480963d6eef7ff8`
+冻结包：`commander-workspace-private-1.0.1.zip`
+SHA-256：`e14f9f3b9abd7530e624ab974df268bb12a2a6bafeb01fdcef09cb6868754519`
+大小：9994290 字节
+内容键：`ebe012f0e440bd6833da73b8c4b86f5e776fa9dbc2e06892d7a10afd64f61390`
 作者：**Dr.S**（笔名）
 授权：**独占分发** —— 仅作者 Dr.S 本人可分发；他人经作者授权、通过正式渠道获取后使用；禁止转载、转发、镜像、二次分发、打包出售或再授权。
-目标宿主：DSH 0.2.1-rc.5 / 0.2.2-rc.1；主题盒子 1.0 合同（工具候选 1.1.0-dev.3）
-平台：Mac ARM64 / Windows x64（结构校验通过，Windows 实机未验）
+目标宿主：DSH 0.2.1-rc.4 / 0.2.1-rc.5 / 0.2.2-rc.1；主题盒子 1.0 合同（工具 1.1.0-dev.5）
+平台：Mac ARM64 已在 DSH 0.2.2-rc.1 与 0.2.1-rc.5 上实机验证；Windows x64 仅结构校验，未实机
 
 ## 包内容
 
@@ -38,19 +38,20 @@ manifest 没有顶层 author/license 字段，署名与授权写在**每项资�
 
 ## 校验
 
-离线校验器（工具包同版）：0.2.2-rc.1 与 0.2.1-rc.5 × darwin-arm64 与 win32-x64 四种组合 `valid: true`，theme/startup 均 enabled。
+离线校验器（工具包 1.1.0-dev.5）：0.2.1-rc.4 / 0.2.1-rc.5 / 0.2.2-rc.1 × darwin-arm64 与 win32-x64 六种组合 `valid: true`。
+实机：DSH 0.2.2-rc.1 与 0.2.1-rc.5 均已在 Mac ARM64 验证（rc.5 由用户确认）。
 服务端预检 `readSkinPackage` 与导入模拟 `withSkinArchive` 均通过；包内额外文件不影响导入。
 
 ## 上架状态：已发布（2026-11-08）
 
 | 项 | 值 |
 | --- | --- |
-| releaseId | `skin_ca0cb247-0e5b-4cc4-a93f-c1fc1e8c1f44` |
-| id / version | `commander-workspace-private` / `1.0.0` |
-| sha256 | `ea112a57b5acd0f3ca1121d11b366e4e147dc77fa03dfd2b505ca54ec9b586fd`（与本地冻结包一致） |
-| contentKey | `294ce761…`（一致） |
+| releaseId | `skin_465a5458-c617-4565-8c5b-8c4f9e2c9315` |
+| id / version | `commander-workspace-private` / `1.0.1` |
+| sha256 | `e14f9f3b9abd7530e624ab974df268bb12a2a6bafeb01fdcef09cb6868754519`（与本地冻结包一致） |
+| contentKey | `ebe012f0…`（一致） |
 | size | 9 993 908 B（一致） |
-| supportedDsh | 0.2.1-rc.5 / 0.2.2-rc.1 |
+| supportedDsh | 0.2.1-rc.4 / 0.2.1-rc.5 / 0.2.2-rc.1 |
 | 发布方式 | `deploy/cloud-admin.mjs publish-skin`，服务端登记并写 audit |
 
 1.0.0 已由用户从云端下载、安装并应用；本地内容快照 125 项哈希全对。开场声音在 0.9.7 已验证 `muted:false`，1.0.0 待一次冷启动或「预览开场」复验。剩余一步是**真实客户端验收**：在已激活的主题盒子刷新皮肤库 → 下载 → 安装 → 应用，确认名称、封面、模块、兼容范围与版本正确。

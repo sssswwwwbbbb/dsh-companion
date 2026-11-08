@@ -21,8 +21,15 @@ const packed = JSON.parse(execFileSync('npm', ['pack', '--ignore-scripts', '--js
 if (packed.files.some(row => /(?:^|\/)(?:bridge\.json|settings\.json|chromium|\.local|\.cache|node_modules)(?:\/|$)/.test(row.path))) throw new Error('PRIVATE_STATE_IN_PACKAGE');
 if (packed.files.some(row => row.path.startsWith('runtime/'))) throw new Error('LOOSE_APP_IN_NPM_PACKAGE');
 if(packed.files.some(row=>/(?:^|\/)(?:signing-private\.pem|admin\.token|database\.json|license\.json|activation\.json)$/.test(row.path)))throw new Error('LICENSING_SECRET_IN_PACKAGE');
-const output = path.join(dist, packed.filename);
+let output = path.join(dist, packed.filename);
+if(profile==='community'){const renamed=path.join(dist, packed.filename.replace(/\.tgz$/,'-community-darwin-arm64.tgz'));fs.renameSync(output,renamed);output=renamed;}
 fs.writeFileSync(path.join(root, 'reports/mac-package.json'), JSON.stringify({ at:new Date().toISOString(), version, file:output, sizeBytes:fs.statSync(output).size, sha256:createHash('sha256').update(fs.readFileSync(output)).digest('hex'), includesDesktopRuntime:true, privateStateIncluded:false, files:packed.files.map(row=>row.path), signing:'local-development', publication:'local-only' }, null, 2)+'\n');
+// The packaged endpoint must match the build profile: official -> real endpoint,
+// community -> placeholder. Never ship one under the other's name.
+const profile=process.env.DSH_BUILD_PROFILE||'official';
+const packedConfig=JSON.parse(fs.readFileSync(path.join(packageDir,'config/service.json'),'utf8'));
+if(profile==='community'){if(!packedConfig.serviceUrl.includes('license-host.invalid'))throw new Error('COMMUNITY_BUILD_HAS_REAL_ENDPOINT');}
+else{const endpoint=fs.readFileSync(path.join(root,'.local/cloud/service-url.txt'),'utf8').trim();if(packedConfig.serviceUrl!==endpoint)throw new Error('SERVICE_ENDPOINT_NOT_INJECTED');}
 const originalConfig=path.join(root,'.local/cloud/service-config.orig.json');
 if(fs.existsSync(originalConfig)){fs.copyFileSync(originalConfig,path.join(packageDir,'config/service.json'));fs.rmSync(originalConfig,{force:true});}
 console.log(output);

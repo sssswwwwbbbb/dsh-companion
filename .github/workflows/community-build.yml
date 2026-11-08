@@ -27,12 +27,12 @@ jobs:
         run: node scripts/fetch-electron.mjs all
 
       - name: Build packages
+        env:
+          DSH_BUILD_PROFILE: community
         run: |
           npm run package:mac
-          python3 experiments/dsh-windows-w1/build.py
           VERSION=$(node -p "require('./packages/dsh-companion/package.json').version")
-          cp "dist/dsh-plugin-companion-${VERSION}.tgz" "dist/dsh-plugin-companion-${VERSION}-community-darwin-arm64.tgz"
-          cp "dist/dsh-plugin-companion-${VERSION}-win32-x64.tgz" "dist/dsh-plugin-companion-${VERSION}-community-win32-x64.tgz"
+          python3 experiments/dsh-windows-w1/build.py --mac-package "dist/dsh-plugin-companion-${VERSION}-community-darwin-arm64.tgz" --profile community
 
       - name: Verify placeholder endpoint
         run: |

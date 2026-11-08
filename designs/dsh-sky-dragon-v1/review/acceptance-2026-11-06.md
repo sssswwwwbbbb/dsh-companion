@@ -41,3 +41,8 @@ Windows x64 实机（预览、跳过、原图标冷启动）由项目方安排�
 
 - 从云端皮肤库下载 → 安装 → 应用 `duelist-sky-dragon` 1.0.5 成功，`theme` 与 `startup` 均 ready。
 - 浅色与深色实机截图已归档到 `delivery/light-workspace.png`、`delivery/dark-workspace.png`。
+
+## 1.1.0 更新验收（2026-11-08）
+
+- 云端「下载更新」安装并应用 1.1.0 通过。
+- 宿主：`0.2.2-rc.1`（实机）；`0.2.1-rc.5`（静态兼容）。
