@@ -3,9 +3,9 @@ import {loadSkin,prepareResources} from '../packages/dsh-skin-core/src/resources
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 const base = new URL('../packages/dsh-companion/', import.meta.url);
-const inputs=new URL('../.local/accepted-inputs/',import.meta.url);
-const workspaceSource=new URL('skins/archive-workspace-r2-private/',inputs);
-if(!existsSync(new URL('skin.json',workspaceSource)))throw new Error('Missing accepted Cold Start build input');
+const inputs=new URL('../tests/fixtures/',import.meta.url);
+const workspaceSource=new URL('archive-workspace-r2-private/',inputs);
+if(!existsSync(new URL('skin.json',workspaceSource)))throw new Error('Missing fixture skin in tests/fixtures');
 // No bundled skin: skins come from the cloud library and stay in the user's
 // profile. The source skin here only supplies settings-page artwork and the
 // defaults baked into client.js.
@@ -13,7 +13,7 @@ rmSync(new URL('skins/',base),{recursive:true,force:true});
 if(!readFileSync(new URL('../runtime-src/settings.mjs',import.meta.url)).equals(readFileSync(new URL('src/settings.mjs',base))))throw new Error('PLUGIN_RUNTIME_SETTINGS_MISMATCH');
 const workspaceSkin=loadSkin(fileURLToPath(workspaceSource));prepareResources(workspaceSkin);
 mkdirSync(new URL('../reports/',import.meta.url),{recursive:true});
-writeFileSync(new URL('../reports/bundled-skins.json',import.meta.url),JSON.stringify({localReviewOnly:true,bundled:[],note:'skins are not bundled; they are installed from the cloud skin library',settingsArtworkSource:'.local/accepted-inputs/skins/archive-workspace-r2-private'},null,2)+'\n');
+writeFileSync(new URL('../reports/bundled-skins.json',import.meta.url),JSON.stringify({localReviewOnly:true,bundled:[],note:'skins are not bundled; they are installed from the cloud skin library',settingsArtworkSource:'tests/fixtures/archive-workspace-r2-private'},null,2)+'\n');
 rmSync(new URL('skin-core/',base),{recursive:true,force:true});
 const locales = Object.fromEntries(['zh','en'].map(locale => [locale,JSON.parse(readFileSync(new URL(`locale/${locale}.json`,base),'utf8'))]));
 cpSync(new URL('../packages/dsh-skin-core/',import.meta.url),new URL('skin-core/',base),{recursive:true,filter:source=>!/[\\/](tests|scripts|examples)([\\/]|$)/.test(source)});
