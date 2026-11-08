@@ -1,4 +1,5 @@
 import tokens from './theme-tokens.json' with { type: 'json' };
+import {cuePositions,cueEffects} from './workspace-cues.mjs';
 export const clone = value => structuredClone(value);
 export function fail(code, field = '') { throw Object.assign(new Error(code + (field ? ': ' + field : '')), {code, field}); }
 export const object = x => x !== null && typeof x === 'object' && !Array.isArray(x);
@@ -18,6 +19,10 @@ const clips = x => object(x) && own(x,'idle') && Object.keys(x).length <= 12 && 
 });
 const petActions = animationSlots.filter(x=>!['walk','run'].includes(x));
 const text = (x,max) => typeof x==='string' && x.length<=max;
+export function sceneModelKey(route){
+  if(!text(route?.provider,200)||!route.provider.length||!text(route.model,200)||!route.model.length)return null;
+  return JSON.stringify([route.provider,route.model]);
+}
 const modelSelection = x => object(x) && (x.mode==='current' && Object.keys(x).length===1 || x.mode==='specific' && Object.keys(x).length===3 && text(x.provider,200) && x.provider.length>0 && text(x.model,200) && x.model.length>0);
 const compatible=(def,module)=>def&&module.interfaceVersion===def.interfaceVersion&&(def.configVersions||[def.configVersion]).includes(module.configVersion);
 const entryMarks=x=>object(x)&&Object.keys(x).length===2&&id(x.light)&&id(x.dark);
@@ -69,6 +74,8 @@ export const definitions = {
     allowSpeech:{type:'boolean',default:true,valid:x=>typeof x==='boolean'},
     allowActions:{type:'boolean',default:true,valid:x=>typeof x==='boolean'},
     actionDescriptions:{fixed:true,valid:x=>object(x)&&Object.keys(x).length>0&&Object.entries(x).every(([k,v])=>petActions.includes(k)&&text(v,120)&&v.length>0)},
+    activityDescriptions:{fixed:true,valid:x=>object(x)&&Object.keys(x).length>0&&Object.entries(x).every(([k,v])=>animationSlots.includes(k)&&text(v,120)&&v.trim().length>0)},
+    interactionMemory:{fixed:true,valid:x=>object(x)&&Object.keys(x).length===2&&typeof x.enabledDefault==='boolean'&&text(x.preferenceDefault,400)},
     localReply:{fixed:true,default:'',valid:x=>text(x,120)},
   }},
 };
@@ -76,11 +83,38 @@ export function validateReplyStyle(value) {
   if(!object(value)||Object.keys(value).length!==2||!text(value.address,32)||!text(value.tone,280)||!value.tone.trim())fail('REPLY_STYLE_INVALID');
   return {address:value.address.trim(),tone:value.tone.trim()};
 }
+export function validateCharacter(value){
+  keys(value,['name','identity','workContext','petContext','petEnabledDefault'],'character');
+  if(!text(value.name,32)||!value.name.trim()||!text(value.identity,2000)||!value.identity.trim()||
+    !own(value,'workContext')&&!own(value,'petContext'))fail('SKIN_FIELDS_INVALID','character');
+  for(const field of ['workContext','petContext'])if(own(value,field)&&!text(value[field],600))fail('SKIN_FIELDS_INVALID','character.'+field);
+  if(own(value,'petEnabledDefault')&&(typeof value.petEnabledDefault!=='boolean'||!own(value,'petContext')))fail('SKIN_FIELDS_INVALID','character.petEnabledDefault');
+  return clone(value);
+}
 export function validateManifest(input) {
   if (JSON.stringify(input)?.length > 65536) fail('SKIN_TOO_LARGE');
-  keys(input,['formatVersion','id','version','name','description','dshVersions','assets','modules','replyStyle','cover'],'skin');
+  keys(input,['formatVersion','id','version','name','description','dshVersions','assets','modules','replyStyle','cover','workspaceCues','scenePresets','character'],'skin');
+  if(own(input,'character')){
+    validateCharacter(input.character);
+    if(own(input.character,'workContext')&&!input.modules?.theme||own(input.character,'petContext')&&!input.modules?.pet)fail('SKIN_FIELDS_INVALID','character');
+  }
   if(input.formatVersion!==2) fail('SKIN_FORMAT_UNSUPPORTED');
   if(own(input,'replyStyle'))validateReplyStyle(input.replyStyle);
+  if(own(input,'workspaceCues')){
+    const cues=input.workspaceCues;
+    keys(cues,['welcome','session','workspace'],'workspaceCues');
+    if(!Object.keys(cues).length||!input.modules?.theme)fail('SKIN_FIELDS_INVALID','workspaceCues');
+    for(const [kind,cue] of Object.entries(cues)){
+      const field='workspaceCues.'+kind;
+      keys(cue,['text','default','seconds','position','effect','colors'],field);
+      if(!text(cue.text,72)||!cue.text.trim()||typeof cue.default!=='boolean')fail('SKIN_FIELDS_INVALID',field);
+      if(own(cue,'seconds')&&!num(cue.seconds,1,8)||own(cue,'position')&&!cuePositions.includes(cue.position)||own(cue,'effect')&&!cueEffects.includes(cue.effect))fail('SKIN_FIELDS_INVALID',field);
+      if(own(cue,'colors')){
+        keys(cue.colors,['background','text','border'],field+'.colors');
+        for(const pair of Object.values(cue.colors)){keys(pair,['light','dark'],field+'.colors');if(!color(pair.light)||!color(pair.dark))fail('SKIN_FIELDS_INVALID',field+'.colors');}
+      }
+    }
+  }
   if(!id(input.id)||!/^\d+\.\d+\.\d+$/.test(input.version||'')||typeof input.name!=='string'||!input.name.length||input.name.length>80) fail('SKIN_ID_INVALID');
   if(input.description!==undefined&&(typeof input.description!=='string'||input.description.length>500))fail('SKIN_FIELDS_INVALID','description');
   if(!Array.isArray(input.dshVersions)||!input.dshVersions.length||input.dshVersions.length>10||!input.dshVersions.every(x=>typeof x==='string'&&/^\d+\.\d+\.\d+(?:-[a-z0-9.]+)?$/.test(x)))fail('SKIN_COMPATIBILITY_INVALID');
@@ -103,6 +137,30 @@ export function validateManifest(input) {
     const cover=id(input.cover)&&input.assets[input.cover];
     if(!cover||!['image/png','image/webp'].includes(cover.mime))fail('SKIN_RESOURCE_MISSING','cover');
     if(cover.bytes>2*1024*1024)fail('SKIN_ASSET_INVALID','cover');
+  }
+  if(own(input,'scenePresets')){
+    const scenes=input.scenePresets;
+    keys(scenes,['model','workspace'],'scenePresets');
+    if(!Object.keys(scenes).length||!input.modules?.theme)fail('SKIN_FIELDS_INVALID','scenePresets');
+    for(const [kind,rows] of Object.entries(scenes)){
+      if(!object(rows)||!Object.keys(rows).length||Object.keys(rows).length>8)fail('SKIN_FIELDS_INVALID','scenePresets.'+kind);
+      for(const [preset,row] of Object.entries(rows)){
+        const field='scenePresets.'+kind+'.'+preset;
+        keys(row,kind==='model'?['label','badge','portrait','notice']:['label','accent','notice'],field);
+        if(!id(preset)||!text(row.label,32)||!row.label.trim()||own(row,'notice')&&(!text(row.notice,72)||!row.notice.trim()))fail('SKIN_FIELDS_INVALID',field);
+        if(kind==='workspace'){
+          keys(row.accent,['light','dark'],field+'.accent');
+          if(!color(row.accent.light)||!color(row.accent.dark))fail('SKIN_FIELDS_INVALID',field+'.accent');
+        }else{
+          if(!own(row,'badge')&&!own(row,'portrait'))fail('SKIN_FIELDS_INVALID',field);
+          for(const slot of ['badge','portrait'])if(own(row,slot)){
+            const asset=id(row[slot])&&input.assets[row[slot]];
+            if(!asset||!['image/png','image/webp'].includes(asset.mime))fail('SKIN_RESOURCE_MISSING',field+'.'+slot);
+            if(asset.bytes>2*1024*1024)fail('SKIN_ASSET_INVALID',field+'.'+slot);
+          }
+        }
+      }
+    }
   }
   if(total>128*1024*1024)fail('SKIN_TOO_LARGE');
   if(!object(input.modules)||!Object.keys(input.modules).length||Object.keys(input.modules).length>8)fail('SKIN_MODULES_INVALID');
@@ -153,6 +211,10 @@ export function validateManifest(input) {
       if(m.configVersion===1&&['handoffSeconds','stillSeconds','reducedMotion'].some(k=>own(m.config,k)||own(m.settings,k)))fail('SKIN_SETTING_UNSUPPORTED','startup.handoff');
       if(m.configVersion>=2&&(!m.config.video||!m.config.handoffSeconds||!m.config.stillSeconds||m.config.handoffSeconds>=m.config.seconds||m.config.stillSeconds>m.config.seconds))fail('SKIN_CONFIG_INVALID','startup.handoff');
       if(m.configVersion<3&&(own(m.config,'soundEnabled')||own(m.settings,'soundEnabled')))fail('SKIN_SETTING_UNSUPPORTED','startup.soundEnabled');
+    }
+    if(key==='pet'&&m.config.activityDescriptions)for(const action of Object.keys(m.config.activityDescriptions)){
+      const clip=m.config.animations?.[action];
+      if(!clip||clip.loop||['idle','sleep-in','sleep'].includes(action))fail('SKIN_SETTING_UNSUPPORTED','pet.activityDescriptions.'+action);
     }
     if(key==='pet'&&m.config.animations)for(const clip of Object.values(m.config.animations))if(input.assets[clip.asset]?.mime!=='video/webm')fail('SKIN_RESOURCE_MISSING','pet.animations');
     if(key==='pet'){

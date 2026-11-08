@@ -109,7 +109,7 @@ test('optional runtime failure is reported unavailable and plugin disposal prese
 
 test('editing an interaction preference persists it without reloading the active skin',async t=>{
   const {core,store,adapters}=fixture(t);
-  const skin=loadSkin(path.join(base,'../../dsh-companion/skins/archive-warm-whale'));
+  const skin=loadSkin(path.join(base,'fixtures/full-skin'));
   let cancelled=0;adapters.pet.interactionPreferencesChanged=()=>{cancelled++;};
   for(const method of ['supportsUpdate','prepareUpdate','update'])adapters.pet[method]=NativePetAdapter.prototype[method];
   await core.select(skin);const generation=core.generation;

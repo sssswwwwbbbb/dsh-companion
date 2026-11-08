@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import {fileURLToPath} from 'node:url';import {randomUUID} from 'node:crypto';
 import {SkinCoordinator,StateStore,loadSkin,cacheSkin,requestStop} from '../src/index.mjs';import {PageMailbox} from '../adapters/page-mailbox.mjs';
 import {NativePetAdapter} from '../adapters/native.mjs';import {PetInteraction} from '../../dsh-companion/src/pet-interaction.mjs';
-const project=fileURLToPath(new URL('../../../',import.meta.url)),source=path.join(project,'packages/dsh-companion/skins/archive-warm-whale'),delay=ms=>new Promise(r=>setTimeout(r,ms));
+const project=fileURLToPath(new URL('../../../',import.meta.url)),source=path.join(project,'packages/dsh-skin-core/tests/fixtures/full-skin'),delay=ms=>new Promise(r=>setTimeout(r,ms));
 function fixture(t,{timeout=200}={}){
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'skin-update-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));const skin=cacheSkin(loadSkin(source),dir),page=new PageMailbox({timeout:400}),clientId=randomUUID(),calls=[];
  const adapter=module=>({visible:false,available:()=>true,invalidate(generation){calls.push([module,'invalidate',generation]);},prepare(){calls.push([module,'prepare']);return {};},async apply(c){c.assertCurrent();this.visible=true;calls.push([module,'apply']);return {ready:true};},async exit(){this.visible=false;calls.push([module,'exit']);return {cleared:true};}});

@@ -31,3 +31,6 @@ __pycache__/
 /packages/dsh-companion/client.js
 /packages/dsh-companion/skin-core/
 /packages/dsh-companion/skins/
+
+# Rebuildable review archives; keep source artwork and generators.
+/designs/dsh-skin-assets-v3/review/**/*.zip

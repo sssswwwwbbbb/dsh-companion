@@ -1,5 +1,6 @@
 // One explicit pet interaction. Animation, physics and skin lifecycle remain with
 // their existing owners; this service only selects and records an executed reply.
+import {PetMemory} from './pet-memory.mjs';
 const copy=value=>structuredClone(value);
 const codeOf=error=>/^[A-Z_]+$/.test(error?.code||error?.message||'')?(error.code||error.message):'PET_MODEL_FAILED';
 const fail=code=>{throw Object.assign(new Error(code),{code});};
@@ -10,19 +11,20 @@ export function parsePetDecision(text,capabilities){
   return {speech:capabilities.speech?value.speech||'':'',action:value.action};
 }
 export class PetInteraction {
-  constructor(controller,model){this.controller=controller;this.model=model;this.history=new Map();this.sequence=0;this.last=null;}
-  cancel(){this.sequence++;this.pending?.abort();this.pending=null;this.controller.skins.work?.cancelDecision();}
+  constructor(controller,model){this.controller=controller;this.model=model;this.history=new Map();this.sequence=0;this.last=null;this.memory=new PetMemory(controller,this);}
+  cancel(){this.controller.skins.activities?.cancel();this.sequence++;this.pending?.abort();this.pending=null;this.controller.skins.work?.cancelDecision();}
   current(){
     const core=this.controller.skins.core,pet=core.view().pet;
     // Module-local updates keep the committed skin live. Pet preference updates
     // still cancel via their adapter; full switches and stops keep their guards.
     if(core.disposed||!['ready','updating'].includes(core.phase)||core.state.stopped||core.pendingSelections||core.store.hasStops()||pet?.status!=='enabled')fail('PET_NOT_AVAILABLE');
-    if(!pet.values.persona||!pet.values.actionDescriptions)fail('PET_INTERACTION_NOT_DECLARED');
-    return {skinId:core.state.selected.manifest.id,contentKey:core.state.selected.contentKey,generation:core.generation,config:pet.values};
+    const config={...pet.values,persona:this.controller.replyStyle?.petPersona()??pet.values.persona};
+    if(!config.persona||!config.actionDescriptions)fail('PET_INTERACTION_NOT_DECLARED');
+    return {skinId:core.state.selected.manifest.id,contentKey:core.state.selected.contentKey,generation:core.generation,config};
   }
   status(){
     let context;try{context=this.current();}catch(error){return {available:false,reason:codeOf(error),pending:false};}
-    return {available:true,smartEnabled:context.config.smartEnabled,pending:!!this.pending,last:this.last?.skinId===context.skinId?this.last:null,historyCount:(this.history.get(context.skinId)||[]).length};
+    return {available:true,smartEnabled:context.config.smartEnabled,pending:!!this.pending,last:this.last?.skinId===context.skinId?this.last:null,historyCount:this.memory.recent(context).length};
   }
   async models(){return this.model?this.model.models():{current:null,models:[],reason:'PET_MODEL_UNAVAILABLE'};}
   async chooseWorkReaction({previousState,lastResult,signal}){
@@ -30,7 +32,16 @@ export class PetInteraction {
     if(!this.model)fail('PET_MODEL_UNAVAILABLE');
     const capabilities={speech:false,actions:[{id:'react',description:config.actionDescriptions.react}]};
     const input={persona:config.persona,trigger:'work-completed',scene:{state:'completed',previousState,posture:'idle',lastResult},capabilities};
-    const reply=await this.model.complete({selection:config.modelSelection,input,skinId,signal});
+    const reply=await this.model.complete({selection:config.modelSelection,input:this.memory.input(input),skinId,signal});
+    signal.throwIfAborted();
+    return parsePetDecision(reply.text,capabilities).action;
+  }
+  async chooseActivity({choices,workState,last,signal}){
+    const {skinId,config}=this.current();
+    if(!this.model)fail('PET_MODEL_UNAVAILABLE');
+    const capabilities={speech:false,actions:choices.map(({id,description})=>({id,description}))};
+    const input={persona:config.persona,trigger:'idle-activity',scene:{workState,posture:'idle',lastAction:last},capabilities};
+    const reply=await this.model.complete({selection:config.modelSelection,input:this.memory.input(input),skinId,signal});
     signal.throwIfAborted();
     return parsePetDecision(reply.text,capabilities).action;
   }
@@ -40,6 +51,7 @@ export class PetInteraction {
     const context=this.current();
     if(generation!==undefined&&(generation!==context.generation||contentKey!==context.contentKey))fail('SKIN_OPERATION_SUPERSEDED');
     this.controller.skins.work?.cancelDecision();
+    this.controller.skins.activities?.cancel();
     const sequence=++this.sequence,abort=new AbortController();this.pending=abort;
     const assertCurrent=()=>{
       const current=this.current();
@@ -50,8 +62,8 @@ export class PetInteraction {
       this.controller.entitlement.require();
       const live=await this.controller.nativeStatus();assertCurrent();
       const capabilities={speech:context.config.allowSpeech,actions:context.config.allowActions?Object.entries(context.config.actionDescriptions).filter(([id])=>live.availableActions?.includes(id)).map(([id,description])=>({id,description})):[]};
-      const recent=this.history.get(context.skinId)||[];
-      const input={persona:context.config.persona,trigger,user:text||'用户轻点了你。',recent:context.config.historyRounds?copy(recent.slice(-context.config.historyRounds)):[],capabilities};
+      const recent=this.memory.recent(context);
+      const input=this.memory.input({persona:context.config.persona,trigger,user:text||'用户轻点了你。',recent:context.config.historyRounds?copy(recent.slice(-context.config.historyRounds)):[],capabilities});
       let decision,mode='local',reason=null,route=null;
       const fallback=()=>({speech:capabilities.speech?context.config.localReply:'',action:capabilities.actions.find(x=>x.id==='react')?.id||null});
       if(context.config.smartEnabled){
@@ -73,9 +85,11 @@ export class PetInteraction {
       // again by the existing native latch at the execution boundary.
       if(sequence!==this.sequence)fail('SKIN_OPERATION_SUPERSEDED');
       const current=this.current();if(current.generation!==context.generation||current.contentKey!==context.contentKey)fail('SKIN_OPERATION_SUPERSEDED');
-      const actual=await this.controller.request('/interaction',{generation:context.generation,contentKey:context.contentKey,...decision});
+      const actual=await this.controller.request('/interaction',{generation:context.generation,contentKey:context.contentKey,...decision},15000);
+      if(sequence!==this.sequence)fail('SKIN_OPERATION_SUPERSEDED');
       const round={user:input.user,trigger,mode,reason,route,actual:{speech:actual.speech,action:actual.action},at:Date.now()};
       recent.push(round);this.history.set(context.skinId,recent.slice(-20));
+      this.memory.remember(context,{...round,source:'interaction'});
       this.last={skinId:context.skinId,...round};return copy(this.last);
     }finally{clearTimeout(timer);if(this.pending===abort)this.pending=null;}
   }

@@ -8,7 +8,7 @@ function subset(){
   const m=JSON.parse(fs.readFileSync(path.join(project,'packages/dsh-skin-core/examples/interaction/skin.json')));m.id='partial-pet';m.modules.pet.configVersion=2;
   const pet=m.modules.pet;pet.config={builtinPack:'whale-maid-demo',canvasHeight:195,animations:{idle:{asset:'idle-clip',seconds:3,loop:true},react:{asset:'react-clip',seconds:1.8,loop:false}},actionDescriptions:{idle:'待机',react:'回应'}};
   for(const field of ['autonomous','followMouse','profile'])delete pet.settings[field];
-  for(const name of ['idle','react']){const source='packages/dsh-companion/skins/archive-warm-whale/assets/'+name+'-a2.webm',data=fs.readFileSync(path.join(project,source));m.assets[name+'-clip']={path:name+'.webm',mime:'video/webm',bytes:data.length,sha256:digest(data)};}
+  for(const name of ['idle','react']){const source='packages/dsh-skin-core/tests/fixtures/full-skin/assets/'+name+'-a2.webm',data=fs.readFileSync(path.join(project,source));m.assets[name+'-clip']={path:name+'.webm',mime:'video/webm',bytes:data.length,sha256:digest(data)};}
   return m;
 }
 test('pet config v2 accepts only declared idle/react; v1 retains full-pack semantics',()=>{
@@ -25,7 +25,7 @@ test('native subset replaces all old clips; returning to old v1 restores the act
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'partial-pet-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
   fs.symlinkSync(path.join(project,'packages/dsh-skin-core'),path.join(dir,'skin-core'));for(const name of ['skin.mjs','work-feedback.mjs'])fs.copyFileSync(path.join(project,'runtime-src',name),path.join(dir,name));
   const {NativeSkinRuntime}=await import(pathToFileURL(path.join(dir,'skin.mjs'))),author=path.join(dir,'author');fs.mkdirSync(author);
-  fs.writeFileSync(path.join(author,'skin.json'),JSON.stringify(subset()));for(const name of ['idle','react'])fs.copyFileSync(path.join(project,'packages/dsh-companion/skins/archive-warm-whale/assets/'+name+'-a2.webm'),path.join(author,name+'.webm'));
+  fs.writeFileSync(path.join(author,'skin.json'),JSON.stringify(subset()));for(const name of ['idle','react'])fs.copyFileSync(path.join(project,'packages/dsh-skin-core/tests/fixtures/full-skin/assets/'+name+'-a2.webm'),path.join(author,name+'.webm'));
   const skin=loadSkin(author),resources=prepareResources(skin),assets=materializeResources(resources,path.join(dir,'skin-assets',skin.contentKey));let applied;
   const runtime=new NativeSkinRuntime({stateDir:dir,loadPack:()=>JSON.parse(fs.readFileSync(path.join(project,'packages/dsh-companion/packs/whale-maid.json'))),apply:value=>{applied=value;},hide(){},isReady:token=>token===applied?.token});
   atomicJson(path.join(dir,'skin-operations/1.json'),{manifest:skin.manifest,config:resolveSettings(skin.manifest,{},{theme:true,pet:true}).pet.values,contentKey:skin.contentKey,assets});await runtime.activate({generation:1,contentKey:skin.contentKey});

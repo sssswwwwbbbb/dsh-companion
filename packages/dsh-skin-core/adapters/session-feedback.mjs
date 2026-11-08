@@ -73,6 +73,6 @@ export function installSessionFeedback({ctx,React,onChange}){
   return()=>{
     if(!active)return;
     active=false;offCurrent();offStatus();for(const off of offSession)off();motion.removeEventListener('change',refresh);offSlot();listeners.clear();
-    onChange({bindingId,sessionId:id,seq:lastSeq,state:'idle',reducedMotion:motion.matches});
+    onChange({bindingId,sessionId:id,seq:lastSeq,state:'idle',reducedMotion:motion.matches,observing:false});
   };
 }

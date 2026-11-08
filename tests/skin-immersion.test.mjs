@@ -8,12 +8,12 @@ import {PetInteraction} from '../packages/dsh-companion/src/pet-interaction.mjs'
 import {WorkFeedback} from '../packages/dsh-companion/src/work-feedback.mjs';
 import {NativeWorkFeedback} from '../runtime-src/work-feedback.mjs';
 import {installSessionFeedback} from '../packages/dsh-skin-core/adapters/session-feedback.mjs';
-const original=JSON.parse(fs.readFileSync(new URL('../packages/dsh-companion/skins/archive-warm-whale/skin.json',import.meta.url)));
+const original=JSON.parse(fs.readFileSync(new URL('../packages/dsh-skin-core/tests/fixtures/full-skin/skin.json',import.meta.url)));
 function manifest(){const m=structuredClone(original);m.version='0.7.2';const t=m.modules.theme;t.configVersion=2;t.config.entryMarks={light:'mark-light',dark:'mark-dark'};
  for(const id of Object.values(t.config.entryMarks))m.assets[id]={path:'assets/'+id+'.png',mime:'image/png',bytes:8,sha256:'a'.repeat(64)};
  Object.assign(t.settings,{entryMarkEnabled:{label:'入口标识',default:true},workFeedbackEnabled:{label:'工作反馈',default:true},petEchoEnabled:{label:'桌宠呼应',default:true,showWhen:{field:'workFeedbackEnabled',equals:true}}});return m;}
 const available={theme:true,pet:true,startup:true};
-test('declarations are opt-in, use package defaults and retain hidden choices without changing exact0.7.1',()=>{
+test('declarations are opt-in, use package defaults and retain hidden choices without changing the historical eight-control contract',()=>{
  const state={disabled:{},overrides:{}},old=resolveSettings(original,state,available);assert.equal(Object.values(old).flatMap(x=>x.controls).length,8);assert.equal(old.theme.values.workFeedbackEnabled,undefined);
  const m=validateManifest(manifest()),next=resolveSettings(m,state,available);assert.equal(Object.values(next).flatMap(x=>x.controls).length,11);assert.equal(next.theme.values.petEchoEnabled,true);
  state.overrides[m.id]={theme:{workFeedbackEnabled:false,petEchoEnabled:false}};let v=resolveSettings(m,state,available);assert.equal(v.theme.controls.some(c=>c.field==='petEchoEnabled'),false);
@@ -34,7 +34,7 @@ function system(options){
   const reaction=play('react');return ()=>playback===reaction?play('idle').action:null;
  }});
  const controller={credentials:()=>({}),request:async(_route,body)=>native.deliver(body)},skins={core,page,controller},work=new WorkFeedback(skins,options);
- controller.skins={...skins,work};
+ controller.skins={...skins,work,activities:{cancel(){}}};
  const packet=(revision,state='completed',extra={})=>({clientId:page.client.id,work:{generation:1,contentKey:core.state.selected.contentKey,revision,bindingId:'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',sessionId:'session-a',seq:12,state,reducedMotion:false,...extra}});
  return {m,state,core,page,controller,work,native,actions,packet,play};
 }
@@ -146,6 +146,7 @@ test('busy desktop, model failure and newer manual or session actions keep autom
 test('quiet cancels the pending automatic decision and allows manual interaction',async()=>{
  const s=autonomy();
  s.controller.focus={quiet:false,change({enabled}){this.quiet=enabled;}};
+ s.controller.changeFocus=CompanionController.prototype.changeFocus;
  await s.work.configure({contentKey:s.core.state.selected.contentKey,enabled:true});
  let finish;
  s.respond(({input})=>input.trigger==='click'?Promise.resolve({text:'{"speech":null,"action":null}'}):new Promise(resolve=>{finish=resolve;}));

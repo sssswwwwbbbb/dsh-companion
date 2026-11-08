@@ -174,5 +174,6 @@
   "SKIN_RESOURCE_HASH": "A resource hash does not match. The skin was not installed.",
   "SKIN_RESOURCE_SIZE": "A resource size does not match. The skin was not installed.",
   "SKIN_LIBRARY_INVALID": "The local skin library record is invalid. Preserve the files and report this issue.",
-  "SKIN_LIBRARY_FULL": "The local library has reached its current package limit."
+  "SKIN_LIBRARY_FULL": "The local library has reached its current package limit.",
+  "PET_ACTIVITY_NOT_READY": "Enable work feedback and actions, then open an idle conversation and try again."
 }

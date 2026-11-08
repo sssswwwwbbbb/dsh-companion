@@ -9,7 +9,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('petBridge', {
-  companionInteract() { ipcRenderer.send('companion:pet-input'); },
+  companionInteract(trigger='click') { ipcRenderer.send('companion:pet-input',trigger); },
   reportCompanionState(value) { ipcRenderer.send('companion:pet-state', value); },
   onCompanionResize(callback) { ipcRenderer.on('companion:pet-resize',(_event,value)=>callback(value)); },
   reportCompanionResize(value) { ipcRenderer.send('companion:pet-resize-result',value); },

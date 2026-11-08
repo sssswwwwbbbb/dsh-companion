@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-companion",
-  "version": "0.1.0-dev.40",
+  "version": "1.0.0",
   "description": "主题盒子 · DSH 主题、开场和桌宠管理",
   "type": "module",
   "engines": {
@@ -71,5 +71,6 @@
     "deepseek-harness",
     "desktop-pet",
     "startup-animation"
-  ]
+  ],
+  "build": 10000
 }

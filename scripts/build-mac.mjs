@@ -38,7 +38,7 @@ fs.copyFileSync(path.join(root, 'designs/dsh-companion-v1/ASSET-NOTICE.txt'), pa
 const pluginVersion = JSON.parse(fs.readFileSync(path.join(root, 'packages/dsh-companion/package.json'))).version;
 const launchBin=path.join(root,'packages/dsh-companion/bin/darwin-arm64');fs.mkdirSync(launchBin,{recursive:true});
 execFileSync('/usr/bin/clang',['-O2',path.join(root,'runtime-src/launcher.c'),'-o',path.join(launchBin,'companion-launch')],{stdio:'pipe'});
-const settings = { CFBundleIdentifier: 'local.dsh.companion.development', CFBundleName: 'DSHCompanion', CFBundleDisplayName: '主题盒子', CFBundleShortVersionString: pluginVersion.split('-')[0], CFBundleVersion: pluginVersion.match(/dev\.(\d+)/)?.[1] || '1' };
+const settings = { CFBundleIdentifier: 'local.dsh.companion.development', CFBundleName: 'DSHCompanion', CFBundleDisplayName: '主题盒子', CFBundleShortVersionString: pluginVersion.split('-')[0], CFBundleVersion: String(JSON.parse(fs.readFileSync(path.join(root, 'packages/dsh-companion/package.json'))).build??pluginVersion.match(/dev\.(\d+)/)?.[1]??1) };
 for (const [key, value] of Object.entries(settings)) execFileSync('/usr/libexec/PlistBuddy', ['-c', `Set :${key} ${value}`, path.join(contents, 'Info.plist')]);
 execFileSync('/usr/bin/codesign', ['--force', '--sign', '-', '--timestamp=none', target], { stdio: 'pipe' });
 // This is a local developer bundle. A distributable release needs our own signing

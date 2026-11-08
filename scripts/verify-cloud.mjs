@@ -8,8 +8,8 @@ import {createRequire} from 'node:module';
 import {pathToFileURL} from 'node:url';
 
 const root=process.cwd(),config=JSON.parse(fs.readFileSync('packages/dsh-companion/config/service.json'));
-const version=JSON.parse(fs.readFileSync('packages/dsh-companion/package.json')).version;
-const build=Number(version.match(/dev\.(\d+)/)?.[1]);let httpFetch=globalThis.fetch,disposeNetwork;
+const metadata=JSON.parse(fs.readFileSync('packages/dsh-companion/package.json')),version=metadata.version;
+const build=metadata.build??Number(version.match(/dev\.(\d+)/)?.[1]);let httpFetch=globalThis.fetch,disposeNetwork;
 const directory=path.join(root,'.local/cloud-validation-'+Date.now());fs.mkdirSync(directory,{recursive:true,mode:0o700});
 const report={at:new Date().toISOString(),endpoint:config.serviceUrl,version,tlsVerification:true,node:process.version,existingProxyEnabled:process.env.NODE_USE_ENV_PROXY==='1',checks:{},steps:[]};
 const reportFile=path.join(root,'reports/cloud-validation.json');

@@ -8,7 +8,7 @@ import {createDshFetch} from '../packages/dsh-companion/src/http.mjs';
 import {remoteAdmin} from '../deploy/cloud-admin.mjs';
 
 const login=JSON.parse(fs.readFileSync('.local/cloud/admin-login.json')),config=JSON.parse(fs.readFileSync('packages/dsh-companion/config/service.json'));
-const version=JSON.parse(fs.readFileSync('packages/dsh-companion/package.json')).version,build=Number(version.match(/dev\.(\d+)/)?.[1]),artifact='dist/local-dsh-companion-'+version+'.tgz',permanent=process.argv.includes('--permanent');
+const metadata=JSON.parse(fs.readFileSync('packages/dsh-companion/package.json')),version=metadata.version,build=metadata.build??Number(version.match(/dev\.(\d+)/)?.[1]),artifact='dist/local-dsh-companion-'+version+'.tgz',permanent=process.argv.includes('--permanent');
 const report={at:new Date().toISOString(),url:login.url,version,licenseMode:permanent?'permanent':'fixed-term',checks:{}},directory=path.resolve('.local/console-cloud-validation-'+Date.now());fs.mkdirSync(directory,{recursive:true,mode:0o700});
 const jar=new Map(),issued=[];let csrf='',httpFetch,dispose;
 const check=(value,name)=>{report.checks[name]=!!value;if(!value)throw new Error(name);};

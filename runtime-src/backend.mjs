@@ -18,9 +18,9 @@ export class WholePetBackend {
   this.host=host;this.event=event;this.revision=0;this.sequence=0;this.token=null;
   this.entry=JSON.parse(fs.readFileSync(path.join(this.root,'skin.json')));
  }
- supports(contentKey){return this.entry.contentKey===contentKey;}
+ supports(contentKey){return this.entry.contentKey===contentKey||this.entry.compatibleContentKeys?.includes(contentKey)===true;}
  snapshot(){try{return JSON.parse(fs.readFileSync(path.join(this.dir,'snapshot.json')));}catch{return {windows:[],errors:[]};}}
- status(){const live=!!this.child&&alive(this.child.pid),snap=live?this.snapshot():{windows:[]},ready=backendReadiness({registered:this.ready,alive:live,suspended:this.suspended,held:this.visibilityHeld,snapshot:snap});return {engine:'dsh-pet',version:'0.4.1',pid:live?this.child.pid:null,alive:live,ready,suspended:this.suspended===true,visibilityHeld:this.visibilityHeld===true,contentKey:live?this.entry.contentKey:null,windows:snap.windows,errors:snap.errors||[],lastAction:this.lastAction||null};}
+ status(){const live=!!this.child&&alive(this.child.pid),snap=live?this.snapshot():{windows:[]},ready=backendReadiness({registered:this.ready,alive:live,suspended:this.suspended,held:this.visibilityHeld,snapshot:snap});return {engine:'dsh-pet',version:'0.4.1',pid:live?this.child.pid:null,alive:live,ready,suspended:this.suspended===true,visibilityHeld:this.visibilityHeld===true,contentKey:live?this.contentKey:null,windows:snap.windows,errors:snap.errors||[],lastAction:this.lastAction||null};}
  async wait(predicate,code,timeout=12000){const end=Date.now()+timeout;while(Date.now()<end){if(predicate())return;await delay(60);}throw new Error(code);}
  async api(route,body,method=body===undefined?'GET':'POST'){
   const n=JSON.parse(fs.readFileSync(path.join(this.dir,'connection.json')));
@@ -70,8 +70,9 @@ export class WholePetBackend {
   current();this.visibilityHeld=holdVisibility;this.releasing=null;
   const env={HOME:process.env.HOME,PATH:process.env.PATH,TMPDIR:process.env.TMPDIR,LANG:process.env.LANG,
    DSH_HOME:home,DSH_COMPANION_PET_WORKER:'1',DSH_COMPANION_PET_STATE:this.dir,DSH_COMPANION_PET_PARENT:String(process.pid),
-   DSH_COMPANION_PET_GENERATION:String(generation),DSH_COMPANION_PET_HOLD:holdVisibility?'1':'0',
+   DSH_COMPANION_PET_CONTENT_KEY:contentKey,DSH_COMPANION_PET_GENERATION:String(generation),DSH_COMPANION_PET_HOLD:holdVisibility?'1':'0',
    DSH_COMPANION_PET_ORIGIN:this.host.origin,DSH_COMPANION_PET_TOKEN:this.host.token};
+  this.contentKey=contentKey;
   const child=spawn(process.execPath,[],{env,stdio:'ignore'});this.child=child;
   child.on('error',()=>{if(this.child===child)this.ready=false;});
   child.on('exit',()=>{if(this.child===child){this.ready=false;this.token=null;}});
@@ -115,15 +116,27 @@ export class WholePetBackend {
   this.visibilityHeld=false;
  }
  async resume(){if(!this.child||!this.suspended)return;const revision=this.revision;await this.api('pet-display',{id:'main',display:'desktop'});await this.wait(()=>{if(revision!==this.revision)throw new Error('SKIN_OPERATION_SUPERSEDED');const w=this.snapshot().windows[0];return w?.visible===true&&idlePresented(w.renderer,this.names.idle)&&w.renderer.props.every(p=>p.complete);},'BACKEND_RESUME_TIMEOUT',4000);this.suspended=false;}
+ async say(text,assertCurrent=()=>{}){
+  if(typeof text!=='string'||text.length>120)throw new Error('PET_DECISION_INVALID');
+  text=text.trim();if(!text)return '';
+  const revision=this.revision,sequence=this.sequence,lock=this.lock;
+  const current=()=>{assertCurrent();if(!this.ready||this.revision!==revision)throw new Error('SKIN_OPERATION_SUPERSEDED');};
+  current();
+  try{
+   const lockId=await lock.ensure();current();
+   await this.api('broadcast?pet=main&lock='+encodeURIComponent(lockId),{text,duration:8000,anim:false});current();
+   await this.wait(()=>{current();return this.snapshot().windows[0]?.renderer?.sprites?.[0]?.bubbleText===text;},'BACKEND_SPEECH_NOT_PRESENTED',2000);
+   return text;
+  }finally{
+   if(this.revision===revision&&this.sequence===sequence&&this.pendingAction===undefined&&this.lastAction?.status!=='playing')await lock.release();
+  }
+ }
  async act(action,assertCurrent=()=>{}){
   if(!this.ready||!this.names[action])throw new Error('ACTION_UNAVAILABLE');
   if(action==='walk'){
-   const r=this.snapshot().windows[0]?.renderer,s=r?.sprites?.[0],g=this.entry.geometry;
+   const r=this.snapshot().windows[0]?.renderer,s=r?.sprites?.[0];
    if(!s?.center||s.moving||s.dragging||s.positionFollow)throw new Error('WALK_BUSY');
-   const halfBody=Math.max(320-g.hitBounds[0],g.hitBounds[2]-320)*s.size/640;
-   const target=s.center.x-this.entry.walk.distanceLogical*s.size/640;
-   const inside=x=>r.areas?.some(a=>x>=a.x&&x<=a.x+a.width&&s.center.y>=a.y&&s.center.y<=a.y+a.height);
-   if(!inside(target-halfBody-18)||!inside(target+halfBody+18))throw new Error('WALK_LEFT_SPACE_REQUIRED');
+   if(!this.canWalk(r))throw new Error('WALK_LEFT_SPACE_REQUIRED');
   }
   const sequence=++this.sequence,revision=this.revision,lock=this.lock;
   this.pendingAction=sequence;
@@ -139,20 +152,33 @@ export class WholePetBackend {
   }finally{if(this.pendingAction===sequence)this.pendingAction=undefined;}
  }
 
+ canWalk(renderer=this.snapshot().windows[0]?.renderer){
+  const s=renderer?.sprites?.[0],g=this.entry?.geometry;
+  if(!g||!s?.center||s.moving||s.dragging||s.positionFollow)return false;
+  const halfBody=Math.max(320-g.hitBounds[0],g.hitBounds[2]-320)*s.size/640;
+  const target=s.center.x-this.entry.walk.distanceLogical*s.size/640;
+  const inside=x=>renderer.areas?.some(a=>x>=a.x&&x<=a.x+a.width&&s.center.y>=a.y&&s.center.y<=a.y+a.height);
+  return !!(inside(target-halfBody-18)&&inside(target+halfBody+18));
+ }
+
  canWorkReact(renderer=this.snapshot().windows[0]?.renderer){
   const sprite=renderer?.sprites?.[0];
   return !!(this.ready&&this.pendingAction===undefined&&sprite&&!sprite.dragging&&!sprite.moving&&idlePresented(renderer,this.names.idle));
  }
 
- async workReaction(assertCurrent){
+ async workReaction(assertCurrent,action='react'){
   if(!this.canWorkReact())return null;
-  const pending=this.act('react',assertCurrent),sequence=this.sequence;
-  await pending;
+  const pending=this.act(action,assertCurrent),sequence=this.sequence;
+  try{await pending;}catch(error){
+   const sprite=this.snapshot().windows[0]?.renderer?.sprites?.[0];
+   if(this.ready&&this.sequence===sequence&&!sprite?.dragging)await this.act('idle');
+   throw error;
+  }
   const playbackId=this.lastAction.playbackId;
   return current=>{
    if(!this.ready||this.sequence!==sequence)return null;
    const sprite=this.snapshot().windows[0]?.renderer?.sprites?.[0];
-   if(sprite?.playback!==playbackId||sprite.dragging||sprite.moving)return null;
+   if(sprite?.playback!==playbackId||sprite.dragging||sprite.moving&&action!=='walk')return null;
    return this.act('idle',current);
   };
  }

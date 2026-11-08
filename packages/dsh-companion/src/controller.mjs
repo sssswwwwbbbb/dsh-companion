@@ -37,7 +37,7 @@ export class CompanionController {
     this.phase='stopped';this.child=undefined;this.pending=undefined;this.disposed=false;
     this.focus=new FocusTimer(this.stateDir);
     this.skins=new CompanionSkins(this);
-    this.build=Number(metadata.version.match(/dev\.(\d+)/)?.[1]||1);
+    this.build=metadata.build??Number(metadata.version.match(/dev\.(\d+)/)?.[1]||1);
   }
   credentials(){
     try{const file=lstatSync(this.bridgePath);if(!file.isFile()||file.isSymbolicLink()||process.platform!=='win32'&&(file.mode&0o077)!==0)return;
@@ -54,7 +54,7 @@ export class CompanionController {
   async status(){
     const native=await this.nativeStatus(), license=this.entitlement.status(), settings=native.settings||this.settings();
     const update=readJson(join(this.stateDir,'update.json'),null), download=readJson(join(this.stateDir,'download.json'),null);
-    return JSON.parse(JSON.stringify({...native,desktopSkin:native.skin||null,skin:this.skins.status(),focus:this.focus.snapshot(),replyStyle:license.active?this.replyStyle?.status()||null:null,petInteraction:this.interactions?.status()||null,version:metadata.version,desktopVersion:native.version||null,platform:process.platform,phase:!license.active?'locked':native.phase,settings,license,packs:this.packs.summaries(),selectedPack:settings.packId,launcher:this.integration.status(),compatibility:{dshVersion:this.dshVersion,supported:this.config.supportedDsh.includes(this.dshVersion),testedVersions:this.config.supportedDsh},update:update?{...updateInfo(update.release,this.build),checkedAt:update.checkedAt}:null,download:download?{version:download.version,filename:basename(download.file),verified:true}:null}));
+    return JSON.parse(JSON.stringify({...native,desktopSkin:native.skin||null,skin:this.skins.status(),focus:this.focus.snapshot(),character:license.active?this.replyStyle?.characterStatus()||null:null,replyStyle:license.active?this.replyStyle?.status()||null:null,petInteraction:this.interactions?.status()||null,petMemory:license.active?this.interactions?.memory.status()||null:null,version:metadata.version,desktopVersion:native.version||null,platform:process.platform,phase:!license.active?'locked':native.phase,settings,license,packs:this.packs.summaries(),selectedPack:settings.packId,launcher:this.integration.status(),compatibility:{dshVersion:this.dshVersion,supported:this.config.supportedDsh.includes(this.dshVersion),testedVersions:this.config.supportedDsh},update:update?{...updateInfo(update.release,this.build),checkedAt:update.checkedAt}:null,download:download?{version:download.version,filename:basename(download.file),verified:true}:null}));
   }
   async boot({playIntro=false}={}){
     this.bootIntroRequested=playIntro&&this.settings().autoStart&&this.settings().startupEnabled;
@@ -73,8 +73,14 @@ export class CompanionController {
     try{
       const license=await this.entitlement.refresh();await this.skins.maintain();const live=await this.nativeStatus();
       void this.interactions?.drainNative();
+      if(license.active)void this.skins.activities.maintain(live).catch(()=>{});
       if(!license.active&&live.running)await this.stop();
-      else if(license.active&&live.running&&live.needsHost)await this.request('/attach',{ownerPid:process.pid,dshVersion:this.dshVersion});
+      else if(license.active&&live.running){
+        if(live.needsHost)await this.request('/attach',{ownerPid:process.pid,dshVersion:this.dshVersion});
+        const {phase,quiet}=this.focus.snapshot();
+        const result=await this.request('/focus/menu',{phase,quiet}).catch(()=>null);
+        for(const value of result?.actions||[])this.changeFocus(value);
+      }
     }finally{this.maintaining=false;}
   }
   async start({playIntro=false,skinStandby=!!this.skins.core.state.selected}={}){
@@ -113,11 +119,14 @@ export class CompanionController {
     }
     this.errorCode='DESKTOP_READY_TIMEOUT';await this.stop();throw new Error(this.errorCode);
   }
-  async focusAction(value){
+  changeFocus(value){
     this.entitlement.require();
     const wasQuiet=this.focus.quiet;
     this.focus.change(value);
-    if(!wasQuiet&&this.focus.quiet)this.skins.work.cancel();
+    if(!wasQuiet&&this.focus.quiet){this.skins.work.cancel();this.skins.activities.cancel();}
+  }
+  async focusAction(value){
+    this.changeFocus(value);
     return this.status();
   }
   async configure(value){

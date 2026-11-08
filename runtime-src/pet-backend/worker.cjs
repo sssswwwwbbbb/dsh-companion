@@ -14,7 +14,9 @@ if(!path.isAbsolute(dir)||parent!==process.ppid||!Number.isSafeInteger(generatio
 const vendor=path.join(__dirname,'dsh-pet');
 const page=path.join(vendor,'runtime/electron-helper/index.html');
 const resizeFile=path.join(dir,'resize.json');
-const {contentKey}=require('./skin.json');
+const approved=require('./skin.json');
+const contentKey=process.env.DSH_COMPANION_PET_CONTENT_KEY||approved.contentKey;
+if(contentKey!==approved.contentKey&&!approved.compatibleContentKeys?.includes(contentKey))throw new Error('BACKEND_CONTENT_NOT_REGISTERED');
 const windows=new Map();
 let held=process.env.DSH_COMPANION_PET_HOLD==='1',lastSnapshot='',connectionReady=false;
 fs.mkdirSync(path.join(dir,'appdata'),{recursive:true,mode:0o700});
@@ -46,10 +48,10 @@ ipcMain.on('companion:pet-resize-result',(event,value)=>{
  const item=owner(event);
  if(item?.resizeRequest&&value?.id===item.resizeRequest.id&&value.size===item.resizeRequest.size)item.resize={id:value.id,size:value.size};
 });
-ipcMain.on('companion:pet-input',event=>{
- if(!owner(event))return;
+ipcMain.on('companion:pet-input',(event,trigger)=>{
+ if(!owner(event)||!['click','menu'].includes(trigger))return;
  void fetch(new URL('/backend/input',origin),{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
-  body:JSON.stringify({contentKey,generation,trigger:'click'}),signal:AbortSignal.timeout(3000)}).catch(()=>{});
+  body:JSON.stringify({contentKey,generation,trigger}),signal:AbortSignal.timeout(3000)}).catch(()=>{});
 });
 app.whenReady().then(()=>{
  Menu.setApplicationMenu(null);

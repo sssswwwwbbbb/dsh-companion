@@ -1,0 +1,344 @@
+{
+  "formatVersion": 2,
+  "id": "regression-full-skin",
+  "version": "1.0.0",
+  "name": "合成回归样例",
+  "description": "仅用于合同与模块回归，媒体为文件头测试数据。",
+  "dshVersions": [
+    "0.2.1-rc.5"
+  ],
+  "assets": {
+    "archive-grid": {
+      "path": "assets/archive-grid.png",
+      "mime": "image/png",
+      "sha256": "1b56b50ac4e976f488f128cabdcdffb2fc9331d6974bb9968131a415d14ade24",
+      "bytes": 12,
+      "width": 1440,
+      "height": 900,
+      "alpha": true,
+      "source": "Synthetic file header for resource validation tests",
+      "license": "Project-authored test data"
+    },
+    "whale-idle-a2": {
+      "path": "assets/idle-a2.webm",
+      "mime": "video/webm",
+      "sha256": "97f5da8cb43784c5f54cd20f8c362b09bd4612f45dad07fe99f83d21cb82bc32",
+      "bytes": 8,
+      "width": 362,
+      "height": 362,
+      "alpha": true,
+      "source": "Synthetic file header for resource validation tests",
+      "license": "Project-authored test data"
+    },
+    "whale-react-a2": {
+      "path": "assets/react-a2.webm",
+      "mime": "video/webm",
+      "sha256": "97f5da8cb43784c5f54cd20f8c362b09bd4612f45dad07fe99f83d21cb82bc32",
+      "bytes": 8,
+      "width": 362,
+      "height": 362,
+      "alpha": true,
+      "source": "Synthetic file header for resource validation tests",
+      "license": "Project-authored test data"
+    },
+    "archive-startup-poster": {
+      "path": "assets/archive-poster.png",
+      "mime": "image/png",
+      "bytes": 12,
+      "sha256": "1b56b50ac4e976f488f128cabdcdffb2fc9331d6974bb9968131a415d14ade24",
+      "width": 1280,
+      "height": 720,
+      "alpha": false,
+      "source": "Synthetic file header for resource validation tests",
+      "license": "Project-authored test data"
+    },
+    "archive-startup-video": {
+      "path": "assets/archive-whale-silent.webm",
+      "mime": "video/webm",
+      "bytes": 8,
+      "sha256": "97f5da8cb43784c5f54cd20f8c362b09bd4612f45dad07fe99f83d21cb82bc32",
+      "width": 1280,
+      "height": 720,
+      "alpha": false,
+      "source": "Synthetic file header for resource validation tests",
+      "license": "Project-authored test data"
+    }
+  },
+  "modules": {
+    "theme": {
+      "interfaceVersion": 1,
+      "configVersion": 1,
+      "required": true,
+      "config": {
+        "tokens": {
+          "--dsw-alias-bg-base": {
+            "light": "#f4f1e9",
+            "dark": "#202423"
+          },
+          "--dsw-alias-bg-document-preview": {
+            "light": "#fffdf8",
+            "dark": "#292e2c"
+          },
+          "--dsw-alias-bg-document-selection": {
+            "light": "#f9e9da",
+            "dark": "#443326"
+          },
+          "--dsw-alias-bg-layer-1": {
+            "light": "#fffdf8",
+            "dark": "#292e2c"
+          },
+          "--dsw-alias-bg-layer-2": {
+            "light": "#f4f1e9",
+            "dark": "#202423"
+          },
+          "--dsw-alias-bg-layer-3": {
+            "light": "#ffffff",
+            "dark": "#303633"
+          },
+          "--dsw-alias-bg-overlay": {
+            "light": "#ffffff",
+            "dark": "#303633"
+          },
+          "--dsw-alias-bg-skeleton": {
+            "light": "#ece8de",
+            "dark": "#353b37"
+          },
+          "--dsw-alias-bg-multi-select": {
+            "light": "#f9e9da",
+            "dark": "#443326"
+          },
+          "--dsw-alias-border-l1": {
+            "light": "#ece8de",
+            "dark": "#353b37"
+          },
+          "--dsw-alias-border-l2": {
+            "light": "#d9d4c7",
+            "dark": "#494f46"
+          },
+          "--dsw-alias-border-l3": {
+            "light": "#a9a598",
+            "dark": "#697161"
+          },
+          "--dsw-alias-border-l4": {
+            "light": "#8d8b7e",
+            "dark": "#899180"
+          },
+          "--dsw-alias-label-primary": {
+            "light": "#2b302c",
+            "dark": "#f1efe6"
+          },
+          "--dsw-alias-label-primary-bluish": {
+            "light": "#35677e",
+            "dark": "#91c3d7"
+          },
+          "--dsw-alias-label-primary-dimmed": {
+            "light": "#68685e",
+            "dark": "#b6b9ac"
+          },
+          "--dsw-alias-label-primary-inverted": {
+            "light": "#fffdf8",
+            "dark": "#202423"
+          },
+          "--dsw-alias-label-secondary": {
+            "light": "#68685e",
+            "dark": "#b6b9ac"
+          },
+          "--dsw-alias-label-tertiary": {
+            "light": "#68685e",
+            "dark": "#b6b9ac"
+          },
+          "--dsw-alias-label-caption": {
+            "light": "#68685e",
+            "dark": "#b6b9ac"
+          },
+          "--dsw-alias-label-document-preview": {
+            "light": "#2b302c",
+            "dark": "#f1efe6"
+          },
+          "--dsw-alias-menu-icon": {
+            "light": "#68685e",
+            "dark": "#b6b9ac"
+          },
+          "--dsw-alias-menu-group-header-fill": {
+            "light": "#f4f1e9",
+            "dark": "#202423"
+          },
+          "--dsw-alias-state-business-primary": {
+            "light": "#a54c19",
+            "dark": "#f2ab71"
+          },
+          "--dsw-alias-state-business-tertiary": {
+            "light": "#f9e9da",
+            "dark": "#443326"
+          },
+          "--dsw-alias-state-error-primary": {
+            "light": "#a0372b",
+            "dark": "#f4a99a"
+          },
+          "--dsw-alias-state-error-secondary": {
+            "light": "#fbece7",
+            "dark": "#492c28"
+          },
+          "--dsw-alias-state-success-primary": {
+            "light": "#3b6751",
+            "dark": "#9cc7ab"
+          },
+          "--dsw-alias-state-success-secondary": {
+            "light": "#e8f0e9",
+            "dark": "#2a3b30"
+          },
+          "--dsw-alias-state-warn-primary": {
+            "light": "#a54c19",
+            "dark": "#f2ab71"
+          },
+          "--dsw-alias-state-warn-label": {
+            "light": "#a54c19",
+            "dark": "#f2ab71"
+          },
+          "--dsw-alias-state-warn-secondary": {
+            "light": "#f9e9da",
+            "dark": "#443326"
+          },
+          "--dsw-alias-state-idle-primary": {
+            "light": "#68685e",
+            "dark": "#b6b9ac"
+          },
+          "--dsw-alias-scrollbar-bg-l1": {
+            "light": "#d9d4c7",
+            "dark": "#494f46"
+          },
+          "--dsw-alias-scrollbar-hover-l1": {
+            "light": "#8d8b7e",
+            "dark": "#899180"
+          },
+          "--dsw-alias-toast-bg": {
+            "light": "#2b302c",
+            "dark": "#f1efe6"
+          },
+          "--dsw-alias-toast-label": {
+            "light": "#fffdf8",
+            "dark": "#202423"
+          },
+          "--dsw-specific-bubble": {
+            "light": "#ece8de",
+            "dark": "#353b37"
+          },
+          "--dsw-specific-bubble-highlight": {
+            "light": "#f9e9da",
+            "dark": "#443326"
+          },
+          "--dsw-specific-input-major": {
+            "light": "#fffdf8",
+            "dark": "#292e2c"
+          },
+          "--dsw-specific-menu": {
+            "light": "#ffffff",
+            "dark": "#303633"
+          },
+          "--dsw-specific-selector": {
+            "light": "#f4f1e9",
+            "dark": "#202423"
+          },
+          "--dsw-specific-sidebar-fill": {
+            "light": "#f4f1e9",
+            "dark": "#202423"
+          },
+          "--dsw-specific-sidebar-nav-item-active": {
+            "light": "#f9e9da",
+            "dark": "#443326"
+          },
+          "--dsw-specific-sidebar-nav-item-active-accent": {
+            "light": "#a54c19",
+            "dark": "#f2ab71"
+          },
+          "--dsw-specific-sidebar-nav-item-hover": {
+            "light": "#ece8de",
+            "dark": "#353b37"
+          }
+        },
+        "background": "archive-grid"
+      },
+      "settings": {
+        "backgroundOpacity": {
+          "label": "档案背景浓度（0 为关闭）",
+          "default": 0.04
+        }
+      }
+    },
+    "pet": {
+      "interfaceVersion": 1,
+      "configVersion": 2,
+      "required": false,
+      "config": {
+        "builtinPack": "whale-maid-demo",
+        "canvasHeight": 195,
+        "profile": "gentle",
+        "autonomous": false,
+        "followMouse": false,
+        "animations": {
+          "idle": {
+            "asset": "whale-idle-a2",
+            "seconds": 3,
+            "loop": true
+          },
+          "react": {
+            "asset": "whale-react-a2",
+            "seconds": 1.8,
+            "loop": false
+          }
+        },
+        "actionDescriptions": {
+          "idle": "安静站立陪伴用户，偶尔眨眼",
+          "react": "侧头抬手，轻轻回应用户的当前互动"
+        },
+        "localReply": "我在这里，陪你慢慢来。",
+        "canvasOffsetY": 10
+      },
+      "settings": {
+        "size": {
+          "label": "桌宠大小（百分比）",
+          "default": 100
+        },
+        "smartEnabled": {
+          "label": "智能互动",
+          "default": true
+        },
+        "persona": {
+          "label": "本套人设",
+          "default": "你是温柔又有点俏皮的鲸鱼娘，陪伴用户工作。回应自然简短，结合刚才的互动选择合适的动作，也可以安静陪伴。"
+        },
+        "modelSelection": {
+          "label": "互动使用的模型",
+          "default": {
+            "mode": "current"
+          }
+        },
+        "historyRounds": {
+          "label": "最近互动轮数（本次运行）",
+          "default": 10
+        },
+        "allowSpeech": {
+          "label": "允许说话",
+          "default": true
+        },
+        "allowActions": {
+          "label": "允许动作",
+          "default": true
+        }
+      }
+    },
+    "startup": {
+      "interfaceVersion": 1,
+      "configVersion": 1,
+      "required": false,
+      "config": {
+        "poster": "archive-startup-poster",
+        "video": "archive-startup-video",
+        "seconds": 8.2,
+        "greeting": "档案暖白",
+        "subtitle": "无声开场 · 就绪后进入工作区"
+      },
+      "settings": {}
+    }
+  }
+}

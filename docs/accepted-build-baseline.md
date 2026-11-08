@@ -77,3 +77,15 @@ python3 scripts/compare-accepted-package.py \
 | Windows x64 | `75d94845e152f82e6df1995bd45dab96d09fc2977dbba7126c373eab075d580c` |
 
 归档时间等封装元数据可产生不同的包摘要。需要比对源码复建结果时，用 `scripts/compare-accepted-package.py` 对照原包内容。制作方优先使用原验收包及[离线工具](skin-author-reference.md)。
+
+恢复旧基线输入时，已有升级素材会受到保护。只有明确重建 dev.27 素材时，才给 prepare-accepted-inputs.py 添加 --replace-existing；当前冷启动 0.7.0 图标与配音交接见 dsh-cold-start-icon-vocabulary-2026-11-08.md。
+
+## dev.47 当前构建输入
+
+当前内置仅保留冷启动 0.7.1。MVP 档案暖白的生产包、构建输入和旧内容目录已按用户要求移除；管理页历史稿继续供视觉规范参考。当前 prepare-accepted-inputs.py 只恢复冷启动及共用 dsh-pet 依赖，不再提取旧皮肤或角色图集。复建上文历史原样包时仍使用对应基线提交中的脚本。技术回归使用独立的合成媒体文件头，静态开场样例只保留中性几何网格。
+
+## 1.0.0 冷启动输入复建
+
+保留上文同 SHA-256 的私有 dev.27 Mac 包与固定 Electron。当前代码先用 prepare-accepted-inputs.py 恢复冷启动 0.4.0 与 dsh-pet 依赖，再执行 `node scripts/upgrade-cold-start-inputs.mjs`。脚本使用仓库内冷启动 0.7.1 清单、112 张 PNG 与 CS-07 配音成片升级输入，并核验全部 128 项资源和内容键。该升级已从已核验 dev.27 归档在独立目录复验。已有其他更新输入会被保留并要求显式处理。
+
+随后运行 `npm run package:mac`、Windows 同源打包配方、同版作者工具包及 `node scripts/package-skin-handoff.mjs`。1.0.0 的构建号为 10000，保持签名更新序列高于历史开发版；以后发版继续递增 build。插件 ID、授权存储及 profile 路径保持一致。

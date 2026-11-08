@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { FocusTimer } from '../packages/dsh-companion/src/focus.mjs';
+import { focusMenuItems } from '../runtime-src/focus-menu.mjs';
 import { validatedSettings } from '../runtime-src/settings.mjs';
 import { createBridge } from '../runtime-src/bridge.mjs';
 import { childEnvironment } from '../packages/dsh-companion/src/controller.mjs';
@@ -37,6 +38,24 @@ test('focus timer keeps paused time and quiet preference across reloads and repo
   assert.deepEqual(timer.snapshot(),{quiet:true,phase:'running',kind:'break',seconds:300});
   timer.change({action:'clear'});
   assert.deepEqual(timer.snapshot(),{quiet:true,phase:'idle',kind:null,seconds:0});
+});
+test('native focus menu reflects the shared timer and only dispatches user actions', () => {
+  const commands=[];
+  const menu=state=>focusMenuItems(state,command=>commands.push(command));
+  assert.deepEqual(menu(null),[]);
+  const [idle,quiet]=menu({phase:'idle',quiet:false});
+  assert.equal(quiet.checked,false);
+  idle.submenu[0].click();
+  quiet.click({checked:true});
+  const [running]=menu({phase:'running',quiet:true});
+  running.submenu[0].click();
+  const [paused]=menu({phase:'paused',quiet:true});
+  paused.submenu[0].click();
+  paused.submenu[1].click();
+  assert.deepEqual(commands,[
+    {action:'start',kind:'focus',minutes:25},{action:'quiet',enabled:true},
+    {action:'pause'},{action:'resume'},{action:'clear'},
+  ]);
 });
 test('desktop process does not inherit provider credentials or Electron Node mode', () => {
   assert.deepEqual(childEnvironment({ HOME: '/test', PATH: '/bin', OPENAI_API_KEY: 'private', ELECTRON_RUN_AS_NODE: '1' }, { DSH_COMPANION_OWNER_PID: '123' }), { HOME: '/test', PATH: '/bin', DSH_COMPANION_OWNER_PID: '123' });

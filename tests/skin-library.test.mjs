@@ -16,11 +16,11 @@ function service(dir){
   const controller={stateDir:dir,dshVersion:'0.2.1-rc.5',entitlement:{require(){},status:()=>({active:true})},nativeStatus:async()=>({})},skins=new CompanionSkins(controller);controller.status=()=>({skin:skins.status()});
   const adapters=Object.fromEntries(['theme','pet','startup'].map(module=>[module,{visible:null,available:()=>true,invalidate(){},prepare:()=>({}),async apply(c){c.assertCurrent();this.visible=c.skin.contentKey;return {ready:true};},async exit(){this.visible=null;return {cleared:true};}}]));skins.core.adapters=adapters;return {skins,controller,adapters};
 }
-test('real ZIP imports exact 0.7.1 bytes, is idempotent, persists and never applies or resets',async t=>{
+test('real ZIP imports exact bundled skin bytes, is idempotent, persists and never applies or resets',async t=>{
   const dir=temp(t),{skins}=service(path.join(dir,'profile')),bundled=skins.snapshots.values().next().value;
   await skins.select({contentKey:bundled.contentKey});await skins.configure({module:'pet',field:'size',value:82,contentKey:bundled.contentKey});
   const entries={'skin.json':fs.readFileSync(path.join(bundled.root,'skin.json'))};for(const asset of Object.values(bundled.manifest.assets))entries[asset.path]=fs.readFileSync(path.join(bundled.root,asset.path));
-  const file=path.join(dir,'档案暖白.zip');fs.writeFileSync(file,zipSync(entries));const before=JSON.stringify(skins.core.state);
+  const file=path.join(dir,'冷启动.zip');fs.writeFileSync(file,zipSync(entries));const before=JSON.stringify(skins.core.state);
   const imported=await skins.install(file);assert.equal(imported.contentKey,bundled.contentKey);assert.equal(JSON.stringify(skins.core.state),before);
   assert.equal((await skins.install(file)).duplicate,true);assert.equal(skins.status().catalog.filter(row=>row.contentKey===bundled.contentKey).length,1);
   const reopened=service(path.join(dir,'profile'));assert.equal(reopened.skins.status().catalog.filter(row=>row.contentKey===bundled.contentKey).length,1);assert.equal(reopened.skins.status().selected.contentKey,bundled.contentKey);assert.equal(reopened.skins.status().settings.pet.controls.find(c=>c.field==='size').value,82);
@@ -33,7 +33,7 @@ test('same ID content snapshots remain separate and do not replace the active id
   const next=service(path.join(dir,'profile'));assert.equal(next.skins.status().selected.contentKey,a.contentKey);assert.equal(next.skins.status().catalog.filter(c=>c.id==='library-synthetic').length,2);
 });
 test('A to B to A keeps preferences, duplicate clicks do not reload, stop restores and failed B preserves A',async t=>{
-  const dir=temp(t),{skins,adapters}=service(path.join(dir,'profile')),a=skins.snapshots.values().next().value,b=await skins.install(zip(dir,fixtureManifest()));
+  const dir=temp(t),{skins,adapters}=service(path.join(dir,'profile')),a=skins.snapshots.get((await skins.install(zip(dir,fixtureManifest('roundtrip-a')))).contentKey),b=await skins.install(zip(dir,fixtureManifest()));
   await skins.select({contentKey:a.contentKey});await skins.configure({module:'theme',field:'backgroundOpacity',value:.05,contentKey:a.contentKey});
   await skins.select({contentKey:b.contentKey});await skins.configure({module:'theme',field:'backgroundOpacity',value:.09,contentKey:b.contentKey});
   await assert.rejects(skins.configure({module:'theme',field:'backgroundOpacity',value:.1,contentKey:a.contentKey}),/SKIN_OPERATION_SUPERSEDED/);
@@ -73,4 +73,19 @@ test('a corrupt bundled cache and a broken index cannot abort management initial
   const healthy=await first.skins.install(zip(dir,fixtureManifest('healthy-synthetic')));fs.unlinkSync(path.join(bundled.root,Object.values(bundled.manifest.assets)[0].path));
   const next=service(stateDir);assert.equal(next.skins.status().catalog.find(r=>r.contentKey===bundled.contentKey).status,'unavailable');await next.skins.select({contentKey:healthy.contentKey});
   fs.writeFileSync(next.skins.library.file,'{"formatVersion":99,"contentKeys":[]}');const reopened=service(stateDir);assert.equal(reopened.skins.status().selected.contentKey,healthy.contentKey);assert.ok(reopened.skins.status().catalog.some(r=>r.status==='unavailable'&&r.reason==='SKIN_LIBRARY_INVALID'));assert.equal(fs.readFileSync(reopened.skins.library.file,'utf8'),'{"formatVersion":99,"contentKeys":[]}');
+});
+
+test('retired bundled MVP selection is cleared without altering current skin preferences or deliberate imports',async t=>{
+ const dir=temp(t),stateDir=path.join(dir,'profile'),first=service(stateDir),cold=first.skins.snapshots.values().next().value;
+ await first.skins.select({contentKey:cold.contentKey});await first.skins.configure({module:'pet',field:'size',value:82});
+ const currentState=structuredClone(first.skins.core.state),retired=structuredClone(currentState.selected);
+ retired.manifest.id='archive-warm-whale';retired.contentKey='b'.repeat(64);
+ atomicJson(path.join(stateDir,'skin-state.json'),{...currentState,selected:retired});
+ const migrated=service(stateDir);assert.equal(migrated.skins.status().selected,null);assert.equal(migrated.skins.status().stopped,true);
+ assert.deepEqual(migrated.skins.core.state.overrides,currentState.overrides);
+ assert.equal(migrated.skins.status().catalog.some(row=>row.id==='archive-warm-whale'),false);
+ atomicJson(path.join(stateDir,'skin-state.json'),currentState);
+ const unchanged=service(stateDir);assert.equal(unchanged.skins.status().selected.contentKey,cold.contentKey);assert.equal(unchanged.skins.core.view().pet.values.size,82);
+ const imported=await unchanged.skins.install(zip(dir,fixtureManifest('archive-warm-whale','9.0.0')));await unchanged.skins.select(imported);
+ assert.equal(service(stateDir).skins.status().selected.contentKey,imported.contentKey);
 });

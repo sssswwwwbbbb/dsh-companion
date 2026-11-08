@@ -12,7 +12,7 @@ export class WorkFeedback {
   supported(settings){
     const theme=settings.theme?.values,pet=settings.pet?.values;
     return !!(typeof theme?.workFeedbackEnabled==='boolean'&&typeof theme.petEchoEnabled==='boolean'&&
-      pet?.persona&&pet.animations?.idle&&pet.animations.react&&pet.actionDescriptions?.react);
+      (this.skins.controller.replyStyle?.petPersona()||pet?.persona)&&pet.animations?.idle&&pet.animations.react&&pet.actionDescriptions?.react);
   }
   enabled(){
     const {state}=this.skins.core;
@@ -60,14 +60,15 @@ export class WorkFeedback {
     if(!input.work||result.busy||!this.ready(input))return null;
     const w=input.work,{core}=this.skins;
     if(w.generation!==core.generation||w.contentKey!==core.state.selected.contentKey)return null;
-    if(Object.keys(w).some(k=>!['generation','contentKey','revision','bindingId','sessionId','seq','state','reducedMotion'].includes(k))||
+    if(Object.keys(w).some(k=>!['generation','contentKey','revision','bindingId','sessionId','seq','state','reducedMotion','observing'].includes(k))||
       !Number.isSafeInteger(w.revision)||w.revision<1||!uuid(w.bindingId)||
       !(w.sessionId===null||typeof w.sessionId==='string'&&w.sessionId.length>0&&w.sessionId.length<=200&&!/[\x00-\x1f]/.test(w.sessionId))||
-      !Number.isSafeInteger(w.seq)||w.seq< -1||!states.has(w.state)||typeof w.reducedMotion!=='boolean'||
+      !Number.isSafeInteger(w.seq)||w.seq< -1||!states.has(w.state)||typeof w.reducedMotion!=='boolean'||w.observing!==undefined&&typeof w.observing!=='boolean'||
       w.state==='completed'&&(w.sessionId===null||w.seq<0))fail('SKIN_WORK_INVALID');
     if(this.accepted?.clientId===input.clientId&&this.accepted.generation===w.generation&&w.revision<=this.accepted.revision)return this.accepted.revision;
     const config=core.view();if(typeof config.theme?.values?.workFeedbackEnabled!=='boolean')return null;
-    const previous=this.accepted,packet={...w,clientId:input.clientId,nativeRevision:++this.revision};
+    const previous=this.accepted,packet={...w,observedState:w.observing===false?(previous?.observedState??previous?.state??'idle'):w.state,clientId:input.clientId,nativeRevision:++this.revision};
+    this.skins.activities?.cancel();
     this.cancelDecision();this.accepted=packet;
     const key=w.contentKey+':'+w.sessionId+':'+w.seq;
     let state='idle';
@@ -122,7 +123,10 @@ export class WorkFeedback {
     const controller=this.skins.controller;if(!controller.credentials?.())return;
     const result=await controller.request('/skin/work',{generation:packet.generation,contentKey:packet.contentKey,revision:packet.nativeRevision,
       sessionId:packet.sessionId,bindingId:packet.bindingId,seq:packet.seq,state});
-    if(this.accepted===packet){this.receipt=result;this.echo=result?.action==='react';}
+    if(this.accepted===packet){
+      this.receipt=result;this.echo=result?.action==='react';
+      if(this.echo&&this.ready(packet))controller.interactions?.memory?.remember(packet,{source:'work',actual:{action:'react',speech:''}});
+    }
     return result;
   }
   cancel(){

@@ -4,6 +4,7 @@ import {validateManifest,resolveSettings,definitions,fail} from './skin-core/src
 import {readAsset,digest} from './skin-core/src/resources.mjs';
 import {requestStop,stopRequests,StateStore} from './skin-core/src/state.mjs';
 import {NativeWorkFeedback} from './work-feedback.mjs';
+import {petActivitySettings} from './skin-core/src/pet-activities.mjs';
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
 export class NativeSkinRuntime {
   constructor({stateDir,loadPack,apply,hide,isReady,workReaction=()=>null}){
@@ -41,7 +42,7 @@ export class NativeSkinRuntime {
   workSettings(){
     if(!this.canShow()||!this.manifest)return null;
     try{const s=this.store.read();if(s.stopped||s.pending||this.store.hasStops()||s.generation!==this.generation||s.selected?.contentKey!==this.contentKey)return null;
-      return {generation:this.generation,contentKey:this.contentKey,...resolveSettings(this.manifest,s,{theme:true,pet:true,startup:true},{strictRequired:false})};
+      return {generation:this.generation,contentKey:this.contentKey,petActivities:petActivitySettings(this.manifest,this.contentKey,s),...resolveSettings(this.manifest,s,{theme:true,pet:true,startup:true},{strictRequired:false})};
     }catch{return null;}
   }
   async invalidate(generation){if(!Number.isSafeInteger(generation)||generation<1)fail('SKIN_GENERATION_INVALID');if(generation<this.generation)fail('SKIN_OPERATION_SUPERSEDED');this.generation=generation;await this.work.invalidate(generation);}

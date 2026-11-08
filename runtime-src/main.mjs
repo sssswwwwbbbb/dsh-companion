@@ -15,6 +15,7 @@ import { PackStore } from './packs.mjs';
 import { readJson, writeJson } from './storage.mjs';
 import { profileGate } from './integration.mjs';
 import { hostWindowBounds, introBounds } from './host-window.mjs';
+import { focusMenuItems } from './focus-menu.mjs';
 import { WholePetBackend } from './backend.mjs';
 import { openingTimerTrigger } from './compatibility.mjs';
 import { stopRequests } from './skin-core/src/state.mjs';
@@ -37,6 +38,7 @@ let introDuration=0,introHandoff=false,introReturning=false,introAudioMuted=null
 const started=new Date().toISOString(),geometry={positionUpdates:0,negativeZeroNormalizations:0,rejectedPositions:0};
 const transitions=[];
 let legacySettings={...settings},readyActions=[],pendingInteraction=null,lastInteraction=null;
+let focusMenuState=null;const focusMenuActions=[];
 const coldState=readJson(join(stateDir,'skin-state.json'),{});
 const cinematicCold=!!coldState.selected?.manifest.modules.startup?.config?.handoffSeconds;
 const coldRequested=!cinematicCold&&process.env.DSH_COMPANION_PLAY_INTRO==='1';
@@ -49,18 +51,18 @@ function desktopOpeningHeld(){
 const startup=new NativeStartupRuntime({stateDir,dshVersion:integration.dshVersion,onCancel:reason=>{if(activeIntro?.custom)cancelIntro(reason);}});
 const usesWorker=()=>backend?.supports(skin.contentKey)===true;
 const desktopReady=()=>usesWorker()?backend.status().ready:ready;
-const legacyWorkReady=()=>ready&&model?.action==='idle'&&!model.dragging&&!model.falling&&readyActions.includes('react')&&!!pack.animations.react;
-const skin=new NativeSkinRuntime({stateDir,loadPack:id=>packs.get(id),workReaction:current=>{
+const legacyActionReady=()=>ready&&model?.action==='idle'&&!model.dragging&&!model.falling;
+const skin=new NativeSkinRuntime({stateDir,loadPack:id=>packs.get(id),workReaction:(current,action='react')=>{
   if(pendingInteraction)return null;
-  if(usesWorker())return backend.workReaction(current);
+  if(usesWorker())return backend.workReaction(current,action);
   const pet=model;
-  if(!legacyWorkReady())return null;
-  if(!pet.perform('react',pack.animations.react.seconds))return null;
+  if(!legacyActionReady())return null;
+  if(!readyActions.includes(action)||!pack.animations[action]||!pet.perform(action,pack.animations[action].seconds))return null;
   const reaction=pet.actionRevision;
   sendState();
   return (assertCurrent=()=>{})=>{
     assertCurrent();
-    if(model!==pet||pet.action!=='react'||pet.actionRevision!==reaction||!pet.perform('idle',pack.animations.idle.seconds))return null;
+    if(model!==pet||pet.action!==action||pet.actionRevision!==reaction||!pet.perform('idle',pack.animations.idle.seconds))return null;
     sendState();return 'idle';
   };
 },hide:async({stop=false}={})=>{
@@ -99,11 +101,12 @@ function status(){
   const nativeWindow=worker?worker.windows[0]||null:window&&!window.isDestroyed()?{visible:window.isVisible(),bounds:window.getBounds(),alwaysOnTop:window.isAlwaysOnTop()}:null;
   return {running:!quitting,bridgeReady:!!bridge,ready:worker?.ready??ready,phase,version,skin:skin.status(),platform:process.platform,arch:process.arch,pid:process.pid,started,errorCode,settings,
     action:worker?worker.lastAction?.action||'idle':model?.action||'idle',needsHost:ownerPid<1,pack:{id:pack.id,name:pack.name,token:packToken},
-    backend:worker,workReactionAvailable:!!(!pendingInteraction&&skin.canShow()&&nativeWindow?.visible&&(worker?worker.ready&&backend.canWorkReact(nativeWindow.renderer):legacyWorkReady())),position:model&&!worker?{x:Math.round(model.x),y:Math.round(model.y)}:null,window:nativeWindow,
+    backend:worker,workReactionAvailable:!!(!pendingInteraction&&skin.canShow()&&nativeWindow?.visible&&(worker?worker.ready&&backend.canWorkReact(nativeWindow.renderer):legacyActionReady())),position:model&&!worker?{x:Math.round(model.x),y:Math.round(model.y)}:null,window:nativeWindow,
     startup:{...startup.status(),playing:introPlaying,rendererReady:introReady,media:introMedia,videoEnded:introVideoEnded,handoff:introHandoff,fallback:introFallback,audioMuted:introAudioMuted,audioAudible:openingAudioAudible(),
       hostReady:ownerPid>0,coldRequested,desktopOpeningHeld:desktopOpeningHeld(),elapsedSeconds:introPlaying?(Date.now()-introStartedAt)/1000:0,
       durationSeconds:introPlaying?introDuration:startup.descriptor?.seconds||pack.startup.seconds,completions:introCompletions,errorCode:introError||startup.errorCode||null,
       visible:!!introWindow&&!introWindow.isDestroyed()&&introWindow.isVisible(),bounds:introWindow&&!introWindow.isDestroyed()?introWindow.getBounds():null},
+    activityActions:worker?.ready?['react',...(backend.canWalk(nativeWindow?.renderer)?['walk']:[])]:[...actions].filter(id=>readyActions.includes(id)),
     availableActions:worker?.ready?['idle','react','walk']:[...actions].filter(id=>readyActions.includes(id)),interaction:lastInteraction};
 }
 function say(text){speech=text;speechSequence++;}
@@ -127,10 +130,12 @@ async function deliverInteraction(input){
   const config=skin.interactionSettings();if(!config)throw new Error('SKIN_OPERATION_SUPERSEDED');
   if(typeof input.speech!=='string'||input.speech.length>120||!(input.action===null||actions.has(input.action)))throw new Error('PET_DECISION_INVALID');
   let action=config.allowActions&&config.actionDescriptions?.[input.action]?input.action:null;
-  const speech=config.allowSpeech?input.speech:'';
+  let speech=config.allowSpeech?input.speech:'';
   if(usesWorker()){
-    if(speech)throw new Error('BACKEND_SPEECH_UNAVAILABLE');
     if(action)await backend.act(action,current);
+    if(speech)speech=await backend.say(speech,()=>{
+      current();if(!skin.interactionSettings()?.allowSpeech)throw new Error('SKIN_OPERATION_SUPERSEDED');
+    });
   }else{
     if(action&&(!readyActions.includes(action)||!model.perform(action,action==='sleep'?Infinity:pack.animations[action].seconds)))action=null;
     say(speech);sendState();
@@ -245,17 +250,19 @@ function updateMenu(){
   if(!tray)return;
   tray.setTitle(usesWorker()?'07':'鲸');
   tray.setToolTip('主题盒子 · '+pack.name);
+  const focusItems=focusMenuItems(focusMenuState,value=>focusMenuActions.push(value));
   if(usesWorker()){
     const built=Menu.buildFromTemplate([
       {label:'主题盒子 · '+pack.name,enabled:false},
       {label:'向左走',enabled:desktopReady()&&showPet(),click:()=>void runAction('walk').catch(error=>eventError('pet-action-failed',error))},
       {label:'重播启动动画',enabled:introAvailable(),click:()=>void showIntro().catch(()=>{})},
+      ...focusItems,
       {label:'回到 DSH',click:bringDsh},
       {label:'停止皮肤效果',click:()=>void skin.requestStop().catch(()=>{})},
     ]);
     tray.setContextMenu(built);return built;
   }
-  const built=Menu.buildFromTemplate([{label:'主题盒子 · '+pack.name,enabled:false},...(skin.owned?[{label:'停止皮肤效果',click:()=>skin.requestStop()}]:[]),{label:settings.visible?'隐藏大肥鱼':'显示大肥鱼',enabled:!skin.owned,click:()=>applySettings({visible:!settings.visible})},{label:'重播启动动画',enabled:introAvailable(),click:()=>void showIntro().catch(()=>{})},{label:'相处模式',enabled:!skin.owned,submenu:Object.entries(pack.profiles).map(([id,profile])=>({label:profile.label,type:'radio',checked:settings.profile===id,click:()=>applySettings({profile:id})}))},{label:'自主活动',enabled:!skin.owned,type:'checkbox',checked:settings.autonomous,click:item=>applySettings({autonomous:item.checked})},{type:'separator'},...[[ 'react','摸摸头'],['eat','喂白饭'],['play','撸猫时间'],['stretch','伸懒腰'],['sleep-in','睡一会儿'],['wake','叫她起床']].filter(([action])=>readyActions.includes(action)).map(([action,label])=>({label,click:()=>perform(action)})),{type:'separator'},{label:'回到屏幕中间',click:()=>{model.dragging=false;model.falling=false;model.x=workArea.width*.6;model.y=workArea.height;model.perform('idle',5);positionWindow();persist();}},{label:'回到 DSH',click:()=>void shell.openExternal('dsh://open').catch(()=>{})},{label:'退出桌宠',click:()=>{if(skin.owned)skin.requestStop();app.quit();}}]);tray.setContextMenu(built);return built;
+  const built=Menu.buildFromTemplate([{label:'主题盒子 · '+pack.name,enabled:false},...(skin.owned?[{label:'停止皮肤效果',click:()=>skin.requestStop()}]:[]),{label:settings.visible?'隐藏大肥鱼':'显示大肥鱼',enabled:!skin.owned,click:()=>applySettings({visible:!settings.visible})},{label:'重播启动动画',enabled:introAvailable(),click:()=>void showIntro().catch(()=>{})},{label:'相处模式',enabled:!skin.owned,submenu:Object.entries(pack.profiles).map(([id,profile])=>({label:profile.label,type:'radio',checked:settings.profile===id,click:()=>applySettings({profile:id})}))},{label:'自主活动',enabled:!skin.owned,type:'checkbox',checked:settings.autonomous,click:item=>applySettings({autonomous:item.checked})},{type:'separator'},...[[ 'react','摸摸头'],['eat','喂白饭'],['play','撸猫时间'],['stretch','伸懒腰'],['sleep-in','睡一会儿'],['wake','叫她起床']].filter(([action])=>readyActions.includes(action)).map(([action,label])=>({label,click:()=>perform(action)})),{type:'separator'},{label:'回到屏幕中间',click:()=>{model.dragging=false;model.falling=false;model.x=workArea.width*.6;model.y=workArea.height;model.perform('idle',5);positionWindow();persist();}},...focusItems,{label:'回到 DSH',click:bringDsh},{label:'退出桌宠',click:()=>{if(skin.owned)skin.requestStop();app.quit();}}]);tray.setContextMenu(built);return built;
 }
 function closeLegacyPet(){
   if(window){
@@ -341,6 +348,14 @@ async function start(){
     if(route==='/skin/startup/invalidate'){startup.invalidate(input.generation);return {generation:input.generation};}
     if(route==='/skin/startup/exit'){const result=startup.exit(input);updateMenu();return result;}
     authorization();
+    if(route==='/focus/menu'){
+      if(input.quiet===true)await skin.work.cancel();
+      if(focusMenuState?.phase!==input.phase||focusMenuState?.quiet!==input.quiet){
+        focusMenuState={phase:input.phase,quiet:input.quiet};
+        updateMenu();
+      }
+      return {actions:focusMenuActions.splice(0)};
+    }
     if(route==='/skin/library/choose'){
       app.focus({steal:true});
       const result=await dialog.showOpenDialog({title:'安装本地皮肤',buttonLabel:'选择 ZIP 皮肤包',properties:['openFile'],filters:[{name:'ZIP 皮肤包',extensions:['zip']}]});
@@ -352,6 +367,11 @@ async function start(){
       await releaseOpeningPet();updateMenu();return result;
     }
     if(route==='/skin/work'){const result=await skin.work.deliver(input);event('work-feedback',result);return result;}
+    if(route==='/skin/activity'){
+      if(focusMenuState?.quiet||pendingInteraction||!status().workReactionAvailable)return {action:null};
+      return skin.work.activity(input);
+    }
+    if(route==='/skin/activity/cancel')return skin.work.cancelActivity(input);
     if(route==='/settings')return applySettings(input);
     if(route==='/host-window'){
       if(!hostWindowBounds(input.bounds))throw new Error('HOST_WINDOW_INVALID');
@@ -362,6 +382,10 @@ async function start(){
     if(route==='/backend/input'){
       const config=skin.interactionSettings();
       if(!usesWorker()||input.contentKey!==skin.contentKey||input.generation!==skin.generation||!config)throw new Error('SKIN_OPERATION_SUPERSEDED');
+      if(input.trigger==='menu'){
+        if(showPet())tray.popUpContextMenu(updateMenu(),screen.getCursorScreenPoint());
+        return {accepted:true};
+      }
       if(!config.allowActions)return {accepted:false,reason:'PET_ACTIONS_DISABLED'};
       pendingInteraction={trigger:'click',text:'用户轻点了你。',generation:skin.generation,contentKey:skin.contentKey};
       return {accepted:true};

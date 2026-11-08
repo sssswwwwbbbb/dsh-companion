@@ -1,0 +1,173 @@
+{
+  "status": "cold-start film re-render for CS-07 voice delivery; user ear/eye review pending",
+  "film": "designs/dsh-skin-assets-v3/review/cold-start-voice-integration-2026-11-06/entrance-cs07.mp4",
+  "film_sha256": "673fcabfa2d488183687cfd749ecde9581f4936bf38fbdcc18be556515f685f5",
+  "film_bytes": 5917663,
+  "audio": "designs/dsh-skin-assets-v3/review/cold-start-voice-integration-2026-11-06/sound-scene-cs07.wav",
+  "audio_sha256": "4ad894e02db8776d80afb228254ba704353095db8c238806003ed88abf59c4a4",
+  "source": "designs/dsh-skin-assets-v3/assets/cinematic/source/entrance-01-source.mp4",
+  "source_sha256": "ece35294685f11dfb372c243c69d5f1acac1f4ba673ccfd12f537c194a3e250d",
+  "mechanical_bed": "designs/dsh-skin-assets-v3/review/startup-entrance-01-voice-r3-2026-11-05/mechanical-bed-preview.wav",
+  "mechanical_bed_sha256": "ba71ec922d67598a183dd05c92a955887bd444548aa027f865a243d9d88bcec4",
+  "voice_bus": "designs/dsh-skin-assets-v3/review/cold-start-voice-handoff-2026-11-06/CS-07_voice-deliverables 5/CS-07_timeline-preview_wet.wav",
+  "voice_bus_sha256": "cf476a2ef2f2ab84470d013839c314bc600baaaeddfb542b16919859d2f1b740",
+  "voice_delivery": "designs/dsh-skin-assets-v3/review/cold-start-voice-handoff-2026-11-06/CS-07_voice-deliverables 5",
+  "voice_delivery_zip_sha256": "16301f33dcb85bdfdeb66b63e6fe65d187e8fbe81ce064776a5900b6320e9d81",
+  "cue_sheet": "designs/dsh-skin-assets-v3/review/cold-start-voice-handoff-2026-11-06/CS-07_voice-deliverables 5/CS-07_cue-sheet.csv",
+  "film_seconds": 12.5,
+  "size": [
+    1280,
+    720
+  ],
+  "fps": 24,
+  "handoff_at_seconds": 12.15,
+  "duck": 0.52,
+  "burned_captions": false,
+  "caption_track": null,
+  "subtitle_field_untouched": true,
+  "lines": [
+    {
+      "id": "01_awakening",
+      "text": "开始唤醒。",
+      "start": 0.35,
+      "end": 1.7544166666666667,
+      "seconds": 1.4044166666666666,
+      "stem": "designs/dsh-skin-assets-v3/review/cold-start-voice-handoff-2026-11-06/CS-07_voice-deliverables 5/01_awakening_wet.wav",
+      "stem_sha256": "a1e3b98a457dbe970513fb06aad764b55ff91f5688fafdae8b04d99456eefe0c",
+      "stem_lufs": -15.5,
+      "stem_peak_dbfs": -3.0000009805991428,
+      "stem_rms_dbfs": -16.276479006402166,
+      "mix_gain_db": 0.0
+    },
+    {
+      "id": "02_release",
+      "text": "隔离解除，机体上线。",
+      "start": 2.8,
+      "end": 4.7806041666666665,
+      "seconds": 1.9806041666666667,
+      "stem": "designs/dsh-skin-assets-v3/review/cold-start-voice-handoff-2026-11-06/CS-07_voice-deliverables 5/02_release_wet.wav",
+      "stem_sha256": "384d3cf7c5c15139b9ba0560ff3412dbaf03671cfe6c82ba3d10b31cd9cc7db3",
+      "stem_lufs": -15.2,
+      "stem_peak_dbfs": -3.0000009805991428,
+      "stem_rms_dbfs": -14.720788927644577,
+      "mix_gain_db": 0.0
+    },
+    {
+      "id": "03_vision",
+      "text": "视觉同步。",
+      "start": 7.48,
+      "end": 8.393708333333333,
+      "seconds": 0.9137083333333333,
+      "stem": "designs/dsh-skin-assets-v3/review/cold-start-voice-handoff-2026-11-06/CS-07_voice-deliverables 5/03_vision_wet.wav",
+      "stem_sha256": "10b352559c777b196ca451d3fc2bf43b364ec613bd34bab3e63d080040df6e18",
+      "stem_lufs": -13.7,
+      "stem_peak_dbfs": -3.0000009805991428,
+      "stem_rms_dbfs": -14.151143441325862,
+      "mix_gain_db": 0.0
+    },
+    {
+      "id": "04_report",
+      "text": "指挥官，我已就位。",
+      "start": 9.15,
+      "end": 11.167,
+      "seconds": 2.017,
+      "stem": "designs/dsh-skin-assets-v3/review/cold-start-voice-handoff-2026-11-06/CS-07_voice-deliverables 5/04_report_wet.wav",
+      "stem_sha256": "f13ef18ae83c422645e6ec5100f9a0ecdf7d527bb9f91e04123cf4ba49c96f25",
+      "stem_lufs": -19.9,
+      "stem_peak_dbfs": -9.984522113339002,
+      "stem_rms_dbfs": -20.44685227811524,
+      "mix_gain_db": 5.1
+    }
+  ],
+  "full_mix_levels": {
+    "input_i": "-14.00",
+    "input_tp": "-3.80",
+    "input_lra": "3.50",
+    "input_thresh": "-25.88",
+    "output_i": "-13.64",
+    "output_tp": "-1.80",
+    "output_lra": "3.70",
+    "output_thresh": "-25.58",
+    "normalization_type": "dynamic",
+    "target_offset": "-0.36"
+  },
+  "decoded_peak_dbfs": -3.822491756063075,
+  "clipped_samples": 0,
+  "segment_rms_dbfs": [
+    {
+      "start": 0,
+      "end": 3,
+      "rms": -19.10042065092456
+    },
+    {
+      "start": 3,
+      "end": 7,
+      "rms": -19.480976116088726
+    },
+    {
+      "start": 7,
+      "end": 9.15,
+      "rms": -18.677980151722956
+    },
+    {
+      "start": 9.15,
+      "end": 12.5,
+      "rms": -18.522500599384404
+    }
+  ],
+  "voice_bus_matches_stems": true,
+  "reused_from_accepted": [
+    "visual source clip",
+    "mechanical FX bed",
+    "fades",
+    "frame rate",
+    "12.5 s length",
+    "handoff at 12.15 s"
+  ],
+  "voice_processing": "delivered _wet comms-channel version used as-is; no extra EQ or saturation",
+  "distribution": "project-internal use only per CS-07 delivery notes; not a real-person voice clone",
+  "qa": {
+    "frames_compared": 300,
+    "caption_band_mean_abs_diff": 10.308,
+    "outside_band_mean_abs_diff": 0.344,
+    "frame_psnr_db": 35.0,
+    "burned_caption_frames_in_old": "four drawtext lines between each cue in/out point",
+    "burned_caption_frames_in_new": "none; the caption band now shows the underlying scene",
+    "video_stream_md5_unchanged_by_rebalance": "d5ba110cce3b437b617ee551b5532960",
+    "audio_envelope_onsets_seconds": [
+      0.29,
+      2.87,
+      7.53,
+      9.01
+    ],
+    "cue_sheet_in_points_seconds": [
+      0.35,
+      2.8,
+      7.48,
+      9.15
+    ],
+    "voice_window_rms_dbfs": {
+      "01_awakening": -17.2,
+      "02_release": -15.61,
+      "03_vision": -15.1,
+      "04_report": -16.33
+    },
+    "stem_lufs_as_delivered": {
+      "01_awakening": -15.5,
+      "02_release": -15.2,
+      "03_vision": -13.7,
+      "04_report": -19.9
+    },
+    "rebalance": {
+      "line": "04_report",
+      "gain_db": 5.1,
+      "why": "delivered 04 measures 4.4-6.2 dB below the first three; the delivery note claiming RMS alignment does not hold",
+      "target": "mean integrated loudness of lines 01-03 (-14.8 LUFS)"
+    },
+    "fx_bed_correlation_vs_old": {
+      "5.4-7.2s": 0.9999,
+      "0.0-0.3s": 0.9996
+    },
+    "note": "picture is the accepted master; only narration level changed"
+  }
+}

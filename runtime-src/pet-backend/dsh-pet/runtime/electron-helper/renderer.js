@@ -175,7 +175,8 @@ if (window.petBridge?.reportCompanionState) {
       areas: AREAS,
       props: [],
       sprites: [{ anim: s.anim, size: s.size, center: { x: s.currentCenterX(), y: s.currentCenterY() }, hitRect: s.hitRect,
-        dragging: s.dragState.active, moving: s.moveRef !== null, positionFollow: s.posFollow !== null, playback: s.playback }],
+        dragging: s.dragState.active, moving: s.moveRef !== null, positionFollow: s.posFollow !== null, playback: s.playback,
+        bubbleText: s.whisperOn && s.bubbleSlot === 'whisper' ? s.whisperText : '' }],
       videos: [{ front: true, source: front.currentSrc.split('/').pop(), loop: front.loop,
         paused: front.paused, parkedIdle: front.companionParkedIdle === true && front.paused &&
           front.readyState >= 2 && front.videoWidth > 0,

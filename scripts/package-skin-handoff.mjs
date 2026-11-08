@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import {fileURLToPath} from 'node:url';
+import {createHash} from 'node:crypto';
+import {zipSync} from 'fflate';
+const root=new URL('../',import.meta.url),version=JSON.parse(fs.readFileSync(new URL('packages/dsh-companion/package.json',root))).version;
+const docs=new URL('docs/skin-kit-v1/',root),entries={};
+for(const name of fs.readdirSync(docs))if(fs.statSync(new URL(name,docs)).isFile())entries[name]=fs.readFileSync(new URL(name,docs));
+entries['dsh-skin-author-kit-'+version+'.zip']=fs.readFileSync(new URL('dist/dsh-skin-author-kit-'+version+'.zip',root));
+const output=new URL('dist/dsh-skin-development-kit-'+version+'.zip',root),bytes=zipSync(entries,{level:6});
+fs.writeFileSync(output,bytes);
+console.log(JSON.stringify({file:fileURLToPath(output),version,files:Object.keys(entries),bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')}));

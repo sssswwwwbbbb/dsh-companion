@@ -1,9 +1,8 @@
 """Recover the private build inputs from the exact Mac dev.27 acceptance package."""
 
 import argparse
-import base64
 import hashlib
-import re
+import json
 import shutil
 import tarfile
 import tempfile
@@ -14,8 +13,7 @@ from pathlib import Path, PurePosixPath
 ROOT = Path(__file__).resolve().parents[1]
 TARGET = ROOT / ".local/accepted-inputs"
 ARCHIVE_SHA = "ce4243371a1f0d1fbbd04ddf3d1bdf243fc6f5552ad52fcd329a59aa30e47f00"
-ATLAS_SHA = "81633deff56754df5f2e1c8361ccd00d36e2abdc1b583824f772591bb68ecdbd"
-SKINS = ("archive-warm-whale", "archive-workspace-r2-private")
+SKINS = ("archive-workspace-r2-private",)
 RUNTIME = "DSHCompanion.app/Contents/Resources/app/pet-backend/dsh-pet/"
 
 
@@ -33,7 +31,12 @@ def copy_member(path, stream):
         shutil.copyfileobj(stream, out)
 
 
-def prepare(archive):
+def prepare(archive, replace_existing=False):
+    if not replace_existing:
+        for name, version in [("archive-workspace-r2-private", "0.4.0")]:
+            manifest = TARGET / "skins" / name / "skin.json"
+            if manifest.exists() and json.loads(manifest.read_text())["version"] != version:
+                raise ValueError("Build inputs contain an upgraded skin. Use --replace-existing only when intentionally restoring the dev.27 baseline.")
     if digest(archive) != ARCHIVE_SHA:
         raise ValueError("Expected the archived Mac dev.27 package (SHA-256 mismatch)")
     TARGET.parent.mkdir(exist_ok=True)
@@ -52,15 +55,6 @@ def prepare(archive):
             for skin in SKINS:
                 if not (out / "skins" / skin / "skin.json").is_file():
                     raise ValueError("Missing accepted skin: " + skin)
-
-            client = package.extractfile("package/client.js").read()
-            for portrait in re.findall(rb'"portrait":"data:image/png;base64,([\w+/=]+)"', client):
-                data = base64.b64decode(portrait, validate=True)
-                if hashlib.sha256(data).hexdigest() == ATLAS_SHA:
-                    (out / "character-atlas-r2.png").write_bytes(data)
-                    break
-            else:
-                raise ValueError("Missing accepted character atlas")
 
             archive_path = work / "mac-runtime.zip"
             with package.extractfile("package/runtime-bundles/DSHCompanion-darwin-arm64.zip") as stream:
@@ -86,4 +80,6 @@ def prepare(archive):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("archive", type=Path, help="Verified Mac dev.27 acceptance package")
-    prepare(parser.parse_args().archive)
+    parser.add_argument("--replace-existing", action="store_true", help="Replace upgraded inputs with the original dev.27 baseline")
+    args = parser.parse_args()
+    prepare(args.archive, args.replace_existing)

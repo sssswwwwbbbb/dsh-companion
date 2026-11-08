@@ -15,10 +15,13 @@ const SLEEP_REFUSE_BUBBLE_MS = 8000;
 
 Object.assign(PetSprite.prototype, {
   onContextMenu(e) {
-    if(globalThis.DshCompanionContent?.managedHost){e.preventDefault();return;}
     const d = this.dragState;
     if (d.active || d.dragging || this.justDragged || this.menuOpen) return;
     e.preventDefault();
+    if(globalThis.DshCompanionContent?.managedHost){
+      if(e.isTrusted)window.petBridge.companionInteract('menu');
+      return;
+    }
     this.stopThrow(); // 菜单弹出前停住飞行中的宠物
     this.stopMove(); // 菜单悬停期间宠物不漫游
     // 桌面专属工具根项 + 共享菜单树（动作 → 分类 → 具体动画）。碎碎念/对话无条件显示：手动触发

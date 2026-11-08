@@ -3,10 +3,39 @@ const fail=code=>{throw Object.assign(new Error(code),{code});};
 export class NativeWorkFeedback {
  constructor({snapshot,playReaction}){this.snapshot=snapshot;this.playReaction=playReaction;this.revision=0;this.generation=0;this.stopReaction=null;this.seen=new Set();this.reactions=0;this.last=null;}
  async cancel(assertCurrent){
+  this.activityOwner=null;
   const stop=this.stopReaction;this.stopReaction=null;
   return stop?await stop(assertCurrent):null;
  }
  async invalidate(generation){if(generation>this.generation){this.generation=generation;this.revision=0;try{await this.cancel();}catch{}}}
+ async activity(input){
+  const assertSkin=()=>{
+   const s=this.snapshot();
+   if(!s||input.generation!==s.generation||input.contentKey!==s.contentKey)fail('SKIN_OPERATION_SUPERSEDED');
+   return s;
+  };
+  const s=assertSkin(),choice=s.petActivities?.actions.find(row=>row.id===input.action&&row.enabled);
+  if(!/^[a-f0-9-]{36}$/.test(input.owner||''))fail('PET_DECISION_INVALID');
+  if(!s.petActivities?.enabled||!choice||s.pet?.status!=='enabled'||!s.pet.values.allowActions||
+    s.theme?.status!=='enabled'||!s.theme.values.workFeedbackEnabled||['running','attention'].includes(this.last?.state))return {action:null};
+  const previousOwner=this.activityOwner;
+  this.activityOwner=input.owner;
+  const current=()=>{
+   const live=assertSkin();
+   if(this.activityOwner!==input.owner||!live.petActivities?.enabled||!live.pet.values.allowActions||
+     !live.petActivities.actions.some(row=>row.id===input.action&&row.enabled))fail('SKIN_OPERATION_SUPERSEDED');
+  };
+  const stop=await this.playReaction(current,input.action);current();
+  if(stop)this.stopReaction=stop;
+  else this.activityOwner=previousOwner;
+  return {action:stop?input.action:null};
+ }
+ async cancelActivity(input){
+  if(this.activityOwner!==input.owner)return {action:null};
+  const s=this.snapshot();
+  if(!s||input.generation!==s.generation||input.contentKey!==s.contentKey)fail('SKIN_OPERATION_SUPERSEDED');
+  return {action:await this.cancel()};
+ }
  async deliver(input){
   const s=this.snapshot();if(!s||input.generation!==s.generation||input.contentKey!==s.contentKey)fail('SKIN_OPERATION_SUPERSEDED');
   if(!Number.isSafeInteger(input.revision)||input.revision<1||!['idle','running','attention','completed'].includes(input.state)||!Number.isSafeInteger(input.seq)||input.seq< -1||input.state==='completed'&&(typeof input.sessionId!=='string'||input.seq<0))fail('SKIN_WORK_INVALID');

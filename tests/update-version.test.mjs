@@ -77,3 +77,12 @@ test('unchecked channel offers checking, retains history and makes no download r
   const buttons=page.all.filter(node=>node.type==='button').map(node=>page.text(node));
   assert.ok(buttons.includes('检查更新'));assert.ok(buttons.includes('查看历史文件'));assert.equal(buttons.includes('下载更新'),false);assert.equal(buttons.includes('下载同版以重装'),false);
 });
+
+test('the 1.0 build treats accepted development releases as older updates',async t=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'dsh-stable-version-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+  const controller=new CompanionController({stateDir:dir,profileDir:dir,dshVersion,deviceId:'a'.repeat(64),config:{serviceUrl:'https://fixture.invalid',publicKey:keys.publicKey,supportedDsh:[dshVersion]}});
+  controller.nativeStatus=async()=>({running:false,settings:{}});
+  controller.entitlement.latest=async()=>({release:{version:'0.1.0-dev.47',build:47}});
+  assert.ok(controller.build>48);
+  const status=await controller.checkUpdate();assert.equal(status.update.relation,'older');assert.equal(status.update.available,false);
+});

@@ -7,6 +7,9 @@ import {NativePetAdapter} from '../skin-core/adapters/native.mjs';
 import {NativeStartupAdapter} from '../skin-core/adapters/startup.mjs';
 import {SkinLibrary,unavailableSkin} from './skin-library.mjs';
 import {WorkFeedback} from './work-feedback.mjs';
+import {WorkspaceCues} from './workspace-cues.mjs';
+import {PetActivities} from './pet-activities.mjs';
+import {WorkspaceScenes} from './workspace-scenes.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 export class CompanionSkins {
   constructor(controller,{includeExamples=false}={}){
@@ -18,14 +21,24 @@ export class CompanionSkins {
     for(const skin of this.library.installed())this.registerSnapshot(skin);
     this.unavailable.push(...this.library.unavailable);
     this.core=new SkinCoordinator({store:new StateStore(controller.stateDir),adapters:{theme:this.page,pet:new NativePetAdapter(controller),startup:new NativeStartupAdapter(controller)},dshVersion:controller.dshVersion,authorize:()=>controller.entitlement.require()});
+    // The retired bundled MVP can remain in a profile snapshot. Drop that old
+    // selection; deliberate user imports and all other skins keep their state.
+    const previous=this.core.state.selected;
+    if(previous?.manifest.id==='archive-warm-whale'&&!this.snapshots.has(previous.contentKey)){
+      Object.assign(this.core.state,{selected:null,pending:null,stopped:true,results:{},error:null});
+      this.core.phase='stopped';this.core.store.write(this.core.state);
+    }
     this.work=new WorkFeedback(this);
+    this.activities=new PetActivities(this);
+    this.workspaceCues=new WorkspaceCues(this);
+    this.workspaceScenes=new WorkspaceScenes(this);
   }
   registerSnapshot(skin){this.catalog.set(skin.manifest.id,skin);this.snapshots.set(skin.contentKey,skin);return skin;}
   registerDirectory(dir){return this.registerSnapshot(cacheSkin(loadSkin(dir),this.controller.stateDir));}
   status(){
     let settings={};try{settings=this.core.view();}catch{}
     const unavailable=this.unavailable.filter((row,index,rows)=>!this.snapshots.has(row.contentKey)&&rows.findIndex(other=>other.contentKey===row.contentKey)===index);
-    return {...this.core.status(),settings,workAutonomy:this.work.status(settings),catalog:[...this.snapshots.values()].map(s=>({id:s.manifest.id,contentKey:s.contentKey,name:s.manifest.name,description:s.manifest.description,version:s.manifest.version,hasCover:!!s.manifest.cover,modules:Object.keys(s.manifest.modules),example:this.examples.has(s.manifest.id)})).concat(unavailable)};
+    return {...this.core.status(),settings,workAutonomy:this.work.status(settings),petActivities:this.activities.status(),workspaceCues:this.workspaceCues.status(),workspaceScenes:this.workspaceScenes.status(),catalog:[...this.snapshots.values()].map(s=>({id:s.manifest.id,contentKey:s.contentKey,name:s.manifest.name,description:s.manifest.description,version:s.manifest.version,hasCover:!!s.manifest.cover,modules:Object.keys(s.manifest.modules),example:this.examples.has(s.manifest.id)})).concat(unavailable)};
   }
   cover({contentKey}={}){
     this.controller.entitlement.require();
@@ -58,7 +71,7 @@ export class CompanionSkins {
   async configure(value){await this.core.update(value);this.work.maintain();return this.controller.status();}
   assertSelection(contentKey){if(contentKey!==undefined&&contentKey!==this.core.state.selected?.contentKey)fail('SKIN_OPERATION_SUPERSEDED');}
   async disable({module,disabled,contentKey}){this.assertSelection(contentKey);await this.core.disable(module,disabled);return this.controller.status();}
-  async reset(value={}){this.assertSelection(value.contentKey);await this.core.reset();return this.controller.status();}
+  async reset(value={}){this.assertSelection(value.contentKey);await this.core.reset();this.controller.interactions?.memory?.forget(this.core.state.selected.manifest.id);return this.controller.status();}
   async stop(){await this.core.stop();return this.controller.status();}
   poll(input){
     // Drain independent stop before offering a reconnecting page an old apply.
@@ -75,6 +88,10 @@ export class CompanionSkins {
       else {this.restoring=true;void this.restorePage(this.recoveryClient).catch(()=>{}).finally(()=>{this.restoring=false;});}
     }
     const workRevision=this.work.accept(input,result);if(workRevision!==null)result.workRevision=workRevision;
+    if(!result.busy&&!input.verify){
+      result.workspaceCues=this.workspaceCues.presentation(input.clientId);
+      result.workspaceScenes=this.workspaceScenes.presentation(input.clientId);
+    }
     return result;
   }
   async restorePage(clientId){

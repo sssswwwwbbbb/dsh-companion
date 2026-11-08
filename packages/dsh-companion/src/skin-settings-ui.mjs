@@ -43,8 +43,8 @@ export function createSkinSettingsUi(React,assets){
   }
   const Row=({title,description,feedback,children,...props})=>h('div',{className:'r3-setting-row',...props},h('div',{className:'r3-setting-copy'},h('strong',null,title),description&&h('p',null,description),feedback),h('div',{className:'r3-setting-control'},children));
   const Section=({title,children,tag})=>h('section',{className:'r3-setting-section'},h('header',null,h('h3',null,title),tag),children);
-  function Shell({tab,view,setSection,skin,busy,stopping,active,status,error,notice,footer,scheme,work,stopSkin,replyStyle,children}){
-    const selected=skin?.selected,canRestore=!!(skin?.stopped&&selected),body=React.useRef(null),hasMore=!!skin?.settings?.pet;
+  function Shell({tab,view,setSection,skin,busy,stopping,active,status,error,notice,footer,scheme,work,stopSkin,replyStyle,character,petMemory,children}){
+    const selected=skin?.selected,canRestore=!!(skin?.stopped&&selected),body=React.useRef(null),hasMore=!!skin?.settings?.pet,hasScenes=!!skin?.workspaceScenes;
     const [resetKey,setResetKey]=React.useState(null);
     const resetButton=React.useRef(null),cancelReset=React.useRef(null);
     const selectedKey=selected?.contentKey;
@@ -67,12 +67,12 @@ export function createSkinSettingsUi(React,assets){
         h('h1',null,tab==='library'?'本地皮肤库':tab==='skin'?'按你的习惯，刚刚好。':tab==='account'?'授权与更新':tab==='control'?'桌面陪伴':tab==='focus'?'专注与休息':'开始使用'),
         h('p',{className:'r3-caption'},tab==='library'?'管理工作区主题、桌宠和开场。':tab==='skin'?(selected?.name||'本套设置')+' · 只调整这套已提供的偏好。':tab==='focus'?'用一段计时安排工作与休息。':'从同一处管理你的皮肤与陪伴。')),
         tab==='library'?h(Button,{icon:'install',disabled:busy||!active,onClick:()=>void work('skinInstall')},'导入本地 ZIP'):tab!=='focus'&&h(Pill,{tone:skin?.stopped?'orange':''},status)),
-        tab==='skin'&&hasMore&&h('div',{className:'r3-settings-tabs',role:'tablist','aria-label':'本套设置层级'},...['common','more'].map(value=>h('button',{key:value,type:'button',role:'tab','aria-selected':view===value,onClick:()=>setSection('skin',value)},value==='common'?'常用':'更多'))),
+        tab==='skin'&&(hasMore||hasScenes||character)&&h('div',{className:'r3-settings-tabs',role:'tablist','aria-label':'本套设置层级'},...['common',...(character?['character']:[]),...(hasMore?['more']:[]),...(hasScenes?['scenes']:[])].map(value=>h('button',{key:value,type:'button',role:'tab','aria-selected':view===value,onClick:()=>setSection('skin',value)},({common:'常用',character:'角色',more:'更多',scenes:'场景'})[value]))),
         h('div',{className:'r3-settings-body',ref:body},error&&h('p',{className:'r3-notice error',role:'alert'},error),notice&&h('p',{className:'r3-notice',role:'status'},notice),children),
         tab!=='library'&&tab!=='focus'&&h('footer',{className:'r3-settings-foot'},h('div',null,h('p',null,footer),h('small',null,skin?.stopped?'效果已停止，参数与关闭选择已保留。':'工作区与左侧导航使用本套配色。')),
           h('div',{className:'r3-actions'},tab==='skin'&&h(Button,{buttonRef:resetButton,icon:'reset',disabled:busy||!active||!selected,'aria-expanded':confirmingReset,onClick:()=>confirmingReset?closeReset():setResetKey(selectedKey)},'重置本套'),canRestore&&h(Button,{kind:'primary',icon:'play',disabled:busy||!active,onClick:()=>void work('skinSelect',{contentKey:selected.contentKey})},'恢复本套皮肤')),
           confirmingReset&&h('div',{className:'r3-reset-confirm',role:'group','aria-label':'确认重置本套设置',onKeyDown:event=>{if(event.key==='Escape'&&!busy){event.stopPropagation();closeReset();}}},
-            h('p',null,replyStyle?'将主题、桌宠与开场参数恢复为默认值。模块开关、自动播放与回复风格照旧。':'将本套自定义参数恢复为默认值。模块开关与启动时自动播放设置照旧。'),
+            h('p',null,(replyStyle?'将主题、桌宠与开场参数恢复为默认值。模块开关、自动播放与回复风格照旧。':'将本套自定义参数恢复为默认值。模块开关与启动时自动播放设置照旧。')+(petMemory?'已保存的桌宠互动也会清空。':'')),
             h('div',{className:'r3-actions'},
               h(Button,{buttonRef:cancelReset,disabled:busy,onClick:closeReset},'取消'),
               h(Button,{kind:'primary',disabled:busy||!active,onClick:()=>void reset()},'确认重置'))))));
@@ -172,18 +172,16 @@ export function createSkinSettingsUi(React,assets){
         const imported=importedKey===row.contentKey;
         const available=row.status!=='unavailable';
         const r2=row.contentKey===assets.workspace?.contentKey;
-        const whale=row.contentKey===assets.contentKey||r2;
         const commander=r2&&assets.workspace.preset==='commander-v1';
         const sameLabel=rows.some(other=>other!==row&&other.id===row.id&&other.version===row.version);
         const label=!available?'文件不可用':pending?'应用中':failed?'应用失败':isCurrent?status:imported?'已入库':'';
         const action=!available||isCurrent&&!failed?null:pending?'正在应用…':failed?'重试应用':'应用皮肤';
         const fallbackCover=h(React.Fragment,null,
           commander&&h('img',{className:'commander-cover',src:assets.workspace.cover,alt:''}),
-          row.contentKey===assets.contentKey&&h('span',{className:'commander-legacy-tag'},'旧版对照'),
-          h('span',{className:'r3-library-cover-title'},whale&&!commander?'档案暖白':row.name),
-          whale?h('span',{className:'r3-library-portrait'+(r2?' workspace-role':'')},h('img',{src:r2?assets.workspace.portrait:assets.portrait,alt:'',draggable:false})):h(Icon,{name:'library'}));
+          h('span',{className:'r3-library-cover-title'},row.name),
+          r2?h('span',{className:'r3-library-portrait workspace-role'},h('img',{src:assets.workspace.portrait,alt:'',draggable:false})):h(Icon,{name:'library'}));
         return h('article',{key:row.contentKey||'unavailable-library',className:'r3-library-card','data-current':isCurrent,'data-skin-key':row.contentKey,ref:imported?importedCard:null,tabIndex:imported?-1:undefined},
-          h('div',{className:'r3-library-cover'+(commander?' commander':whale?' whale':''),'aria-hidden':true,style:whale?{'--library-grid':'url("'+assets.background+'")'}:undefined},
+          h('div',{className:'r3-library-cover'+(commander?' commander':''),'aria-hidden':true},
             active&&row.hasCover?h(ImportedCover,{contentKey:row.contentKey,loadCover},fallbackCover):fallbackCover),
           h('div',{className:'r3-library-card-body'},
             h('div',{className:'r3-library-card-title'},h('h3',null,row.name),h('span',null,row.version)),
@@ -204,7 +202,7 @@ export function createSkinSettingsUi(React,assets){
       if(result)setDraft(null);
     }
     return h(Section,{title:'工作区回复风格'},
-      h('p',{className:'r3-caption'},'称呼和语气按皮肤保存。在会话标题旁开启后，下一次模型请求会使用这里的设置。'),
+      h('p',{className:'r3-caption'},'称呼和语气按皮肤保存。回复风格默认开启，新会话沿用本套最近的开关选择；已单独选择的会话保留自己的开关。下一次模型请求使用这里的设置。'),
       h('form',{className:'r3-reply-style-editor',onSubmit:event=>{event.preventDefault();void save();}},
         h('label',{className:'r3-input-label'},'称呼',
           h('input',{value:value.address,maxLength:32,disabled:busy||!active,placeholder:'留空时不指定称呼',onChange:event=>setDraft({...value,address:event.target.value})})),
@@ -214,9 +212,86 @@ export function createSkinSettingsUi(React,assets){
           h(Button,{type:'submit',kind:'primary',disabled:busy||!active||!changed||!value.tone.trim()},'保存回复风格'),
           h(Button,{disabled:busy||!active||value.address===style.defaults.address&&value.tone===style.defaults.tone,onClick:()=>setDraft(style.defaults)},'填入默认风格'))));
   }
-  function Settings({state,skin,view,active,busy,fieldBusy,fieldDrafts,fieldFailures,saveField,work,stopSkin,stopping,modelDirectory,petText,setPetText,sendPet,petReply,setSection}){
+  function CharacterEditor({character,hasStyle,active,busy,work}){
+    const [draft,setDraft]=React.useState(null);
+    const fields=['name','identity',...['workContext','petContext'].filter(key=>Object.hasOwn(character,key))];
+    const value=draft??character;
+    const changed=fields.some(key=>value[key]!==character[key]);
+    async function save(){
+      const next=Object.fromEntries(fields.map(key=>[key,value[key]]));
+      if(await work('characterSave',{contentKey:character.contentKey,...next}))setDraft(null);
+    }
+    const field=(key,label,maxLength,rows)=>h('label',{className:'r3-input-label'},label,
+      h(rows?'textarea':'input',{value:value[key],maxLength,rows,disabled:busy||!active,onChange:event=>setDraft({...value,[key]:event.target.value})}));
+    return h(Section,{title:'主题角色设定'},
+      h('p',{className:'r3-caption'},Object.hasOwn(character,'workContext')?'在会话标题旁开启「主题角色」后，共用下方身份设定。'+(hasStyle?'开启「回复风格」可同时采用本套称呼与语气。':''):'本套角色设定可用于桌宠。'),
+      h('form',{className:'r3-reply-style-editor',onSubmit:event=>{event.preventDefault();void save();}},
+        field('name','角色名',32),field('identity','角色设定',2000,5),
+        Object.hasOwn(character,'workContext')&&field('workContext','工作区场景补充',600,3),
+        Object.hasOwn(character,'petContext')&&field('petContext','桌宠场景补充',600,3),
+        h('div',{className:'r3-actions'},h(Button,{type:'submit',kind:'primary',disabled:busy||!active||!changed||!value.name.trim()||!value.identity.trim()},'保存角色设定'),
+          h(Button,{disabled:busy||!active,onClick:()=>setDraft(character.defaults)},'填入默认角色'))),
+      Object.hasOwn(character,'petContext')&&h(Row,{title:'桌宠使用主题角色',description:'采用同一身份、本套称呼与语气，再加入桌宠场景补充。关闭后使用桌宠独立人设。'},
+        h(Toggle,{label:'桌宠使用主题角色',value:character.petEnabled,disabled:busy||!active,onChange:enabled=>work('characterPet',{contentKey:character.contentKey,enabled})})));
+  }
+  function WorkspaceCueSettings({skin,active,busy,quiet,work,previewCue}){
+    const positions={'above-input':'输入框上方居中','bottom-right':'输入框右上方','top-right':'窗口右上角','bottom-bar':'窗口底栏'};
+    const effects={none:'直接显示',fade:'淡入',slide:'轻移入场'};
+    const change=(cue,field,value)=>work('workspaceCueConfigure',{contentKey:skin.selected.contentKey,cue,field,value});
+    return h(Section,{title:'工作区场景提示'},
+      h('p',{className:'r3-caption'},'每种场景可单独设置位置、时长和出场效果。预览会返回会话页面；陪伴勿扰时暂停。'),
+      ...Object.entries(skin.workspaceCues.cues).map(([key,cue])=>{
+        const title={welcome:'回到 DSH 时招呼',session:'切换会话时提示',workspace:'切换工作区时提示'}[key];
+        const when={welcome:'离开至少 15 秒后返回，每分钟最多一次。',session:'同一工作区的已有会话之间切换，间隔至少 4 秒。',workspace:'切到另一工作区里的会话时显示，间隔至少 4 秒。展开目录不会触发。'}[key];
+        const select=(label,field,options)=>h('label',{className:'r3-input-label'},label,h('select',{'aria-label':label+' · '+title,value:cue[field],disabled:busy||!active,onChange:event=>void change(key,field,field==='seconds'?Number(event.target.value):event.target.value)},...Object.entries(options).map(([value,label])=>h('option',{key:value,value},label))));
+        return h('div',{key,className:'r3-cue-setting'},
+          h(Row,{title,description:when+' 提示：'+cue.text},h(Button,{disabled:busy||!active||quiet||skin.stopped,onClick:()=>previewCue({contentKey:skin.selected.contentKey,kind:key,cue})},'预览提示'),h(Toggle,{label:title,value:cue.enabled,disabled:busy||!active,onChange:enabled=>change(key,'enabled',enabled)})),
+          cue.enabled&&h(React.Fragment,null,h('div',{className:'r3-cue-options'},
+            select('提示位置','position',positions),select('显示时长','seconds',Object.fromEntries([...new Set([1,2,3,4,5,6,7,8,cue.seconds])].sort((a,b)=>a-b).map(value=>[value,value+' 秒']))),select('出场效果','effect',effects)),
+            h('div',{className:'r3-actions'},h(Button,{disabled:busy||!active,onClick:()=>change(key,'reset',null)},'恢复本条默认'))));
+      }));
+  }
+  function MemorySettings({skin,memory,active,busy,work}){
+    const [draft,setDraft]=React.useState(null);
+    if(!memory)return null;
+    const value=draft??memory.preference,change=(field,value)=>work('petMemoryConfigure',{contentKey:skin.selected.contentKey,field,value});
+    const descriptions={...skin.settings.pet?.values.actionDescriptions,...Object.fromEntries((skin.petActivities?.actions||[]).map(row=>[row.id,row.description]))};
+    return h(Section,{title:'连续陪伴',tag:h(Pill,null,'本套偏好')},
+      h(Row,{title:'记住近期桌宠互动',description:'保留最近 20 条专属互动和实际动作，重启后继续使用。关闭会清空记录，保留偏好文字。'},
+        h(Toggle,{label:'记住近期桌宠互动',value:memory.enabled,disabled:busy||!active,onChange:value=>change('enabled',value)})),
+      memory.enabled&&h(React.Fragment,null,
+        h('form',{className:'r3-reply-style-editor',onSubmit:async event=>{event.preventDefault();if(await change('preference',value))setDraft(null);}},
+          h('label',{className:'r3-input-label'},'桌宠互动偏好',h('textarea',{rows:3,maxLength:400,value,disabled:busy||!active,placeholder:'例如：工作时安静一些，少走动，更多用短句回应。',onChange:event=>setDraft(event.target.value)})),
+          h('p',{className:'r3-caption'},'提供给桌宠对话、完成回应和自主活动作参考。已有动作开关与勿扰继续生效。'),
+          h('div',{className:'r3-actions'},h(Button,{type:'submit',kind:'primary',disabled:busy||!active||value===memory.preference},'保存互动偏好'),h(Button,{disabled:busy||!active||value===memory.defaults.preference,onClick:()=>setDraft(memory.defaults.preference)},'填入默认偏好'))),
+        h('details',{className:'r3-pet-memory'},h('summary',null,'查看近期互动（'+memory.records.length+' / 20）'),
+          memory.records.length?h('ol',null,...memory.records.slice().reverse().map((row,index)=>h('li',{key:row.at+':'+index},
+            h('div',null,h('strong',null,({interaction:'桌宠互动',activity:'自主活动',work:'工作完成回应'})[row.source]),h('time',{dateTime:new Date(row.at).toISOString()},new Date(row.at).toLocaleString('zh-CN'))),
+            row.user&&h('p',null,'你：'+row.user),h('p',null,'桌宠：'+(row.actual.speech||'安静待机')+(row.actual.action?' · '+(descriptions[row.actual.action]||row.actual.action):''))))):h('p',{className:'r3-caption'},'还没有保存的互动。下一次专属互动或实际动作后会出现在这里。')),
+        h('div',{className:'r3-actions'},h(Button,{disabled:busy||!active||!memory.records.length,onClick:()=>change('clear',null)},'清空近期互动'),h(Button,{disabled:busy||!active,onClick:()=>change('reset',null)},'恢复连续陪伴默认')),
+        h('p',{className:'r3-caption'},'清空会保留互动偏好；恢复默认会同时清空记录并恢复本套开关和偏好。')));
+  }
+  function ActivitySettings({skin,state,active,busy,work}){
+    const settings=skin.petActivities;
+    if(!settings)return null;
+    const change=(field,value)=>work('petActivityConfigure',{contentKey:skin.selected.contentKey,field,value});
+    const canRun=settings.canDecide&&active&&!busy&&!skin.stopped&&skin.settings.theme?.status==='enabled'&&settings.enabled&&!state.focus?.quiet&&skin.settings.pet?.status==='enabled'&&skin.settings.pet.values.allowActions&&skin.settings.theme?.values.workFeedbackEnabled;
+    const last=settings.last;
+    return h(Section,{title:'自主陪伴'},
+      h(Row,{title:'自动决定短动作',description:'使用本套互动模型，在工作空闲时从已允许的动作中选择，也可以保持安静。'},
+        h(Toggle,{label:'自动决定短动作',value:settings.enabled,disabled:busy||!active,onChange:value=>change('enabled',value)})),
+      settings.enabled&&h(React.Fragment,null,
+        h(Row,{title:'决定间隔',description:'工作中、等待处理或陪伴勿扰时暂停。'},
+          h('select',{'aria-label':'自主活动间隔',value:settings.intervalMinutes,disabled:busy||!active,onChange:event=>void change('intervalMinutes',Number(event.target.value))},...[3,5,10].map(value=>h('option',{key:value,value},value+' 分钟')))),
+        ...settings.actions.map(action=>h(Row,{key:action.id,title:action.description,description:action.id==='walk'?'需要角色左侧留有活动空间。':undefined},
+          h(Toggle,{label:'允许自主动作 · '+action.id,value:action.enabled,disabled:busy||!active,onChange:value=>change('actions',{action:action.id,enabled:value})}))),
+        h('p',{className:'r3-caption',role:'status','data-pet-activity-result':settings.pending?'pending':last?.result||'none'},settings.pending?'正在决定…':last?.result==='performed'?'最近活动 · '+(settings.actions.find(row=>row.id===last.action)?.description||last.action):last?.result==='quiet'?'最近决定 · 安静待机':last?.result==='unavailable'?'本次未能决定，保持待机。':'开启工作反馈与允许动作后，工作空闲时生效。'),
+        h('div',{className:'r3-actions'},h(Button,{disabled:!canRun||settings.pending,onClick:()=>void work('petActivityDecide',{contentKey:skin.selected.contentKey})},'现在决定一次'),
+          h(Button,{disabled:busy||!active,onClick:()=>void change('reset',null)},'重置活动偏好'))));
+  }
+  function Settings({state,skin,view,active,busy,fieldBusy,fieldDrafts,fieldFailures,saveField,work,stopSkin,stopping,modelDirectory,petText,setPetText,sendPet,petReply,setSection,previewCue}){
     const selected=skin?.selected,candidate=selected,modules=skin?.settings||{},r2=candidate?.contentKey===assets.workspace?.contentKey,commander=r2&&assets.workspace.preset==='commander-v1';
-    const candidateArt=r2?assets.workspace.portrait:candidate?.contentKey===assets.contentKey?assets.portrait:null;
+    const candidateArt=r2?assets.workspace.portrait:null;
     const roleLabel=commander?assets.workspace.roleLabel:null;
     if(!selected)return h('div',{className:'r3-library-empty'},h('p',null,'先在皮肤库选择一套皮肤。'),h(Button,{onClick:()=>setSection('library')},'前往皮肤库'));
     if(!modules.pet)view='common';
@@ -252,14 +327,15 @@ export function createSkinSettingsUi(React,assets){
     const legacyExample=selected&&['sample-a','sample-b'].includes(selected.id);
     const stateNotice=skin?.stopped?h('div',{className:'r3-notice warning',role:'status'},'效果已停止，参数已保留。',selected&&h(Button,{disabled:busy||!active,onClick:()=>void work('skinSelect',{contentKey:selected.contentKey})},'恢复本套皮肤')):null;
     const interaction=h(Section,{title:'和桌宠说话'},h('div',{'data-pet-interaction':true},state?.petInteraction?.available?h(React.Fragment,null,
-      h('p',{className:'r3-caption'},state.petInteraction.smartEnabled?'用本套近期互动回应；待机动作在本地运行。':'智能互动已关闭，仍可使用本套的本地回应。'),modelDirectory.reason&&state.petInteraction.smartEnabled&&h('p',{className:'r3-caption'},'尚无可用模型，当前使用本地回应。'),
+      h('p',{className:'r3-caption'},state.petInteraction.smartEnabled?'结合本套人设与近期互动，回应点击和桌宠专属输入。':'智能互动已关闭，仍可使用本套的本地回应。'),modelDirectory.reason&&state.petInteraction.smartEnabled&&h('p',{className:'r3-caption'},'尚无可用模型，当前使用本地回应。'),
       h('form',{onSubmit:e=>{e.preventDefault();void sendPet();}},h('label',{className:'r3-input-label'},'桌宠专属输入',h('input',{type:'text',value:petText,maxLength:1000,disabled:busy,onChange:e=>setPetText(e.target.value),placeholder:'例如：换个动作陪我一下'})),h('div',{className:'r3-actions'},h(Button,{type:'submit',kind:'primary',disabled:busy||!petText.trim()},busy?'正在回应…':'发送'),h(Button,{disabled:busy,onClick:()=>void sendPet('click')},'轻点一下'))),
       (petReply||state.petInteraction.last)&&h('p',{'data-pet-reply':true,role:'status'},(()=>{const reply=petReply||state.petInteraction.last;return (reply.actual.speech||'安静陪着你')+(reply.actual.action?' · '+reply.actual.action:'')+(reply.mode==='fallback'?'（本地回应）':'');})())):h('p',{className:'r3-caption'},skin?.stopped?'恢复本套后可互动。':skin?.disabled?.pet?'桌宠已关闭，参数已保留。':'本套尚未提供可用的桌宠互动。')));
     return h(React.Fragment,null,h(Button,{onClick:()=>setSection('library')},'返回皮肤库'),stateNotice,skin?.error&&h('div',{className:'r3-notice error',role:'alert'},'恢复信息：'+skin.error.code),!active&&h('div',{className:'r3-notice'},'完成本机授权后即可应用皮肤。',h(Button,{onClick:()=>setSection('setup')},'前往开始使用')),
       legacyExample&&h('div',{className:'r3-notice warning'},'当前保留的是历史技术样例。可返回皮肤库选择已安装的整套皮肤。'),
-      view==='common'?h(React.Fragment,null,h('div',{className:'r3-skin-banner'},h('div',null,h('div',{className:'r3-eyebrow'},candidate?.contentKey===assets.contentKey?'ARCHIVE WARM / COMPANION':'本套皮肤'),h('h2',null,candidate?.name||'选择你的日常'),h('p',null,roleLabel||'这是当前皮肤的参数。换一套时，保留这一套的偏好。'),h('div',{className:'r3-actions'},h(Pill,null,candidate?.version||'本套偏好'),h(Pill,{tone:'blue'},skin.stopped?'当前选择 · 已停止':'当前选择'))),candidateArt&&h('span',{className:'r3-banner-pet'+(r2?' workspace-role':''),role:'img','aria-label':roleLabel||(commander?'机械姬 · 母版04':'鲸鱼娘 · 安静待机')},h('img',{src:candidateArt,alt:'',draggable:false}))),
+      view==='common'?h(React.Fragment,null,h('div',{className:'r3-skin-banner'},h('div',null,h('div',{className:'r3-eyebrow'},'本套皮肤'),h('h2',null,candidate?.name||'选择你的日常'),h('p',null,roleLabel||'这是当前皮肤的参数。换一套时，保留这一套的偏好。'),h('div',{className:'r3-actions'},h(Pill,null,candidate?.version||'本套偏好'),h(Pill,{tone:'blue'},skin.stopped?'当前选择 · 已停止':'当前选择'))),candidateArt&&h('span',{className:'r3-banner-pet'+(r2?' workspace-role':''),role:'img','aria-label':roleLabel||(commander?'机械姬 · 母版04':'鲸鱼娘 · 安静待机')},h('img',{src:candidateArt,alt:'',draggable:false}))),
         
         state?.replyStyle&&h(ReplyStyleEditor,{style:state.replyStyle,active,busy,work}),
+        supported('theme')&&skin.workspaceCues&&h(WorkspaceCueSettings,{skin,active,busy,quiet:state.focus?.quiet,work,previewCue}),
         modules.theme&&h(Section,{title:'阅读与表面'},moduleRow('theme','工作区主题','为会话工作区和左侧导航应用本套配色。'),supported('theme')&&h(React.Fragment,null,
           fieldRow('theme',control('theme','backgroundOpacity'),'背景浓度','0 为纯色；保留本套的图案与浓度。'),
           fieldRow('theme',control('theme','entryMarkEnabled'),'入口标识','在主题盒子入口使用本套标识。'))),
@@ -270,16 +346,48 @@ export function createSkinSettingsUi(React,assets){
           supported('pet')&&modules.theme.values.workFeedbackEnabled&&modules.theme.values.petEchoEnabled&&skin.workAutonomy&&h(Row,{title:'模型决定完成回应',description:'桌宠待机时，可用已选桌宠模型决定保持安静或轻回应。最多每分钟一次，只使用工作状态和桌宠设定。'},
             skin.workAutonomy.enabled&&h('span',{className:'r3-caption',role:'status'},skin.workAutonomy.pending?'正在决定…':({quiet:'上次保持待机',reacted:'上次轻回应',unavailable:'模型暂未回应'})[skin.workAutonomy.last]||'等待本轮完成'),
             h(Toggle,{label:'模型决定完成回应',value:skin.workAutonomy.enabled,disabled:busy||!active||!modules.pet.values.allowActions,onChange:enabled=>work('workAutonomyConfigure',{contentKey:selected.contentKey,enabled})}))),
-        modules.pet&&h(Section,{title:'桌面陪伴'},moduleRow('pet','桌宠','关闭时保留参数，随时可以重新开启。'),supported('pet')&&h(React.Fragment,null,fieldRow('pet',control('pet','size'),'角色大小','按百分比调整角色，保持原有比例。'),fieldRow('pet',control('pet','smartEnabled'),'智能互动','明确点击或专属输入时回应；待机仍在本地执行。'))),
+        h(ActivitySettings,{skin,state,active,busy,work}),
+        modules.pet&&h(Section,{title:'桌面陪伴'},moduleRow('pet','桌宠','关闭时保留参数，随时可以重新开启。'),supported('pet')&&h(React.Fragment,null,fieldRow('pet',control('pet','size'),'角色大小','按百分比调整角色，保持原有比例。'),fieldRow('pet',control('pet','smartEnabled'),'智能互动','开启后，点击与桌宠专属输入使用互动模型。'))),
         modules.startup&&h(Section,{title:'开场与进入'},moduleRow('startup','本套开场内容',startupSound?'开场后回到当前工作区。':'静音影片与静态回退独立于桌宠。'),supported('startup')&&h(React.Fragment,null,
           h(Row,{title:autoPlayLabel,description:'完全退出后，从 DeepSeek Harness 图标重新打开时播放。'},h(Pill,null,'全局偏好'),h(Toggle,{label:autoPlayLabel,value:state?.settings?.startupEnabled,disabled:busy||!active,onChange:value=>work('configure',{startupEnabled:value})})),
           fieldRow('startup',control('startup','reducedMotion'),'减少开场动态','显示同角色静态画面。macOS 的减少动态效果同样生效。'),
           fieldRow('startup',startupSound,'开场声音','关闭后仍会播放开场画面。'),
           h(Row,{title:'预览开场',description:skin?.stopped?'恢复本套后可预览。':state?.startup?.workspaceHandoff?'播放后返回当前会话，保留草稿。':'手动预览不会修改自动播放偏好。'},h(Pill,{tone:startupReady?'green':''},state?.startup?.playing?'正在播放':startupReady?'内容就绪':'尚未就绪'),h(Button,{icon:'play',disabled:busy||!active||!startupReady,onClick:()=>void work('replayIntro')},'预览开场'))))
-      ):h(React.Fragment,null,modules.pet&&h(Section,{title:'互动与近期记忆',tag:h(Pill,null,'本套偏好')},supported('pet')?modules.pet.controls.filter(c=>!['size','smartEnabled'].includes(c.field)).map(c=>fieldRow('pet',c,null,c.field==='historyRounds'?'仅本次运行的近期互动，重启后清空。':c.field==='persona'?'用于本套桌宠的简短回应与陪伴。':null)):h('p',{className:'r3-caption'},modules.pet.status==='unavailable'?'桌宠能力当前不可用，原有设置继续保留。':'桌宠已关闭，原有设置继续保留。')),modules.pet&&interaction),
-      h('p',{className:'r3-caption r3-scope-note'},'只显示本套已提供的能力。'+(candidate?.contentKey===assets.contentKey?'当前角色仅有待机与回应动作。':'')));
+      ):h(React.Fragment,null,modules.pet&&h(Section,{title:'互动与近期记忆',tag:h(Pill,null,'本套偏好')},supported('pet')?modules.pet.controls.filter(c=>!['size','smartEnabled'].includes(c.field)).map(c=>fieldRow('pet',c,null,c.field==='allowSpeech'?'以文字气泡回应。开启智能互动并选择可用模型后，可根据人设与你对话。':c.field==='historyRounds'?(state.petMemory?.enabled?'每次专属互动参考的近期对话轮数。开启连续陪伴后可在重启后延续。':'仅本次运行的近期互动。下方开启连续陪伴后可保留。'):c.field==='persona'?(state.character?.petEnabled?'当前使用共用主题角色；关闭共用后使用这里的桌宠独立人设。':'用于本套桌宠的简短回应与陪伴。'):null)):h('p',{className:'r3-caption'},modules.pet.status==='unavailable'?'桌宠能力当前不可用，原有设置继续保留。':'桌宠已关闭，原有设置继续保留。')),modules.pet&&interaction,h(MemorySettings,{key:skin.selected.contentKey,skin,memory:state.petMemory,active,busy,work})),
+      h('p',{className:'r3-caption r3-scope-note'},'只显示本套已提供的能力。'));
   }
-  return {Shell,Settings,Library,FocusPanel};
+  function SceneBindingRow({kind,scenes,targets,active,busy,work}){
+    const [chosen,setChosen]=React.useState('');
+    const target=targets.find(row=>row.key===chosen)??targets[0];
+    const presets=scenes.presets[kind],saved=scenes.bindings[kind]?.[target?.key];
+    const selected=saved&&Object.hasOwn(presets,saved)?saved:'';
+    const isModel=kind==='model';
+    return h(Section,{title:isModel?'随模型变化':'随工作区变化'},
+      h(Row,{title:isModel?'选择模型':'选择工作区',description:isModel?'使用 DSH 中已配置的模型。':'选择当前 DSH 中的工作区。'},
+        h('select',{'aria-label':isModel?'场景模型':'场景工作区',value:target?.key??'',disabled:busy||!active||!targets.length,onChange:event=>setChosen(event.target.value)},
+          !targets.length&&h('option',{value:''},isModel?'请先在 DSH 配置模型':'暂无工作区'),
+          ...targets.map(row=>h('option',{key:row.key,value:row.key},row.label)))),
+      h(Row,{title:isModel?'工作区形象':'工作区配色',description:isModel?'切换到此模型后，工作区底部显示本套提供的形象或徽记。':'进入此工作区后，当前会话标记和底部标识使用所选配色。'},
+        h('select',{'aria-label':isModel?'模型外观':'工作区配色',value:selected,disabled:busy||!active||!target,onChange:event=>void work('sceneConfigure',{contentKey:scenes.contentKey,kind,target:target.value,preset:event.target.value||null})},
+          h('option',{value:''},'使用皮肤默认'),
+          ...Object.entries(presets).map(([key,preset])=>h('option',{key,value:key},preset.label)))),
+      selected&&presets[selected].notice&&h('p',{className:'r3-caption'},'切换提示「'+presets[selected].notice+'」'+(isModel?'':'，跟随常用页的工作区切换开关。')));
+  }
+  function ScenePanel({skin,workspaceSource,modelDirectory,active,busy,work}){
+    const workspaces=React.useSyncExternalStore(workspaceSource.subscribe,workspaceSource.getSnapshot);
+    const scenes=skin.workspaceScenes;
+    const targets={
+      model:modelDirectory.models.map(row=>({key:JSON.stringify([row.provider,row.model]),value:{provider:row.provider,model:row.model},label:row.label})),
+      workspace:workspaces.map(row=>({key:JSON.stringify(row.id),value:row.id,label:row.label})),
+    };
+    return h(React.Fragment,null,
+      h('p',{className:'r3-caption'},'为模型与工作区选择本套场景。选择会自动保存；使用皮肤默认可清除对应设置。勿扰时保持外观，暂停切换提示。'),
+      ...Object.keys(scenes.presets).map(kind=>h(SceneBindingRow,{key:kind,kind,scenes,targets:targets[kind],active,busy,work})));
+  }
+  function CharacterPanel({character,style,active,busy,work,setSection}){
+    return h(React.Fragment,null,style&&h(ReplyStyleEditor,{style,active,busy,work}),h(CharacterEditor,{character,hasStyle:!!style,active,busy,work}),Object.hasOwn(character,'petContext')&&h(Button,{onClick:()=>setSection('skin','more')},'桌宠互动设置'));
+  }
+  return {Shell,Settings,Library,FocusPanel,ScenePanel,CharacterPanel};
 }
 
 export const skinSettingsCss=`
@@ -301,10 +409,10 @@ export const skinSettingsCss=`
 /* Library extends the existing R3 vocabulary; cards are actual installed content. */
 .r3-library{max-width:1060px;margin:auto}.r3-library-current{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:15px 18px;margin-bottom:22px}.r3-library-current-title{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.r3-current-modules{margin:8px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;color:var(--muted)}.r3-library-current h2{font:500 20px/1.5 var(--font-title);overflow-wrap:anywhere}.r3-library-current p{font-size:12px;color:var(--muted)}.r3-library-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.r3-library-heading h2{font-size:15px}.r3-library-heading h2 span{font-size:12px;font-weight:400;color:var(--muted);margin-left:12px}
 /* Two cards share the canvas: 2 * minmax(0, 1fr) + one 18px gutter. */
-.r3-focus-time{display:block;margin-top:6px;font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}.r3-focus-duration{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit}.r3-library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.r3-library-card{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);text-align:left;padding:0;min-width:0}.r3-library-card[data-current=true]{border-color:var(--accent)}.r3-library-card:focus{outline:2px solid var(--accent);outline-offset:3px}.r3-library-cover{display:block;aspect-ratio:8/5;background:var(--paper);position:relative;overflow:hidden}.r3-imported-cover{display:block;width:100%;height:100%;object-fit:cover}.r3-library-cover.whale:before{content:'';position:absolute;inset:0;background-image:var(--library-grid);background-size:cover;background-position:center;opacity:.12}.r3-library-cover-title{position:absolute;left:18px;bottom:24px;max-width:65%;font:500 26px/1.4 var(--font-title);overflow-wrap:anywhere}.r3-library-cover>.r3-icon{position:absolute;right:28px;bottom:28px;width:38px;height:38px;color:var(--muted)}.r3-library-portrait{position:absolute;right:4px;bottom:0;width:140px;height:140px;overflow:hidden}.r3-library-portrait img{display:block;width:200%;height:200%;max-width:none}.r3-library-card-body{display:flex;flex-direction:column;gap:12px;padding:16px 18px}.r3-library-card-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.r3-library-card-title h3{font-size:14px;font-weight:600;overflow-wrap:anywhere}.r3-library-card-title>span{font-size:12px;color:var(--muted);white-space:nowrap}.r3-library-modules{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--muted)}.r3-library-modules>span{background:var(--paper);padding:3px 7px;border-radius:4px}.r3-library-card-foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding-top:10px;border-top:1px solid var(--line)}.r3-library-card-foot button{margin-left:auto}.r3-library-empty{grid-column:1/-1;border:1px solid var(--line);border-radius:9px;padding:35px 22px;text-align:center}.r3-library-empty h2{font:500 22px var(--font-title);margin-bottom:8px}.r3-library-empty p{color:var(--muted);font-size:13px;margin-bottom:16px}
+.r3-cue-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:16px 0}.r3-cue-options select{width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}.r3-cue-setting>.r3-actions{margin-bottom:20px}@media(max-width:800px){.r3-cue-options{grid-template-columns:1fr}}.r3-pet-memory{margin:20px 0}.r3-pet-memory summary{cursor:pointer;padding:8px 0;font-weight:600}.r3-pet-memory ol{list-style:none;margin:0;padding:0;max-height:350px;overflow:auto}.r3-pet-memory li{padding:12px 0;border-bottom:1px solid var(--line)}.r3-pet-memory li>div{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.r3-pet-memory time{color:var(--muted);font-size:12px}.r3-pet-memory p{margin:6px 0;overflow-wrap:anywhere}.r3-focus-time{display:block;margin-top:6px;font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}.r3-focus-duration{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit}.r3-library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.r3-library-card{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);text-align:left;padding:0;min-width:0}.r3-library-card[data-current=true]{border-color:var(--accent)}.r3-library-card:focus{outline:2px solid var(--accent);outline-offset:3px}.r3-library-cover{display:block;aspect-ratio:8/5;background:var(--paper);position:relative;overflow:hidden}.r3-imported-cover{display:block;width:100%;height:100%;object-fit:cover}.r3-library-cover-title{position:absolute;left:18px;bottom:24px;max-width:65%;font:500 26px/1.4 var(--font-title);overflow-wrap:anywhere}.r3-library-cover>.r3-icon{position:absolute;right:28px;bottom:28px;width:38px;height:38px;color:var(--muted)}.r3-library-portrait{position:absolute;right:4px;bottom:0;width:140px;height:140px;overflow:hidden}.r3-library-portrait img{display:block;width:200%;height:200%;max-width:none}.r3-library-card-body{display:flex;flex-direction:column;gap:12px;padding:16px 18px}.r3-library-card-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.r3-library-card-title h3{font-size:14px;font-weight:600;overflow-wrap:anywhere}.r3-library-card-title>span{font-size:12px;color:var(--muted);white-space:nowrap}.r3-library-modules{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--muted)}.r3-library-modules>span{background:var(--paper);padding:3px 7px;border-radius:4px}.r3-library-card-foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding-top:10px;border-top:1px solid var(--line)}.r3-library-card-foot button{margin-left:auto}.r3-library-empty{grid-column:1/-1;border:1px solid var(--line);border-radius:9px;padding:35px 22px;text-align:center}.r3-library-empty h2{font:500 22px var(--font-title);margin-bottom:8px}.r3-library-empty p{color:var(--muted);font-size:13px;margin-bottom:16px}
 .dshc-r3 .r3-settings-head{padding:20px 28px}.dshc-r3 .r3-settings-body{padding:20px 28px}.dshc-r3 .r3-settings-foot{padding:12px 24px}.dshc-r3 .r3-setting-section{margin:20px 0}.dshc-r3 .r3-setting-row{padding:13px 0}.dshc-r3 .r3-skin-banner{min-height:136px;padding:18px;margin-top:14px}.dshc-r3 .r3-skin-banner h2{font-size:23px}.dshc-r3 .r3-banner-pet{width:135px;height:135px}
 @media(max-width:980px){.r3-library-cover-title{font-size:23px}.r3-library-portrait{width:120px;height:120px}.r3-library-card-body{padding:14px}.dshc-r3 .r3-settings-head,.dshc-r3 .r3-settings-body{padding:18px 22px}}
-@media(max-width:700px){.r3-focus-time{display:block;margin-top:6px;font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}.r3-focus-duration{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit}.r3-library-grid{grid-template-columns:1fr}.r3-library-heading{align-items:flex-start}.r3-library-current{gap:10px}.r3-library-card-title h3{font-size:14px}.dshc-r3 .r3-settings-head,.dshc-r3 .r3-settings-body{padding:16px}.r3-settings-head{flex-wrap:wrap}}
+@media(max-width:700px){.r3-cue-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:16px 0}.r3-cue-options select{width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}.r3-cue-setting>.r3-actions{margin-bottom:20px}@media(max-width:800px){.r3-cue-options{grid-template-columns:1fr}}.r3-pet-memory{margin:20px 0}.r3-pet-memory summary{cursor:pointer;padding:8px 0;font-weight:600}.r3-pet-memory ol{list-style:none;margin:0;padding:0;max-height:350px;overflow:auto}.r3-pet-memory li{padding:12px 0;border-bottom:1px solid var(--line)}.r3-pet-memory li>div{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.r3-pet-memory time{color:var(--muted);font-size:12px}.r3-pet-memory p{margin:6px 0;overflow-wrap:anywhere}.r3-focus-time{display:block;margin-top:6px;font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}.r3-focus-duration{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit}.r3-library-grid{grid-template-columns:1fr}.r3-library-heading{align-items:flex-start}.r3-library-current{gap:10px}.r3-library-card-title h3{font-size:14px}.dshc-r3 .r3-settings-head,.dshc-r3 .r3-settings-body{padding:16px}.r3-settings-head{flex-wrap:wrap}}
 .r3-reply-style-editor{margin-top:10px;display:grid;gap:10px;max-width:36rem}.r3-reply-style-editor textarea{resize:vertical;width:100%;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 10px}.r3-reply-style-editor .r3-actions{margin-top:0}.r3-setting-copy .r3-field-failure{color:var(--danger)}.r3-setting-control{flex-wrap:wrap}.r3-reset-confirm{flex:0 0 100%;display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:10px}.r3-reset-confirm .r3-actions{margin-top:0}
 @media(prefers-reduced-motion:reduce){.dshc-r3 *{transition:none!important;scroll-behavior:auto!important}}
 `;

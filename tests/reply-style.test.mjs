@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {ReplyStyle} from '../packages/dsh-companion/src/reply-style.mjs';
 
-test('reply style is explicit, scoped to its conversation and removed on skin or license changes',()=>{
+test('reply style defaults on, remembers new-session preference and conversation choices and removed on skin or license changes',()=>{
   const stateDir=mkdtempSync(join(tmpdir(),'dsh-reply-style-'));
   try{
     const selected={contentKey:'style-snapshot',manifest:{id:'custom-skin',replyStyle:{address:'指挥官',tone:'先给结论。'}}};
@@ -18,11 +18,12 @@ test('reply style is explicit, scoped to its conversation and removed on skin or
     const unregister=style.register(registry);
     const render=sessionId=>section?.text({agent:{session:{id:sessionId}}})??'';
     const toggle=(sessionId,enabled)=>style.session({sessionId,enabled,contentKey:selected.contentKey});
-    assert.equal(render('alpha'),'');
+    assert.match(render('alpha'),/指挥官/);
+    assert.match(render('beta'),/指挥官/);
     assert.throws(()=>toggle('missing',true),/REPLY_STYLE_SESSION_MISSING/);
     assert.equal(toggle('alpha',true).enabled,true);
     assert.match(render('alpha'),/指挥官/);
-    assert.equal(render('beta'),'');
+    assert.match(render('beta'),/指挥官/);
     assert.equal(section.interpolate,false);
     style.save({contentKey:selected.contentKey,address:'搭档',tone:'语气平和，保留字面 {{原样}}。'});
     assert.match(render('alpha'),/搭档.*\{\{原样\}\}/);
@@ -43,6 +44,14 @@ test('reply style is explicit, scoped to its conversation and removed on skin or
     style.register(registry);
     assert.match(render('alpha'),/搭档/);
     assert.equal(toggle('alpha',false).enabled,false);
-    assert.equal(render('alpha'),'');
+    assert.equal(render('alpha'),'');assert.equal(render('beta'),'');
+    assert.equal(toggle('beta',true).enabled,true);
+    assert.equal(render('alpha'),'','explicit per-session off survives a changed default');
+    assert.match(render('fresh'),/搭档/);
+    style=new ReplyStyle(controller,sessions);style.register(registry);
+    assert.equal(render('alpha'),'');assert.match(render('fresh-after-reload'),/搭档/);
+    core.state.selected={contentKey:'other-style',manifest:{id:'other-style',replyStyle:{address:'同伴',tone:'安静。'}}};
+    assert.match(render('new-other'),/同伴/);
+    core.state.selected=selected;assert.match(render('fresh'),/搭档/);
   }finally{rmSync(stateDir,{recursive:true,force:true});}
 });

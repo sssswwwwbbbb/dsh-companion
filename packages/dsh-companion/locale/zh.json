@@ -174,5 +174,6 @@
   "SKIN_RESOURCE_HASH": "皮肤资源摘要不一致，未加入库。",
   "SKIN_RESOURCE_SIZE": "皮肤资源大小不一致，未加入库。",
   "SKIN_LIBRARY_INVALID": "本地皮肤库记录异常，请保留文件并反馈。",
-  "SKIN_LIBRARY_FULL": "本地皮肤库已达到当前数量上限。"
+  "SKIN_LIBRARY_FULL": "本地皮肤库已达到当前数量上限。",
+  "PET_ACTIVITY_NOT_READY": "请先开启工作反馈和允许动作，回到空闲会话后再试。"
 }

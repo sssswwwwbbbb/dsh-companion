@@ -10,7 +10,7 @@ async function setup(t){
   const {NativeStartupRuntime}=await import(pathToFileURL(path.join(dir,'startup-skin.mjs'))),{NativeSkinRuntime}=await import(pathToFileURL(path.join(dir,'skin.mjs')));
   const author=path.join(dir,'author');fs.mkdirSync(path.join(author,'assets'),{recursive:true});
   fs.copyFileSync(path.join(sample,'skin.json'),path.join(author,'skin.json'));
-  fs.copyFileSync(path.join(project,'packages/dsh-companion/skins/archive-warm-whale/assets/archive-grid.png'),path.join(author,'assets/archive-grid.png'));
+  fs.copyFileSync(path.join(sample,'assets/archive-grid.png'),path.join(author,'assets/archive-grid.png'));
   const skin=cacheSkin(loadSkin(author),dir),state={...initialState(),generation:1,selected:skin,results:{theme:{status:'ready'},startup:{status:'ready'}}};
   atomicJson(path.join(dir,'skin-state.json'),state);return {dir,skin,state,NativeStartupRuntime,NativeSkinRuntime};
 }
