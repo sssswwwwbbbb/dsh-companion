@@ -1,6 +1,6 @@
 {
   "name": "dsh-companion-local-project",
-  "version": "1.1.0-dev.6",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -24,7 +24,7 @@
     "fflate": "0.8.2",
     "undici": "8.11.2"
   },
-  "build": 10006,
+  "build": 10010,
   "author": "Dr.S",
   "license": "SEE LICENSE IN LICENSE"
 }
