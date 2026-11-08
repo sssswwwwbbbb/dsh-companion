@@ -2,7 +2,7 @@
 
 用户已授权部署到旧机的二级目录，并确认沿用现有浅色蓝白风格。
 
-- 目标地址：https://license-host.invalid/dsh-companion/manage/
+- 目标地址：https://<授权服务地址>/dsh-companion/manage/
 - 代码输出：designs/dsh-companion-admin/，采用现有陪伴样机的蓝白、细边框与系统中文字体，不绑定额外设计系统。
 - 界面：登录、授权列表、批量生成、复制/导出、详情与设备管理、安装包记录。
 - 后端：独立管理员会话与 CSRF 校验；新激活码加密保存，旧授权继续有效。

@@ -17,7 +17,7 @@
 ## 线上结果
 
 - 服务版本目录：`20261108-console5-d716dbfa`。
-- 管理端：https://license-host.invalid/dsh-companion/manage/。
+- 管理端：https://<授权服务地址>/dsh-companion/manage/。
 - 生效接口：激活后的签名目录、封面读取、授权下载；管理桥支持 publish-skin 和皮肤版本列表。
 - 发码和授权详情支持“可下载皮肤数量”，数字 0 为不限量；原有激活码没有该字段时继续不限量。
 - 原有 34 条授权记录和 7 条插件发布记录完整保留；管理员登录资料及签名身份保留，其他业务服务的 PID 未变化。
@@ -51,7 +51,7 @@
 
 同日按所有者索取云端安装更新地址，将已验收的 `1.1.0-dev.3`（build 10003）发布到 Mac ARM64/Windows x64 更新通道，两个版本均明确开放 publicInstall。GET/HEAD 安装路径沿用既有配置，没有新增反向代理或修改皮肤包。
 
-- Mac ARM64：https://license-host.invalid/dsh-companion/install/dsh-companion-1.1.0-dev.3.tgz
-- Windows x64：https://license-host.invalid/dsh-companion/install/dsh-companion-1.1.0-dev.3-win32-x64.tgz
+- Mac ARM64：https://<授权服务地址>/dsh-companion/install/dsh-companion-1.1.0-dev.3.tgz
+- Windows x64：https://<授权服务地址>/dsh-companion/install/dsh-companion-1.1.0-dev.3-win32-x64.tgz
 
 两个公网链接已验证 HEAD 200、长度及 SHA-256 ETag 与本地已验收包一致；按平台查询更新通道最新记录均为 dev.3，支持声明包含两个既有 DSH 版本。新生成的 dev.4 保留本地候选，Windows 集中验收前不替换更新通道。证据为 `reports/library-scale/cloud-install-urls.json`。

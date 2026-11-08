@@ -87,7 +87,7 @@ Get-FileHash 'D:\delivery\my-skin-1.0.0.zip' -Algorithm SHA256
 在主题盒子项目根目录，使用有服务器维护权限的机器/Agent：
 
 ```sh
-DSH_CLOUD_SSH_KEY='/管理员私有路径/localSSH.pem' node deploy/cloud-admin.mjs publish-skin '/交付路径/my-skin-1.0.0.zip' '展示名称'
+DSH_CLOUD_SSH_KEY='/管理员私有路径/localSSH.pem' node <运维目录>/cloud-admin.mjs publish-skin '/交付路径/my-skin-1.0.0.zip' '展示名称'
 ```
 
 这个命令先运行与插件相同的皮肤校验，再传输 ZIP，由服务器验证和登记版本/文件 SHA；密钥仅在管理机器使用，不放进皮肤或制作工具包。返回 skin.id、version、releaseId、sha256 后仍需验证激活后的实际库列表和下载。

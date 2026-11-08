@@ -19,4 +19,4 @@ Mac 用 `npm run package:mac`；Windows 用 `python3 experiments/dsh-windows-w1/
 
 作者：Dr.S（笔名）。授权：专有商业授权，条款见 [LICENSE](LICENSE)；商业使用及对外分发须经作者书面授权，授权申请发至 swbzzzz2021@163.com。
 
-授权服务与管理页仍按 [部署说明](deploy/README.md) 维护。角色素材的原作者、许可及非商业使用范围见 [素材声明](designs/dsh-companion-v1/ASSET-NOTICE.txt)。
+授权服务的运维脚本与部署说明只保留在所有者本机，不随仓库发布。角色素材的原作者、许可及非商业使用范围见 [素材声明](designs/dsh-companion-v1/ASSET-NOTICE.txt)。

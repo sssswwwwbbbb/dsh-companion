@@ -34,3 +34,6 @@ __pycache__/
 
 # Rebuildable review archives; keep source artwork and generators.
 /designs/dsh-skin-assets-v3/review/**/*.zip
+
+# 运维脚本与服务器信息不随仓库发布
+deploy/

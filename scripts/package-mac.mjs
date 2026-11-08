@@ -23,4 +23,6 @@ if (packed.files.some(row => row.path.startsWith('runtime/'))) throw new Error('
 if(packed.files.some(row=>/(?:^|\/)(?:signing-private\.pem|admin\.token|database\.json|license\.json|activation\.json)$/.test(row.path)))throw new Error('LICENSING_SECRET_IN_PACKAGE');
 const output = path.join(dist, packed.filename);
 fs.writeFileSync(path.join(root, 'reports/mac-package.json'), JSON.stringify({ at:new Date().toISOString(), version, file:output, sizeBytes:fs.statSync(output).size, sha256:createHash('sha256').update(fs.readFileSync(output)).digest('hex'), includesDesktopRuntime:true, privateStateIncluded:false, files:packed.files.map(row=>row.path), signing:'local-development', publication:'local-only' }, null, 2)+'\n');
+const originalConfig=path.join(root,'.local/cloud/service-config.orig.json');
+if(fs.existsSync(originalConfig)){fs.copyFileSync(originalConfig,path.join(packageDir,'config/service.json'));fs.rmSync(originalConfig,{force:true});}
 console.log(output);

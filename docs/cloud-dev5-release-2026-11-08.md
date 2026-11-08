@@ -4,8 +4,8 @@
 
 ## 固定入口
 
-- Mac ARM64：<https://license-host.invalid/dsh-companion/install/dsh-companion-latest.tgz>
-- Windows x64：<https://license-host.invalid/dsh-companion/install/dsh-companion-latest-win32-x64.tgz>
+- Mac ARM64：<https://<授权服务地址>/dsh-companion/install/dsh-companion-latest.tgz>
+- Windows x64：<https://<授权服务地址>/dsh-companion/install/dsh-companion-latest-win32-x64.tgz>
 
 入口始终按平台选择已明确公开发布(publicInstall=true)的最新build，响应为no-store，ETag和下载文件名对应当前真实版本。不会把更高build的私有包或其他平台包通过固定入口放出来。原有带版本号的URL继续固定到原文件并保留immutable缓存。
 

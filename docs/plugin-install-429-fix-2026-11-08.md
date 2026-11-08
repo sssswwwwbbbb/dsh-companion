@@ -22,7 +22,7 @@
 
 原链接保持：
 
-- Mac ARM64：https://license-host.invalid/dsh-companion/install/dsh-companion-1.1.0-dev.3.tgz
-- Windows x64：https://license-host.invalid/dsh-companion/install/dsh-companion-1.1.0-dev.3-win32-x64.tgz
+- Mac ARM64：https://<授权服务地址>/dsh-companion/install/dsh-companion-1.1.0-dev.3.tgz
+- Windows x64：https://<授权服务地址>/dsh-companion/install/dsh-companion-1.1.0-dev.3-win32-x64.tgz
 
 取消失败安装后重新安装即可；已经安装的用户不需要为服务器限流修复重装插件。原生安装页仍显示转圈和pnpm日志，DSH未提供公开字节百分比接口。

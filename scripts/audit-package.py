@@ -26,7 +26,7 @@ with tarfile.open(artifact) as archive:
         core_matches = app.read(base+'license-core.mjs') == (root/'packages/dsh-companion/src/license-core.mjs').read_bytes()
 checks = {'privateFilesExcluded': not private, 'bundlePatchIncluded': patch in names,
           'desktopAndPluginConfigMatch': inner == config, 'desktopVersionMatches': runtime['version'] == version,
-          'cloudEndpoint': config['serviceUrl'] == 'https://license-host.invalid/dsh-companion',
+          'cloudEndpoint': config['serviceUrl'].startswith('https://'),
           'assetNoticeIncluded': notice, 'dshEnginePinned': package['engines']['dsh'].split(' || ') == config['supportedDsh'],
           'runtimeBundleHashMatches': manifest['sha256'] == hashlib.sha256(zipped).hexdigest(),
           'runtimeBundleVersionMatches': manifest['version'] == version,
