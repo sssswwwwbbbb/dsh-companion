@@ -78,6 +78,18 @@ export class CompanionSkins {
       return this.controller.status();
     });}finally{this.removing.delete(contentKey);}
   }
+  async rollback({id}={}){
+    this.controller.entitlement.require();
+    const selected=this.core.state.selected;
+    const skinId=typeof id==='string'?id:selected?.manifest.id;
+    if(!skinId)fail('SKIN_NOT_FOUND');
+    const versions=[...this.snapshots.values()].filter(row=>row.manifest.id===skinId).sort((a,b)=>b.manifest.version.localeCompare(a.manifest.version,'en'));
+    const index=versions.findIndex(row=>row.contentKey===selected?.contentKey);
+    const target=versions[index+1]||versions.find(row=>row.contentKey!==selected?.contentKey);
+    if(!target)fail('SKIN_NO_PREVIOUS_VERSION');
+    await this.core.select(target);
+    return this.controller.status();
+  }
   async select(value){
     const selected=this.core.state.selected,key=typeof value==='object'&&value?value.contentKey:null;
     if(key&&this.unavailable.some(row=>row.contentKey===key)&&!this.snapshots.has(key))fail('SKIN_INSTALLED_UNAVAILABLE');

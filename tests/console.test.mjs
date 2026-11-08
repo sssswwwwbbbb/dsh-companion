@@ -108,13 +108,13 @@ test('zero days issues truly permanent licenses while keeping device controls an
     let detail=(await env.request('/manage/api/licenses/'+row.id)).value.license;assert.equal(detail.devices.length,0);
     const config={serviceUrl:env.base,publicKey:env.service.publicKey};
     const first=new Entitlement({stateDir:path.join(env.directory,'permanent-first'),config,deviceId:device('permanent-first'),now:env.now}),second=new Entitlement({stateDir:path.join(env.directory,'permanent-second'),config,deviceId:device('permanent-second'),now:env.now});
-    const activated=await first.activate(row.code);assert.equal(activated.active,true);assert.equal(activated.permanent,true);assert.equal(activated.expiresAt,null);assert.equal(activated.offlineUntil,env.now()+7*86400000);
+    const activated=await first.activate(row.code);assert.equal(activated.active,true);assert.equal(activated.permanent,true);assert.equal(activated.expiresAt,null);assert.equal(activated.offlineUntil,env.now()+100*365*86400000);
     await assert.rejects(second.activate(row.code),/DEVICE_LIMIT_REACHED/);
     const list=(await env.request('/manage/api/licenses')).value;assert.equal(list.totals.valid,2);assert.equal(list.totals.expiring,0);assert.ok(list.rows.every(row=>row.permanent&&row.status!=='expired'));
     const csv=await env.request('/manage/api/licenses/export',{method:'POST',body:{ids:[row.id]}});assert.equal(csv.status,200);assert.match(csv.bytes.toString(),/永久/);assert.ok(!csv.bytes.toString().includes('1970'));
     detail=(await env.request('/manage/api/licenses/'+row.id)).value.license;
     const extended=await env.request('/manage/api/licenses/'+row.id+'/update',{method:'POST',body:{revision:detail.revision,label:row.label,devices:1,extendDays:30}});assert.equal(extended.status,409);assert.equal(extended.value.error,'PERMANENT_LICENSE_NO_EXTENSION');
-    const original=first.post.bind(first);first.post=async()=>{throw new Error('LICENSE_SERVICE_UNAVAILABLE');};env.advance(8*86400000);assert.equal((await first.refresh(true)).errorCode,'LICENSE_RENEW_REQUIRED');first.post=original;
+    const original=first.post.bind(first);first.post=async()=>{throw new Error('LICENSE_SERVICE_UNAVAILABLE');};env.advance(8*86400000);{const offline=await first.refresh(true);assert.equal(offline.active,true);assert.equal(offline.state,'offline');}first.post=original;
     env.advance(200*365*86400000);const renewed=await first.refresh(true);assert.equal(renewed.active,true);assert.equal(renewed.permanent,true);assert.equal(renewed.expiresAt,null);
     const {verifyLicense,signedEnvelope}=await import('../packages/dsh-companion/src/license-core.mjs'),claims=JSON.parse(Buffer.from(first.record().receipt.payload,'base64url')),privateKey=fs.readFileSync(path.join(env.stateDir,'signing-private.pem'));
     for(const change of [{format:1},{permanent:false},{expiresAt:0},{expiresAt:undefined},{offlineUntil:null},{renewAfter:claims.offlineUntil+1}]){

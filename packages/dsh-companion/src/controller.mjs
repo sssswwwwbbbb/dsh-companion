@@ -138,6 +138,7 @@ export class CompanionController {
     if((await this.nativeStatus()).running)await this.request('/settings',value);
     else writeJson(this.settingsFile,{...readJson(this.settingsFile,{}),schemaVersion:1,settings:next});return this.status();
   }
+  async rollbackSkin(value){return this.skins.rollback(value);}
   async selectPack(value){const pack=this.packs.get(value);return this.configure({packId:pack.id,...pack.defaults});}
   async importPack(value){this.packs.import(value);return this.status();}
   exportPack(value){return this.packs.export(value||this.settings().packId);}

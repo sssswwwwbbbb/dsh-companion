@@ -21,7 +21,9 @@ export function verifyLicense(envelope, { publicKey, deviceId, now = Date.now(),
   if ((value.format===2&&!permanent)||(value.format===1&&value.permanent===true)||![value.issuedAt,value.offlineUntil,value.renewAfter].every(Number.isSafeInteger)||(!permanent&&(!Number.isSafeInteger(value.expiresAt)||value.offlineUntil>value.expiresAt))||value.issuedAt>now+300000) throw new Error('LICENSE_INVALID');
   if (permanent&&(value.offlineUntil<value.issuedAt||value.renewAfter<value.issuedAt||value.renewAfter>value.offlineUntil)) throw new Error('LICENSE_INVALID');
   if (!allowExpired && !permanent && now > value.expiresAt) throw new Error('LICENSE_EXPIRED');
-  if (!allowExpired && now > value.offlineUntil) throw new Error('LICENSE_RENEW_REQUIRED');
+  // A permanent license keeps the installed content usable offline; only online
+  // features depend on the renewable offline window. Limited licenses keep it.
+  if (!allowExpired && !permanent && now > value.offlineUntil) throw new Error('LICENSE_RENEW_REQUIRED');
   return value;
 }
 let cachedDevice;

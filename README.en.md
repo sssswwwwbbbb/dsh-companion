@@ -6,7 +6,7 @@ A DeepSeek Harness desktop plugin that provides the startup animation, a desktop
 
 The installer ships no skins. Skins are imported as ZIP packages; without one, the startup animation does not play.
 
-Current release: **1.1.1 / build 10014**, with the skin library and installed tabs, search/filter/pagination, a dedicated download queue, and compatibility with the last three DSH release candidates. Mac ARM64 and Windows x64 are built from the same source and keep the original plugin identity, settings and local licensing. The 1.0 freeze record remains as a historical baseline.
+Current release: **1.1.2 / build 10015**, with the skin library and installed tabs, search/filter/pagination, a dedicated download queue, and compatibility with the last three DSH release candidates. Mac ARM64 and Windows x64 are built from the same source and keep the original plugin identity, settings and local licensing. The 1.0 freeze record remains as a historical baseline.
 
 [Authoring guide and asset list](docs/skin-kit-v1/README.md) · [Configuration reference](docs/skin-author-reference.md) · [Historic acceptance and rebuild](docs/accepted-build-baseline.md) · [1.0 freeze record](docs/theme-box-v1.0.0-freeze-2026-11-08.md)
 

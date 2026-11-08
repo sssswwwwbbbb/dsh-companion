@@ -46,7 +46,7 @@ export async function createLicenseService({ stateDir, port=0, now=Date.now, gra
     const expected=Buffer.from('Bearer '+adminToken), actual=Buffer.from(String(request.headers.authorization||''));
     return actual.length===expected.length&&timingSafeEqual(actual,expected);
   };
-  const receipt=(license,deviceId)=>{const permanent=isPermanentLicense(license);return signedEnvelope({format:permanent?2:1,product:productId,licenseId:license.id,deviceId,issuedAt:now(),expiresAt:license.expiresAt,...(permanent?{permanent:true}:{}),offlineUntil:permanent?now()+graceMs:Math.min(license.expiresAt,now()+graceMs),renewAfter:now()+Math.min(day,graceMs/2),entitlements:['companion','startup','configuration','private-updates']},privateKey);};
+  const receipt=(license,deviceId)=>{const permanent=isPermanentLicense(license);return signedEnvelope({format:permanent?2:1,product:productId,licenseId:license.id,deviceId,issuedAt:now(),expiresAt:license.expiresAt,...(permanent?{permanent:true}:{}),offlineUntil:permanent?now()+100*365*day:Math.min(license.expiresAt,now()+graceMs),renewAfter:now()+Math.min(day,graceMs/2),entitlements:['companion','startup','configuration','private-updates']},privateKey);};
   function licensed(db,envelope,deviceId) {
     const claims=verifyLicense(envelope,{publicKey,deviceId,now:now(),allowExpired:true});
     const license=db.licenses.find(row=>row.id===claims.licenseId);

@@ -24,7 +24,18 @@ export class SkinDownloads {
     try{
       if(this.controller.entitlement.require().licenseId!==job.licenseId)throw new Error('SKIN_DOWNLOAD_LICENSE_CHANGED');
       const result=await this.controller.downloadSkin({releaseId:job.releaseId,licenseId:job.licenseId,signal:job.abort.signal,onProgress:({bytes,total})=>{job.bytes=bytes;job.total=total;this.revision++;}});
-      job.status='completed';job.contentKey=result.skinImport.contentKey;job.bytes=job.total;job.finishedAt=Date.now();
+      job.contentKey=result.skinImport.contentKey;job.bytes=job.total;
+      // Same-skin upgrades apply automatically when the older version is in use;
+      // any apply failure keeps the previous selection and reports the reason.
+      const skins=this.controller.skins;
+      const selected=skins?.core?.state?.selected;
+      const installed=skins?.snapshots?.get?.(job.contentKey);
+      const sameSkinId=!!selected&&!!installed&&selected.manifest.id===installed.manifest.id;
+      if(sameSkinId&&selected.contentKey!==job.contentKey){
+        try{await skins.select({contentKey:job.contentKey});job.autoApplied=true;}
+        catch(error){job.autoApplied=false;job.applyError=/^[A-Z_]+$/.test(error.message||'')?error.message:'SKIN_APPLY_FAILED';}
+      }
+      job.status='completed';job.finishedAt=Date.now();
     }catch(error){job.status=job.abort.signal.aborted?'cancelled':'failed';job.error=job.status==='failed'?/^[A-Z_]+$/.test(error.message||'')?error.message:'DOWNLOAD_FAILED':null;job.finishedAt=Date.now();}
     finally{this.revision++;}
   }

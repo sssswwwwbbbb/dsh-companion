@@ -154,3 +154,12 @@ test('commander static role requires only an avatar while the legacy animated la
  assert.doesNotThrow(()=>validateManifest(m));
  m.modules.theme.config.workspacePreset='archive-warm-r2';assert.throws(()=>validateManifest(m),/SKIN_CONFIG_MISSING/);
 });
+test('rollback returns to the previous installed version of the same skin',async t=>{
+  const dir=temp(t),{skins}=service(path.join(dir,'profile'));
+  const make=(version)=>({...fixtureManifest('rollback-skin',version),name:'回退测试',description:'同套两版'});
+  const one=await skins.install(zip(dir,make('1.0.0'))),two=await skins.install(zip(dir,make('2.0.0')));
+  await skins.select(two);
+  const status=await skins.rollback({id:'rollback-skin'});
+  assert.equal(status.skin.selected.contentKey,one.contentKey);
+  assert.ok(skins.status().catalog.some(row=>row.contentKey===two.contentKey));
+});
