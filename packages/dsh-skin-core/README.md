@@ -12,7 +12,7 @@ npm run build:mac
 npm test
 npm run check
 npm run check:skin
-node packages/dsh-skin-core/scripts/check.mjs designs/dsh-skin-v1/content/archive-warm-whale
+node packages/dsh-skin-core/scripts/check.mjs tests/fixtures/archive-workspace-r2-private
 ```
 
 `examples/a` 仅主题，`examples/b` 主题＋桌宠。`examples/invalid/` 提供缺默认值、缺必需模块和越界资源路径，校验应失败。加载自有包只需现有模块和数据，不执行包内代码。未建设编辑器、上传和市场。
@@ -22,7 +22,7 @@ node packages/dsh-skin-core/scripts/check.mjs designs/dsh-skin-v1/content/archiv
 以下两个进程只写 `.local/skin-foundation-*`，不替换真实安装，不使用真实 profile。运行前先完成本地构建。宿主脚本为每次新验证启动临时本地授权服务，不访问线上授权库。可传入多个符合合同的内容目录，不把主题特例写入核心。
 
 ```sh
-ELECTRON_RUN_AS_NODE=1 '/Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness' packages/dsh-skin-core/scripts/isolated-host.mjs designs/dsh-skin-v1/content/archive-warm-whale
+ELECTRON_RUN_AS_NODE=1 '/Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness' packages/dsh-skin-core/scripts/isolated-host.mjs tests/fixtures/archive-workspace-r2-private
 .cache/electron/45.2.1/darwin-arm64/Electron.app/Contents/MacOS/Electron packages/dsh-skin-core/scripts/isolated-renderer.cjs
 node packages/dsh-skin-core/scripts/verify-isolated.mjs
 node packages/dsh-skin-core/scripts/verify-cold.mjs
