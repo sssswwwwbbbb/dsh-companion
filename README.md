@@ -10,7 +10,15 @@ DeepSeek Harness 桌面插件，提供启动动画、桌宠、皮肤配置和设
 
 [开发说明与素材清单](docs/skin-kit-v1/README.md) · [配置参考](docs/skin-author-reference.md) · [历史验收与复建](docs/accepted-build-baseline.md) · [1.0 封版与实机清单](docs/theme-box-v1.0.0-freeze-2026-11-08.md)
 
-Mac 用 `npm run package:mac`；Windows 用 `python3 experiments/dsh-windows-w1/build.py`。安装包和本地验证报告与 Git 提交、远端发布、用户实机验收分别记录。
+自行构建：
+
+```sh
+node scripts/fetch-electron.mjs all   # 下载并校验 Electron 45.2.1（Mac 与 Windows）
+npm run package:mac                   # 产出 Mac 包
+python3 experiments/dsh-windows-w1/build.py   # 用 Mac 包交叉产出 Windows 包
+```
+
+自建包的授权服务地址默认是占位符。要指向自己的服务，把地址写入 `.local/cloud/service-url.txt` 再打包。安装包和本地验证报告与 Git 提交、远端发布、用户实机验收分别记录。
 
 - `packages/dsh-companion`：插件入口、Host 逻辑及页面模板。
 - `packages/dsh-skin-core`：皮肤合同、状态协调和适配器。
