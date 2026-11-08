@@ -24,7 +24,7 @@ const contents = path.join(target, 'Contents');
 const payload = path.join(contents, 'Resources/app');
 fs.mkdirSync(payload, { recursive: true });
 fs.cpSync(path.join(root, 'runtime-src'), payload, { recursive: true });
-const petInputs=path.join(root,'.local/accepted-inputs/pet-backend');
+const petInputs=path.join(root,'runtime-src/pet-backend/dsh-pet');
 const petPayload=path.join(payload,'pet-backend/dsh-pet');
 fs.cpSync(path.join(petInputs,'lib'),path.join(petPayload,'lib'),{recursive:true});
 fs.cpSync(path.join(petInputs,'assets/pic'),path.join(petPayload,'assets/pic'),{recursive:true});
