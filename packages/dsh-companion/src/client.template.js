@@ -6,8 +6,8 @@ window.__ModuleLoader__.load({
     __SKIN_SETTINGS_UI__
     const React=require('react'),z=require('zod').z,h=React.createElement,ns='dsh-plugin-companion',locales=__LOCALES__;
     const skinUi=createSkinSettingsUi(React,__SKIN_SETTINGS_ASSETS__);
-    const methods=['petMemoryConfigure','characterSave','characterPet','characterSession','petActivityConfigure','petActivityDecide','workAutonomyConfigure','replyStyleSession','replyStyleSave','petInteract','petModels','skinSelect','skinConfigure','skinDisable','skinReset','skinStop','skinPage','focusAction','workspaceCueConfigure','sceneConfigure','sceneArt','skinCover','skinInstall','status','start','stop','configure','action','activate','refreshLicense','deactivate','selectPack','importPack','exportPack','replayIntro','syncHostWindow','installLauncher','removeLauncher','revealLauncher','checkUpdate','downloadUpdate','revealDownload'];
-    const supplied=new Set(['petMemoryConfigure','characterSave','characterPet','characterSession','petActivityConfigure','petActivityDecide','workAutonomyConfigure','replyStyleSession','replyStyleSave','skinReset','petInteract','skinSelect','skinConfigure','skinDisable','skinPage','focusAction','workspaceCueConfigure','sceneConfigure','sceneArt','skinCover','configure','action','activate','selectPack','importPack','exportPack','syncHostWindow']);
+    const methods=['petMemoryConfigure','characterSave','characterPet','characterSession','petActivityConfigure','petActivityDecide','workAutonomyConfigure','replyStyleSession','replyStyleSave','petInteract','petModels','skinSelect','skinConfigure','skinDisable','skinReset','skinStop','skinPage','focusAction','workspaceCueConfigure','sceneConfigure','sceneArt','skinCover','skinDownloadAdd','skinDownloadCancel','skinCatalog','skinDownload','skinRemove','skinOnlineCover','skinInstall','status','start','stop','configure','action','activate','refreshLicense','deactivate','selectPack','importPack','exportPack','replayIntro','syncHostWindow','installLauncher','removeLauncher','revealLauncher','checkUpdate','downloadUpdate','revealDownload'];
+    const supplied=new Set(['petMemoryConfigure','characterSave','characterPet','characterSession','petActivityConfigure','petActivityDecide','workAutonomyConfigure','replyStyleSession','replyStyleSave','skinReset','petInteract','skinSelect','skinConfigure','skinDisable','skinPage','focusAction','workspaceCueConfigure','sceneConfigure','sceneArt','skinCover','skinCatalog','skinDownloadAdd','skinDownloadCancel','skinDownload','skinRemove','skinOnlineCover','configure','action','activate','selectPack','importPack','exportPack','syncHostWindow']);
     const codec=name=>({mode:'strict',typeSymbol:ns+'#'+name,create:()=>z.json()});
     const contribution={package:ns,descriptors:methods.map(method=>({id:ns+'#dshCompanion/'+method,service:'dshCompanion',namespace:'dshCompanion',method,invocation:{kind:'direct'},parameters:supplied.has(method)?[{name:'value',wire:'value',source:'json',codec:codec(method+':value')}]:[],result:codec(method+':result')}))};
     return {inject:['locale'],apply(ctx){
@@ -20,6 +20,7 @@ window.__ModuleLoader__.load({
           const errorKey=error=>Object.keys(locales.zh).find(key=>/^[A-Z_]+$/.test(key)&&String(error?.message||'').includes(key))||'failed';
           async function call(method,value){const result=await ctx.remote.dshCompanion[method](...(supplied.has(method)?[value]:[]));if(!result.ok)throw new Error(result.error?.message||'REQUEST_FAILED');return result.value;}
           const loadCover=contentKey=>call('skinCover',{contentKey});
+          const loadOnlineCover=releaseId=>call('skinOnlineCover',{releaseId});
           let focus=null,openFocusPanel=false;
           const focusListeners=new Set();
           const focusSource={getSnapshot:()=>focus,subscribe:fn=>{focusListeners.add(fn);return()=>focusListeners.delete(fn);}};
@@ -72,15 +73,18 @@ window.__ModuleLoader__.load({
           function Page(){
             const [state,setState]=React.useState(null),[tab,setTab]=React.useState(()=>openFocusPanel?'focus':'library'),[skinView,setSkinView]=React.useState('common'),[busy,setBusy]=React.useState(false),[stopping,setStopping]=React.useState(false),[error,setError]=React.useState(''),[notice,setNotice]=React.useState(''),[code,setCode]=React.useState(''),[confirmUnbind,setConfirmUnbind]=React.useState(false),[petText,setPetText]=React.useState(''),[petReply,setPetReply]=React.useState(null),[modelDirectory,setModelDirectory]=React.useState({current:null,models:[]}),[selection,setSelection]=React.useState(null);
             const [importedKey,setImportedKey]=React.useState(null);
+            const [catalogLoading,setCatalogLoading]=React.useState(false),[catalogError,setCatalogError]=React.useState('');
+            const catalogRequest=React.useRef(0);
             React.useEffect(()=>{openFocusPanel=false;},[]);
             React.useEffect(()=>{setPetReply(null);},[state?.skin?.selected?.contentKey]);
             React.useEffect(()=>{let active=true;void call('petModels').then(value=>{if(active)setModelDirectory(value);}).catch(()=>{});return()=>{active=false;};},[]);
             const gateRef=React.useRef(null);if(!gateRef.current)gateRef.current=createClientRequestGate();const gate=gateRef.current;
             React.useEffect(()=>{
               let active=true;
-              const refresh=()=>{const stamp=gate.stamp();if(stamp===null)return Promise.resolve();return call('status').then(value=>{if(active&&gate.refreshCurrent(stamp))setState(value);}).catch(()=>{if(active&&gate.refreshCurrent(stamp))setError('failed');});};
+              const refresh=()=>{const stamp=gate.stamp();if(stamp===null)return Promise.resolve();return call('status').then(value=>{if(active&&gate.refreshCurrent(stamp))acceptState(value);}).catch(()=>{if(active&&gate.refreshCurrent(stamp))setError('failed');});};
               void refresh();const timer=setInterval(refresh,1500);return()=>{active=false;clearInterval(timer);};
             },[]);
+            function acceptState(next){setState(previous=>mergeCompanionSnapshot(previous,next));}
             // Field edits share the ordinary request gate, but a slow save must
             // not block the next gesture. Keep only the latest unsent value per field.
             const fieldBatch=React.useRef(null);
@@ -111,7 +115,7 @@ window.__ModuleLoader__.load({
                     let saved=false;
                     if(retry){
                       const current=await call('status');if(!gate.current(batch.ticket))return;
-                      setState(current);
+                      acceptState(current);
                       if(current.skin?.selected?.contentKey!==edit.contentKey)return;
                       const value=current.skin.settings?.[edit.module]?.controls?.find(row=>row.field===edit.field)?.value;
                       saved=value===edit.value||!!(value?.mode&&value.mode===edit.value?.mode&&value.provider===edit.value.provider&&value.model===edit.value.model);
@@ -119,7 +123,7 @@ window.__ModuleLoader__.load({
                     if(!saved){
                       const result=await call('skinConfigure',edit);
                       if(!gate.current(batch.ticket))return;
-                      setState(result);
+                      acceptState(result);
                     }
                   }catch(failure){
                     if(!gate.current(batch.ticket)||gate.cancelled(failure))return;
@@ -144,48 +148,60 @@ window.__ModuleLoader__.load({
             }
             async function work(method,value){
               const ticket=gate.beginNormal();if(!ticket)return;setBusy(true);setError('');setNotice('');
+              if(['activate','deactivate'].includes(method)){catalogRequest.current++;setCatalogLoading(false);setCatalogError('');}
               const returnPanel=method==='replayIntro'&&state?.startup?.workspaceHandoff?ctx.layout.panelInfo.getSnapshot().activePanelId:null;
-              if(method==='skinInstall')setImportedKey(null);
+              if(['skinInstall','skinDownload'].includes(method))setImportedKey(null);
               if(method==='skinSelect')setSelection({contentKey:value.contentKey,status:'applying'});
               try{
                 if(['activate','start','replayIntro'].includes(method))await syncWindow();
                 if(!gate.current(ticket))return null;
                 const result=await call(method,value);if(!gate.current(ticket))return null;
                 if(returnPanel!==null&&result.startup?.playing&&ctx.layout.panelInfo.getSnapshot().activePanelId===returnPanel)ctx.layout.selectPanel(null);
-                if(method==='exportPack'){download(result.filename,result.json);setNotice('exported');}else setState(result);
+                if(method==='exportPack'){download(result.filename,result.json);setNotice('exported');}else acceptState(result);
                 if(method==='focusAction')onFocus(result.focus);
                 if(method==='skinSelect')setSelection(null);
                 if(method==='skinReset'){setFieldFailures({});setNotice('skinResetComplete');}
                 if(method==='replyStyleSave')setNotice('replyStyleSaved');
-                if(method==='skinInstall'){
+                if(['skinInstall','skinDownload'].includes(method)){
                   const imported=result.skinImport;
                   setImportedKey(imported?.contentKey??null);
                   setNotice(imported?.canceled?'skinInstallCancelled':imported?.duplicate?'skinAlreadyInstalled':'skinInstalled');
                 }
+                if(method==='skinRemove')setNotice('skinRemoved');
                 if(method==='activate'){setCode('');setNotice('activationSuccess');}if(method==='deactivate'){setCode('');setConfirmUnbind(false);setTab('setup');}if(method==='downloadUpdate')setNotice('downloadVerified');return result;
               }catch(failure){
                 if(gate.current(ticket)&&!gate.cancelled(failure)){
                   const key=errorKey(failure);
-                  setError(method==='skinSelect'&&key==='SKIN_RESOURCE_MISSING'?'skinApplyMissingFiles':method==='skinInstall'&&key==='failed'?'skinInstallFailed':key);
-                  if(method==='skinSelect'){
+                  setError(['skinSelect','skinRemove'].includes(method)&&key==='SKIN_RESOURCE_MISSING'?'skinApplyMissingFiles':method==='skinInstall'&&key==='failed'?'skinInstallFailed':key);
+                  if(['skinSelect','skinRemove'].includes(method)){
                     setSelection({contentKey:value.contentKey,status:'failed'});
-                    const current=await call('status').catch(()=>null);if(current&&gate.current(ticket))setState(current);
+                    const current=await call('status').catch(()=>null);if(current&&gate.current(ticket))acceptState(current);
                   }
                 }
                 return null;
               }
               finally{if(gate.finish(ticket))setBusy(gate.busy);}
             }
+            async function catalogAction(query){
+              const request=++catalogRequest.current;setCatalogLoading(true);setCatalogError('');
+              try{const result=await call('skinCatalog',query);if(request!==catalogRequest.current)return;setState(previous=>previous?mergeCompanionSnapshot(previous,{...previous,skin:{...previous.skin,market:result.skin.market}}):result);}
+              catch(failure){if(request===catalogRequest.current)setCatalogError(t(errorKey(failure)));}
+              finally{if(request===catalogRequest.current)setCatalogLoading(false);}
+            }
+            async function downloadAction(method,value){
+              try{const jobs=await call(method,value);setState(previous=>previous?{...previous,skinDownloads:mergeSkinDownloads(previous.skinDownloads,jobs)}:previous);}
+              catch(failure){setError(errorKey(failure));}
+            }
             async function sendPet(trigger='input'){
               const ticket=gate.beginNormal();if(!ticket)return;setBusy(true);setError('');setPetReply(null);
-              try{const reply=await call('petInteract',{text:trigger==='click'?'':petText,trigger});if(!gate.current(ticket))return;setPetReply(reply);setPetText('');const next=await call('status');if(gate.current(ticket))setState(next);}
+              try{const reply=await call('petInteract',{text:trigger==='click'?'':petText,trigger});if(!gate.current(ticket))return;setPetReply(reply);setPetText('');const next=await call('status');if(gate.current(ticket))acceptState(next);}
               catch(failure){if(gate.current(ticket)&&!gate.cancelled(failure))setError(errorKey(failure));}
               finally{if(gate.finish(ticket))setBusy(gate.busy);}
             }
             async function stopSkin(){
               const ticket=gate.beginStop();if(!ticket)return;discardFieldEdits();setSelection(null);setBusy(true);setStopping(true);setError('');setNotice('');setPetReply(null);
               setState(previous=>previous?.skin?{...previous,skin:{...previous.skin,phase:'stopping'}}:previous);
-              try{const result=await call('skinStop');if(gate.current(ticket))setState(result);return result;}
+              try{const result=await call('skinStop');if(gate.current(ticket))acceptState(result);return result;}
               catch(failure){if(gate.current(ticket))setError(errorKey(failure));return null;}
               finally{if(gate.finish(ticket)){setStopping(false);setBusy(gate.busy);}}
             }
@@ -213,10 +229,10 @@ window.__ModuleLoader__.load({
             const startupReady=skin?.settings?.startup?.status==='enabled'&&skin?.results?.startup?.status==='ready'&&!skin?.stopped;
             const managedSummary=()=>h('div',{className:'dshc-card','data-skin-summary':true},h('h2',null,'当前使用整套皮肤'),h('p',null,skin.selected.name+' · '+skin.selected.version),h('p',{className:'dshc-note'},'主题、桌宠与开场统一在皮肤页管理。停止后可恢复本套，保留已调整参数和模块开关。'),goSkin());
             const skinContent=skinView==='character'&&state?.character?h(skinUi.CharacterPanel,{key:skin.selected.contentKey,character:state.character,style:state.replyStyle,active,busy,work,setSection}):skinView==='scenes'&&skin?.workspaceScenes?h(skinUi.ScenePanel,{key:skin.selected.contentKey,skin,workspaceSource,modelDirectory,active,busy,work}):h(skinUi.Settings,{key:skin?.selected?.contentKey,state,skin,view:skinView,active,busy,fieldBusy:busy&&!fieldBatch.current,fieldDrafts,fieldFailures,saveField,stopping,work,stopSkin,modelDirectory,petText,setPetText,sendPet,petReply,setSection,previewCue:value=>previewWorkspaceCue?.(value)});
-            const content=tab==='library'?h(skinUi.Library,{skin,active,busy,selection,importedKey,setSection,select:selectSkin,work,stopSkin,loadCover}):tab==='skin'?skinContent:tab==='focus'?h(skinUi.FocusPanel,{focusSource,active,busy,work}):tab==='setup'?h(React.Fragment,null,
+            const content=tab==='library'?h(skinUi.Library,{skin,active,busy,selection,importedKey,setSection,select:selectSkin,work,stopSkin,loadCover,dshVersion:state?.compatibility?.dshVersion,loadOnlineCover,downloads:state?.skinDownloads,downloadAction,catalogAction,catalogLoading,catalogError,errorText:code=>t(Object.hasOwn(locales.zh,code)?code:'failed')}):tab==='skin'?skinContent:tab==='focus'?h(skinUi.FocusPanel,{focusSource,active,busy,work}):tab==='setup'?h(React.Fragment,null,
               h('div',{className:'dshc-card'},h('h2',null,t('licenseTitle')),active?h(React.Fragment,null,h('p',null,t(license.state==='offline'?'offlineActive':'deviceActive')),h('p',{className:'dshc-note'},t('expiresAt')+' '+expiry)):h(React.Fragment,null,h('p',{className:'dshc-note'},t('activationIntro')),h('label',{htmlFor:'dshc-code'},t('activationCode')),h('div',{className:'dshc-row'},h('input',{id:'dshc-code',type:'password',autoComplete:'off',value:code,placeholder:t('codePlaceholder'),onChange:event=>setCode(event.target.value),'aria-label':t('activationCode')}),button('activate','activate',code,!code.trim())),h('p',{className:'dshc-note'},t('unactivatedNote')))),
-              skinManaged?managedSummary():h(React.Fragment,null,(skin?.catalog||[]).some(row=>!row.example)&&h('div',{className:'dshc-card'},h('h2',null,'试用整套皮肤'),h('p',null,'主题、桌宠与开场可一起应用，再按需关闭各个模块。'),goSkin()),h('div',{className:'dshc-card'},h('h2',null,t('choosePack')),h('p',{className:'dshc-note'},t('packIntro')),h('label',{htmlFor:'dshc-pack'},t('configurationPack')),h('select',{id:'dshc-pack',value:settings.packId||'whale-maid-demo',disabled:busy||!active,onChange:event=>void work('selectPack',event.target.value)},...(state?.packs||[]).map(pack=>h('option',{key:pack.id,value:pack.id},pack.name))),h('p',{className:'dshc-note'},currentPack?.description||''),h('div',{className:'dshc-row'},button('exportPack','exportPack',settings.packId,!active),h('label',{className:'dshc-file'},t('importPack'),h('input',{type:'file',accept:'.json',disabled:busy||!active,'aria-label':t('importPack'),onChange:async event=>{const file=event.target.files?.[0];event.target.value='';if(!file)return;if(file.size>65536){setError('PACK_TOO_LARGE');return;}try{const imported=await work('importPack',JSON.parse(await file.text()));if(imported)setNotice('packImported');}catch{setError('PACK_INVALID');}}}))),h('p',{className:'dshc-note'},t('packMaterialNote')))),
-              h('div',{className:'dshc-card'},h('h2',null,t('startupTitle')),check('startupEnabled','startupEnabled',!active),check('autoStart','autoStart',!active),h('p',{className:'dshc-note'},t('desktopOpeningIntro')),h('div',{className:'dshc-row'},button('replayIntro','replayIntro',undefined,!active||skinManaged&&!startupReady)),h('div',{className:'dshc-row'},skinManaged?goSkin():h(React.Fragment,null,button('start','start',undefined,!active||running),h('button',{type:'button',onClick:()=>setTab('control')},t('controlTab')))))
+              skinManaged?managedSummary():h('div',{className:'dshc-card'},h('h2',null,'选择你的第一套皮肤'),h('p',{className:'dshc-note'},'激活后前往皮肤库下载安装，再按需调整主题、开场或桌宠。'),goSkin()),
+              skinManaged&&h('div',{className:'dshc-card'},h('h2',null,t('startupTitle')),check('startupEnabled','startupEnabled',!active),check('autoStart','autoStart',!active),h('p',{className:'dshc-note'},t('desktopOpeningIntro')),h('div',{className:'dshc-row'},button('replayIntro','replayIntro',undefined,!active||!startupReady)))
             ):tab==='control'&&skinManaged?managedSummary():tab==='control'?h(React.Fragment,null,
               h('div',{className:'dshc-card'},h('h2',null,t('desktopControls')),h('div',{className:'dshc-row'},button('start','start',undefined,!active||running),button('stop','stop',undefined,!state?.running),button(settings.visible===false?'show':'hide','configure',{visible:settings.visible===false},!running),button('replayIntro','replayIntro',undefined,!active))),
               h('div',{className:'dshc-card'},h('h2',null,t('profile')),h('div',{className:'dshc-fields'},h('label',{htmlFor:'dshc-profile'},t('profile')),h('select',{id:'dshc-profile',value:settings.profile||'free',disabled:busy||!active||skinManaged,onChange:event=>void work('configure',{profile:event.target.value})},...['free','gentle','lively'].map(value=>h('option',{key:value,value},t(value)))),h('label',{htmlFor:'dshc-size'},t('size')),h('select',{id:'dshc-size',value:settings.size||100,disabled:busy||!active||skinManaged,onChange:event=>void work('configure',{size:Number(event.target.value)})},...[70,85,100,115,130,140].map(value=>h('option',{key:value,value},value+'%')))),check('autonomous','autonomous',!active),check('follow','followMouse',!active)),

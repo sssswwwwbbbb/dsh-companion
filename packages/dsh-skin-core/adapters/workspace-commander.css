@@ -29,3 +29,5 @@ body.dsh-workspace-commander .dsh-skin-work[data-dsh-work-state=completed]{color
 .commander-companion-status{flex:none;color:var(--signal);font-size:11px;line-height:1.5;white-space:nowrap}
 .dsh-commander-companion[data-state=attention] .commander-companion-status{color:var(--attention)}
 @media(prefers-reduced-motion:reduce){body.dsh-workspace-commander :is(.JZLxKW_card,.Kjh-qa_root){transition:none;scroll-behavior:auto}}
+
+body.dsh-workspace-motion-off .dsh-skin-work-dots i{animation:none}

@@ -9,6 +9,7 @@ import rateLimit from '@fastify/rate-limit';
 import staticFiles from '@fastify/static';
 import {stringify} from 'csv-stringify/sync';
 import {ConsoleError,ConsoleAuth,provisionConsole,openCodeVault,consoleKey} from './console-auth.mjs';
+import {skinQuota,validSkinLimit} from './skin-quota.mjs';
 import {isPermanentLicense} from '../packages/dsh-companion/src/license-core.mjs';
 
 const day=86400000,licenseId=/^lic_[a-f0-9-]{36}$/;
@@ -44,7 +45,7 @@ export async function createManagementConsole({stateDir,staticDir,transaction,is
   const input=request=>{if(!/^application\/json(?:;|$)/i.test(request.headers['content-type']||''))throw new ConsoleError('JSON_REQUIRED',415);if(!request.body||typeof request.body!=='object'||Array.isArray(request.body))throw new ConsoleError('INVALID_JSON');return request.body;};
   const audit=(db,type,values={})=>db.audit.push({at:now(),type,actor:'console',...values});
   const usedIds=db=>new Set(db.audit.filter(row=>row.type==='activated').map(row=>row.licenseId));
-  const summary=(row,used)=>({id:row.id,label:row.label,codeHint:row.codeHint||null,codeRecoverable:!!row.codeBox,createdAt:row.createdAt,expiresAt:row.expiresAt,permanent:isPermanentLicense(row),maxDevices:row.maxDevices,revision:row.revision||0,devices:row.devices.map(device=>({id:device.id,boundAt:device.boundAt})),status:row.revoked?'revoked':!isPermanentLicense(row)&&row.expiresAt<=now()?'expired':row.devices.length?'active':used.has(row.id)?'unbound':'unused'});
+  const summary=(row,used)=>({id:row.id,label:row.label,codeHint:row.codeHint||null,codeRecoverable:!!row.codeBox,createdAt:row.createdAt,expiresAt:row.expiresAt,permanent:isPermanentLicense(row),maxDevices:row.maxDevices,skinQuota:skinQuota(row),revision:row.revision||0,devices:row.devices.map(device=>({id:device.id,boundAt:device.boundAt})),status:row.revoked?'revoked':!isPermanentLicense(row)&&row.expiresAt<=now()?'expired':row.devices.length?'active':used.has(row.id)?'unbound':'unused'});
   const find=(db,id)=>{const row=db.licenses.find(value=>value.id===id);if(!row)throw new ConsoleError('LICENSE_NOT_FOUND',404);return row;};
   const principal=request=>auth.authenticate(request.session);
   const sessionResult=async(request,reply)=>{const user=principal(request);return {username:user.username,csrf:await reply.generateCsrf(),expiresAt:user.expiresAt,environment,serverTime:now()};};
@@ -72,13 +73,13 @@ export async function createManagementConsole({stateDir,staticDir,transaction,is
     },false);
   });
   app.post('/manage/api/licenses/issue',async request=>{
-    principal(request);const {count=1,days=30,devices=1,label='',requestId:id}=input(request);
-    if(!integer(count,1,100)||!integer(days,0,3650)||!integer(devices,1,50)||typeof label!=='string'||label.length>80||typeof id!=='string'||!/^[a-f0-9-]{36}$/.test(id))throw new ConsoleError('INVALID_ISSUE_OPTIONS');
-    const spec=createHash('sha256').update(JSON.stringify({count,days,devices,label:label.trim()})).digest('hex');
+    principal(request);const {count=1,days=30,devices=1,label='',skinLimit=0,requestId:id}=input(request);
+    if(!validSkinLimit(skinLimit)||!integer(count,1,100)||!integer(days,0,3650)||!integer(devices,1,50)||typeof label!=='string'||label.length>80||typeof id!=='string'||!/^[a-f0-9-]{36}$/.test(id))throw new ConsoleError('INVALID_ISSUE_OPTIONS');
+    const spec=createHash('sha256').update(JSON.stringify({count,days,devices,label:label.trim(),...(skinLimit?{skinLimit}:{})})).digest('hex');
     return transaction(async db=>{
       const previous=db.licenses.filter(row=>row.batchId===id);
-      if(previous.length){if(previous.length!==count||previous.some(row=>row.batchSpec!==spec))throw new ConsoleError('ISSUE_REQUEST_CONFLICT',409);return {batchId:id,licenses:await Promise.all(previous.map(async row=>({id:row.id,code:await vault.reveal(row),label:row.label,expiresAt:row.expiresAt,permanent:isPermanentLicense(row),maxDevices:row.maxDevices})))};}
-      const licenses=[];for(let i=0;i<count;i++){const {license,code}=await issueLicense(db,{devices,days,label:label.trim()||'私有授权',source:'console'});license.batchId=id;license.batchSpec=spec;licenses.push({id:license.id,code,label:license.label,expiresAt:license.expiresAt,permanent:isPermanentLicense(license),maxDevices:license.maxDevices});}
+      if(previous.length){if(previous.length!==count||previous.some(row=>row.batchSpec!==spec))throw new ConsoleError('ISSUE_REQUEST_CONFLICT',409);return {batchId:id,licenses:await Promise.all(previous.map(async row=>({id:row.id,code:await vault.reveal(row),label:row.label,expiresAt:row.expiresAt,permanent:isPermanentLicense(row),maxDevices:row.maxDevices,skinLimit:row.skinLimit??0})))};}
+      const licenses=[];for(let i=0;i<count;i++){const {license,code}=await issueLicense(db,{devices,days,skinLimit,label:label.trim()||'私有授权',source:'console'});license.batchId=id;license.batchSpec=spec;licenses.push({id:license.id,code,label:license.label,expiresAt:license.expiresAt,permanent:isPermanentLicense(license),maxDevices:license.maxDevices,skinLimit:license.skinLimit??0});}
       audit(db,'console-batch-issued',{count,batchId:id});return {batchId:id,licenses};
     });
   });
@@ -100,11 +101,11 @@ export async function createManagementConsole({stateDir,staticDir,transaction,is
       if(action==='code'){const code=await vault.reveal(row);audit(db,'console-code-viewed',{licenseId:id});return {code};}
       if(value.revision!==(row.revision||0))throw new ConsoleError('LICENSE_CHANGED',409);
       if(action==='update'){
-        if(typeof value.label!=='string'||value.label.length>80||!integer(value.devices,1,50)||!integer(value.extendDays??0,0,3650))throw new ConsoleError('INVALID_LICENSE_OPTIONS');
+        if(!validSkinLimit(value.skinLimit??row.skinLimit??0)||typeof value.label!=='string'||value.label.length>80||!integer(value.devices,1,50)||!integer(value.extendDays??0,0,3650))throw new ConsoleError('INVALID_LICENSE_OPTIONS');
         if(value.devices<row.devices.length)throw new ConsoleError('DEVICE_LIMIT_BELOW_BOUND',409);
         if(isPermanentLicense(row)&&value.extendDays)throw new ConsoleError('PERMANENT_LICENSE_NO_EXTENSION',409);
-        row.label=value.label.trim()||'私有授权';row.maxDevices=value.devices;if(value.extendDays)row.expiresAt=Math.max(now(),row.expiresAt)+value.extendDays*day;
-        audit(db,'console-license-updated',{licenseId:id,extendDays:value.extendDays||0,maxDevices:value.devices});
+        row.label=value.label.trim()||'私有授权';row.maxDevices=value.devices;row.skinLimit=value.skinLimit??row.skinLimit??0;if(value.extendDays)row.expiresAt=Math.max(now(),row.expiresAt)+value.extendDays*day;
+        audit(db,'console-license-updated',{licenseId:id,extendDays:value.extendDays||0,maxDevices:value.devices,skinLimit:row.skinLimit});
       }else if(action==='status'){
         if(typeof value.revoked!=='boolean')throw new ConsoleError('INVALID_LICENSE_OPTIONS');if(!value.revoked&&!isPermanentLicense(row)&&row.expiresAt<=now())throw new ConsoleError('LICENSE_EXPIRED');
         row.revoked=value.revoked;audit(db,row.revoked?'revoked':'console-license-enabled',{licenseId:id});

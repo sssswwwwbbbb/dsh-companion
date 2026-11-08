@@ -6,6 +6,7 @@ import {readJson,writeJson} from './storage.mjs';
 
 const sectionName='dsh-companion:theme-reply-style';
 const get=(rows,key)=>Object.hasOwn(rows,key)?rows[key]:undefined;
+const belongsToSkin=(owners,key,skin)=>typeof key==='string'&&(key===skin.contentKey||get(owners,key)===skin.manifest.id);
 
 export class ReplyStyle {
   constructor(controller,sessions){
@@ -17,6 +18,8 @@ export class ReplyStyle {
       const saved=readJson(this.file,null);
       if(saved?.preferences&&saved.sessions)this.data=saved;
     }catch{}
+    this.data.skinOwners={...this.data.skinOwners};
+    for(const skin of controller.skins.snapshots?.values()||[])this.data.skinOwners[skin.contentKey]=skin.manifest.id;
   }
 
   register(registry){
@@ -42,9 +45,10 @@ export class ReplyStyle {
     if(typeof sessionId!=='string'||!sessionId||sessionId.length>200||this.controller.disposed||state.stopped||!['ready','updating'].includes(phase))return null;
     const style=this.status();
     if(!style||!this.controller.entitlement.status().active)return null;
-    const choice=get(this.data.sessions,sessionId),id=this.controller.skins.core.state.selected.manifest.id;
-    const enabled=typeof choice==='string'&&choice===style.contentKey?true:
-      choice?.contentKey===style.contentKey?choice.enabled:get(this.data.enabledBySkin??{},id)??true;
+    const choice=get(this.data.sessions,sessionId),skin=state.selected;
+    const choiceKey=typeof choice==='string'?choice:choice?.contentKey;
+    const enabled=belongsToSkin(this.data.skinOwners,choiceKey,skin)?
+      typeof choice==='string'?true:choice.enabled:get(this.data.enabledBySkin??{},skin.manifest.id)??true;
     return {...style,enabled};
   }
 
@@ -119,7 +123,7 @@ export class ReplyStyle {
     if(typeof sessionId!=='string'||!sessionId||sessionId.length>200||this.controller.disposed||state.stopped||!['ready','updating'].includes(phase))return null;
     const character=this.characterStatus();
     if(!character||!Object.hasOwn(character,'workContext')||!this.controller.entitlement.status().active)return null;
-    return {...character,enabled:get(this.data.characterSessions??{},sessionId)===character.contentKey};
+    return {...character,enabled:belongsToSkin(this.data.skinOwners,get(this.data.characterSessions??{},sessionId),state.selected)};
   }
 
   characterSession({sessionId,contentKey,enabled}){
@@ -143,7 +147,16 @@ export class ReplyStyle {
     return '请根据本套主题角色与桌宠场景表达。当前互动请求和可用能力约束优先。\n'+JSON.stringify({角色名:character.name,角色设定:character.identity,场景补充:character.petContext,...(style?{称呼:style.address,语气:style.tone}:{})});
   }
 
+  forget(id,keys){
+    const next=structuredClone(this.data);keys=[...new Set([...keys,...Object.entries(next.skinOwners||{}).filter(([,owner])=>owner===id).map(([key])=>key)])];delete next.preferences[id];
+    for(const key of keys)delete next.skinOwners?.[key];
+    delete next.enabledBySkin?.[id];delete next.characterEnabledBySkin?.[id];
+    for(const field of ['sessions','characterSessions'])if(next[field])for(const [session,value]of Object.entries(next[field]))if(keys.includes(typeof value==='string'?value:value?.contentKey))delete next[field][session];
+    this.commit(next);
+  }
+
   commit(next){
+    const skin=this.controller.skins.core.state.selected;if(skin)(next.skinOwners??={})[skin.contentKey]=skin.manifest.id;
     writeJson(this.file,next);
     this.data=next;
   }

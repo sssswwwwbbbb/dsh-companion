@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {createHash} from 'node:crypto';
-import {spawn} from 'node:child_process';
+import {createHash,randomBytes} from 'node:crypto';
+import {spawn,execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {createLicenseService} from '../licensing/server.mjs';
 import {verifyLicense} from '../packages/dsh-companion/src/license-core.mjs';
@@ -214,4 +214,36 @@ test('private release publication and download keep Mac and Windows packages sep
     assert.equal((await crossed.json()).error,'NO_COMPATIBLE_RELEASE');
     await assert.rejects(win.latest({dshVersion:'0.2.2',build}),/NO_COMPATIBLE_RELEASE/);
   }finally{await service.close();fs.rmSync(directory,{recursive:true,force:true});}
+});
+
+test('public installation accepts a third download and metadata while two downloads are still open',async()=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'dsh-concurrent-install-')),service=await createLicenseService({stateDir:path.join(directory,'state')}),responses=[];
+ try{
+  const version='0.1.0-dev.90',artifact=releaseFixture(directory,version),root=path.dirname(artifact);
+  fs.writeFileSync(path.join(root,'package/payload.bin'),randomBytes(8*1024*1024));execFileSync('tar',['-czf',artifact,'-C',root,'package']);
+  const base='http://127.0.0.1:'+service.port,published=await fetch(base+'/admin/releases',{method:'POST',headers:{authorization:'Bearer '+service.adminToken,'content-type':'application/json'},body:JSON.stringify({artifact,version,build:90,supportedDsh:['0.2.1-rc.5'],publicInstall:true})});assert.equal(published.status,200);await published.json();
+  const url=base+'/install/dsh-companion-'+version+'.tgz';
+  for(let i=0;i<3;i++){const response=await fetch(url);responses.push(response);assert.equal(response.status,200,'simultaneous GET '+(i+1));}
+  assert.equal((await fetch(url,{method:'HEAD'})).status,200);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(directory,'state/database.json'))).licenses.length,0);
+ }finally{await Promise.allSettled(responses.map(response=>response.body.cancel()));await service.close();fs.rmSync(directory,{recursive:true,force:true});}
+});
+
+test('fixed public installation URLs follow each platform latest public build without caching an older package',async()=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'dsh-latest-install-')),stateDir=path.join(directory,'state'),service=await createLicenseService({stateDir}),base='http://127.0.0.1:'+service.port;
+ const publish=async(version,build,platform,publicInstall=true)=>{
+  const artifact=releaseFixture(directory,version,{platform}),response=await fetch(base+(platform==='win32-x64'?'/admin/releases/win32-x64':'/admin/releases'),{method:'POST',headers:{authorization:'Bearer '+service.adminToken,'content-type':'application/json'},body:JSON.stringify({artifact,version,build,platform,supportedDsh:['0.2.1-rc.5'],publicInstall})});assert.equal(response.status,200);return {artifact,...await response.json()};
+ };
+ try{
+  const mac=base+'/install/dsh-companion-latest.tgz',win=base+'/install/dsh-companion-latest-win32-x64.tgz';
+  const empty=await fetch(mac);assert.equal(empty.status,404);assert.equal(empty.headers.get('cache-control'),'no-store');
+  const first=await publish('0.1.0-dev.80',80,'darwin-arm64');await publish('0.1.0-dev.81',81,'win32-x64');await publish('0.1.0-dev.99',99,'darwin-arm64',false);
+  const get=await fetch(mac);assert.equal(get.status,200);assert.equal(get.headers.get('cache-control'),'no-store');assert.equal(get.headers.get('etag'),'"'+first.sha256+'"');assert.match(get.headers.get('content-disposition'),/dev\.80\.tgz/);assert.deepEqual(Buffer.from(await get.arrayBuffer()),fs.readFileSync(first.artifact));
+  const second=await publish('0.1.0-dev.82',82,'darwin-arm64');
+  const next=await fetch(mac,{headers:{'if-none-match':'"'+first.sha256+'"'}});assert.equal(next.status,200);assert.equal(next.headers.get('etag'),'"'+second.sha256+'"');assert.deepEqual(Buffer.from(await next.arrayBuffer()),fs.readFileSync(second.artifact));
+  assert.equal((await fetch(mac,{headers:{'if-none-match':'"'+second.sha256+'"'}})).status,304);
+  const windows=await fetch(win,{method:'HEAD'});assert.equal(windows.status,200);assert.match(windows.headers.get('content-disposition'),/dev\.81-win32-x64\.tgz/);assert.equal(windows.headers.get('cache-control'),'no-store');
+  const immutable=await fetch(base+'/install/dsh-companion-0.1.0-dev.80.tgz',{method:'HEAD'});assert.match(immutable.headers.get('cache-control'),/immutable/);assert.equal(immutable.headers.get('etag'),'"'+first.sha256+'"');
+  assert.equal(JSON.parse(fs.readFileSync(path.join(stateDir,'database.json'))).licenses.length,0);
+ }finally{await service.close();fs.rmSync(directory,{recursive:true,force:true});}
 });

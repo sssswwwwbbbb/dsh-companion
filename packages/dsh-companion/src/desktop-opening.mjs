@@ -10,7 +10,7 @@ import {readJson} from './storage.mjs';
 
 function desktopLaunchId(controller) {
   // The official Mac Desktop shell forks this Host and sets DSH_CLIENT_VERSION.
-  if(process.platform!=='darwin'||process.arch!=='arm64'||!['0.2.1-rc.5','0.2.2-rc.1'].includes(controller.dshVersion)||
+  if(process.platform!=='darwin'||process.arch!=='arm64'||!controller.config.supportedDsh.includes(controller.dshVersion)||
      !process.connected||!process.env.DSH_CLIENT_VERSION||path.basename(controller.profileDir)!=='desktop')return null;
   const pid=process.ppid;
   const born=execFileSync('/bin/ps',['-p',String(pid),'-o','lstart='],{encoding:'utf8',timeout:400}).trim();

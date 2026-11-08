@@ -37,6 +37,8 @@ try{
   const sampleZip=zipSync(sample,{level:6});
   const entries={
     'SKIN-AUTHOR-REFERENCE.md':read('docs/skin-author-reference.md'),
+    'SKIN-SELF-DELIVERY.md':read('docs/skin-self-delivery.md'),
+    'skin-self-delivery.md':read('docs/skin-self-delivery.md'),
     'theme-tokens.json':fs.readFileSync(path.join(pluginDir,'skin-core/src/theme-tokens.json')),
     'no-pet-v3.zip':sampleZip,
     'scripts/skin-author-check.mjs':read('scripts/skin-author-check.mjs'),
@@ -44,6 +46,7 @@ try{
     'node_modules/fflate/esm/index.mjs':fs.readFileSync(path.join(library,'esm/index.mjs')),
     'node_modules/fflate/LICENSE':fs.readFileSync(path.join(library,'LICENSE'))
   };
+  for(const [name,bytes] of Object.entries(files(path.join(root,'docs/skin-kit-v1'))))entries['skin-kit-v1/'+name]=bytes;
   for(const [name,bytes] of Object.entries(sample))entries['sample/'+name]=bytes;
   for(const [name,bytes] of Object.entries(files(pluginDir)))entries['packages/dsh-companion/'+name]=bytes;
   const dist=path.join(root,'dist');

@@ -58,13 +58,13 @@ export function createSkinSettingsUi(React,assets){
       if(result)setResetKey(null);
     }
     const nav=(title,to,icon,disabled=false)=>h('button',{type:'button',className:'r3-sideitem'+(tab===to?' selected':''),'aria-current':tab===to?'page':undefined,disabled,onClick:()=>setSection(to,to==='skin'?'common':undefined)},h(Icon,{name:icon}),title);
-    return h('section',{className:'dshc-page dshc-r3','data-theme':scheme,'data-screen-label':'主题盒子','data-skin-preset':skin?.selected?.contentKey===assets.workspace?.contentKey?assets.workspace.preset:undefined},h('style',null,skinSettingsCss+commanderSettingsCss),
+    return h('section',{className:'dshc-page dshc-r3','data-theme':scheme,'data-screen-label':'主题盒子','data-skin-preset':assets.workspace&&skin?.selected?.contentKey===assets.workspace.contentKey?assets.workspace.preset:undefined},h('style',null,skinSettingsCss+commanderSettingsCss),
       h('aside',{className:'r3-settings-nav','aria-label':'主题盒子导航'},h('h2',null,'主题盒子'),
-        nav('皮肤库','library','library'),nav('本套设置','skin','settings',!selected),nav('专注与休息','focus','clock'),nav('开始使用','setup','arrow'),!selected&&nav('桌宠控制','control','play'),nav('授权与更新','account','shield'),
-        (tab!=='library'||!selected&&active)&&h('button',{type:'button',className:'r3-sideitem r3-stop','aria-label':canRestore?'恢复本套皮肤':'停止全部皮肤效果',disabled:stopping||canRestore&&(busy||!active)||skin?.stopped&&!selected,onClick:()=>canRestore?void work('skinSelect',{contentKey:selected.contentKey}):void stopSkin()},h(Icon,{name:canRestore?'play':'pause'}),canRestore?'恢复效果':'停止效果'),
+        nav('皮肤库','library','library'),nav('本套设置','skin','settings',!selected),nav('专注与休息','focus','clock'),nav('开始使用','setup','arrow'),nav('授权与更新','account','shield'),
+        selected&&tab!=='library'&&h('button',{type:'button',className:'r3-sideitem r3-stop','aria-label':canRestore?'恢复本套皮肤':'停止全部皮肤效果',disabled:stopping||canRestore&&(busy||!active)||skin?.stopped&&!selected,onClick:()=>canRestore?void work('skinSelect',{contentKey:selected.contentKey}):void stopSkin()},h(Icon,{name:canRestore?'play':'pause'}),canRestore?'恢复效果':'停止效果'),
         h('p',{className:'r3-navfooter'},active?'插件已激活':'插件尚未激活',h('br'),'本地皮肤共用插件授权')),
       h('div',{className:'r3-settings-main'},h('header',{className:'r3-settings-head'},h('div',null,
-        h('h1',null,tab==='library'?'本地皮肤库':tab==='skin'?'按你的习惯，刚刚好。':tab==='account'?'授权与更新':tab==='control'?'桌面陪伴':tab==='focus'?'专注与休息':'开始使用'),
+        h('h1',null,tab==='library'?'皮肤库':tab==='skin'?'按你的习惯，刚刚好。':tab==='account'?'授权与更新':tab==='control'?'桌面陪伴':tab==='focus'?'专注与休息':'开始使用'),
         h('p',{className:'r3-caption'},tab==='library'?'管理工作区主题、桌宠和开场。':tab==='skin'?(selected?.name||'本套设置')+' · 只调整这套已提供的偏好。':tab==='focus'?'用一段计时安排工作与休息。':'从同一处管理你的皮肤与陪伴。')),
         tab==='library'?h(Button,{icon:'install',disabled:busy||!active,onClick:()=>void work('skinInstall')},'导入本地 ZIP'):tab!=='focus'&&h(Pill,{tone:skin?.stopped?'orange':''},status)),
         tab==='skin'&&(hasMore||hasScenes||character)&&h('div',{className:'r3-settings-tabs',role:'tablist','aria-label':'本套设置层级'},...['common',...(character?['character']:[]),...(hasMore?['more']:[]),...(hasScenes?['scenes']:[])].map(value=>h('button',{key:value,type:'button',role:'tab','aria-selected':view===value,onClick:()=>setSection('skin',value)},({common:'常用',character:'角色',more:'更多',scenes:'场景'})[value]))),
@@ -105,93 +105,106 @@ export function createSkinSettingsUi(React,assets){
         h(Toggle,{label:'陪伴勿扰',value:quiet,disabled,onChange:enabled=>action('quiet',{enabled})}))));
   }
   function ImportedCover({contentKey,loadCover,children}){
-    const [src,setSrc]=React.useState(null);
+    const [src,setSrc]=React.useState(null),[visible,setVisible]=React.useState(false),node=React.useRef(null);
     React.useEffect(()=>{
-      let current=true;
-      void loadCover(contentKey).then(url=>{if(current)setSrc(url);}).catch(()=>{});
-      return()=>{current=false;};
-    },[contentKey,loadCover]);
-    return src?h('img',{className:'r3-imported-cover',src,alt:'',draggable:false,onError:()=>setSrc(null)}):children;
+      if(typeof IntersectionObserver==='undefined'){setVisible(true);return;}
+      const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){setVisible(true);observer.disconnect();}},{rootMargin:'180px'});
+      if(node.current)observer.observe(node.current);return()=>observer.disconnect();
+    },[]);
+    React.useEffect(()=>{
+      if(!visible)return;let current=true;
+      void loadCover(contentKey).then(url=>{if(current)setSrc(url);}).catch(()=>{});return()=>{current=false;};
+    },[contentKey,loadCover,visible]);
+    return h('span',{ref:node,className:'r3-cover-frame'},src?h('img',{className:'r3-imported-cover',src,alt:'',loading:'lazy',draggable:false,onError:()=>setSrc(null)}):children);
   }
-  function Library({skin,active,busy,selection,importedKey,setSection,select,work,stopSkin,loadCover}){
-    const importedCard=React.useRef(null),currentHeading=React.useRef(null),focusAfterApply=React.useRef(null);
-    const selectedKey=skin?.selected?.contentKey;
+  function Pager({page,pages,total,disabled,onChange}){
+    const [target,setTarget]=React.useState(String(page));
+    React.useEffect(()=>setTarget(String(page)),[page]);
+    return h('nav',{className:'r3-library-pagination','aria-label':'皮肤分页'},
+      h('span',{className:'r3-caption'},'共 '+total+' 项 · 第 '+page+' / '+pages+' 页'),
+      h('div',{className:'r3-actions'},h(Button,{disabled:disabled||page<=1,onClick:()=>onChange(page-1),'aria-label':'上一页皮肤'},'上一页'),h(Button,{disabled:disabled||page>=pages,onClick:()=>onChange(page+1),'aria-label':'下一页皮肤'},'下一页'),pages>1&&h('form',{className:'r3-page-jump',onSubmit:event=>{event.preventDefault();const value=Number(target);if(Number.isSafeInteger(value)&&value>=1&&value<=pages)onChange(value);}},h('input',{type:'number',min:1,max:pages,required:true,value:target,disabled,'aria-label':'跳转皮肤页',onChange:event=>setTarget(event.target.value)}),h(Button,{type:'submit',disabled},'跳转'))));
+  }
+  function Library({skin,active,busy,selection,importedKey,setSection,select,work,stopSkin,loadCover,dshVersion,loadOnlineCover,downloads,downloadAction,catalogAction,catalogLoading,catalogError,errorText}){
+    const defaults={page:1,pageSize:24,q:'',module:'all',sort:'newest',owned:false};
+    const [view,setView]=React.useState('online'),[query,setQuery]=React.useState(defaults),[search,setSearch]=React.useState(''),[localQuery,setLocalQuery]=React.useState(''),[localModule,setLocalModule]=React.useState('all'),[localPage,setLocalPage]=React.useState(1),[removeKey,setRemoveKey]=React.useState(null),[clearSettings,setClearSettings]=React.useState(false),[adding,setAdding]=React.useState([]),[showAllJobs,setShowAllJobs]=React.useState(false);
+    const attempted=React.useRef(false),currentHeading=React.useRef(null),grid=React.useRef(null),localTools=React.useRef(null),focusAfterApply=React.useRef(null);
+    const market=skin?.market,rows=(skin?.catalog||[]).filter(row=>!row.example),selected=skin?.selected,selectedKey=selected?.contentKey;
+    const jobs=downloads?.jobs||[],isWorking=job=>['queued','downloading','cancelling'].includes(job.status),running=jobs.filter(isWorking);
     const applied=skin?.phase==='ready'&&!skin.stopped;
     React.useEffect(()=>{
-      if(!applied||!selectedKey||focusAfterApply.current!==selectedKey)return;
-      focusAfterApply.current=null;
-      currentHeading.current?.focus();
-    },[applied,selectedKey]);
-    React.useEffect(()=>{
-      if(!importedKey||!importedCard.current)return;
-      importedCard.current.scrollIntoView({block:'nearest'});
-      importedCard.current.focus({preventScroll:true});
-    },[importedKey]);
-    if(!skin)return h('p',{className:'r3-caption',role:'status'},'正在读取已安装皮肤…');
-
-    const rows=skin.catalog.filter(row=>!row.example);
-    const selected=skin.selected;
-    const current=rows.find(row=>row.contentKey===selected?.contentKey);
-    const unavailable=current?.status==='unavailable';
-    const switching=selection?.status==='applying';
-    const ready=skin.phase==='ready'&&!skin.stopped&&active&&!unavailable;
+      if(active&&!attempted.current){attempted.current=true;const initial=market?.query?{...defaults,...market.query,pageSize:24}:defaults;setQuery(initial);setSearch(initial.q);void catalogAction(initial);}
+    },[active]);
+    React.useEffect(()=>{if(!applied||!selectedKey||focusAfterApply.current!==selectedKey)return;focusAfterApply.current=null;currentHeading.current?.focus();},[applied,selectedKey]);
+    React.useEffect(()=>{if(removeKey&&!rows.some(row=>row.contentKey===removeKey))setRemoveKey(null);},[skin?.catalog,removeKey]);
+    React.useEffect(()=>{if(importedKey){setView('installed');setLocalQuery('');setLocalModule('all');setLocalPage(1);}},[importedKey]);
+    if(!skin)return h('p',{className:'r3-caption',role:'status'},'正在读取皮肤库…');
+    const modules={theme:'工作区主题',pet:'桌宠',startup:'开场'},current=rows.find(row=>row.contentKey===selectedKey),unavailable=current?.status==='unavailable';
+    const switching=selection?.status==='applying',ready=skin.phase==='ready'&&!skin.stopped&&active&&!unavailable;
     const canPreview=ready&&skin.settings?.startup?.status==='enabled'&&skin.results?.startup?.status==='ready';
     const status=skin.phase==='stopping'?'正在停止':switching?'正在切换':unavailable?'文件不可用':!active?'等待激活':skin.phase==='fault'?'需要恢复':skin.stopped?'效果已停止':ready?'已应用':'等待生效';
-    const modules={theme:'工作区主题',pet:'桌宠',startup:'开场'};
-    function apply(row){
-      focusAfterApply.current=row.contentKey;
-      select(row);
+    const quota=market?.quota,acquired=new Set(quota?.acquiredIds||[]);
+    const reserved=new Set(running.filter(job=>job.skinId&&!acquired.has(job.skinId)).map(job=>job.skinId));
+    const noFreeSlot=quota?.limit>0&&quota.remaining-reserved.size<=0;
+    function apply(row){focusAfterApply.current=row.contentKey;select(row);}
+    function moduleStatus(module){if(skin.disabled?.[module])return '已关闭';if(skin.settings?.[module]?.status==='unavailable'||skin.results?.[module]?.status==='unavailable')return '不可用';if(!ready)return '未运行';return skin.results?.[module]?.status==='ready'?'已启用':'未运行';}
+    function browse(patch){const next={...query,...patch};setQuery(next);void catalogAction(next);}
+    async function download(row){
+      setAdding(list=>[...list,row.releaseId]);
+      try{await downloadAction('skinDownloadAdd',{releaseId:row.releaseId,id:row.id,title:row.title||row.name,size:row.size});}
+      finally{setAdding(list=>list.filter(id=>id!==row.releaseId));}
     }
-    function moduleStatus(module){
-      if(skin.disabled?.[module])return '已关闭';
-      if(skin.settings?.[module]?.status==='unavailable'||skin.results?.[module]?.status==='unavailable')return '不可用';
-      if(!ready)return '未运行';
-      return skin.results?.[module]?.status==='ready'?'已启用':'未运行';
+    function matchesModule(row,value){if(value==='all')return true;if(value==='no-pet')return !row.modules.includes('pet');return row.modules.includes(value);}
+    const localRows=rows.filter(row=>matchesModule(row,localModule)&&[row.name,row.id,row.description||''].join(' ').toLowerCase().includes(localQuery.trim().toLowerCase())).sort((a,b)=>Number(b.contentKey===selectedKey)-Number(a.contentKey===selectedKey)||a.name.localeCompare(b.name,'zh-CN')||b.version.localeCompare(a.version));
+    const localPages=Math.max(1,Math.ceil(localRows.length/24)),localCurrent=Math.min(localPage,localPages),localVisible=localRows.slice((localCurrent-1)*24,localCurrent*24);
+    const shownJobs=[...jobs.filter(job=>isWorking(job)).sort((a,b)=>a.createdAt-b.createdAt),...jobs.filter(job=>!isWorking(job))].slice(0,showAllJobs?jobs.length:8);
+    const queueStatus={queued:'等待下载',downloading:'下载与校验中',cancelling:'正在取消',completed:'安装完成',failed:'下载失败',cancelled:'已取消'};
+    function moduleOptions(label,value,onChange){return h('select',{'aria-label':label,value,onChange:event=>onChange(event.target.value)},h('option',{value:'all'},'全部模块'),h('option',{value:'pet'},'含桌宠'),h('option',{value:'no-pet'},'不含桌宠'));}
+    function localCard(row){
+      const isCurrent=selectedKey===row.contentKey,isTarget=selection?.contentKey===row.contentKey,pending=isTarget&&switching,failed=isTarget&&selection.status==='failed',available=row.status!=='unavailable';
+      const label=!available?'文件不可用':pending?'应用中':failed?'应用失败':isCurrent?status:'已安装';
+      const action=!available||isCurrent&&!failed?null:pending?'正在应用…':failed?'重试应用':'应用皮肤';
+      const fallback=h('span',{className:'r3-library-cover-title'},row.name);
+      return h('article',{key:row.contentKey||'invalid-index',className:'r3-library-card','data-current':isCurrent,'data-skin-key':row.contentKey},
+        h('div',{className:'r3-library-cover','aria-hidden':true},active&&row.hasCover?h(ImportedCover,{contentKey:row.contentKey,loadCover},fallback):fallback),
+        h('div',{className:'r3-library-card-body'},h('div',{className:'r3-library-card-title'},h('h3',null,row.name),h('span',null,row.version)),
+          h('div',{className:'r3-library-modules'},...row.modules.map(module=>h('span',{key:module},modules[module]||module))),
+          !available&&h('p',{className:'r3-caption'},row.reason==='SKIN_RESOURCE_MISSING'?'部分文件缺失。':'文件校验未通过。'),
+          h('div',{className:'r3-library-card-foot'},h('span',{className:'r3-caption'},label),action&&h(Button,{kind:'primary',disabled:busy||!active,onClick:()=>apply(row),'aria-label':action+' · '+row.name},action),row.contentKey&&h(Button,{disabled:busy,'aria-label':'卸载 · '+row.name,'aria-expanded':removeKey===row.contentKey,onClick:()=>{setRemoveKey(removeKey===row.contentKey?null:row.contentKey);setClearSettings(false);}},'卸载')),
+          removeKey===row.contentKey&&h('div',{className:'r3-remove-confirm',role:'group','aria-label':'确认卸载 · '+row.name,onKeyDown:event=>{if(event.key==='Escape'&&!busy)setRemoveKey(null);}},
+            h('p',null,isCurrent?'卸载前会停止本套效果并恢复 DSH 默认外观。':'将删除本机安装的这个皮肤版本。'),
+            h('p',{className:'r3-caption'},'默认保留设置，重装后继续使用；卸载不返还领取名额。'),
+            rows.some(other=>other.contentKey!==row.contentKey&&other.id===row.id)?h('p',{className:'r3-caption'},'还有其他版本，共用设置将保留。'):h('label',{className:'r3-clear-settings'},h('input',{type:'checkbox',checked:clearSettings,disabled:busy,onChange:event=>setClearSettings(event.currentTarget.checked)}),'同时清除本套设置与互动记忆'),
+            h('div',{className:'r3-actions'},h(Button,{disabled:busy,onClick:()=>setRemoveKey(null)},'取消'),h(Button,{disabled:busy,onClick:async()=>{const result=await work('skinRemove',{contentKey:row.contentKey,clearSettings});if(result)setRemoveKey(null);}},'确认卸载')))));
     }
-
+    const page=market?.page||1,pages=market?.pages||1,total=market?.total??market?.skins.length??0;
     return h('section',{className:'r3-library','data-skin-library':true},
-      !active&&h('div',{className:'r3-notice'},'激活主题盒子后即可导入和应用皮肤。',h(Button,{onClick:()=>setSection('setup')},'前往激活')),
-      h('div',{className:'r3-library-current'},
-        h('div',{className:'r3-library-current-title'},
-          h('h2',{ref:currentHeading,tabIndex:-1},selected?.name||'DSH 默认外观'),
-          selected&&h(Pill,{tone:ready&&!switching?'blue':''},h('span',{role:'status'},status))),
-        h('p',null,!selected?(rows.length?'从下方选择一套皮肤。':'导入后即可在这里切换皮肤。'):unavailable?'部分皮肤文件不可用，可切换到其他皮肤。':skin.stopped?'本套皮肤的设置已保留。':'当前选择 · '+selected.version),
-        selected&&current?.modules.length>0&&h('ul',{className:'r3-current-modules','aria-label':'本套模块状态'},
-          ...current.modules.map(module=>h('li',{key:module},modules[module]+' · '+moduleStatus(module)))),
-        selected&&h('div',{className:'r3-actions'},
-          !unavailable&&(skin.stopped||skin.phase==='fault')&&h(Button,{kind:'primary',icon:'play',disabled:busy||!active,onClick:()=>apply(selected)},'恢复本套'),
-          h(Button,{disabled:busy,onClick:()=>setSection('skin','common')},'本套设置'),
-          canPreview&&h(Button,{icon:'play',disabled:busy,onClick:()=>void work('replayIntro')},'预览开场'),
-          (!skin.stopped||switching)&&h(Button,{disabled:skin.phase==='stopping',onClick:()=>void stopSkin()},'停止本套效果'))),
-      h('div',{className:'r3-library-heading'},h('h2',null,'已安装',h('span',null,rows.length+' 套'))),
-      h('div',{className:'r3-library-grid'},...rows.map(row=>{
-        const isCurrent=selected?.contentKey===row.contentKey;
-        const isTarget=selection?.contentKey===row.contentKey;
-        const pending=isTarget&&switching;
-        const failed=isTarget&&selection.status==='failed';
-        const imported=importedKey===row.contentKey;
-        const available=row.status!=='unavailable';
-        const r2=row.contentKey===assets.workspace?.contentKey;
-        const commander=r2&&assets.workspace.preset==='commander-v1';
-        const sameLabel=rows.some(other=>other!==row&&other.id===row.id&&other.version===row.version);
-        const label=!available?'文件不可用':pending?'应用中':failed?'应用失败':isCurrent?status:imported?'已入库':'';
-        const action=!available||isCurrent&&!failed?null:pending?'正在应用…':failed?'重试应用':'应用皮肤';
-        const fallbackCover=h(React.Fragment,null,
-          commander&&h('img',{className:'commander-cover',src:assets.workspace.cover,alt:''}),
-          h('span',{className:'r3-library-cover-title'},row.name),
-          r2?h('span',{className:'r3-library-portrait workspace-role'},h('img',{src:assets.workspace.portrait,alt:'',draggable:false})):h(Icon,{name:'library'}));
-        return h('article',{key:row.contentKey||'unavailable-library',className:'r3-library-card','data-current':isCurrent,'data-skin-key':row.contentKey,ref:imported?importedCard:null,tabIndex:imported?-1:undefined},
-          h('div',{className:'r3-library-cover'+(commander?' commander':''),'aria-hidden':true},
-            active&&row.hasCover?h(ImportedCover,{contentKey:row.contentKey,loadCover},fallbackCover):fallbackCover),
-          h('div',{className:'r3-library-card-body'},
-            h('div',{className:'r3-library-card-title'},h('h3',null,row.name),h('span',null,row.version)),
-            sameLabel&&row.contentKey&&h('p',{className:'r3-caption'},'内容快照 '+row.contentKey.slice(0,8)),
-            h('div',{className:'r3-library-modules'},...row.modules.map(module=>h('span',{key:module},modules[module]||module))),
-            !available&&h('p',{className:'r3-caption'},row.reason==='SKIN_RESOURCE_MISSING'?'部分文件缺失。':'文件校验未通过。'),
-            (label||action)&&h('div',{className:'r3-library-card-foot'},
-              label&&h('span',{className:'r3-caption',role:pending||failed?'status':undefined},label),
-              action&&h(Button,{kind:imported?'primary':'',disabled:busy||!active,onClick:()=>apply(row),'aria-label':action+' · '+row.name},action))));
-      }),!rows.length&&h('div',{className:'r3-library-empty'},h('h2',null,'还没有安装皮肤'),h('p',null,'导入包含 skin.json 的 ZIP 文件，皮肤会出现在这里。'))));
+      !active&&h('div',{className:'r3-notice'},'激活主题盒子后即可下载、导入和应用皮肤。',h(Button,{onClick:()=>setSection('setup')},'前往激活')),
+      h('div',{className:'r3-library-current'},h('div',{className:'r3-library-current-title'},h('h2',{ref:currentHeading,tabIndex:-1},selected?.name||'DSH 默认外观'),selected&&h(Pill,{tone:ready&&!switching?'blue':''},status)),
+        h('p',null,!selected?'下载只安装资源，点击「应用皮肤」后才切换外观。':unavailable?'部分文件不可用，可选择其他皮肤。':skin.stopped?'本套设置已保留，可随时恢复。':'当前选择 · '+selected.version),
+        selected&&current?.modules.length>0&&h('ul',{className:'r3-current-modules','aria-label':'本套模块状态'},...current.modules.map(module=>h('li',{key:module},modules[module]+' · '+moduleStatus(module)))),
+        selected&&h('div',{className:'r3-actions'},!unavailable&&(skin.stopped||skin.phase==='fault')&&h(Button,{kind:'primary',disabled:busy||!active,onClick:()=>apply(selected)},'恢复本套'),h(Button,{disabled:busy,onClick:()=>setSection('skin','common')},'本套设置'),canPreview&&h(Button,{disabled:busy,onClick:()=>void work('replayIntro')},'预览开场'),(!skin.stopped||switching)&&h(Button,{disabled:skin.phase==='stopping',onClick:()=>void stopSkin()},'停止本套效果'))),
+      h('div',{className:'r3-library-switch',role:'tablist','aria-label':'皮肤库视图'},h('button',{type:'button',role:'tab','aria-selected':view==='online',onClick:()=>setView('online')},'在线皮肤'),h('button',{type:'button',role:'tab','aria-selected':view==='installed',onClick:()=>setView('installed')},'已安装',h('span',null,rows.length))),
+      jobs.length>0&&h('details',{className:'r3-downloads',open:running.length>0},h('summary',null,'下载任务',running.length?' · '+running.filter(job=>job.status==='downloading'||job.status==='cancelling').length+' 项进行中，'+running.filter(job=>job.status==='queued').length+' 项等待':' · 最近完成与失败记录'),
+        h('ul',null,...shownJobs.map(job=>h('li',{key:job.id,'data-download-job':job.releaseId},h('div',{className:'r3-download-copy'},h('strong',null,job.title),h('span',{className:'r3-caption'},queueStatus[job.status],job.status==='downloading'&&job.total>0?' · '+Math.floor(job.bytes/job.total*100)+'%':''),job.status==='downloading'&&h('progress',{max:job.total||1,value:job.bytes,'aria-label':job.title+'下载进度'}),job.error&&h('p',{className:'r3-download-error'},errorText(job.error))),
+          isWorking(job)?h(Button,{disabled:job.status==='cancelling',onClick:()=>void downloadAction('skinDownloadCancel',{id:job.id}),'aria-label':'取消下载 · '+job.title},job.status==='cancelling'?'正在取消':'取消'):['failed','cancelled'].includes(job.status)&&h(Button,{disabled:!active,onClick:()=>void download({releaseId:job.releaseId,id:job.skinId,title:job.title,size:job.total})},'重试')))),jobs.length>8&&h(Button,{onClick:()=>setShowAllJobs(!showAllJobs)},showAllJobs?'收起任务':'查看全部 '+jobs.length+' 个任务')),
+      view==='online'?h(React.Fragment,null,
+        h('form',{ref:grid,className:'r3-library-toolbar',onSubmit:event=>{event.preventDefault();browse({q:search.trim(),page:1});}},h('input',{type:'search',value:search,'aria-label':'搜索在线皮肤',placeholder:'搜索名称、描述或 ID',maxLength:80,onChange:event=>setSearch(event.target.value)}),h(Button,{type:'submit',disabled:!active},'搜索'),moduleOptions('在线皮肤模块',query.module,value=>browse({module:value,page:1})),h('select',{'aria-label':'在线皮肤排序',value:query.sort,onChange:event=>browse({sort:event.target.value,page:1})},h('option',{value:'newest'},'最近更新'),h('option',{value:'name'},'按名称')),h(Button,{disabled:catalogLoading||!active,onClick:()=>browse({})},catalogLoading?'正在刷新…':'刷新皮肤库')),
+        h('div',{className:'r3-library-subtoolbar'},h('label',null,h('input',{type:'checkbox',checked:query.owned,disabled:!active,onChange:event=>browse({owned:event.target.checked,page:1})}),'只看已领取'),quota&&h('p',{className:'r3-caption','data-skin-quota':true},quota.limit===0?'可下载皮肤数量：不限量':'已领取 '+quota.used+' / '+quota.limit+' 套 · 剩余 '+quota.remaining+' 套')),
+        h('p',{className:'r3-caption r3-market-caption'},'首次下载会领取本套；更新、重装不重复计数，卸载不返还名额。可继续添加其他下载。'),
+        catalogError&&h('p',{className:'r3-notice error',role:'alert'},catalogError),
+        h('div',{className:'r3-library-results','aria-busy':catalogLoading},h('p',{className:'r3-caption',role:'status'},catalogLoading?'正在查找皮肤…':'找到 '+total+' 套皮肤'),
+          h('div',{className:'r3-library-grid r3-market-grid'},...(market?.skins||[]).slice(0,24).map(row=>{
+            const installed=rows.find(local=>local.contentKey===row.contentKey&&local.status!=='unavailable'),hasOlder=rows.some(local=>local.id===row.id&&local.contentKey!==row.contentKey),supported=row.compatible??row.supportedDsh.includes(dshVersion),job=jobs.find(job=>job.releaseId===row.releaseId&&isWorking(job)),alreadyAcquired=acquired.has(row.id);
+            const exhausted=!alreadyAcquired&&noFreeSlot,waiting=adding.includes(row.releaseId),downloading=job?.status==='downloading';
+            const label=job?job.status==='queued'?'等待下载':job.status==='cancelling'?'正在取消':'下载与校验中':waiting?'加入队列…':installed?'已安装':exhausted?'暂无可用名额':hasOlder?'下载更新':alreadyAcquired?'重新下载安装':'下载安装';
+            const fallback=h('span',{className:'r3-library-cover-title'},row.title);
+            return h('article',{key:row.releaseId,className:'r3-library-card','data-online-skin':row.id},h('div',{className:'r3-library-cover','aria-hidden':true},active&&row.hasCover?h(ImportedCover,{contentKey:row.releaseId,loadCover:loadOnlineCover},fallback):fallback),
+              h('div',{className:'r3-library-card-body'},h('div',{className:'r3-library-card-title'},h('h3',null,row.title),h('span',null,row.version)),h('div',{className:'r3-library-modules'},...row.modules.map(module=>h('span',{key:module},modules[module]||module))),h('p',{className:'r3-caption'},(row.size/1048576).toFixed(1)+' MB'+(!supported?' · 当前 DSH 暂不支持':'')),
+                h('div',{className:'r3-library-card-foot'},h(Button,{kind:installed?'':'primary',disabled:!active||!!job||waiting||!!installed||!supported||exhausted,onClick:()=>void download(row),'aria-label':label+' · '+row.title},label),installed&&h(Button,{disabled:busy||!active||selectedKey===installed.contentKey&&!skin.stopped,onClick:()=>apply(installed)},selectedKey===installed.contentKey&&!skin.stopped?'正在使用':'应用皮肤')),
+                downloading&&h('progress',{max:job.total||1,value:job.bytes,'aria-label':row.title+'下载进度'})));
+          }),!market?.skins.length&&!catalogLoading&&h('div',{className:'r3-library-empty'},h('h2',null,market?'没有匹配的皮肤':'尚未获取在线皮肤'),h('p',null,market?'试试其他关键词或模块筛选。':'激活后刷新皮肤库，也可以导入本地 ZIP。')))),
+        h(Pager,{page,pages,total,disabled:catalogLoading||!active,onChange:value=>{browse({page:value});grid.current?.scrollIntoView({block:'start'});}})):
+      h(React.Fragment,null,h('div',{ref:localTools,className:'r3-library-toolbar'},h('input',{type:'search',value:localQuery,'aria-label':'搜索已安装皮肤',placeholder:'搜索已安装的名称或 ID',onChange:event=>{setLocalQuery(event.target.value);setLocalPage(1);}}),moduleOptions('已安装皮肤模块',localModule,value=>{setLocalModule(value);setLocalPage(1);})),h('p',{className:'r3-caption r3-market-caption'},'当前使用的皮肤优先显示。同套多个版本分别管理，卸载默认保留设置。'),h('div',{className:'r3-library-grid'},...localVisible.map(localCard),!localVisible.length&&h('div',{className:'r3-library-empty'},h('h2',null,rows.length?'没有匹配的已安装皮肤':'还没有安装皮肤'),h('p',null,rows.length?'试试其他关键词。':'到在线皮肤选择下载，或使用右上角导入本地 ZIP。'),!rows.length&&h(Button,{onClick:()=>setView('online')},'浏览在线皮肤'))),h(Pager,{page:localCurrent,pages:localPages,total:localRows.length,onChange:value=>{setLocalPage(value);localTools.current?.scrollIntoView({block:'start'});}})));
   }
   function ReplyStyleEditor({style,active,busy,work}){
     const [draft,setDraft]=React.useState(null);
@@ -407,13 +420,15 @@ export const skinSettingsCss=`
 
 .r3-library-portrait.workspace-role img,.r3-banner-pet.workspace-role img{width:100%;height:100%;object-fit:contain;max-width:100%}
 /* Library extends the existing R3 vocabulary; cards are actual installed content. */
-.r3-library{max-width:1060px;margin:auto}.r3-library-current{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:15px 18px;margin-bottom:22px}.r3-library-current-title{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.r3-current-modules{margin:8px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;color:var(--muted)}.r3-library-current h2{font:500 20px/1.5 var(--font-title);overflow-wrap:anywhere}.r3-library-current p{font-size:12px;color:var(--muted)}.r3-library-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.r3-library-heading h2{font-size:15px}.r3-library-heading h2 span{font-size:12px;font-weight:400;color:var(--muted);margin-left:12px}
+.r3-market-grid{margin-bottom:32px}.r3-market-caption{margin:-4px 0 14px}.r3-remove-confirm{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;line-height:1.7}.r3-clear-settings{display:flex;align-items:flex-start;gap:8px;margin:10px 0}.r3-clear-settings input{margin-top:5px;accent-color:var(--accent)}.r3-remove-confirm .r3-actions{margin-top:12px}.r3-library{max-width:1060px;margin:auto}.r3-library-current{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:15px 18px;margin-bottom:22px}.r3-library-current-title{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.r3-current-modules{margin:8px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;color:var(--muted)}.r3-library-current h2{font:500 20px/1.5 var(--font-title);overflow-wrap:anywhere}.r3-library-current p{font-size:12px;color:var(--muted)}.r3-library-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.r3-library-heading h2{font-size:15px}.r3-library-heading h2 span{font-size:12px;font-weight:400;color:var(--muted);margin-left:12px}
 /* Two cards share the canvas: 2 * minmax(0, 1fr) + one 18px gutter. */
 .r3-cue-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:16px 0}.r3-cue-options select{width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}.r3-cue-setting>.r3-actions{margin-bottom:20px}@media(max-width:800px){.r3-cue-options{grid-template-columns:1fr}}.r3-pet-memory{margin:20px 0}.r3-pet-memory summary{cursor:pointer;padding:8px 0;font-weight:600}.r3-pet-memory ol{list-style:none;margin:0;padding:0;max-height:350px;overflow:auto}.r3-pet-memory li{padding:12px 0;border-bottom:1px solid var(--line)}.r3-pet-memory li>div{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.r3-pet-memory time{color:var(--muted);font-size:12px}.r3-pet-memory p{margin:6px 0;overflow-wrap:anywhere}.r3-focus-time{display:block;margin-top:6px;font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}.r3-focus-duration{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit}.r3-library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.r3-library-card{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);text-align:left;padding:0;min-width:0}.r3-library-card[data-current=true]{border-color:var(--accent)}.r3-library-card:focus{outline:2px solid var(--accent);outline-offset:3px}.r3-library-cover{display:block;aspect-ratio:8/5;background:var(--paper);position:relative;overflow:hidden}.r3-imported-cover{display:block;width:100%;height:100%;object-fit:cover}.r3-library-cover-title{position:absolute;left:18px;bottom:24px;max-width:65%;font:500 26px/1.4 var(--font-title);overflow-wrap:anywhere}.r3-library-cover>.r3-icon{position:absolute;right:28px;bottom:28px;width:38px;height:38px;color:var(--muted)}.r3-library-portrait{position:absolute;right:4px;bottom:0;width:140px;height:140px;overflow:hidden}.r3-library-portrait img{display:block;width:200%;height:200%;max-width:none}.r3-library-card-body{display:flex;flex-direction:column;gap:12px;padding:16px 18px}.r3-library-card-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.r3-library-card-title h3{font-size:14px;font-weight:600;overflow-wrap:anywhere}.r3-library-card-title>span{font-size:12px;color:var(--muted);white-space:nowrap}.r3-library-modules{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--muted)}.r3-library-modules>span{background:var(--paper);padding:3px 7px;border-radius:4px}.r3-library-card-foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding-top:10px;border-top:1px solid var(--line)}.r3-library-card-foot button{margin-left:auto}.r3-library-empty{grid-column:1/-1;border:1px solid var(--line);border-radius:9px;padding:35px 22px;text-align:center}.r3-library-empty h2{font:500 22px var(--font-title);margin-bottom:8px}.r3-library-empty p{color:var(--muted);font-size:13px;margin-bottom:16px}
 .dshc-r3 .r3-settings-head{padding:20px 28px}.dshc-r3 .r3-settings-body{padding:20px 28px}.dshc-r3 .r3-settings-foot{padding:12px 24px}.dshc-r3 .r3-setting-section{margin:20px 0}.dshc-r3 .r3-setting-row{padding:13px 0}.dshc-r3 .r3-skin-banner{min-height:136px;padding:18px;margin-top:14px}.dshc-r3 .r3-skin-banner h2{font-size:23px}.dshc-r3 .r3-banner-pet{width:135px;height:135px}
 @media(max-width:980px){.r3-library-cover-title{font-size:23px}.r3-library-portrait{width:120px;height:120px}.r3-library-card-body{padding:14px}.dshc-r3 .r3-settings-head,.dshc-r3 .r3-settings-body{padding:18px 22px}}
 @media(max-width:700px){.r3-cue-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:16px 0}.r3-cue-options select{width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}.r3-cue-setting>.r3-actions{margin-bottom:20px}@media(max-width:800px){.r3-cue-options{grid-template-columns:1fr}}.r3-pet-memory{margin:20px 0}.r3-pet-memory summary{cursor:pointer;padding:8px 0;font-weight:600}.r3-pet-memory ol{list-style:none;margin:0;padding:0;max-height:350px;overflow:auto}.r3-pet-memory li{padding:12px 0;border-bottom:1px solid var(--line)}.r3-pet-memory li>div{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.r3-pet-memory time{color:var(--muted);font-size:12px}.r3-pet-memory p{margin:6px 0;overflow-wrap:anywhere}.r3-focus-time{display:block;margin-top:6px;font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}.r3-focus-duration{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit}.r3-library-grid{grid-template-columns:1fr}.r3-library-heading{align-items:flex-start}.r3-library-current{gap:10px}.r3-library-card-title h3{font-size:14px}.dshc-r3 .r3-settings-head,.dshc-r3 .r3-settings-body{padding:16px}.r3-settings-head{flex-wrap:wrap}}
 .r3-reply-style-editor{margin-top:10px;display:grid;gap:10px;max-width:36rem}.r3-reply-style-editor textarea{resize:vertical;width:100%;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 10px}.r3-reply-style-editor .r3-actions{margin-top:0}.r3-setting-copy .r3-field-failure{color:var(--danger)}.r3-setting-control{flex-wrap:wrap}.r3-reset-confirm{flex:0 0 100%;display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:10px}.r3-reset-confirm .r3-actions{margin-top:0}
+.r3-library-switch{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:18px}.r3-library-switch button{font:inherit;font-size:14px;color:var(--muted);background:none;border:0;border-bottom:2px solid transparent;padding:10px 16px;cursor:pointer}.r3-library-switch button[aria-selected=true]{color:var(--accent);border-color:var(--accent);font-weight:600}.r3-library-switch button span{margin-left:8px;font-variant-numeric:tabular-nums}.r3-library-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0}.r3-library-toolbar input[type=search]{flex:1;min-width:180px}.r3-library-toolbar :is(input,select){font:inherit;font-size:13px;padding:9px 10px;min-height:38px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}.r3-library-subtoolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 16px}.r3-library-subtoolbar label{display:flex;gap:7px;align-items:center;font-size:13px}.r3-library-subtoolbar input{accent-color:var(--accent)}.r3-cover-frame{display:block;width:100%;height:100%}.r3-library .r3-library-grid{grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:16px}.r3-library .r3-market-grid{margin-bottom:0}.r3-library-results>.r3-caption{margin:14px 0}.r3-library-pagination{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:22px 0 8px}.r3-library-pagination .r3-actions{margin:0}.r3-page-jump{display:flex;gap:6px;align-items:center}.r3-page-jump input{width:70px;min-height:36px;padding:6px 8px;font:inherit;font-size:13px;font-variant-numeric:tabular-nums;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px}.r3-library .r3-library-card-body{gap:10px;padding:14px}.r3-library .r3-library-card-foot button{margin-left:0}.r3-downloads{border-bottom:1px solid var(--line);padding:0 0 14px;margin-bottom:16px}.r3-downloads summary{font-size:13px;font-weight:600;cursor:pointer;padding:8px 0}.r3-downloads ul{list-style:none;margin:0;padding:0}.r3-downloads li{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}.r3-download-copy{display:grid;gap:5px;flex:1;min-width:0}.r3-download-copy strong{font-size:13px;overflow-wrap:anywhere}.r3-downloads .r3-button{font-size:12px;padding:6px 10px}.r3-download-error{font-size:12px;color:var(--danger)}.r3-library progress{accent-color:var(--accent);display:block;width:100%;height:5px;border:0;border-radius:3px;overflow:hidden}.r3-library progress::-webkit-progress-bar{background:var(--paper)}.r3-library progress::-webkit-progress-value{background:var(--accent)}.r3-library-toolbar button:focus-visible,.r3-library-switch button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}@media(max-width:700px){.r3-library .r3-library-grid{grid-template-columns:1fr}.r3-library-toolbar input[type=search]{flex-basis:calc(100% - 90px)}.r3-library-toolbar select{flex:1;min-width:130px}}
+
 @media(prefers-reduced-motion:reduce){.dshc-r3 *{transition:none!important;scroll-behavior:auto!important}}
 `;
 

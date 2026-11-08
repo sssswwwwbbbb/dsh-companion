@@ -7,8 +7,8 @@ export function signedEnvelope(value, privateKey) {
   const payload = Buffer.from(JSON.stringify(value)).toString('base64url');
   return { payload, signature: sign(null, Buffer.from(payload), privateKey).toString('base64url') };
 }
-export function verifiedEnvelope(envelope, publicKey) {
-  if (!envelope || typeof envelope.payload !== 'string' || envelope.payload.length > 16384 || !/^[A-Za-z0-9_-]+$/.test(envelope.payload) || typeof envelope.signature !== 'string' || !/^[A-Za-z0-9_-]{86}$/.test(envelope.signature)) throw new Error('LICENSE_INVALID');
+export function verifiedEnvelope(envelope, publicKey, {maxPayloadLength=16384}={}) {
+  if (!envelope || typeof envelope.payload !== 'string' || envelope.payload.length > maxPayloadLength || !/^[A-Za-z0-9_-]+$/.test(envelope.payload) || typeof envelope.signature !== 'string' || !/^[A-Za-z0-9_-]{86}$/.test(envelope.signature)) throw new Error('LICENSE_INVALID');
   try {
     if (!verify(null, Buffer.from(envelope.payload), publicKey, Buffer.from(envelope.signature, 'base64url'))) throw new Error();
     return JSON.parse(Buffer.from(envelope.payload, 'base64url').toString());

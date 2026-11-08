@@ -13,3 +13,21 @@ export function createClientRequestGate(){
     get busy(){return !!(normal||stop);},
   };
 }
+
+// Catalog browsing and downloads have independent request lanes. Preserve a
+// newer lane when a slower ordinary status/save response reaches the page.
+export function mergeCompanionSnapshot(previous,next){
+  if(!previous||previous.license?.licenseId!==next.license?.licenseId)return next;
+  const oldMarket=previous.skin?.market,newMarket=next.skin?.market;
+  const keepMarket=oldMarket&&newMarket&&(oldMarket.revision??0)>(newMarket.revision??0);
+  let market=keepMarket?oldMarket:newMarket;
+  // Acquisitions are permanent for one license. A late status cannot refund
+  // a slot in the UI after a download refreshed the quota.
+  const quota=oldMarket?.quota?.used>newMarket?.quota?.used?oldMarket.quota:newMarket?.quota;
+  if(market&&quota)market={...market,quota};
+  return {...next,...(market?{skin:{...next.skin,market}}:{}),skinDownloads:mergeSkinDownloads(previous.skinDownloads,next.skinDownloads)};
+}
+export function mergeSkinDownloads(previous,next){
+  if(!previous)return next;if(!next)return previous;
+  return (previous.epoch??0)>(next.epoch??0)||(previous.epoch??0)===(next.epoch??0)&&(previous.revision??0)>(next.revision??0)?previous:next;
+}
