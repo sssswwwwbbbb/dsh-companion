@@ -254,10 +254,12 @@ if __name__ == "__main__":
     build(args.mac_package, args.electron_zip, args.output.resolve())
     if args.profile == "community":
         target = args.output.resolve()
-        renamed = target.with_name(target.stem + "-community-" + PLATFORM + ".tgz")
-        with zipfile.ZipFile(target) as package:
-            data = json.load(package.open("package/config/service.json"))
+        renamed = target.with_name(f"dsh-plugin-companion-{VERSION}-community-{PLATFORM}.tgz")
+        with tarfile.open(target) as package:
+            data = json.load(package.extractfile("package/config/service.json"))
         if "license-host.invalid" not in data.get("serviceUrl", ""):
             raise RuntimeError("COMMUNITY_BUILD_HAS_REAL_ENDPOINT")
+        if renamed.exists():
+            renamed.unlink()
         target.rename(renamed)
         print(json.dumps({"artifact": str(renamed), "sha256": sha256(renamed), "bytes": renamed.stat().st_size}))

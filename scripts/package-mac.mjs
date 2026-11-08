@@ -9,6 +9,8 @@ const packageDir = path.join(root, 'packages/dsh-companion');
 const bundles = path.join(packageDir, 'runtime-bundles');
 const application = path.join(packageDir, 'runtime/darwin-arm64/DSHCompanion.app');
 const dist = path.join(root, 'dist');
+const profile = process.env.DSH_BUILD_PROFILE || 'official';
+if(!['official','community'].includes(profile)) throw new Error('UNKNOWN_BUILD_PROFILE');
 fs.mkdirSync(bundles, { recursive: true });fs.mkdirSync(dist, { recursive: true });
 execFileSync('/usr/bin/codesign', ['--verify', '--strict', application], { stdio: 'pipe' });
 const archive = path.join(bundles, 'DSHCompanion-darwin-arm64.zip');
@@ -26,7 +28,6 @@ if(profile==='community'){const renamed=path.join(dist, packed.filename.replace(
 fs.writeFileSync(path.join(root, 'reports/mac-package.json'), JSON.stringify({ at:new Date().toISOString(), version, file:output, sizeBytes:fs.statSync(output).size, sha256:createHash('sha256').update(fs.readFileSync(output)).digest('hex'), includesDesktopRuntime:true, privateStateIncluded:false, files:packed.files.map(row=>row.path), signing:'local-development', publication:'local-only' }, null, 2)+'\n');
 // The packaged endpoint must match the build profile: official -> real endpoint,
 // community -> placeholder. Never ship one under the other's name.
-const profile=process.env.DSH_BUILD_PROFILE||'official';
 const packedConfig=JSON.parse(fs.readFileSync(path.join(packageDir,'config/service.json'),'utf8'));
 if(profile==='community'){if(!packedConfig.serviceUrl.includes('license-host.invalid'))throw new Error('COMMUNITY_BUILD_HAS_REAL_ENDPOINT');}
 else{const endpoint=fs.readFileSync(path.join(root,'.local/cloud/service-url.txt'),'utf8').trim();if(packedConfig.serviceUrl!==endpoint)throw new Error('SERVICE_ENDPOINT_NOT_INJECTED');}
