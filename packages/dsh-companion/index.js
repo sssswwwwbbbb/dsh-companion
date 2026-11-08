@@ -31,6 +31,12 @@ export class CompanionService extends TypertRemoteService {
   sceneConfigure(value) { return this.controller.skins.workspaceScenes.configure(value); }
   sceneArt(value) { return this.controller.skins.workspaceScenes.art(value); }
   skinCover(value) { return this.controller.skins.cover(value); }
+  skinCatalog(value) { return this.controller.refreshSkinCatalog(value); }
+  skinDownloadAdd(value) { return this.controller.skinDownloads.add(value); }
+  skinDownloadCancel(value) { return this.controller.skinDownloads.cancel(value); }
+  skinDownload(value) { return this.controller.downloadSkin(value); }
+  skinRemove(value) { return this.controller.skins.remove(value); }
+  skinOnlineCover(value) { return this.controller.entitlement.skinCover(value?.releaseId); }
   skinInstall() { return this.controller.installSkin(); }
   start() { return this.controller.start(); }
   stop() { return this.controller.stop(); }
@@ -55,7 +61,7 @@ export class CompanionService extends TypertRemoteService {
   revealDownload() { return this.controller.revealDownload(); }
 }
 // Apply the public Remote decorator in plain JS, without requiring a compiler.
-for (const name of ['petMemoryConfigure','characterSave','characterPet','characterSession','petActivityConfigure','petActivityDecide','workAutonomyConfigure','replyStyleSession','replyStyleSave','petInteract','petModels','skinSelect','skinConfigure','skinDisable','skinReset','skinStop','skinPage','focusAction','workspaceCueConfigure','sceneConfigure','sceneArt','skinCover','skinInstall','status','start','stop','configure','action','activate','refreshLicense','deactivate','selectPack','importPack','exportPack','replayIntro','syncHostWindow','installLauncher','removeLauncher','revealLauncher','checkUpdate','downloadUpdate','revealDownload']) {
+for (const name of ['petMemoryConfigure','characterSave','characterPet','characterSession','petActivityConfigure','petActivityDecide','workAutonomyConfigure','replyStyleSession','replyStyleSave','petInteract','petModels','skinSelect','skinConfigure','skinDisable','skinReset','skinStop','skinPage','focusAction','workspaceCueConfigure','sceneConfigure','sceneArt','skinCover','skinDownloadAdd','skinDownloadCancel','skinCatalog','skinDownload','skinRemove','skinOnlineCover','skinInstall','status','start','stop','configure','action','activate','refreshLicense','deactivate','selectPack','importPack','exportPack','replayIntro','syncHostWindow','installLauncher','removeLauncher','revealLauncher','checkUpdate','downloadUpdate','revealDownload']) {
   const initializers = [];
   Remote(CompanionService.prototype[name], { kind: 'method', name, static: false, private: false, addInitializer: fn => initializers.push(fn) });
   for (const initialize of initializers) initialize.call(Object.create(CompanionService.prototype));

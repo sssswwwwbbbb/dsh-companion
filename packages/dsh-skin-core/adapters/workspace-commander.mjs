@@ -1,14 +1,14 @@
 // Trusted rc.5 presentation adapter. Original controls and Session own all work.
 import {commanderState} from './commander-state.mjs';
 export function installWorkspaceCommander({ctx,React,config,identity}){
- const h=React.createElement,off=[],listeners=new Set();let disposed=false,seenSession=null,seenSeq=-1,pulse=null;
+ const h=React.createElement,off=[],listeners=new Set();let disposed=false,seenSession=null,seenSeq=-1,pulse=null,pendingFrame=null;
  let snapshot=commanderState({state:'idle'}),lastPacket=null;
  const source={getSnapshot:()=>snapshot,subscribe:fn=>{listeners.add(fn);return()=>listeners.delete(fn);}};
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  const record=(type,extra={})=>console.info('WORKSPACE_COMMANDER '+JSON.stringify({at:Date.now(),type,...identity,...extra}));
  const visible=()=>!disposed&&document.visibilityState==='visible'&&ctx.layout.panelInfo.getSnapshot().activePanelId===null;
- const inputActive=()=>document.activeElement?.closest('[data-composer-input],.JZLxKW_card,[contenteditable=true]');
- function cancel(){pulse?.cancel();pulse=null;}
+ const inputActive=()=>{const input=document.activeElement?.closest('[contenteditable=true],textarea,input');return !!input&&!!String(input.value??input.textContent??'').trim();};
+ function cancel(){if(pendingFrame!==null)cancelAnimationFrame(pendingFrame);pendingFrame=null;pulse?.cancel();pulse=null;}
  function dismissResponse(){cancel();if(snapshot.state==='completed')publish({...snapshot,copy:commanderState({state:'idle'}).copy});}
  function publish(value){snapshot=value;for(const fn of listeners)fn();}
  const icon=name=>{const pair=config.icons[name];return pair?h('span',{className:'dsh-commander-icon','aria-hidden':true},h('img',{className:'commander-light',src:pair.light,alt:''}),h('img',{className:'commander-dark',src:pair.dark,alt:''})):null;};
@@ -17,7 +17,7 @@ export function installWorkspaceCommander({ctx,React,config,identity}){
   const pair=config.icons[name];if(!pair)continue;
   for(const selector of selectors){const s='body.dsh-workspace-commander '+selector;leaves+=s+'{background-image:url("'+pair.light+'");background-position:center;background-size:contain;background-repeat:no-repeat} body.dsh-workspace-commander[data-ds-dark-theme] '+selector+'{background-image:url("'+pair.dark+'")} '+s+' > *{opacity:0}';}
  }
- document.body.classList.add('dsh-workspace-commander');off.push(()=>document.body.classList.remove('dsh-workspace-commander'));
+ document.body.classList.add('dsh-workspace-commander');document.body.classList.toggle('dsh-workspace-motion-off',!config.motion);off.push(()=>document.body.classList.remove('dsh-workspace-commander','dsh-workspace-motion-off'));
  off.push(ctx.slots.register({name:'shell.overlay',id:'commander-workspace-style',order:-99},()=>h('style',{'data-workspace-commander-style':true},WORKSPACE_COMMANDER_STYLE+'\n'+leaves)));
  function Companion(){
   const value=React.useSyncExternalStore(source.subscribe,source.getSnapshot);
@@ -42,13 +42,19 @@ export function installWorkspaceCommander({ctx,React,config,identity}){
   publish(commanderState(packet,detail));
   if(packet.state!=='completed'){cancel();return;}
   if(!fresh)return;cancel();
-  if(!config.feedback||!config.motion||!config.petEcho||reduced.matches||!visible()||inputActive())return;
-  const anchor=document.querySelector('[data-commander-companion] .commander-portrait');if(!anchor)return;
-  pulse=anchor.animate([{opacity:.72},{opacity:1}],{duration:420,easing:'cubic-bezier(.16,1,.3,1)'});
-  const owned=pulse;owned.finished.then(()=>{if(pulse===owned)pulse=null;},()=>{});
-  record('completion-response',{sessionId:packet.sessionId,seq:packet.seq,placement:'sidebar companion',inputObscured:false});
+  if(!config.feedback||!config.motion||reduced.matches||!visible()||inputActive())return;
+  // Wait for the session header to commit its completed state. A no-pet skin
+  // responds on that existing feedback label; role echo stays optional.
+  pendingFrame=requestAnimationFrame(()=>{
+   pendingFrame=null;if(!visible()||reduced.matches||inputActive())return;
+   const portrait=config.petEcho&&config.role?document.querySelector('[data-commander-companion] .commander-portrait'):null;
+   const anchor=portrait||document.querySelector('[data-dsh-work-state="completed"]');if(!anchor)return;
+   pulse=anchor.animate([{opacity:.72},{opacity:1}],{duration:420,easing:'cubic-bezier(.16,1,.3,1)'});
+   const owned=pulse;owned.finished.then(()=>{if(pulse===owned)pulse=null;},()=>{});
+   record('completion-response',{sessionId:packet.sessionId,seq:packet.seq,placement:portrait?'sidebar companion':'session feedback',inputObscured:false});
+  });
  }
  record('attached',{preset:config.preset,presentationSha:WORKSPACE_COMMANDER_BUILD,icons:Object.keys(config.icons).length,automaticOpening:false,audio:false});
- return {work,update(next){config=next;if(!config.feedback){cancel();publish(commanderState({state:'idle'}));}else if(lastPacket)publish(commanderState(lastPacket.packet,lastPacket.detail));if(!config.motion||!config.petEcho)cancel();},
+ return {work,update(next){config=next;document.body.classList.toggle('dsh-workspace-motion-off',!config.motion);if(!config.feedback){cancel();publish(commanderState({state:'idle'}));}else if(lastPacket)publish(commanderState(lastPacket.packet,lastPacket.detail));if(!config.motion)cancel();},
   dispose(){if(disposed)return;disposed=true;cancel();abort.abort();for(const fn of off.reverse())fn();listeners.clear();record('detached');}};
 }

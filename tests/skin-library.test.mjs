@@ -6,14 +6,15 @@ import os from 'node:os';
 import {createRequire} from 'node:module';
 import {SkinLibrary} from '../packages/dsh-companion/src/skin-library.mjs';
 import {CompanionSkins} from '../packages/dsh-companion/src/skins.mjs';
+import {ReplyStyle} from '../packages/dsh-companion/src/reply-style.mjs';
 import {CompanionController} from '../packages/dsh-companion/src/controller.mjs';
-import {digest,atomicJson} from '../packages/dsh-skin-core/src/index.mjs';
+import {digest,atomicJson,validateManifest} from '../packages/dsh-skin-core/src/index.mjs';
 const {zipSync}=createRequire(new URL('../packages/dsh-companion/package.json',import.meta.url))('fflate');
 const temp=t=>{const dir=fs.mkdtempSync(path.join(os.tmpdir(),'dsh-skin-library-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));return dir;};
 const fixtureManifest=(id='library-synthetic',version='1.0.0')=>({formatVersion:2,id,version,name:'隔离合成 · '+id,description:'仅用于隔离验证，不是正式皮肤',dshVersions:['0.2.1-rc.5'],assets:{},modules:{theme:{interfaceVersion:1,configVersion:1,required:true,config:{tokens:{'--dsw-alias-bg-base':{light:'#faf5ee',dark:'#232423'}}},settings:{backgroundOpacity:{label:'背景浓度',default:.02}}}}});
 function zip(dir,manifest,extra={}){const file=path.join(dir,'fixture-'+Math.random().toString(16).slice(2)+'.zip');fs.writeFileSync(file,zipSync({'skin.json':Buffer.from(JSON.stringify(manifest)),...extra}));return file;}
-function service(dir){
-  const controller={stateDir:dir,dshVersion:'0.2.1-rc.5',entitlement:{require(){},status:()=>({active:true})},nativeStatus:async()=>({})},skins=new CompanionSkins(controller);controller.status=()=>({skin:skins.status()});
+function service(dir,options){
+  const controller={stateDir:dir,dshVersion:'0.2.1-rc.5',entitlement:{require(){},status:()=>({active:true})},nativeStatus:async()=>({})},skins=new CompanionSkins(controller,options);controller.skins=skins;controller.status=()=>({skin:skins.status()});
   const adapters=Object.fromEntries(['theme','pet','startup'].map(module=>[module,{visible:null,available:()=>true,invalidate(){},prepare:()=>({}),async apply(c){c.assertCurrent();this.visible=c.skin.contentKey;return {ready:true};},async exit(){this.visible=null;return {cleared:true};}}]));skins.core.adapters=adapters;return {skins,controller,adapters};
 }
 test('real ZIP imports exact bundled skin bytes, is idempotent, persists and never applies or resets',async t=>{
@@ -88,4 +89,62 @@ test('retired bundled MVP selection is cleared without altering current skin pre
  const unchanged=service(stateDir);assert.equal(unchanged.skins.status().selected.contentKey,cold.contentKey);assert.equal(unchanged.skins.core.view().pet.values.size,82);
  const imported=await unchanged.skins.install(zip(dir,fixtureManifest('archive-warm-whale','9.0.0')));await unchanged.skins.select(imported);
  assert.equal(service(stateDir).skins.status().selected.contentKey,imported.contentKey);
+});
+
+test('uninstall current and inactive snapshots releases files, preserves preferences by default and permits reinstall',async t=>{
+ const dir=temp(t),stateDir=path.join(dir,'profile'),empty={bundledDir:path.join(dir,'no-bundle')},{skins,adapters}=service(stateDir,empty);
+ const file=zip(dir,fixtureManifest()),a=await skins.install(file),b=await skins.install(zip(dir,fixtureManifest('other-skin')));
+ await skins.select(a);await skins.configure({module:'theme',field:'backgroundOpacity',value:.08});
+ fs.mkdirSync(path.join(stateDir,'skin-assets',a.contentKey),{recursive:true});
+ fs.writeFileSync(path.join(stateDir,'skin-assets',a.contentKey,'test'),'cached asset');
+ await skins.remove(a);assert.equal(skins.status().selected,null);assert.equal(skins.status().stopped,true);assert.equal(adapters.theme.visible,null);
+ for(const cache of ['skin-packages','skin-assets'])assert.equal(fs.existsSync(path.join(stateDir,cache,a.contentKey)),false);
+ assert.equal(fs.existsSync(file),true);assert.equal(service(stateDir,empty).skins.status().catalog.length,1);
+ const again=await skins.install(file);await skins.select(again);assert.equal(skins.status().settings.theme.values.backgroundOpacity,.08);
+ await skins.remove(b);assert.equal(skins.status().selected.contentKey,a.contentKey);assert.equal(skins.status().stopped,false);
+ await skins.remove({...a,clearSettings:true});assert.equal(skins.core.state.overrides['library-synthetic'],undefined);
+ await skins.install(file);await skins.select(a);assert.equal(skins.status().settings.theme.values.backgroundOpacity,.02);
+});
+test('failed effect cleanup retains installed files and a later queued selection cannot revive a removing skin',async t=>{
+ const dir=temp(t),{skins,adapters}=service(path.join(dir,'profile'),{bundledDir:path.join(dir,'none')});
+ const a=await skins.install(zip(dir,fixtureManifest()));await skins.select(a);
+ const exit=adapters.theme.exit;adapters.theme.exit=async()=>{throw new Error('CLEANUP_FAILED');};
+ const removal=skins.remove(a);await assert.rejects(skins.select(a),/SKIN_REMOVE_PENDING/);await assert.rejects(removal,/SKIN_CLEANUP_UNCONFIRMED/);
+ assert.ok(fs.existsSync(skins.snapshots.get(a.contentKey).root));assert.ok(skins.library.keys().includes(a.contentKey));
+ adapters.theme.exit=exit;await skins.remove(a);assert.equal(skins.status().catalog.length,0);
+});
+test('split-package upgrade retains selected bundled cache; shared preferences cannot be cleared while another version remains',async t=>{
+ const dir=temp(t),stateDir=path.join(dir,'profile'),old=service(stateDir),skin=old.skins.snapshots.values().next().value;
+ await old.skins.select({contentKey:skin.contentKey});await old.skins.configure({module:'pet',field:'size',value:82});
+ const next=service(stateDir,{bundledDir:path.join(dir,'no-bundle')});assert.equal(next.skins.status().selected.contentKey,skin.contentKey);assert.ok(next.skins.library.keys().includes(skin.contentKey));assert.equal(next.skins.status().settings.pet.values.size,82);
+ const a=await next.skins.install(zip(dir,fixtureManifest())),b=await next.skins.install(zip(dir,fixtureManifest('library-synthetic','2.0.0')));
+ await assert.rejects(next.skins.remove({...a,clearSettings:true}),/SKIN_SETTINGS_SHARED/);await next.skins.remove(a);assert.ok(next.skins.snapshots.has(b.contentKey));
+});
+
+test('clear settings removes session choices from previously uninstalled versions without clearing another skin',async t=>{
+ const dir=temp(t),{skins,controller}=service(path.join(dir,'profile'),{bundledDir:path.join(dir,'none')});
+ const make=(id,version)=>({...fixtureManifest(id,version),replyStyle:{address:'用户',tone:'简练回答'},character:{name:'角色',identity:'测试身份',workContext:'协助工作'}});
+ const oneFile=zip(dir,make('clear-history','1.0.0')),one=await skins.install(oneFile),other=await skins.install(zip(dir,make('keep-history','1.0.0')));
+ controller.replyStyle=new ReplyStyle(controller,{get:()=>({})});controller.replyStyle.registered=true;
+ await skins.select(other);controller.replyStyle.characterSession({sessionId:'keep',contentKey:other.contentKey,enabled:true});
+ await skins.select(one);controller.replyStyle.session({sessionId:'old',contentKey:one.contentKey,enabled:false});controller.replyStyle.characterSession({sessionId:'old',contentKey:one.contentKey,enabled:true});
+ await skins.remove(one);const two=await skins.install(zip(dir,make('clear-history','2.0.0')));await skins.select(two);await skins.remove({...two,clearSettings:true});
+ const saved=JSON.parse(fs.readFileSync(controller.replyStyle.file));assert.equal(saved.sessions.old,undefined);assert.equal(saved.characterSessions.old,undefined);assert.equal(saved.characterSessions.keep,other.contentKey);
+ await skins.install(oneFile);await skins.select(one);assert.equal(controller.replyStyle.sessionStatus('old').enabled,true);assert.equal(controller.replyStyle.characterSessionStatus('old').enabled,false);
+});
+
+test('a fresh engine refuses legacy start and intro while internal import standby remains available',async()=>{
+ let launches=0;const host={disposed:false,entitlement:{require(){}},skins:{core:{state:{selected:null}}},config:{supportedDsh:['0.2.2-rc.1']},dshVersion:'0.2.2-rc.1',launch:async options=>{assert.equal(options.skinStandby,true);launches++;},status:async()=>({})};
+ await assert.rejects(CompanionController.prototype.start.call(host),/SKIN_NOT_SELECTED/);
+ await assert.rejects(CompanionController.prototype.replayIntro.call(host),/SKIN_NOT_SELECTED/);
+ await CompanionController.prototype.start.call(host,{skinStandby:true});assert.equal(launches,1);
+});
+
+
+test('commander static role requires only an avatar while the legacy animated layout retains its full resource contract',t=>{
+ const dir=temp(t),{skins}=service(path.join(dir,'profile')),source=[...skins.snapshots.values()][0];
+ const m=structuredClone(source.manifest),role=m.modules.theme.config.workspaceRole;
+ m.modules.theme.config.workspaceRole={avatar:role.avatar,name:role.name,model:role.model};
+ assert.doesNotThrow(()=>validateManifest(m));
+ m.modules.theme.config.workspacePreset='archive-warm-r2';assert.throws(()=>validateManifest(m),/SKIN_CONFIG_MISSING/);
 });

@@ -1,0 +1,11 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import {zipSync} from 'fflate';
+import {createLicenseService} from '../licensing/server.mjs';import {Entitlement} from '../packages/dsh-companion/src/entitlement.mjs';
+test('license change while exact details are pending cannot charge the replacement license',async t=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'dsh-download-identity-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));const server=await createLicenseService({stateDir:path.join(dir,'server')});t.after(()=>server.close());const serviceUrl='http://127.0.0.1:'+server.port;
+ const admin=async(route,input)=>(await fetch(serviceUrl+route,{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+server.adminToken},body:JSON.stringify(input)})).json();
+ const m={formatVersion:2,id:'identity-test',name:'测试',version:'1.0.0',dshVersions:['0.2.2-rc.1'],assets:{},modules:{theme:{interfaceVersion:1,configVersion:1,required:true,config:{tokens:{'--dsw-alias-bg-base':{light:'#ffffff',dark:'#111111'}}},settings:{}}}},file=path.join(dir,'skin.zip');fs.writeFileSync(file,zipSync({'skin.json':Buffer.from(JSON.stringify(m))}));const {skin}=await admin('/admin/skins',{artifact:file});
+ const a=await admin('/admin/issue',{days:0,skinLimit:1}),b=await admin('/admin/issue',{days:0,skinLimit:1});let release,held=false,downloadPosts=0;
+ const client=new Entitlement({stateDir:path.join(dir,'client'),deviceId:'a'.repeat(64),config:{serviceUrl,publicKey:server.publicKey},fetcher:async(url,options)=>{
+  const response=await fetch(url,options);if(url.endsWith('/v1/skins/catalog')&&JSON.parse(options.body).releaseId){held=true;await new Promise(resolve=>release=resolve);}if(url.endsWith('/v1/skins/download'))downloadPosts++;return response;
+ }});fs.mkdirSync(client.stateDir);await client.activate(a.code);const downloading=client.downloadSkin({releaseId:skin.releaseId,dshVersion:'0.2.2-rc.1'});while(!held)await new Promise(r=>setTimeout(r,5));await client.deactivate();await client.activate(b.code);release();await assert.rejects(downloading,/SKIN_DOWNLOAD_LICENSE_CHANGED/);assert.equal(downloadPosts,0);assert.equal((await client.refreshSkinCatalog()).quota.used,0);
+});

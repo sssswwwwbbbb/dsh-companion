@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { SkinDownloads } from './skin-downloads.mjs';
 import { CompanionSkins } from './skins.mjs';
 import { FocusTimer } from './focus.mjs';
 import { Entitlement } from './entitlement.mjs';
@@ -37,6 +38,7 @@ export class CompanionController {
     this.phase='stopped';this.child=undefined;this.pending=undefined;this.disposed=false;
     this.focus=new FocusTimer(this.stateDir);
     this.skins=new CompanionSkins(this);
+    this.skinDownloads=new SkinDownloads(this);
     this.build=metadata.build??Number(metadata.version.match(/dev\.(\d+)/)?.[1]||1);
   }
   credentials(){
@@ -54,7 +56,7 @@ export class CompanionController {
   async status(){
     const native=await this.nativeStatus(), license=this.entitlement.status(), settings=native.settings||this.settings();
     const update=readJson(join(this.stateDir,'update.json'),null), download=readJson(join(this.stateDir,'download.json'),null);
-    return JSON.parse(JSON.stringify({...native,desktopSkin:native.skin||null,skin:this.skins.status(),focus:this.focus.snapshot(),character:license.active?this.replyStyle?.characterStatus()||null:null,replyStyle:license.active?this.replyStyle?.status()||null:null,petInteraction:this.interactions?.status()||null,petMemory:license.active?this.interactions?.memory.status()||null:null,version:metadata.version,desktopVersion:native.version||null,platform:process.platform,phase:!license.active?'locked':native.phase,settings,license,packs:this.packs.summaries(),selectedPack:settings.packId,launcher:this.integration.status(),compatibility:{dshVersion:this.dshVersion,supported:this.config.supportedDsh.includes(this.dshVersion),testedVersions:this.config.supportedDsh},update:update?{...updateInfo(update.release,this.build),checkedAt:update.checkedAt}:null,download:download?{version:download.version,filename:basename(download.file),verified:true}:null}));
+    return JSON.parse(JSON.stringify({...native,desktopSkin:native.skin||null,skin:this.skins.status(),skinDownloads:this.skinDownloads?.status()||{jobs:[]},focus:this.focus.snapshot(),character:license.active?this.replyStyle?.characterStatus()||null:null,replyStyle:license.active?this.replyStyle?.status()||null:null,petInteraction:this.interactions?.status()||null,petMemory:license.active?this.interactions?.memory.status()||null:null,version:metadata.version,desktopVersion:native.version||null,platform:process.platform,phase:!license.active?'locked':native.phase,settings,license,packs:this.packs.summaries(),selectedPack:settings.packId,launcher:this.integration.status(),compatibility:{dshVersion:this.dshVersion,supported:this.config.supportedDsh.includes(this.dshVersion),testedVersions:this.config.supportedDsh},update:update?{...updateInfo(update.release,this.build),checkedAt:update.checkedAt}:null,download:download?{version:download.version,filename:basename(download.file),verified:true}:null}));
   }
   async boot({playIntro=false}={}){
     this.bootIntroRequested=playIntro&&this.settings().autoStart&&this.settings().startupEnabled;
@@ -63,7 +65,7 @@ export class CompanionController {
     if(this.entitlement.status().active){await this.entitlement.refresh();if(this.entitlement.status().active){
       const live=await this.nativeStatus();
       if(live.running)await this.request('/attach',{ownerPid:process.pid,dshVersion:this.dshVersion});
-      if(this.settings().autoStart)await this.start({playIntro});
+      if(this.settings().autoStart&&this.skins.core.state.selected&&!this.skins.core.state.stopped)await this.start({playIntro});
     }else await this.stop();}else await this.stop();
     this.heartbeat=setInterval(()=>{void this.maintain().catch(()=>{});},2000);this.heartbeat.unref?.();
     return this.status();
@@ -85,6 +87,7 @@ export class CompanionController {
   }
   async start({playIntro=false,skinStandby=!!this.skins.core.state.selected}={}){
     if(this.disposed)throw new Error('PLUGIN_DISPOSED');this.entitlement.require();
+    if(!skinStandby&&!this.skins.core.state.selected)throw new Error('SKIN_NOT_SELECTED');
     if(!this.config.supportedDsh.includes(this.dshVersion))throw new Error('DSH_UNSUPPORTED_VERSION');
     if(this.pending)return this.pending;this.pending=this.launch({playIntro,skinStandby}).finally(()=>{this.pending=undefined;});await this.pending;return this.status();
   }
@@ -139,16 +142,16 @@ export class CompanionController {
   async importPack(value){this.packs.import(value);return this.status();}
   exportPack(value){return this.packs.export(value||this.settings().packId);}
   async action(value){this.entitlement.require();await this.request('/action',{action:value});return this.status();}
-  async replayIntro(){this.entitlement.require();if(!(await this.nativeStatus()).running)await this.start();await this.request('/intro/replay',{});return this.status();}
+  async replayIntro(){this.entitlement.require();const skin=this.skins.core.state.selected;if(!skin)throw new Error('SKIN_NOT_SELECTED');if(!skin.manifest.modules.startup||this.skins.core.state.stopped||this.skins.core.state.disabled.startup)throw new Error('SKIN_SETTING_UNSUPPORTED');if(!(await this.nativeStatus()).running)await this.start();await this.request('/intro/replay',{});return this.status();}
   async syncHostWindow(value){
     const bounds=hostWindowBounds(value);if(!bounds)throw new Error('HOST_WINDOW_INVALID');
     writeJson(join(this.stateDir,'host-window.json'),{format:1,bounds,ownerPid:process.pid,updatedAt:Date.now(),workspaceVisible:value.workspaceVisible===true});
     if(this.credentials()&&this.entitlement.status().active)await this.request('/host-window',{bounds}).catch(()=>{});
     return {saved:true};
   }
-  async activate(value){await this.entitlement.activate(value);if(this.settings().autoStart)await this.start();return this.status();}
+  async activate(value){await this.skinDownloads.cancelAll();try{await this.entitlement.activate(value);if(this.settings().autoStart&&this.skins.core.state.selected&&!this.skins.core.state.stopped)await this.start();return this.status();}finally{this.skinDownloads.resume();}}
   async refreshLicense(){const value=await this.entitlement.refresh(true);if(!value.active)await this.stop();return this.status();}
-  async deactivate(){await this.entitlement.deactivate();await this.skins.core.stop();await this.stop();return this.status();}
+  async deactivate(){await this.skinDownloads.cancelAll();try{await this.entitlement.deactivate();await this.skins.core.stop();await this.stop();return this.status();}finally{this.skinDownloads.resume();}}
   async installLauncher(){this.entitlement.require();this.integration.record(this.dshVersion);if(!this.settings().launcherEnabled)await this.configure({launcherEnabled:true});await this.integration.install(await this.executable());return this.status();}
   async removeLauncher(){await this.configure({launcherEnabled:false});await this.integration.remove();return this.status();}
   async revealLauncher(){if(!this.integration.status().installed)throw new Error('LAUNCHER_NOT_FOUND');await execute('/usr/bin/open',['-R',this.integration.appPath]);return this.status();}
@@ -158,6 +161,14 @@ export class CompanionController {
     if(chosen.canceled)return {...await this.status(),skinImport:{canceled:true}};
     const imported=await this.skins.install(chosen.file);
     return {...await this.status(),skinImport:{...imported,filename:chosen.file.split('/').pop()}};
+  }
+  async refreshSkinCatalog(query){await this.entitlement.refreshSkinCatalog(query);return this.status();}
+  async downloadSkin(value){
+    const licenseId=this.entitlement.require().licenseId;
+    if(value?.licenseId&&value.licenseId!==licenseId)throw new Error('SKIN_DOWNLOAD_LICENSE_CHANGED');
+    const {file,entry}=await this.entitlement.downloadSkin({releaseId:value?.releaseId,dshVersion:this.dshVersion,signal:value?.signal,onProgress:value?.onProgress});
+    try{value?.signal?.throwIfAborted();if(this.entitlement.require().licenseId!==licenseId)throw new Error('SKIN_DOWNLOAD_LICENSE_CHANGED');if(this.disposed)throw new Error('PLUGIN_DISPOSED');const imported=await this.skins.install(file,{expected:entry});return {...await this.status(),skinImport:imported};}
+    finally{rmSync(file,{force:true});}
   }
   async checkUpdate(){const update=await this.entitlement.latest({dshVersion:this.dshVersion,build:this.build});writeJson(join(this.stateDir,'update.json'),{...update,checkedAt:Date.now()});return this.status();}
   async downloadUpdate(){await this.entitlement.download({dshVersion:this.dshVersion,build:this.build});return this.status();}
@@ -180,5 +191,5 @@ export class CompanionController {
     for(let i=0;i<30&&bridge&&alive(bridge.pid);i++)await delay(100);
     if(this.child&&this.child.exitCode===null)this.child.kill('SIGTERM');this.phase='stopped';return this.status();
   }
-  async dispose(){this.disposed=true;clearInterval(this.heartbeat);await this.skins.dispose();await this.stop();if(!profileGate(this.profileDir).enabled)await this.integration.remove();}
+  async dispose(){this.disposed=true;clearInterval(this.heartbeat);await this.skinDownloads.dispose();await this.skins.dispose();await this.stop();if(!profileGate(this.profileDir).enabled)await this.integration.remove();}
 }

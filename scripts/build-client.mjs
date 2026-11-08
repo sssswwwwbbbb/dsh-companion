@@ -13,7 +13,7 @@ const workspaceSkin=loadSkin(fileURLToPath(workspaceSource));prepareResources(wo
 const workspaceTarget=new URL('skins/archive-workspace-r2-private/',base);
 rmSync(workspaceTarget,{recursive:true,force:true});cpSync(workspaceSource,workspaceTarget,{recursive:true});
 mkdirSync(new URL('../reports/',import.meta.url),{recursive:true});
-writeFileSync(new URL('../reports/bundled-skins.json',import.meta.url),JSON.stringify({localReviewOnly:true,skins:[{id:workspaceSkin.manifest.id,version:workspaceSkin.manifest.version,contentKey:workspaceSkin.contentKey,source:'.local/accepted-inputs/skins/archive-workspace-r2-private',target:'packages/dsh-companion/skins/archive-workspace-r2-private',assets:Object.keys(workspaceSkin.manifest.assets).length}]},null,2)+'\n');
+writeFileSync(new URL('../reports/bundled-skins.json',import.meta.url),JSON.stringify({localReviewOnly:true,shippedWithPlugin:false,skins:[{id:workspaceSkin.manifest.id,version:workspaceSkin.manifest.version,contentKey:workspaceSkin.contentKey,source:'.local/accepted-inputs/skins/archive-workspace-r2-private',target:'packages/dsh-companion/skins/archive-workspace-r2-private',assets:Object.keys(workspaceSkin.manifest.assets).length}]},null,2)+'\n');
 rmSync(new URL('skin-core/',base),{recursive:true,force:true});
 const locales = Object.fromEntries(['zh','en'].map(locale => [locale,JSON.parse(readFileSync(new URL(`locale/${locale}.json`,base),'utf8'))]));
 cpSync(new URL('../packages/dsh-skin-core/',import.meta.url),new URL('skin-core/',base),{recursive:true,filter:source=>!/[\\/](tests|scripts|examples)([\\/]|$)/.test(source)});
@@ -26,19 +26,7 @@ const commanderCode='const WORKSPACE_COMMANDER_BUILD='+JSON.stringify(presentati
 const sessionFeedback=readFileSync(new URL('../packages/dsh-skin-core/adapters/session-feedback.mjs',import.meta.url),'utf8').replace('export function installSessionFeedback','function installSessionFeedback');
 const cueContract=readFileSync(new URL('../packages/dsh-skin-core/src/workspace-cues.mjs',import.meta.url),'utf8').replace(/^export /gm,'');
 const cueTracker=cueContract+'\n'+readFileSync(new URL('src/workspace-cue-tracker.mjs',base),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
-const clientRequests=readFileSync(new URL('src/client-requests.mjs',base),'utf8').replace('export function createClientRequestGate','function createClientRequestGate');
+const clientRequests=readFileSync(new URL('src/client-requests.mjs',base),'utf8').replace(/^export /gm,'');
 const settingsUi=readFileSync(new URL('src/skin-settings-ui.mjs',base),'utf8').replace(/^export /gm,'');
 const settingsAssets={};
-const portrait=workspaceSkin.manifest.assets[workspaceSkin.manifest.modules.theme.config.workspaceRole.portrait];
-settingsAssets.workspace={contentKey:workspaceSkin.contentKey,portrait:'data:image/png;base64,'+readFileSync(new URL('skins/archive-workspace-r2-private/'+portrait.path,base)).toString('base64')};
-
-settingsAssets.workspace.preset=workspaceSkin.manifest.modules.theme.config.workspacePreset;
-const role=workspaceSkin.manifest.modules.theme.config.workspaceRole;
-if(role.name&&role.model)settingsAssets.workspace.roleLabel=role.name+' · '+role.model;
-const cover=workspaceSkin.manifest.assets['workspace-cover'];
-settingsAssets.workspace.cover='data:image/png;base64,'+readFileSync(new URL('skins/archive-workspace-r2-private/'+cover.path,base)).toString('base64');
-settingsAssets.workspace.controlIcons={};
-for(const [control,key]of Object.entries({library:'archive',install:'download',settings:'sliders',more:'more',shield:'shield',pause:'pause',play:'play',reset:'retry',arrow:'chevron-right'})){
- settingsAssets.workspace.controlIcons[control]=Object.fromEntries(Object.entries(workspaceSkin.manifest.modules.theme.config.semanticIcons[key]).map(([mode,id])=>[mode,'data:image/png;base64,'+readFileSync(new URL('skins/archive-workspace-r2-private/'+workspaceSkin.manifest.assets[id].path,base)).toString('base64')]));
-}
 writeFileSync(new URL('client.js',base),readFileSync(new URL('src/client.template.js',base),'utf8').replace('__LOCALES__',()=>JSON.stringify(locales)).replace('__SKIN_CLIENT__',()=>workspaceCode+'\n'+commanderCode+'\n'+sessionFeedback+'\n'+cueTracker+'\n'+skinClient).replace('__CLIENT_REQUESTS__',()=>clientRequests).replace('__SKIN_SETTINGS_UI__',()=>settingsUi).replace('__SKIN_SETTINGS_ASSETS__',()=>JSON.stringify(settingsAssets)));

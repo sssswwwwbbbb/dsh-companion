@@ -103,3 +103,49 @@ test('a late Native acknowledgement cannot overwrite the new character interacti
   assert.equal(pet.status().last,null);assert.equal(pet.status().historyCount,0);
  }finally{s.close();}
 });
+
+test('same-skin upgrades preserve conversation choices across content keys without inheriting other or unknown owners',()=>{
+ const s=system();try{
+  s.selected.manifest.replyStyle={address:'搭档',tone:'简短。'};
+  const oldKey=s.selected.contentKey,id=s.selected.manifest.id;
+  s.style.session({sessionId:'alpha',contentKey:oldKey,enabled:false});
+  s.style.session({sessionId:'beta',contentKey:oldKey,enabled:true});
+  s.style.characterSession({sessionId:'alpha',contentKey:oldKey,enabled:true});
+  // Legacy string choices and keys without an owner can still exist in saved state.
+  s.style.commit({...s.style.data,sessions:{...s.style.data.sessions,legacy:oldKey,unknown:{contentKey:'unknown-key',enabled:false}},characterSessions:{...s.style.data.characterSessions,unknown:'unknown-key'}});
+  s.core.state.selected={...s.selected,contentKey:'upgraded-key',manifest:{...s.selected.manifest,version:'99.0.0'}};
+  const verify=style=>{
+   assert.equal(style.sessionStatus('alpha').enabled,false);
+   assert.equal(style.sessionStatus('beta').enabled,true);
+   assert.equal(style.sessionStatus('legacy').enabled,true);
+   assert.equal(style.characterSessionStatus('alpha').enabled,true);
+   assert.equal(style.characterSessionStatus('beta').enabled,false);
+   assert.equal(style.sessionStatus('unknown').enabled,true,'unknown owner uses the current skin default');
+   assert.equal(style.characterSessionStatus('unknown').enabled,false);
+  };
+  verify(s.style);
+  const restored=new ReplyStyle(s.controller,s.sessions);restored.register({section:()=>()=>{}});verify(restored);
+  assert.equal(restored.data.skinOwners[oldKey],id);
+  // A different skin has its own fallback; old per-conversation choices must not override it.
+  s.core.state.selected={...s.core.state.selected,contentKey:'other-key',manifest:{...s.selected.manifest,id:'other-skin'}};
+  restored.data.enabledBySkin['other-skin']=false;
+  assert.equal(restored.sessionStatus('beta').enabled,false);
+  assert.equal(restored.sessionStatus('legacy').enabled,false);
+  assert.equal(restored.characterSessionStatus('alpha').enabled,false);
+  restored.characterSession({sessionId:'alpha',contentKey:'other-key',enabled:false});
+  assert.equal(restored.data.characterSessions.alpha,oldKey,'disabling another skin does not remove the original role choice');
+  restored.data.enabledBySkin['other-skin']=true;
+  assert.equal(restored.sessionStatus('alpha').enabled,true);
+  // Returning to the upgraded skin restores both independent conversation choices.
+  s.core.state.selected={...s.selected,contentKey:'upgraded-key'};verify(restored);
+  restored.characterSession({sessionId:'alpha',contentKey:'upgraded-key',enabled:false});
+  assert.equal(restored.characterSessionStatus('alpha').enabled,false);
+  assert.equal(restored.sessionStatus('alpha').enabled,false);
+  restored.session({sessionId:'alpha',contentKey:'upgraded-key',enabled:true});
+  restored.session({sessionId:'beta',contentKey:'upgraded-key',enabled:false});
+  s.core.state.selected={...s.selected,contentKey:'second-upgrade-key'};
+  assert.equal(restored.sessionStatus('alpha').enabled,true,'explicit on survives a newer off default');
+  assert.equal(restored.sessionStatus('beta').enabled,false);
+  assert.equal(restored.sessionStatus('fresh').enabled,false);
+ }finally{s.close();}
+});

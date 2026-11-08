@@ -29,10 +29,10 @@ const entryMarks=x=>object(x)&&Object.keys(x).length===2&&id(x.light)&&id(x.dark
 const feedbackFields=['entryMarks','entryMarkEnabled','workFeedbackEnabled','petEchoEnabled'];
 const workspaceIcons=x=>object(x)&&Object.keys(x).length>0&&Object.keys(x).length<=64&&Object.entries(x).every(([key,pair])=>id(key)&&entryMarks(pair));
 function workspaceRole(value){
-  if(!object(value)||!['poster','portrait','avatar','idle','react'].every(key=>id(value[key])))return false;
-  const count=Object.keys(value).length;
-  return count===5||count===7&&text(value.name,32)&&value.name.trim().length>0
-    &&text(value.model,24)&&/^[A-Z0-9]+(?:-[A-Z0-9]+)*$/.test(value.model);
+  const artwork=['poster','portrait','avatar','idle','react'];
+  if(!object(value)||!id(value.avatar)||!Object.keys(value).every(key=>[...artwork,'name','model'].includes(key)))return false;
+  if(artwork.some(key=>own(value,key)&&!id(value[key])))return false;
+  return !own(value,'name')&&!own(value,'model')||text(value.name,32)&&value.name.trim().length>0&&text(value.model,24)&&/^[A-Z0-9]+(?:-[A-Z0-9]+)*$/.test(value.model);
 }
 const workspaceFields=['semanticIcons','workspacePreset','workspaceDetailsEnabled','workspaceMotionEnabled','workspaceRole'];
 export const definitions = {
@@ -190,8 +190,9 @@ export function validateManifest(input) {
         if(!['archive-warm-r2','commander-v1'].includes(m.config.workspacePreset)||!m.config.semanticIcons||!declares('workspaceDetailsEnabled'))fail('SKIN_CONFIG_MISSING','theme.workspace');
         for(const pair of Object.values(m.config.semanticIcons))for(const asset of Object.values(pair))if(input.assets[asset]?.mime!=='image/png')fail('SKIN_RESOURCE_MISSING','theme.semanticIcons');
         if(m.config.workspaceRole){
-          for(const key of ['poster','portrait','avatar'])if(input.assets[m.config.workspaceRole[key]]?.mime!=='image/png')fail('SKIN_RESOURCE_MISSING','theme.workspaceRole');
-          for(const key of ['idle','react'])if(input.assets[m.config.workspaceRole[key]]?.mime!=='video/webm')fail('SKIN_RESOURCE_MISSING','theme.workspaceRole');
+          if(m.config.workspacePreset==='archive-warm-r2'&&!['poster','portrait','avatar','idle','react'].every(key=>id(m.config.workspaceRole[key])))fail('SKIN_CONFIG_MISSING','theme.workspaceRole');
+          for(const key of ['poster','portrait','avatar'])if(own(m.config.workspaceRole,key)&&input.assets[m.config.workspaceRole[key]]?.mime!=='image/png')fail('SKIN_RESOURCE_MISSING','theme.workspaceRole');
+          for(const key of ['idle','react'])if(own(m.config.workspaceRole,key)&&input.assets[m.config.workspaceRole[key]]?.mime!=='video/webm')fail('SKIN_RESOURCE_MISSING','theme.workspaceRole');
         }
       }
       if(m.configVersion===1&&feedbackFields.some(declares))fail('SKIN_SETTING_UNSUPPORTED','theme.feedback');

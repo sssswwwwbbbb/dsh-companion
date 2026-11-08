@@ -13,6 +13,6 @@ if(!service){
  for(let i=0;i<80;i++){await new Promise(r=>setTimeout(r,100));try{const row=JSON.parse(fs.readFileSync(serviceFile));const response=await fetch(row.serviceUrl+'/health',{signal:AbortSignal.timeout(1000)});if((await response.json()).ok){service=row;break;}}catch{}}
 }
 if(!service)throw new Error('LICENSE_SERVICE_START_FAILED');
-const config={format:1,productId:'dsh-companion',serviceUrl:service.serviceUrl,publicKey:service.publicKey,channel:'private',supportedDsh:['0.2.1-rc.5'],mode:'local-validation'};
+const config={format:1,productId:'dsh-companion',serviceUrl:service.serviceUrl,publicKey:service.publicKey,channel:'private',supportedDsh:["0.2.1-rc.4","0.2.1-rc.5","0.2.2-rc.1"],mode:'local-validation'};
 const directory=path.join(root,'packages/dsh-companion/config');fs.mkdirSync(directory,{recursive:true});fs.writeFileSync(path.join(directory,'service.json'),JSON.stringify(config,null,2)+'\n');
 console.log('Private local service ready; only the public verification key and endpoint were copied into the plugin.');

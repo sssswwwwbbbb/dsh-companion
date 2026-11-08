@@ -175,5 +175,17 @@
   "SKIN_RESOURCE_SIZE": "皮肤资源大小不一致，未加入库。",
   "SKIN_LIBRARY_INVALID": "本地皮肤库记录异常，请保留文件并反馈。",
   "SKIN_LIBRARY_FULL": "本地皮肤库已达到当前数量上限。",
-  "PET_ACTIVITY_NOT_READY": "请先开启工作反馈和允许动作，回到空闲会话后再试。"
+  "PET_ACTIVITY_NOT_READY": "请先开启工作反馈和允许动作，回到空闲会话后再试。",
+  "skinRemoved": "皮肤已卸载。",
+  "SKIN_SETTINGS_SHARED": "本机还有这套皮肤的其他版本，请卸载所有版本后再清除设置。",
+  "SKIN_REMOVE_PENDING": "皮肤正在卸载，请稍候。",
+  "SKIN_CLEANUP_UNCONFIRMED": "未能确认效果已停止，皮肤文件已保留，请重试卸载。",
+  "SKIN_CATALOG_INVALID": "皮肤库数据校验失败，请刷新重试。",
+  "SKIN_PACKAGE_MISMATCH": "下载包与皮肤库记录不一致，请重新下载。",
+  "SKIN_DSH_UNSUPPORTED": "这套皮肤尚不支持当前 DSH 版本。",
+  "SKIN_VERSION_CONFLICT": "这套皮肤的相同版本已有不同内容。",
+  "SKIN_DOWNLOAD_LIMIT_REACHED": "可下载皮肤数量已用完，仍可重装和更新已领取的皮肤。",
+  "SKIN_CATALOG_QUERY_INVALID": "搜索条件无效，请调整后重试。",
+  "SKIN_DOWNLOAD_PAUSED": "正在切换授权，请稍后重新添加下载。",
+  "SKIN_DOWNLOAD_LICENSE_CHANGED": "授权已改变，请重新添加此下载。"
 }

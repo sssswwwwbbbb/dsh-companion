@@ -6,6 +6,8 @@ import { randomBytes, randomUUID, generateKeyPairSync, createHash, timingSafeEqu
 import { fileURLToPath } from 'node:url';
 import {pipeline} from 'node:stream';
 import {createManagementConsole} from './console.mjs';
+import {validSkinLimit} from './skin-quota.mjs';
+import {createSkinCatalog} from './skin-catalog.mjs';
 import {readReleasePackage} from './release-package.mjs';
 import { signedEnvelope, verifyLicense, productId, isPermanentLicense } from '../packages/dsh-companion/src/license-core.mjs';
 
@@ -33,10 +35,10 @@ export async function createLicenseService({ stateDir, port=0, now=Date.now, gra
   };
   const normalizedCode=code=>String(code||'').trim().toUpperCase();
   const hashCode=code=>createHash('sha256').update(normalizedCode(code)).digest('hex');
-  let management,publicDownloads=0;
-  const issueLicense=async(db,{devices,days,label,source='ssh'})=>{
+  let management;
+  const issueLicense=async(db,{devices,days,label,skinLimit=0,source='ssh'})=>{
     const code='DSHC-'+randomBytes(18).toString('hex').toUpperCase().match(/.{1,6}/g).join('-');
-    const license={id:'lic_'+randomUUID(),codeHash:hashCode(code),label:String(label||'private').slice(0,80),createdAt:now(),expiresAt:days===0?null:now()+days*day,...(days===0?{permanent:true}:{}),maxDevices:devices,revoked:false,devices:[],source};
+    const license={id:'lic_'+randomUUID(),codeHash:hashCode(code),label:String(label||'private').slice(0,80),createdAt:now(),expiresAt:days===0?null:now()+days*day,...(days===0?{permanent:true}:{}),maxDevices:devices,skinLimit,skinIds:[],revoked:false,devices:[],source};
     if(management)Object.assign(license,await management.protectCode(license.id,code));
     db.licenses.push(license);db.audit.push({at:now(),type:'issued',licenseId:license.id});return {license,code};
   };
@@ -53,6 +55,7 @@ export async function createLicenseService({ stateDir, port=0, now=Date.now, gra
     if(!license.devices.some(row=>row.id===deviceId))failure('LICENSE_DEVICE_RELEASED');
     return {license,claims};
   }
+  const skinCatalog=createSkinCatalog({stateDir,transaction,licensed,privateKey,now});
   const invalidAttempts=new Map();
   function clientAddress(request) {
     const peer=request.socket.remoteAddress||'local',forwarded=request.headers['x-real-ip'];
@@ -71,7 +74,7 @@ export async function createLicenseService({ stateDir, port=0, now=Date.now, gra
     response.setHeader('Cache-Control','no-store');response.setHeader('X-Content-Type-Options','nosniff');
     let businessError=null;
     const requestPath=(()=>{try{return new URL(request.url,'http://127.0.0.1').pathname;}catch{return '';}})();
-    if(['/v1/activate','/v1/renew','/v1/deactivate','/v1/releases/latest','/v1/releases/download'].includes(requestPath)){
+    if(['/v1/activate','/v1/renew','/v1/deactivate','/v1/releases/latest','/v1/releases/download','/v1/skins/catalog','/v1/skins/download','/v1/skins/cover'].includes(requestPath)){
       const requestId=randomUUID(),started=performance.now();let logged=false;response.setHeader('X-Request-ID',requestId);
       const record=()=>{if(logged)return;logged=true;try{requestLogger({at:new Date().toISOString(),requestId,method:request.method,path:requestPath,status:response.writableFinished?response.statusCode:499,durationMs:Math.round((performance.now()-started)*1000)/1000,errorCode:response.writableFinished?businessError:'CLIENT_DISCONNECTED'});}catch{}};
       response.once('finish',record);response.once('close',record);
@@ -84,15 +87,18 @@ export async function createLicenseService({ stateDir, port=0, now=Date.now, gra
         if(!['GET','HEAD'].includes(request.method)){json({error:'METHOD_NOT_ALLOWED'},405);return;}
         const filename=url.pathname.slice('/install/'.length);
         if(!/^dsh-companion-[0-9A-Za-z.+-]+\.tgz$/.test(filename)){json({error:'NOT_FOUND'},404);return;}
-        const release=await transaction(db=>db.releases.find(row=>row.publicInstall===true&&row.filename===filename),false);
+        const platform=filename==='dsh-companion-latest.tgz'?'darwin-arm64':filename==='dsh-companion-latest-win32-x64.tgz'?'win32-x64':null;
+        if(platform)response.setHeader('Cache-Control','no-store');
+        const release=await transaction(db=>platform?
+          db.releases.filter(row=>row.publicInstall===true&&row.platform===platform).sort((a,b)=>b.build-a.build||b.publishedAt-a.publishedAt)[0]:
+          db.releases.find(row=>row.publicInstall===true&&row.filename===filename),false);
         if(!release){json({error:'NOT_FOUND'},404);return;}
         const file=path.join(stateDir,'releases',release.sha256+'.tgz');if(!fs.existsSync(file)){json({error:'NOT_FOUND'},404);return;}
-        const etag='"'+release.sha256+'"';response.setHeader('ETag',etag);response.setHeader('Cache-Control','public, max-age=31536000, immutable');
+        const etag='"'+release.sha256+'"';response.setHeader('ETag',etag);response.setHeader('Cache-Control',platform?'no-store':'public, max-age=31536000, immutable');
         if(request.headers['if-none-match']===etag){response.writeHead(304);response.end();return;}
-        if(request.method==='GET'&&publicDownloads>=2){response.setHeader('Cache-Control','no-store');json({error:'DOWNLOAD_RATE_LIMIT'},429);return;}
-        response.writeHead(200,{'Content-Type':'application/octet-stream','Content-Length':release.size,'Content-Disposition':'attachment; filename="'+filename+'"'});
+        response.writeHead(200,{'Content-Type':'application/octet-stream','Content-Length':release.size,'Content-Disposition':'attachment; filename="'+release.filename+'"'});
         if(request.method==='HEAD'){response.end();return;}
-        publicDownloads++;response.once('close',()=>{publicDownloads--;});pipeline(fs.createReadStream(file),response,()=>{});return;
+        pipeline(fs.createReadStream(file),response,()=>{});return;
       }
       if(request.headers.origin){json({error:'FORBIDDEN'},403);return;}
       if(request.method==='GET'&&url.pathname==='/health'){json({ok:true,product:productId,mode:trustProxy?'private-https-service':'private-local-service'});return;}
@@ -100,10 +106,11 @@ export async function createLicenseService({ stateDir, port=0, now=Date.now, gra
       let body='';
       for await(const chunk of request){body+=chunk;if(Buffer.byteLength(body)>32768)failure('REQUEST_TOO_LARGE');}
       const input=body?JSON.parse(body):{};
+      if(await skinCatalog(request,response,url,input,json))return;
       if(request.method==='POST'&&url.pathname==='/admin/issue'){
-        const devices=input.devices??1, days=input.days??30;
-        if(!Number.isInteger(devices)||devices<1||devices>50||!Number.isInteger(days)||days<0||days>3650)failure('INVALID_LICENSE_LIMITS');
-        const result=await transaction(async db=>{const {license,code}=await issueLicense(db,{devices,days,label:input.label});return {licenseId:license.id,expiresAt:license.expiresAt,permanent:isPermanentLicense(license),code};});
+        const devices=input.devices??1, days=input.days??30,skinLimit=input.skinLimit??0;
+        if(!Number.isInteger(devices)||devices<1||devices>50||!Number.isInteger(days)||days<0||days>3650||!validSkinLimit(skinLimit))failure('INVALID_LICENSE_LIMITS');
+        const result=await transaction(async db=>{const {license,code}=await issueLicense(db,{devices,days,label:input.label,skinLimit});return {licenseId:license.id,expiresAt:license.expiresAt,permanent:isPermanentLicense(license),skinLimit:license.skinLimit??0,code};});
         json(result);return;
       }
       if(request.method==='POST'&&url.pathname==='/admin/revoke'){

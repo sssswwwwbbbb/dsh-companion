@@ -150,3 +150,14 @@ test('enabling the console preserves pre-existing codes and signing keys across 
     fs.rmSync(path.join(stateDir,'issuance-key.bin'));assert.throws(()=>openCodeVault(stateDir,db),/ISSUANCE_KEY_MISSING/);
   }finally{await service.close();fs.rmSync(directory,{recursive:true,force:true});}
 });
+
+test('batch issuance accepts numeric skin download limits and editing an old code preserves its acquired IDs',async()=>{
+ const env=await setup();try{
+  await env.login();const options={requestId:randomUUID(),count:2,days:0,devices:1,skinLimit:3,label:'皮肤数量验证'};
+  const batch=await env.request('/manage/api/licenses/issue',{method:'POST',body:options});assert.equal(batch.status,200);assert.equal(batch.value.licenses[0].skinLimit,3);
+  assert.deepEqual((await env.request('/manage/api/licenses/issue',{method:'POST',body:options})).value,batch.value);
+  const id=batch.value.licenses[0].id,detail=(await env.request('/manage/api/licenses/'+id)).value;assert.equal(detail.license.skinQuota.limit,3);
+  const updated=await env.request('/manage/api/licenses/'+id+'/update',{method:'POST',body:{label:'不限量',devices:1,skinLimit:0,revision:detail.license.revision}});assert.equal(updated.status,200);assert.equal(updated.value.license.skinQuota.limit,0);
+  for(const skinLimit of [-1,1.5,'3'])assert.equal((await env.request('/manage/api/licenses/issue',{method:'POST',body:{...options,requestId:randomUUID(),skinLimit}})).status,400);
+ }finally{await env.close();}
+});

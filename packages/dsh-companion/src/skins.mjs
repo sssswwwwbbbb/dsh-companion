@@ -1,10 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {StateStore,SkinCoordinator,loadSkin,cacheSkin,readAsset,fail} from '../skin-core/src/index.mjs';
+import {StateStore,SkinCoordinator,loadSkin,prepareResources,cacheSkin,readAsset,fail} from '../skin-core/src/index.mjs';
 import {PageMailbox} from '../skin-core/adapters/page-mailbox.mjs';
 import {NativePetAdapter} from '../skin-core/adapters/native.mjs';
 import {NativeStartupAdapter} from '../skin-core/adapters/startup.mjs';
+import {supportsSkinHost} from '../skin-core/src/host-compatibility.mjs';
 import {SkinLibrary,unavailableSkin} from './skin-library.mjs';
 import {WorkFeedback} from './work-feedback.mjs';
 import {WorkspaceCues} from './workspace-cues.mjs';
@@ -12,9 +13,9 @@ import {PetActivities} from './pet-activities.mjs';
 import {WorkspaceScenes} from './workspace-scenes.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 export class CompanionSkins {
-  constructor(controller,{includeExamples=false}={}){
-    this.controller=controller;this.catalog=new Map();this.snapshots=new Map();this.page=new PageMailbox();this.examples=new Set();this.library=new SkinLibrary(controller.stateDir);this.unavailable=[];
-    const bundled=path.join(root,'skins');if(fs.existsSync(bundled))for(const name of fs.readdirSync(bundled))if(fs.statSync(path.join(bundled,name)).isDirectory()){
+  constructor(controller,{includeExamples=false,bundledDir=path.join(root,'skins')}={}){
+    this.controller=controller;this.catalog=new Map();this.snapshots=new Map();this.page=new PageMailbox();this.examples=new Set();this.library=new SkinLibrary(controller.stateDir);this.unavailable=[];this.removing=new Set();
+    const bundled=bundledDir;if(fs.existsSync(bundled))for(const name of fs.readdirSync(bundled))if(fs.statSync(path.join(bundled,name)).isDirectory()){
       let skin;try{skin=loadSkin(path.join(bundled,name));this.registerSnapshot(cacheSkin(skin,this.controller.stateDir));}catch(error){this.unavailable.push(unavailableSkin(error,skin?.contentKey,skin));}
     }
     if(includeExamples)for(const name of ['a','b'])this.examples.add(this.registerDirectory(path.join(root,'skin-core/examples',name)).manifest.id);
@@ -28,6 +29,11 @@ export class CompanionSkins {
       Object.assign(this.core.state,{selected:null,pending:null,stopped:true,results:{},error:null});
       this.core.phase='stopped';this.core.store.write(this.core.state);
     }
+    // An upgrade from bundled skins adopts the committed, verified snapshot.
+    // Selection and preferences stay intact when the plugin no longer ships it.
+    if(previous&&previous.manifest.id!=='archive-warm-whale'&&!this.snapshots.has(previous.contentKey)&&!this.unavailable.some(row=>row.contentKey===previous.contentKey)){
+      try{const retained=loadSkin(path.join(controller.stateDir,'skin-packages',previous.contentKey));prepareResources(retained);if(retained.contentKey!==previous.contentKey)fail('SKIN_CACHE_INVALID');this.library.retain(retained);this.registerSnapshot(retained);}catch(error){this.unavailable.push(unavailableSkin(error,previous.contentKey,previous));}
+    }
     this.work=new WorkFeedback(this);
     this.activities=new PetActivities(this);
     this.workspaceCues=new WorkspaceCues(this);
@@ -38,7 +44,9 @@ export class CompanionSkins {
   status(){
     let settings={};try{settings=this.core.view();}catch{}
     const unavailable=this.unavailable.filter((row,index,rows)=>!this.snapshots.has(row.contentKey)&&rows.findIndex(other=>other.contentKey===row.contentKey)===index);
-    return {...this.core.status(),settings,workAutonomy:this.work.status(settings),petActivities:this.activities.status(),workspaceCues:this.workspaceCues.status(),workspaceScenes:this.workspaceScenes.status(),catalog:[...this.snapshots.values()].map(s=>({id:s.manifest.id,contentKey:s.contentKey,name:s.manifest.name,description:s.manifest.description,version:s.manifest.version,hasCover:!!s.manifest.cover,modules:Object.keys(s.manifest.modules),example:this.examples.has(s.manifest.id)})).concat(unavailable)};
+    const catalog=this.controller.entitlement.skinCatalog?.();
+    const market=catalog?{...catalog,skins:catalog.skins.map(row=>({...row,compatible:supportsSkinHost({dshVersions:row.supportedDsh},row.contentKey,this.controller.dshVersion)}))}:null;
+    return {...this.core.status(),settings,workAutonomy:this.work.status(settings),petActivities:this.activities.status(),workspaceCues:this.workspaceCues.status(),workspaceScenes:this.workspaceScenes.status(),market,catalog:[...this.snapshots.values()].map(s=>({id:s.manifest.id,contentKey:s.contentKey,name:s.manifest.name,description:s.manifest.description,version:s.manifest.version,hasCover:!!s.manifest.cover,modules:Object.keys(s.manifest.modules),example:this.examples.has(s.manifest.id)})).concat(unavailable)};
   }
   cover({contentKey}={}){
     this.controller.entitlement.require();
@@ -47,12 +55,35 @@ export class CompanionSkins {
     const asset=skin.manifest.assets[coverId];
     return 'data:'+asset.mime+';base64,'+readAsset(skin.root,asset).toString('base64');
   }
-  async install(file){this.controller.entitlement.require();const result=this.library.install(file),duplicate=result.duplicate||this.snapshots.has(result.skin.contentKey);this.registerSnapshot(result.skin);this.unavailable=this.unavailable.filter(row=>row.contentKey!==result.skin.contentKey);return {contentKey:result.skin.contentKey,duplicate};}
+  async install(file,options){this.controller.entitlement.require();const result=this.library.install(file,options),duplicate=result.duplicate||this.snapshots.has(result.skin.contentKey);this.registerSnapshot(result.skin);this.unavailable=this.unavailable.filter(row=>row.contentKey!==result.skin.contentKey);return {contentKey:result.skin.contentKey,duplicate};}
+  async remove({contentKey,clearSettings=false}={}){
+    if(!/^[a-f0-9]{64}$/.test(contentKey||'')||typeof clearSettings!=='boolean')fail('SKIN_NOT_FOUND');
+    if(this.removing.has(contentKey))fail('SKIN_REMOVE_PENDING');
+    this.removing.add(contentKey);
+    try{return await this.core.queue(async()=>{
+      const skin=this.snapshots.get(contentKey),broken=this.unavailable.find(row=>row.contentKey===contentKey);
+      if(!skin&&!broken)fail('SKIN_NOT_FOUND');
+      const id=skin?.manifest.id||broken?.id;
+      if(clearSettings&&id&&[...this.snapshots.values()].some(other=>other.contentKey!==contentKey&&other.manifest.id===id))fail('SKIN_SETTINGS_SHARED');
+      if(this.core.state.selected?.contentKey===contentKey){
+        this.core.requestSeq++;this.core.state.stopped=true;
+        const generation=this.core.next();await this.core.finishStop(this.core.context(generation));
+        if(this.core.phase!=='stopped')fail('SKIN_CLEANUP_UNCONFIRMED');
+        Object.assign(this.core.state,{selected:null,pending:null,results:{},error:null});this.core.store.write(this.core.state);
+      }
+      this.library.remove(contentKey);this.snapshots.delete(contentKey);
+      this.unavailable=this.unavailable.filter(row=>row.contentKey!==contentKey);
+      if(id&&this.catalog.get(id)?.contentKey===contentKey){this.catalog.delete(id);const other=[...this.snapshots.values()].find(row=>row.manifest.id===id);if(other)this.catalog.set(id,other);}
+      if(clearSettings&&id){delete this.core.state.overrides[id];this.controller.replyStyle?.forget(id,[contentKey]);this.controller.interactions?.memory?.forget(id);this.core.store.write(this.core.state);}
+      return this.controller.status();
+    });}finally{this.removing.delete(contentKey);}
+  }
   async select(value){
     const selected=this.core.state.selected,key=typeof value==='object'&&value?value.contentKey:null;
     if(key&&this.unavailable.some(row=>row.contentKey===key)&&!this.snapshots.has(key))fail('SKIN_INSTALLED_UNAVAILABLE');
     const skin=key?this.snapshots.get(key)||(selected?.contentKey===key?selected:null):this.catalog.get(value)||(selected?.manifest.id===value?selected:null);
     if(!skin)fail('SKIN_NOT_FOUND');
+    if(this.removing.has(skin.contentKey))fail('SKIN_REMOVE_PENDING');
     if(selected?.contentKey===skin.contentKey&&this.core.phase==='ready'&&!this.core.state.stopped&&!this.core.pendingSelections&&!this.core.store.hasStops())return this.controller.status();
     try{await this.core.select(skin);}catch(error){
       // A non-destructive preflight rejection can retain the old backend.

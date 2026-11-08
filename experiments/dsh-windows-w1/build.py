@@ -138,7 +138,7 @@ def build_runtime(mac_runtime, electron_zip, plugin, work):
             if entry.is_dir() or not entry.filename.startswith(MAC_APP):
                 continue
             name = entry.filename.removeprefix(MAC_APP)
-            if PurePosixPath(name).name.startswith("._"):
+            if PurePosixPath(name).name.startswith("._") or name == "tray-win.png":
                 continue
             with donor.open(entry) as source:
                 if name in adapted_names:
@@ -174,7 +174,7 @@ def build_runtime(mac_runtime, electron_zip, plugin, work):
 
         for name in sorted(adapted_names):
             output.write(runtime_app / name, prefix + name)
-        output.write(plugin / "skins/archive-workspace-r2-private/assets/role/avatar.png", prefix + "tray-win.png")
+        output.write(ROOT / "runtime-src/tray-win.png", prefix + "tray-win.png")
 
     with zipfile.ZipFile(archive) as runtime:
         if runtime.testzip() is not None:

@@ -5,6 +5,7 @@
   "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAEEtg3ygnBE//tDx37S/Cf98V1l8ZeQT4rZMjCfU3MUg=\n-----END PUBLIC KEY-----\n",
   "channel": "private",
   "supportedDsh": [
+    "0.2.1-rc.4",
     "0.2.1-rc.5",
     "0.2.2-rc.1"
   ],
