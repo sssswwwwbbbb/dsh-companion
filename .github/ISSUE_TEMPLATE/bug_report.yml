@@ -1,0 +1,38 @@
+name: 问题反馈
+description: 报告可复现的缺陷
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: 版本
+      description: 例如 1.1.0 / build 10012
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: 平台
+      options: [macOS ARM64, Windows x64, 其他]
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 从安装或启动开始，写到问题出现
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+      description: 错误码、日志。不要粘贴激活码或密钥
+    validations:
+      required: true

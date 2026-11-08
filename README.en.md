@@ -23,4 +23,4 @@ Author: Dr.S (pen name).
 
 This project is open source. The code is licensed under **AGPL-3.0-or-later**; see [LICENSE](LICENSE). If you cannot meet the AGPL obligations, a commercial license is available — see [NOTICE.md](NOTICE.md). Skin and character assets are licensed separately; see each skin's `ASSET-NOTICE.txt`.
 
-Operational scripts and deployment notes for the licensing service stay on the owner's machine and are not part of this repository. Upstream asset attribution is kept in [ASSET-NOTICE.txt](designs/dsh-companion-v1/ASSET-NOTICE.txt).
+See [CONTRIBUTING.md](CONTRIBUTING.md) to contribute and [SECURITY.md](SECURITY.md) to report security issues. Operational scripts and deployment notes for the licensing service stay on the owner's machine and are not part of this repository. Upstream asset attribution is kept in [ASSET-NOTICE.txt](designs/dsh-companion-v1/ASSET-NOTICE.txt).
