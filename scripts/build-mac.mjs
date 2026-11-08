@@ -35,6 +35,7 @@ fs.copyFileSync(path.join(root, 'designs/dsh-companion-v1/behavior.mjs'), path.j
 fs.cpSync(path.join(root, 'packages/dsh-companion/packs'), path.join(payload, 'packs'), { recursive: true });
 fs.cpSync(path.join(root, 'designs/dsh-companion-v1/assets'), path.join(payload, 'assets'), { recursive: true });
 fs.copyFileSync(path.join(root, 'designs/dsh-companion-v1/ASSET-NOTICE.txt'), path.join(payload, 'ASSET-NOTICE.txt'));
+fs.copyFileSync(path.join(root, 'LICENSE'), path.join(payload, 'LICENSE'));
 const pluginVersion = JSON.parse(fs.readFileSync(path.join(root, 'packages/dsh-companion/package.json'))).version;
 const launchBin=path.join(root,'packages/dsh-companion/bin/darwin-arm64');fs.mkdirSync(launchBin,{recursive:true});
 execFileSync('/usr/bin/clang',['-O2',path.join(root,'runtime-src/launcher.c'),'-o',path.join(launchBin,'companion-launch')],{stdio:'pipe'});

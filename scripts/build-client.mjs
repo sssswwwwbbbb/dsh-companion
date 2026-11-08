@@ -6,14 +6,14 @@ const base = new URL('../packages/dsh-companion/', import.meta.url);
 const inputs=new URL('../.local/accepted-inputs/',import.meta.url);
 const workspaceSource=new URL('skins/archive-workspace-r2-private/',inputs);
 if(!existsSync(new URL('skin.json',workspaceSource)))throw new Error('Missing accepted Cold Start build input');
-// Retire the MVP built-in, including leftovers from an earlier local build.
-rmSync(new URL('skins/archive-warm-whale/',base),{recursive:true,force:true});
+// No bundled skin: skins come from the cloud library and stay in the user's
+// profile. The source skin here only supplies settings-page artwork and the
+// defaults baked into client.js.
+rmSync(new URL('skins/',base),{recursive:true,force:true});
 if(!readFileSync(new URL('../runtime-src/settings.mjs',import.meta.url)).equals(readFileSync(new URL('src/settings.mjs',base))))throw new Error('PLUGIN_RUNTIME_SETTINGS_MISMATCH');
 const workspaceSkin=loadSkin(fileURLToPath(workspaceSource));prepareResources(workspaceSkin);
-const workspaceTarget=new URL('skins/archive-workspace-r2-private/',base);
-rmSync(workspaceTarget,{recursive:true,force:true});cpSync(workspaceSource,workspaceTarget,{recursive:true});
 mkdirSync(new URL('../reports/',import.meta.url),{recursive:true});
-writeFileSync(new URL('../reports/bundled-skins.json',import.meta.url),JSON.stringify({localReviewOnly:true,skins:[{id:workspaceSkin.manifest.id,version:workspaceSkin.manifest.version,contentKey:workspaceSkin.contentKey,source:'.local/accepted-inputs/skins/archive-workspace-r2-private',target:'packages/dsh-companion/skins/archive-workspace-r2-private',assets:Object.keys(workspaceSkin.manifest.assets).length}]},null,2)+'\n');
+writeFileSync(new URL('../reports/bundled-skins.json',import.meta.url),JSON.stringify({localReviewOnly:true,bundled:[],note:'skins are not bundled; they are installed from the cloud skin library',settingsArtworkSource:'.local/accepted-inputs/skins/archive-workspace-r2-private'},null,2)+'\n');
 rmSync(new URL('skin-core/',base),{recursive:true,force:true});
 const locales = Object.fromEntries(['zh','en'].map(locale => [locale,JSON.parse(readFileSync(new URL(`locale/${locale}.json`,base),'utf8'))]));
 cpSync(new URL('../packages/dsh-skin-core/',import.meta.url),new URL('skin-core/',base),{recursive:true,filter:source=>!/[\\/](tests|scripts|examples)([\\/]|$)/.test(source)});
@@ -30,15 +30,15 @@ const clientRequests=readFileSync(new URL('src/client-requests.mjs',base),'utf8'
 const settingsUi=readFileSync(new URL('src/skin-settings-ui.mjs',base),'utf8').replace(/^export /gm,'');
 const settingsAssets={};
 const portrait=workspaceSkin.manifest.assets[workspaceSkin.manifest.modules.theme.config.workspaceRole.portrait];
-settingsAssets.workspace={contentKey:workspaceSkin.contentKey,portrait:'data:image/png;base64,'+readFileSync(new URL('skins/archive-workspace-r2-private/'+portrait.path,base)).toString('base64')};
+settingsAssets.workspace={contentKey:workspaceSkin.contentKey,portrait:'data:image/png;base64,'+readFileSync(new URL(portrait.path,workspaceSource)).toString('base64')};
 
 settingsAssets.workspace.preset=workspaceSkin.manifest.modules.theme.config.workspacePreset;
 const role=workspaceSkin.manifest.modules.theme.config.workspaceRole;
 if(role.name&&role.model)settingsAssets.workspace.roleLabel=role.name+' · '+role.model;
 const cover=workspaceSkin.manifest.assets['workspace-cover'];
-settingsAssets.workspace.cover='data:image/png;base64,'+readFileSync(new URL('skins/archive-workspace-r2-private/'+cover.path,base)).toString('base64');
+settingsAssets.workspace.cover='data:image/png;base64,'+readFileSync(new URL(cover.path,workspaceSource)).toString('base64');
 settingsAssets.workspace.controlIcons={};
 for(const [control,key]of Object.entries({library:'archive',install:'download',settings:'sliders',more:'more',shield:'shield',pause:'pause',play:'play',reset:'retry',arrow:'chevron-right'})){
- settingsAssets.workspace.controlIcons[control]=Object.fromEntries(Object.entries(workspaceSkin.manifest.modules.theme.config.semanticIcons[key]).map(([mode,id])=>[mode,'data:image/png;base64,'+readFileSync(new URL('skins/archive-workspace-r2-private/'+workspaceSkin.manifest.assets[id].path,base)).toString('base64')]));
+ settingsAssets.workspace.controlIcons[control]=Object.fromEntries(Object.entries(workspaceSkin.manifest.modules.theme.config.semanticIcons[key]).map(([mode,id])=>[mode,'data:image/png;base64,'+readFileSync(new URL(workspaceSkin.manifest.assets[id].path,workspaceSource)).toString('base64')]));
 }
 writeFileSync(new URL('client.js',base),readFileSync(new URL('src/client.template.js',base),'utf8').replace('__LOCALES__',()=>JSON.stringify(locales)).replace('__SKIN_CLIENT__',()=>workspaceCode+'\n'+commanderCode+'\n'+sessionFeedback+'\n'+cueTracker+'\n'+skinClient).replace('__CLIENT_REQUESTS__',()=>clientRequests).replace('__SKIN_SETTINGS_UI__',()=>settingsUi).replace('__SKIN_SETTINGS_ASSETS__',()=>JSON.stringify(settingsAssets)));

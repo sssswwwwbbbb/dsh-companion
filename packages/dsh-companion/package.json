@@ -1,7 +1,9 @@
 {
   "name": "dsh-plugin-companion",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "主题盒子 · DSH 主题、开场和桌宠管理",
+  "author": "Dr.S",
+  "license": "SEE LICENSE IN LICENSE",
   "type": "module",
   "engines": {
     "dsh": "0.2.1-rc.5 || 0.2.2-rc.1"
@@ -35,7 +37,8 @@
     "cordis.patch.yml",
     "README.md",
     "skin-core",
-    "skins"
+    "skins",
+    "LICENSE"
   ],
   "dsh": {
     "bundle": {
@@ -63,7 +66,7 @@
   ],
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
-    "access": "public",
+    "access": "restricted",
     "tag": "latest"
   },
   "keywords": [
@@ -72,5 +75,5 @@
     "desktop-pet",
     "startup-animation"
   ],
-  "build": 10000
+  "build": 10001
 }
