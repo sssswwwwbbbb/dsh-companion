@@ -1,0 +1,54 @@
+name: community-build
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          npm install --no-audit --no-fund
+          npm ci --prefix licensing --omit=dev --ignore-scripts
+
+      - name: Fetch Electron
+        run: node scripts/fetch-electron.mjs all
+
+      - name: Build packages
+        run: |
+          npm run package:mac
+          python3 experiments/dsh-windows-w1/build.py
+          VERSION=$(node -p "require('./packages/dsh-companion/package.json').version")
+          cp "dist/dsh-plugin-companion-${VERSION}.tgz" "dist/dsh-plugin-companion-${VERSION}-community-darwin-arm64.tgz"
+          cp "dist/dsh-plugin-companion-${VERSION}-win32-x64.tgz" "dist/dsh-plugin-companion-${VERSION}-community-win32-x64.tgz"
+
+      - name: Verify placeholder endpoint
+        run: |
+          for f in dist/*-community-*.tgz; do
+            tar -xzOf "$f" package/config/service.json | grep -q "license-host.invalid" || exit 1
+          done
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: community-packages
+          path: dist/*-community-*.tgz
+
+      - name: Attach to release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*-community-*.tgz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
