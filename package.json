@@ -24,7 +24,7 @@
     "fflate": "0.8.2",
     "undici": "8.11.2"
   },
-  "build": 10011,
+  "build": 10012,
   "author": "Dr.S",
   "license": "AGPL-3.0-or-later"
 }

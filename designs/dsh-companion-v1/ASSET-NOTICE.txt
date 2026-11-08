@@ -9,3 +9,5 @@ DSH 陪伴 · 素材来源与署名
 - 字体：使用系统字体，不随包分发字体文件。
 
 所有素材均为本作品原创或按上述许可证使用；不包含上游角色形象。
+
+English: character, animation, icon and UI assets are created by Dr.S (pen name). They are licensed for use within this project only and may not be extracted, redistributed or reused in other works without written permission. Third-party components keep their original licenses.

@@ -2,7 +2,7 @@
 
 ## 当前本地评审候选
 
-2026-11-08。主题盒子 1.1.0-dev.5（构建号 10005）增加最近三个 RC 的兼容，并包含独立下载队列与分页皮肤库。插件不内置正式皮肤，激活后从在线皮肤库下载安装，或导入本地 ZIP。覆盖升级保留授权、已选皮肤和各套设置。Windows 用户已验收 1.1.0-dev.3；dev.5 的本地、官方 Host 和线上服务验证分别见项目验收记录。
+2026-11-08。主题盒子 1.1.0（构建号 10012）增加最近三个 RC 的兼容，并包含独立下载队列与分页皮肤库。插件不内置皮肤：皮肤以 ZIP 导入本机，未导入时不播放开机动画。覆盖升级保留授权、已选皮肤和各套设置。Windows 用户已验收 1.1.0-dev.3；dev.5 的本地、官方 Host 和线上服务验证分别见项目验收记录。
 
 整套皮肤使用主题、桌宠和开场三个模块及8项公开参数。开场区域的「预览开场」与「启动时自动播放」复用已有动作/同一偏好；「启用本套开场内容」是单独的模块启停。停止后从「恢复本套皮肤」恢复，保留已调整参数和模块关闭选择。已选整套时，旧配置选择/控制由皮肤设置入口替代；未选整套的旧流程保留。
 
@@ -40,3 +40,10 @@ DSH 已在运行时，可用「预览开场」手动播放。从系统恢复窗�
 「本套设置 → 更多 → 连续陪伴」可选择保留最近 20 条桌宠专属互动和实际动作回执，完整重启后继续参考。默认关闭，可配置互动偏好、查看和清空记录。关闭清空记录且保留偏好，恢复默认同时恢复开关和偏好。工作区的人设与回复风格使用各自设置。
 
 1.0 的工作区场景提示为每条提供位置、1–8 秒时长、直接显示/淡入/轻移入场和预览。容器采用主题 toast 颜色，作者也可提供明暗底色、字色和描边。冷启动为三个场景提供不同默认表现。
+
+
+## English
+
+Theme Box 1.1.0 (build 10012) is a DeepSeek Harness plugin for startup animation, desktop pet, skins and local licensing. No skin is bundled: import a skin ZIP, otherwise the startup animation does not play.
+
+Build with `npm run package:mac` on macOS. The plugin is licensed under AGPL-3.0-or-later (see `LICENSE`); a commercial license is available if you cannot meet the AGPL obligations (see `NOTICE.md`). Skin and character assets are licensed separately.

@@ -33,3 +33,41 @@ Electron、React、dsh-pet 等第三方组件继续适用其原始许可证，�
 ---
 
 本说明不构成法律意见；正式对外发布前建议请律师复核。
+
+---
+
+# Licensing Notice (English)
+
+Copyright © 2026 Dr.S (pen name). All rights reserved.
+
+## Code: AGPL-3.0-or-later
+
+The plugin, desktop component, skin engine and licensing service source code are licensed under the GNU Affero General Public License, version 3.0 or later. The full terms are in [LICENSE](LICENSE).
+
+You must comply with the AGPL, including:
+
+- provide the complete source code under the same license when you distribute modified versions;
+- offer the Corresponding Source to users interacting with your version over a network (AGPL section 13);
+- keep copyright and license notices intact.
+
+## Commercial license (optional)
+
+If your use cannot satisfy the AGPL — for example closed-source distribution, bundling with a closed product, or reluctance to publish modified server code — you may request a commercial license from the author. Scope, device count, term and fees are set in a written agreement.
+
+Contact: swbzzzz2021@163.com
+
+## Assets are not covered by the code license
+
+Character art, skins, icons, audio and video assets are not licensed under the AGPL. They may be used only within this project. Without the author's written permission you may not extract, redistribute or reuse them in other works. Attribution and provenance are listed in each skin's `ASSET-NOTICE.txt`.
+
+## Third-party components
+
+Electron, React, dsh-pet and other third-party components keep their original licenses; see the notices shipped with the package and `designs/dsh-companion-v1/ASSET-NOTICE.txt`.
+
+## Official builds
+
+Official packages are signed by the author and contain the service endpoint. Self-built versions do not include the official endpoint or licensing service and require your own deployment.
+
+---
+
+This notice is not legal advice. Please have a lawyer review it before a public release.

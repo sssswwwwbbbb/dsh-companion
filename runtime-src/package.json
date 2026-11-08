@@ -4,5 +4,5 @@
   "private": true,
   "type": "module",
   "main": "entry.mjs",
-  "build": 10011
+  "build": 10012
 }
