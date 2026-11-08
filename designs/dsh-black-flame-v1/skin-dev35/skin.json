@@ -1,9 +1,9 @@
 {
   "formatVersion": 2,
   "id": "black-flame",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "name": "黑焰",
-  "description": "无桌宠版：烬色与封存舱两套配色、50 枚中性色工作区图标、入口徽记、去掉落版主题字的 9.4 秒立体声开场与回复风格。作者 Dr.S，仅本人分发。按主题盒子 1.0 契约制作。",
+  "description": "无桌宠版：烬色与封存舱两套配色、49 枚中性色工作区图标、入口徽记、去掉落版主题字的 9.4 秒立体声开场与回复风格。作者 Dr.S，仅本人分发。按主题盒子 1.0 契约制作。",
   "dshVersions": [
     "0.2.2-rc.1"
   ],
@@ -362,28 +362,6 @@
       "height": 96,
       "alpha": true,
       "source": "素材包 exports/icons/dark-neutral/branch.png",
-      "license": "Dr.S 授权，禁止转发"
-    },
-    "icon-send-light": {
-      "path": "assets/icon-send-light.png",
-      "mime": "image/png",
-      "sha256": "40a81d3e25a552b53b5d7931013bbb3255735369a7147eaeb61f85fcbf60ba80",
-      "bytes": 1999,
-      "width": 96,
-      "height": 96,
-      "alpha": true,
-      "source": "素材包 exports/icons/light-neutral/send.png",
-      "license": "Dr.S 授权，禁止转发"
-    },
-    "icon-send-dark": {
-      "path": "assets/icon-send-dark.png",
-      "mime": "image/png",
-      "sha256": "40a81d3e25a552b53b5d7931013bbb3255735369a7147eaeb61f85fcbf60ba80",
-      "bytes": 1999,
-      "width": 96,
-      "height": 96,
-      "alpha": true,
-      "source": "素材包 exports/icons/dark-neutral/send.png",
       "license": "Dr.S 授权，禁止转发"
     },
     "icon-stop-light": {
@@ -1523,10 +1501,6 @@
           "branch": {
             "light": "icon-branch-light",
             "dark": "icon-branch-dark"
-          },
-          "send": {
-            "light": "icon-send-light",
-            "dark": "icon-send-dark"
           },
           "stop": {
             "light": "icon-stop-light",

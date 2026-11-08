@@ -3,11 +3,11 @@
 | 项 | 值 |
 | --- | --- |
 | 皮肤 ID | `duelist-sky-dragon` |
-| 版本 | `1.0.7` |
-| 文件 | `duelist-sky-dragon-1.0.7.zip` |
-| 大小 | 5,537,165 字节（约 5.3 MB，110 条目） |
-| SHA-256 | `41c1571aed42c90aa4b8b743d755bb627db1aed6c05f008bbfd5da792bc8eea2` |
-| contentKey | `0a6550a66c7b25d28050a7a6ec2148979026228e27a44ec02f3a7129ce97513a` |
+| 版本 | `1.0.9` |
+| 文件 | `duelist-sky-dragon-1.0.9.zip` |
+| 大小 | 5,533,152 字节（约 5.3 MB，108 条目） |
+| SHA-256 | `6f00794cb0ce56af63c41f0ce696cfb60bf3cda412f5b3ea80ac85edc8ca4bda` |
+| contentKey | `0e4ecbbef695f9753f662f2cc4016b2b0f91a52d79d781680edbbc1764a05cfd` |
 | 作者 / 署名 | Dr.S |
 | 分发范围 | 可公开分发，公开上架 |
 | 许可 | 包内 `LICENSE.md`；台账 `asset-register.csv` |
@@ -43,9 +43,9 @@
 | --- | --- |
 | 发布 ID | `skin_fc3fa086-07e7-4731-8896-96eeb97498a6` |
 | 版本 | 1.0.5 |
-| SHA-256 | `41c1571aed42c90aa4b8b743d755bb627db1aed6c05f008bbfd5da792bc8eea2` |
+| SHA-256 | `6f00794cb0ce56af63c41f0ce696cfb60bf3cda412f5b3ea80ac85edc8ca4bda` |
 | 字节数 | 5,409,200 |
-| contentKey | `0a6550a66c7b25d28050a7a6ec2148979026228e27a44ec02f3a7129ce97513a` |
+| contentKey | `0e4ecbbef695f9753f662f2cc4016b2b0f91a52d79d781680edbbc1764a05cfd` |
 | 发布方式 | `node deploy/cloud-admin.mjs publish-skin`（1.1.0-dev.3 工具链） |
 
 ## 云端交付验收（2026-11-08）
@@ -72,4 +72,7 @@
 | 1.0.4 | `b55f5252` | 首次发布；描述文案仍是旧的「私有二创」，**无用户下载/领用**，保留记录不清理 |
 | 1.0.5 | `019a3de4` | 修正描述与署名；已下载安装验证 |
 | 1.0.6 | `6783145e` | 新增工作区角色位（avatar 小头像） |
-| 1.0.7 | `41c1571a` | 角色位补 name/model，去掉引擎默认占位名「机械姬」，当前版本 |
+| 1.0.7 | `41c1571a` | 角色位补 name/model，去掉引擎默认占位名「机械姬」 |
+| 1.0.8 | `7f40ef08` | 移除 send 替换位；描述仍写「50 枚」，仅发布数秒、无用户下载 |
+| 1.0.9 | `6f00794c` | 描述改为「成套题材化工作区图标」。当前版本 |
+| ~~1.0.8~~ | ~~`7f40ef08`~~ | 移除 `send` 替换位：同一图标同时命中强调色按钮与浅底圆形按钮，单一颜色无法两处可读，改回 DSH 原生图标。 |

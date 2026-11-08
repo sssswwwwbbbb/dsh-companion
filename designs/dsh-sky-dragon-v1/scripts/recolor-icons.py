@@ -12,7 +12,7 @@ from PIL import Image
 
 ASSETS = Path(sys.argv[1])
 TARGET = (255, 249, 235)  # #FFF9EB
-NAMES = ("icon-send-light.png", "icon-send-dark.png", "icon-stop-light.png", "icon-stop-dark.png")
+NAMES = ("icon-stop-light.png", "icon-stop-dark.png")
 
 for name in NAMES:
     path = ASSETS / name

@@ -19,7 +19,7 @@ execFileSync('/usr/bin/ditto', ['-x', '-k', archive, unpacked]);
 // The repository keeps a placeholder service URL; the real endpoint stays on the
 // owner's machine in .local and is injected only into local builds.
 const serviceUrlFile=path.join(root,'.local/cloud/service-url.txt'),configFile=path.join(root,'packages/dsh-companion/config/service.json');
-if(!fs.existsSync(serviceUrlFile))fs.writeFileSync(serviceUrlFile,'https://license-host.invalid/dsh-companion\n');
+fs.mkdirSync(path.dirname(serviceUrlFile),{recursive:true});if(!fs.existsSync(serviceUrlFile))fs.writeFileSync(serviceUrlFile,'https://license-host.invalid/dsh-companion\n');
 {const original=fs.readFileSync(configFile,'utf8'),cfg=JSON.parse(original);cfg.serviceUrl=fs.readFileSync(serviceUrlFile,'utf8').trim();fs.writeFileSync(configFile,JSON.stringify(cfg,null,2)+'\n');fs.mkdirSync(path.join(root,'.local/cloud'),{recursive:true});fs.writeFileSync(path.join(root,'.local/cloud/service-config.orig.json'),original);}
 const target = path.join(root, 'packages/dsh-companion/runtime/darwin-arm64/DSHCompanion.app');
 fs.rmSync(target, { recursive: true, force: true });

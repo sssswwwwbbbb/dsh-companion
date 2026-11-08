@@ -1,9 +1,9 @@
 {
   "formatVersion": 2,
   "id": "duelist-sky-dragon",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "name": "决斗者 · 天空龙",
-  "description": "无桌宠版：决斗盘米白与夜空神卡两套配色、50 枚题材化工作区图标、10 秒有声开场、场景提示与回复风格。作者 Dr.S。",
+  "description": "无桌宠版：决斗盘米白与夜空神卡两套配色、成套题材化工作区图标、10 秒有声开场、场景提示与回复风格。作者 Dr.S。",
   "dshVersions": [
     "0.2.2-rc.1"
   ],
@@ -543,28 +543,6 @@
       "mime": "image/png",
       "sha256": "51eb9f0c29c8d34ab0ce16ee875ed5ec6ee2c18fb01e815b1989d27b08499c85",
       "bytes": 1888,
-      "width": 96,
-      "height": 96,
-      "alpha": true,
-      "source": "Dr.S 原创素材（素材包 DSH-神之召唤-天空龙皮肤包-v1.0）",
-      "license": "© Dr.S；作者授权公开分发，详见包内 LICENSE.md"
-    },
-    "icon-send-light": {
-      "path": "assets/icon-send-light.png",
-      "mime": "image/png",
-      "sha256": "541a131e5d2efd75b2167cfbe574428a5e611f7b3401474ed221a9272626d6e8",
-      "bytes": 1835,
-      "width": 96,
-      "height": 96,
-      "alpha": true,
-      "source": "Dr.S 原创素材（素材包 DSH-神之召唤-天空龙皮肤包-v1.0）",
-      "license": "© Dr.S；作者授权公开分发，详见包内 LICENSE.md"
-    },
-    "icon-send-dark": {
-      "path": "assets/icon-send-dark.png",
-      "mime": "image/png",
-      "sha256": "541a131e5d2efd75b2167cfbe574428a5e611f7b3401474ed221a9272626d6e8",
-      "bytes": 1835,
       "width": 96,
       "height": 96,
       "alpha": true,
@@ -1616,10 +1594,6 @@
           "branch": {
             "light": "icon-branch-light",
             "dark": "icon-branch-dark"
-          },
-          "send": {
-            "light": "icon-send-light",
-            "dark": "icon-send-dark"
           },
           "stop": {
             "light": "icon-stop-light",

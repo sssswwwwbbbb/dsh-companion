@@ -32,3 +32,5 @@ python3 experiments/dsh-windows-w1/build.py   # 用 Mac 包交叉产出 Windows 
 本作品开源：代码以 **AGPL-3.0-or-later** 授权，条款见 [LICENSE](LICENSE)。无法满足 AGPL 义务的使用可申请商业许可，说明见 [NOTICE.md](NOTICE.md)。皮肤与角色素材不随代码许可授权，见各套 `ASSET-NOTICE.txt`。
 
 贡献方式见 [CONTRIBUTING.md](CONTRIBUTING.md)，安全问题见 [SECURITY.md](SECURITY.md)。授权服务的运维脚本与部署说明只保留在所有者本机，不随仓库发布。角色素材的原作者、许可及非商业使用范围见 [素材声明](designs/dsh-companion-v1/ASSET-NOTICE.txt)。
+
+社区版（自建、无授权服务）见 [社区版说明](docs/user-guide/社区版.md)，安装包从 GitHub Releases 获取，不经过作者服务端。

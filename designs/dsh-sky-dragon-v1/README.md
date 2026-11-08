@@ -58,7 +58,7 @@ node <制作工具包>/scripts/skin-author-check.mjs duelist-sky-dragon-0.1.0.zi
 
 ## 交付状态（2026-11-06）
 
-Mac 实机验收完成（0.1.5）；随后按主题盒子 1.0 升级为 `1.0.0`，新增 `character` / `workspaceCues` / `scenePresets`，`contentKey` `0a6550a6…`，ZIP SHA-256 `41c1571a…`，107 项资源 / 5.14 MiB。
+Mac 实机验收完成（0.1.5）；随后按主题盒子 1.0 升级为 `1.0.0`，新增 `character` / `workspaceCues` / `scenePresets`，`contentKey` `0e4ecbbe…`，ZIP SHA-256 `6f00794c…`，107 项资源 / 5.14 MiB。
 验收明细见 [review/acceptance-2026-11-06.md](review/acceptance-2026-11-06.md)。
 
 等引擎侧补齐后可沿用同一份素材出小版本：

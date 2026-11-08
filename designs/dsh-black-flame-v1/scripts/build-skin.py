@@ -214,10 +214,13 @@ def main():
     # 清单有 64 KiB 上限，逐项授权用短串；完整许可见 licenses/README.md
     LIC = "Dr.S 授权，禁止转发"
 
-    # 50 枚可替换图标，取素材包的中性色成套
+    # 49 枚可替换图标，取素材包的中性色成套。
+    # 排除 send：引擎的 send 选择器里有 svg[data-icon="dsw-icon-send-outline-regular"]，
+    # 会同时命中队列面板的「插话发送」按钮；那里的底是透明的，近白图标等于隐形。
+    # 与其让两处共用一张图，不如让 send 回到宿主原生图标（主发送键与插话键都正常）。
     icon_dir = {"neutral": "{mode}-neutral", "accent": "{mode}"}[ICON_SET]
     semantic_icons = {}
-    for key in ICON_KEYS:
+    for key in [k for k in ICON_KEYS if k != "send"]:
         for mode in ("light", "dark"):
             raw = read(f"exports/icons/{icon_dir.format(mode=mode)}/{key}.png")
             add(f"icon-{key}-{mode}", raw, "image/png", alpha=True,
@@ -266,9 +269,9 @@ def main():
     manifest = {
         "formatVersion": 2,
         "id": "black-flame",
-        "version": "0.2.2",
+        "version": "0.2.3",
         "name": "黑焰",
-        "description": "无桌宠版：烬色与封存舱两套配色、50 枚中性色工作区图标、入口徽记、去掉落版主题字的 9.4 秒立体声开场与回复风格。作者 Dr.S，仅本人分发。按主题盒子 1.0 契约制作。",
+        "description": "无桌宠版：烬色与封存舱两套配色、49 枚中性色工作区图标、入口徽记、去掉落版主题字的 9.4 秒立体声开场与回复风格。作者 Dr.S，仅本人分发。按主题盒子 1.0 契约制作。",
         "dshVersions": ["0.2.2-rc.1"],
         "replyStyle": {
             "address": "契约者",

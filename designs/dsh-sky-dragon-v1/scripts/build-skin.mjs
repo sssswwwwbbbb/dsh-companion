@@ -22,7 +22,7 @@ const src = path.resolve(process.argv[2] || tempPack);
 // 工作区图标替换位：来自制作工具包 skin-author-reference 的 50 个键。
 const iconKeys = [
   'workspace', 'compose', 'conversation', 'search', 'panel-left', 'folder', 'folder-open',
-  'pin', 'archive', 'more', 'attachment', 'link', 'copy', 'retry', 'edit', 'branch', 'send',
+  'pin', 'archive', 'more', 'attachment', 'link', 'copy', 'retry', 'edit', 'branch',
   'stop', 'chevron-down', 'chevron-right', 'plus', 'terminal', 'external', 'file-code',
   'file-table', 'file-image', 'file-text', 'check', 'clock', 'alert', 'info', 'play', 'pause',
   'close', 'settings', 'sliders', 'sun', 'moon', 'palette', 'download', 'shield', 'expand',
@@ -67,10 +67,10 @@ for (const item of all) {
 
 // 强调色实心按钮上的图标换成浅色，否则红色图标会隐形（发送 / 停止）。
 const recolor = path.join(import.meta.dirname, 'recolor-icons.py');
-const python = process.env.PYTHON
-  || (fs.existsSync('<本机路径>)
-    ? '<本机路径>
-    : 'python3');
+const python = process.env.PYTHON || (() => {
+  const runtime = process.env.HOME ? path.join(process.env.HOME, '.dsh/dsh-runtimes/dsh-primary-runtime/dependencies/python/bin/python3') : '';
+  return runtime && fs.existsSync(runtime) ? runtime : 'python3';
+})();
 execFileSync(python, [path.join(import.meta.dirname, 'themed-icons.py'), '--assets', assetDir]);
 execFileSync(python, [recolor, assetDir]);
 execFileSync(python, [path.join(import.meta.dirname, 'make-cover.py'), assetDir]);
@@ -162,9 +162,9 @@ const tokens = {
 const manifest = {
   formatVersion: 2,
   id: 'duelist-sky-dragon',
-  version: '1.0.7',
+  version: '1.0.9',
   name: '决斗者 · 天空龙',
-  description: '无桌宠版：决斗盘米白与夜空神卡两套配色、50 枚题材化工作区图标、10 秒有声开场、场景提示与回复风格。作者 Dr.S。',
+  description: '无桌宠版：决斗盘米白与夜空神卡两套配色、成套题材化工作区图标、10 秒有声开场、场景提示与回复风格。作者 Dr.S。',
   dshVersions: ['0.2.2-rc.1'],
   cover: 'library-cover',
   character: {

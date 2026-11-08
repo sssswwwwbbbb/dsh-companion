@@ -145,7 +145,7 @@ python3 scripts/build-skin.py      # 自动优先用 assets-src/ 的两份本地
 
 | 1.0 能力 | 状态 | 依据 |
 | --- | --- | --- |
-| 明暗工作区主题 | 已跟上 | 71/71 令牌、`commander-v1`、50 枚语义图标、聊天背景 |
+| 明暗工作区主题 | 已跟上 | 71/71 令牌、`commander-v1`、49 枚语义图标、聊天背景 |
 | 入口徽记与卡片封面 | 已跟上 | `entryMarks` + `entryMarkEnabled`；`cover` 为 960×600 WebP |
 | 开场 | 已跟上（含一处偏离） | `startup` v3 全字段；成片按需求裁到 9.35 s，偏离清单「不切掉结尾」 |
 | 工作区回复风格 | 已跟上 | `replyStyle`；1.0 起默认启用 |
@@ -219,3 +219,14 @@ python3 scripts/build-skin.py      # 自动优先用 assets-src/ 的两份本地
 云端：`publish-skin` 成功，releaseId `skin_68a98e1e-7b1c-4e7f-a8e8-b83640566daf`，sha256 `788fd5cc…`（与本地一致），size 8,929,587，contentKey `7ddd8c3d…`。`stats.skins` 中 `black-flame` 现有 0.2.1 与 0.2.2 两条，客户端展示最新版。
 
 上架并不违反新口径：云端皮肤库由作者本人维护与分发。
+
+
+## 十三、插话按钮异常与 0.2.3（2026-11-08 20:00）
+
+现象：队列面板的「插话发送」按钮显示为一片浅色，几乎看不见。
+
+根因：引擎的 `send` 替换表含 `svg[data-icon="dsw-icon-send-outline-regular"]`，会命中所有 send 图标，包括这个透明底按钮。本套 `send` 是近白 `#FFF8F2`（为强调色填充的主发送键准备），贴到浅色卡片上即隐形。
+
+处理：0.2.3 起从 `semanticIcons` 移除 `send`，49 枚；`stop` 暂留（其 `data-icon` 选择器同样宽，若在别处变白再一并去掉）。资源 109 → 107 项。
+
+委托人实机确认修复。云端发布：releaseId `skin_8a39f89b-9d96-41d6-80b5-715a744522cb`，sha256 `72d8203c…`，size 8,925,242，contentKey `3a93bd80…`。

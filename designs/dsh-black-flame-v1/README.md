@@ -1,6 +1,6 @@
 # 黑焰（无桌宠版）· DSH 第二套皮肤
 
-`black-flame` · `0.2.2`。范围按 `docs/second-skin-developer-brief.md` 收敛：**主题 + 工作区语义图标 + 入口徽记 + 开场 + 回复风格**，不含桌宠，省略 `workspaceRole`。
+`black-flame` · `0.2.3`。范围按 `docs/second-skin-developer-brief.md` 收敛：**主题 + 工作区语义图标 + 入口徽记 + 开场 + 回复风格**，不含桌宠，省略 `workspaceRole`。
 
 素材来源：`素材/DSH-烬角黑焰-皮肤素材包-v3.6.zip`（第三轮修订版：56 枚图标含中性色成套、10.50 s 立体声开场、18 条重做音频、WebP 封面）。成片与静帧做了本地裁切，见下文。
 
@@ -18,8 +18,8 @@ designs/dsh-black-flame-v1/
 ├── scripts/export-kit-registers.py  按 1.0 模板导出资产 / 音频 / 动作表
 ├── assets-src/                   本地改动的中间产物（裁切后的成片、干净静帧）
 ├── 使用说明.md                    给使用者的安装与设置说明
-├── black-flame-0.2.2.zip         主题盒子 1.0 成品（109 项 / 8.50 MiB）
-├── black-flame-0.2.2-dev35.zip   dev.35 兼容成品（105 项 / 8.40 MiB）
+├── black-flame-0.2.3.zip         主题盒子 1.0 成品（109 项 / 8.50 MiB）
+├── black-flame-0.2.3-dev35.zip   dev.35 兼容成品（105 项 / 8.40 MiB）
 └── review/                       自检记录、图标对照板、验收清单、实机截图
 ```
 
@@ -29,10 +29,10 @@ designs/dsh-black-flame-v1/
 python3 scripts/build-skin.py                      # 生成 skin/
 node    scripts/check-skin.mjs                     # 本机契约校验（当前 dev.46）
 python3 scripts/pack-skin.py                       # 打 ZIP，输出 sha256
-node    scripts/check-skin.mjs black-flame-0.2.2.zip
+node    scripts/check-skin.mjs black-flame-0.2.3.zip
 
 python3 scripts/build-skin.py --compat-dev35       # 生成 skin-dev35/
-python3 scripts/pack-skin.py skin-dev35 black-flame-0.2.2-dev35.zip
+python3 scripts/pack-skin.py skin-dev35 black-flame-0.2.3-dev35.zip
 ```
 
 换素材包版本时只需改 `build-skin.py` 顶部的 `PACK`。
