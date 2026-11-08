@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "description": "主题盒子 · DSH 主题、开场和桌宠管理",
   "author": "Dr.S",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "AGPL-3.0-or-later",
   "type": "module",
   "engines": {
     "dsh": "0.2.1-rc.4 || 0.2.1-rc.5 || 0.2.2-rc.1"
@@ -37,7 +37,8 @@
     "cordis.patch.yml",
     "README.md",
     "skin-core",
-    "LICENSE"
+    "LICENSE",
+    "NOTICE.md"
   ],
   "dsh": {
     "bundle": {
@@ -65,7 +66,7 @@
   ],
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
-    "access": "restricted",
+    "access": "public",
     "tag": "latest"
   },
   "keywords": [
@@ -74,5 +75,5 @@
     "desktop-pet",
     "startup-animation"
   ],
-  "build": 10010
+  "build": 10011
 }
