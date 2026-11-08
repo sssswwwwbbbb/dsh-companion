@@ -6,7 +6,7 @@ import {PetBehavior} from '../../../designs/dsh-companion-v1/behavior.mjs';
 const project=fileURLToPath(new URL('../../../',import.meta.url));
 function subset(){
   const m=JSON.parse(fs.readFileSync(path.join(project,'packages/dsh-skin-core/examples/interaction/skin.json')));m.id='partial-pet';m.modules.pet.configVersion=2;
-  const pet=m.modules.pet;pet.config={builtinPack:'whale-maid-demo',canvasHeight:195,animations:{idle:{asset:'idle-clip',seconds:3,loop:true},react:{asset:'react-clip',seconds:1.8,loop:false}},actionDescriptions:{idle:'待机',react:'回应'}};
+  const pet=m.modules.pet;pet.config={builtinPack:'companion-default',canvasHeight:195,animations:{idle:{asset:'idle-clip',seconds:3,loop:true},react:{asset:'react-clip',seconds:1.8,loop:false}},actionDescriptions:{idle:'待机',react:'回应'}};
   for(const field of ['autonomous','followMouse','profile'])delete pet.settings[field];
   for(const name of ['idle','react']){const source='packages/dsh-skin-core/tests/fixtures/full-skin/assets/'+name+'-a2.webm',data=fs.readFileSync(path.join(project,source));m.assets[name+'-clip']={path:name+'.webm',mime:'video/webm',bytes:data.length,sha256:digest(data)};}
   return m;
@@ -27,7 +27,7 @@ test('native subset replaces all old clips; returning to old v1 restores the act
   const {NativeSkinRuntime}=await import(pathToFileURL(path.join(dir,'skin.mjs'))),author=path.join(dir,'author');fs.mkdirSync(author);
   fs.writeFileSync(path.join(author,'skin.json'),JSON.stringify(subset()));for(const name of ['idle','react'])fs.copyFileSync(path.join(project,'packages/dsh-skin-core/tests/fixtures/full-skin/assets/'+name+'-a2.webm'),path.join(author,name+'.webm'));
   const skin=loadSkin(author),resources=prepareResources(skin),assets=materializeResources(resources,path.join(dir,'skin-assets',skin.contentKey));let applied;
-  const runtime=new NativeSkinRuntime({stateDir:dir,loadPack:()=>JSON.parse(fs.readFileSync(path.join(project,'packages/dsh-companion/packs/whale-maid.json'))),apply:value=>{applied=value;},hide(){},isReady:token=>token===applied?.token});
+  const runtime=new NativeSkinRuntime({stateDir:dir,loadPack:()=>JSON.parse(fs.readFileSync(path.join(project,'packages/dsh-companion/packs/companion-default.json'))),apply:value=>{applied=value;},hide(){},isReady:token=>token===applied?.token});
   atomicJson(path.join(dir,'skin-operations/1.json'),{manifest:skin.manifest,config:resolveSettings(skin.manifest,{},{theme:true,pet:true}).pet.values,contentKey:skin.contentKey,assets});await runtime.activate({generation:1,contentKey:skin.contentKey});
   assert.deepEqual(Object.keys(applied.pack.animations),['idle','react']);assert.equal(applied.pack.canvasHeight,195);assert.ok(Object.values(applied.pack.animations).every(x=>x.file.startsWith('skin-resource/'+skin.contentKey+'/')));
   runtime.exit(2);const old=loadSkin(path.join(project,'packages/dsh-skin-core/examples/b'));atomicJson(path.join(dir,'skin-operations/3.json'),{manifest:old.manifest,config:resolveSettings(old.manifest,{},{pet:true,theme:true}).pet.values,contentKey:old.contentKey,assets:{}});await runtime.activate({generation:3,contentKey:old.contentKey});assert.equal(Object.keys(applied.pack.animations).length,12);assert.equal(applied.pack.canvasHeight,300);

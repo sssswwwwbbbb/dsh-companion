@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-companion",
-  "version": "1.1.0-dev.5",
+  "version": "1.1.0-dev.6",
   "description": "主题盒子 · DSH 主题、开场和桌宠管理",
   "author": "Dr.S",
   "license": "SEE LICENSE IN LICENSE",
@@ -74,5 +74,5 @@
     "desktop-pet",
     "startup-animation"
   ],
-  "build": 10005
+  "build": 10006
 }

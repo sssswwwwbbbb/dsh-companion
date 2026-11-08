@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "id": "companion-default",
+  "name": "默认陪伴",
+  "description": "基础待机与回应动作，供没有皮肤时使用。",
+  "source": "dsh-companion",
+  "license": "© 2026 Dr.S · 仅作者本人可分发",
+  "animations": {
+    "idle": {
+      "file": "assets/companion/idle.webm",
+      "label": "安静陪伴",
+      "seconds": 10.04,
+      "loop": true
+    },
+    "look": {
+      "file": "assets/companion/idle.webm",
+      "label": "东张西望",
+      "seconds": 10.04
+    },
+    "walk": {
+      "file": "assets/companion/idle.webm",
+      "label": "走走",
+      "seconds": 10.04
+    },
+    "run": {
+      "file": "assets/companion/idle.webm",
+      "label": "小跑",
+      "seconds": 10.04
+    },
+    "stretch": {
+      "file": "assets/companion/react.webm",
+      "label": "伸个懒腰",
+      "seconds": 6.2
+    },
+    "eat": {
+      "file": "assets/companion/react.webm",
+      "label": "吃点东西",
+      "seconds": 6.2
+    },
+    "play": {
+      "file": "assets/companion/react.webm",
+      "label": "玩一会儿",
+      "seconds": 6.2
+    },
+    "greet": {
+      "file": "assets/companion/react.webm",
+      "label": "打个招呼",
+      "seconds": 6.2
+    },
+    "react": {
+      "file": "assets/companion/react.webm",
+      "label": "回应一下",
+      "seconds": 6.2
+    },
+    "sleep-in": {
+      "file": "assets/companion/idle.webm",
+      "label": "准备休息",
+      "seconds": 10.04
+    },
+    "sleep": {
+      "file": "assets/companion/idle.webm",
+      "label": "安静休息",
+      "seconds": 10.04
+    },
+    "wake": {
+      "file": "assets/companion/idle.webm",
+      "label": "醒来",
+      "seconds": 10.04
+    }
+  },
+  "profiles": {
+    "free": {
+      "label": "自在漫游",
+      "description": "走走停停，偶尔给自己找点乐子。",
+      "speed": 42,
+      "restSeconds": [
+        4,
+        8
+      ],
+      "walkChance": 0.6,
+      "playChance": 0.25
+    },
+    "gentle": {
+      "label": "安静陪伴",
+      "description": "多陪伴，少打扰。",
+      "speed": 24,
+      "restSeconds": [
+        9,
+        15
+      ],
+      "walkChance": 0.35,
+      "playChance": 0.15
+    },
+    "lively": {
+      "label": "活力满格",
+      "description": "精力充足，想在你身边多玩一会儿。",
+      "speed": 68,
+      "restSeconds": [
+        2.5,
+        5
+      ],
+      "walkChance": 0.7,
+      "playChance": 0.25
+    }
+  },
+  "startup": {
+    "seconds": 4.2,
+    "greeting": "欢迎回来。",
+    "subtitle": "今天也一起，慢慢把事情做好。",
+    "theme": "day",
+    "animation": "greet"
+  },
+  "defaults": {
+    "profile": "free",
+    "size": 100,
+    "autonomous": true,
+    "followMouse": false
+  },
+  "appearance": {
+    "hue": 0,
+    "saturation": 1
+  }
+}
