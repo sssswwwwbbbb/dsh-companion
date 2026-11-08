@@ -1,0 +1,52 @@
+/* Design tokens owned by this skin. These are not DSH runtime field names. */
+:root {
+  --paper: #f4f1e9;
+  --surface: #fffdf8;
+  --surface-raised: #ffffff;
+  --surface-soft: #ece8de;
+  --ink: #2b302c;
+  --muted: #68685e;
+  --line: #d9d4c7;
+  --line-strong: #8d8b7e;
+  --accent: #a54c19;
+  --accent-bright: #ff7500;
+  --accent-soft: #f9e9da;
+  --signal: #35677e;
+  --signal-soft: #e5eef1;
+  --positive: #3b6751;
+  --danger: #a0372b;
+  --danger-soft: #fbece7;
+  --focus: #a54c19;
+  --code: #eeece5;
+  --shadow: 0 14px 44px #32301c14;
+  --font-ui: -apple-system, "SF Pro Text", "PingFang SC", "Noto Sans SC", sans-serif;
+  --font-title: "Iowan Old Style", "Baskerville", "Songti SC", "Noto Serif SC", serif;
+  --font-code: "SFMono-Regular", "Menlo", "Consolas", monospace;
+  --r-sm: 6px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --space-unit: 4px;
+  --fast: 140ms;
+  --standard: 220ms;
+}
+[data-theme="dark"] {
+  --paper: #202423;
+  --surface: #292e2c;
+  --surface-raised: #303633;
+  --surface-soft: #353b37;
+  --ink: #f1efe6;
+  --muted: #b6b9ac;
+  --line: #494f46;
+  --line-strong: #899180;
+  --accent: #f2ab71;
+  --accent-soft: #443326;
+  --signal: #91c3d7;
+  --signal-soft: #293e46;
+  --positive: #9cc7ab;
+  --danger: #f4a99a;
+  --danger-soft: #492c28;
+  --focus: #f2ab71;
+  --code: #222724;
+  --shadow: 0 14px 44px #0005;
+  color-scheme: dark;
+}

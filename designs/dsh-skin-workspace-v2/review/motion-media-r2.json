@@ -1,0 +1,56 @@
+{
+  "theme-opening-demo.gif": {
+    "bytes": 1128645,
+    "sha256": "78569576555b3e3c3a413e25059d00182749b920273a99980dc63470bcdf15d1",
+    "size": [
+      960,
+      600
+    ],
+    "frames": 53,
+    "durationSeconds": 5.3
+  },
+  "theme-opening-demo.mp4": {
+    "bytes": 252878,
+    "sha256": "666b455cd641dee08caa4f9f3787d99d36b47d5779fcd2e49fb93205200f6dae",
+    "duration": "00:00:05.27",
+    "dimensions": "1218x760",
+    "audioStreams": false,
+    "decodeCheck": "passed"
+  },
+  "reply-completion-demo.mp4": {
+    "bytes": 146584,
+    "sha256": "609d8346cc9769ff030f386e2800b2b6d22c0443ba54ba3986c2d7e7b7e3eeaf",
+    "duration": "00:00:04.47",
+    "dimensions": "1218x760",
+    "audioStreams": false,
+    "decodeCheck": "passed"
+  },
+  "openingCapture": {
+    "frames": 55,
+    "firstFrameSeconds": 0.0555,
+    "lastFrameSeconds": 5.129,
+    "samplingFPS": 10.64,
+    "note": "Screen capture sampling, not browser rendering FPS"
+  },
+  "completionCapture": {
+    "frames": 45,
+    "firstFrameSeconds": 0.019,
+    "lastFrameSeconds": 4.3345,
+    "samplingFPS": 10.2,
+    "note": "Screen capture sampling, not browser rendering FPS"
+  },
+  "citationCapture": {
+    "frames": 13,
+    "firstFrameSeconds": 0.0205,
+    "lastFrameSeconds": 0.902,
+    "samplingFPS": 13.61,
+    "note": "Screen capture sampling, not browser rendering FPS"
+  },
+  "darkCapture": {
+    "frames": 38,
+    "firstFrameSeconds": 0.0355,
+    "lastFrameSeconds": 4.157,
+    "samplingFPS": 8.98,
+    "note": "Screen capture sampling, not browser rendering FPS"
+  }
+}

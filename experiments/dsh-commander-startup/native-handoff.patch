@@ -1,0 +1,418 @@
+--- a/packages/dsh-companion/src/client.template.js
++++ b/packages/dsh-companion/src/client.template.js
+@@ -78,11 +78,13 @@
+             }
+             async function work(method,value){
+               const ticket=gate.beginNormal();if(!ticket)return;setBusy(true);setError('');setNotice('');
++              const returnPanel=method==='replayIntro'&&state?.startup?.workspaceHandoff?ctx.layout.panelInfo.getSnapshot().activePanelId:null;
+               if(method==='skinSelect')setSelection({contentKey:value.contentKey,status:'applying'});
+               try{
+                 if(['activate','start','replayIntro'].includes(method))await syncWindow();
+                 if(!gate.current(ticket))return null;
+                 const result=await call(method,value);if(!gate.current(ticket))return null;
++                if(returnPanel!==null&&result.startup?.playing&&ctx.layout.panelInfo.getSnapshot().activePanelId===returnPanel)ctx.layout.selectPanel(null);
+                 if(method==='exportPack'){download(result.filename,result.json);setNotice('exported');}else setState(result);
+                 if(method==='skinSelect')setSelection(null);
+                 if(method==='skinInstall')setNotice(result.skinImport?.canceled?'skinInstallCancelled':result.skinImport?.duplicate?'skinAlreadyInstalled':'skinInstalled');
+--- a/packages/dsh-companion/src/skin-settings-ui.mjs
++++ b/packages/dsh-companion/src/skin-settings-ui.mjs
+@@ -125,7 +125,10 @@
+           fieldRow('theme',control('theme','workFeedbackEnabled'),'工作反馈','显示当前会话的执行与待处理状态。'),
+           supported('pet')&&fieldRow('theme',control('theme','petEchoEnabled'),'桌宠呼应',modules.pet.values.allowActions?'本轮回复完成时，安静回应一次。':'开启桌宠动作后生效；关闭选择会保留。')),
+         modules.pet&&h(Section,{title:'桌面陪伴'},moduleRow('pet','桌宠','关闭时保留参数，随时可以重新开启。'),supported('pet')&&h(React.Fragment,null,fieldRow('pet',control('pet','size'),'角色大小','按百分比调整角色，保持原有比例。'),fieldRow('pet',control('pet','smartEnabled'),'智能互动','明确点击或专属输入时回应；待机仍在本地执行。'))),
+-        modules.startup&&h(Section,{title:'开场与进入'},moduleRow('startup','本套开场内容','静音影片与静态回退独立于桌宠。'),supported('startup')&&h(React.Fragment,null,h(Row,{title:'启动时自动播放',description:'启动偏好由原全局开关保存；应用与恢复不强制重播。'},h(Pill,null,'全局偏好'),h(Toggle,{label:'启动时自动播放',value:state?.settings?.startupEnabled,disabled:busy||!active,onChange:value=>work('configure',{startupEnabled:value})})),h(Row,{title:'预览开场',description:skin?.stopped?'恢复本套后可预览。':'手动预览不会修改自动播放偏好。'},h(Pill,{tone:startupReady?'green':''},state?.startup?.playing?'正在播放':startupReady?'内容就绪':'尚未就绪'),h(Button,{icon:'play',disabled:busy||!active||!startupReady,onClick:()=>void work('replayIntro')},'预览开场'))))
++        modules.startup&&h(Section,{title:'开场与进入'},moduleRow('startup','本套开场内容','静音影片与静态回退独立于桌宠。'),supported('startup')&&h(React.Fragment,null,
++          h(Row,{title:'启动时自动播放',description:'启动偏好由原全局开关保存；应用与恢复不强制重播。'},h(Pill,null,'全局偏好'),h(Toggle,{label:'启动时自动播放',value:state?.settings?.startupEnabled,disabled:busy||!active,onChange:value=>work('configure',{startupEnabled:value})})),
++          fieldRow('startup',control('startup','reducedMotion'),'减少开场动态','显示同角色静态画面。macOS 的减少动态效果同样生效。'),
++          h(Row,{title:'预览开场',description:skin?.stopped?'恢复本套后可预览。':state?.startup?.workspaceHandoff?'播放后返回当前会话，保留草稿。':'手动预览不会修改自动播放偏好。'},h(Pill,{tone:startupReady?'green':''},state?.startup?.playing?'正在播放':startupReady?'内容就绪':'尚未就绪'),h(Button,{icon:'play',disabled:busy||!active||!startupReady,onClick:()=>void work('replayIntro')},'预览开场'))))
+       ):h(React.Fragment,null,modules.pet&&h(Section,{title:'互动与近期记忆',tag:h(Pill,null,'本套偏好')},supported('pet')?modules.pet.controls.filter(c=>!['size','smartEnabled'].includes(c.field)).map(c=>fieldRow('pet',c,null,c.field==='historyRounds'?'仅本次运行的近期互动，重启后清空。':c.field==='persona'?'用于本套桌宠的简短回应与陪伴。':null)):h('p',{className:'r3-caption'},modules.pet.status==='unavailable'?'桌宠能力当前不可用，原有设置继续保留。':'桌宠已关闭，原有设置继续保留。')),modules.pet&&interaction),
+       h('p',{className:'r3-caption r3-scope-note'},'只显示本套已提供的能力。'+(candidate?.contentKey===assets.contentKey?'当前角色仅有待机与回应动作。':'')));
+   }
+--- a/packages/dsh-companion/src/skins.mjs
++++ b/packages/dsh-companion/src/skins.mjs
+@@ -34,7 +34,19 @@
+     const skin=key?this.snapshots.get(key)||(selected?.contentKey===key?selected:null):this.catalog.get(value)||(selected?.manifest.id===value?selected:null);
+     if(!skin)fail('SKIN_NOT_FOUND');
+     if(selected?.contentKey===skin.contentKey&&this.core.phase==='ready'&&!this.core.state.stopped&&!this.core.pendingSelections&&!this.core.store.hasStops())return this.controller.status();
+-    await this.core.select(skin);return this.controller.status();
++    try{await this.core.select(skin);}catch(error){
++      // A non-destructive preflight rejection can retain the old backend.
++      // Release it only once the coordinator has settled on that identity.
++      const state=this.core.state;
++      if(this.core.phase==='ready'&&state.selected&&!state.stopped&&!state.pending){
++        const live=await this.controller.nativeStatus();
++        if(live.startup?.workspaceHandoff&&!live.startup.playing&&live.backend?.suspended){
++          await this.controller.request('/intro/workspace-ready',{generation:state.generation,contentKey:state.selected.contentKey}).catch(()=>{});
++        }
++      }
++      throw error;
++    }
++    return this.controller.status();
+   }
+   async configure(value){await this.core.update(value);this.work.maintain();return this.controller.status();}
+   assertSelection(contentKey){if(contentKey!==undefined&&contentKey!==this.core.state.selected?.contentKey)fail('SKIN_OPERATION_SUPERSEDED');}
+@@ -69,7 +81,15 @@
+     while(current()&&live.startup?.playing&&live.startup.contentKey===contentKey&&live.startup.generation===generation&&Date.now()<deadline){
+       await new Promise(resolve=>setTimeout(resolve,100));live=await this.controller.nativeStatus();
+     }
+-    if(current())await this.core.restore();
++    if(!current())return;
++    await this.core.restore();
++    // The cinematic reveals the real shell. On an opted-in cold boot wait
++    // for this page's ordinary committed restore before showing the overlay.
++    if(!live.startup?.coldPending||!live.startup.workspaceHandoff)return;
++    const state=this.core.state,ready=this.page.lastReady,confirmed=state.results.theme?.status!=='ready'||ready?.clientId===clientId&&ready.generation===state.generation&&ready.contentKey===contentKey;
++    if(this.page.client?.id===clientId&&confirmed&&this.core.phase==='ready'&&!state.stopped&&!state.pending&&state.selected?.contentKey===contentKey){
++      await this.controller.request('/intro/workspace-ready',{generation:state.generation,contentKey});
++    }
+   }
+   async maintain(){
+     this.work.maintain();
+--- a/packages/dsh-skin-core/src/schema.mjs
++++ b/packages/dsh-skin-core/src/schema.mjs
+@@ -26,9 +26,12 @@
+ const workspaceRole=x=>object(x)&&Object.keys(x).length===5&&['poster','portrait','avatar','idle','react'].every(k=>id(x[k]));
+ const workspaceFields=['semanticIcons','workspacePreset','workspaceDetailsEnabled','workspaceMotionEnabled','workspaceRole'];
+ export const definitions = {
+-  startup: {interfaceVersion:1,configVersion:1,fields:{
++  startup: {interfaceVersion:1,configVersion:1,configVersions:[1,2],fields:{
+     poster:{fixed:true,required:true,valid:id},video:{fixed:true,valid:id},
+     seconds:{fixed:true,required:true,valid:x=>num(x,1,15)},
++    handoffSeconds:{fixed:true,valid:x=>num(x,.1,1)},
++    stillSeconds:{fixed:true,valid:x=>num(x,1,15)},
++    reducedMotion:{type:'boolean',valid:x=>typeof x==='boolean'},
+     greeting:{fixed:true,required:true,valid:x=>text(x,100)&&x.length>0},
+     subtitle:{fixed:true,required:true,valid:x=>text(x,180)},
+   }},
+@@ -127,6 +130,8 @@
+     if(key==='startup'){
+       if(!input.assets[m.config.poster]?.mime.startsWith('image/'))fail('SKIN_RESOURCE_MISSING','startup.poster');
+       if(m.config.video&&input.assets[m.config.video]?.mime!=='video/webm')fail('SKIN_RESOURCE_MISSING','startup.video');
++      if(m.configVersion===1&&['handoffSeconds','stillSeconds','reducedMotion'].some(k=>own(m.config,k)||own(m.settings,k)))fail('SKIN_SETTING_UNSUPPORTED','startup.handoff');
++      if(m.configVersion===2&&(!m.config.video||!m.config.handoffSeconds||!m.config.stillSeconds||m.config.handoffSeconds>=m.config.seconds||m.config.stillSeconds>m.config.seconds))fail('SKIN_CONFIG_INVALID','startup.handoff');
+     }
+     if(key==='pet'&&m.config.animations)for(const clip of Object.values(m.config.animations))if(input.assets[clip.asset]?.mime!=='video/webm')fail('SKIN_RESOURCE_MISSING','pet.animations');
+     if(key==='pet'){
+--- a/runtime-src/main.mjs
++++ b/runtime-src/main.mjs
+@@ -25,65 +25,101 @@
+ let bridge,backend,skin,introWindow,monitor,quitting=false,exitAllowed=false,ready=false;
+ let ownerPid=Number(process.env.DSH_COMPANION_OWNER_PID||0),phase='standby',errorCode=null,launchMode='managed';
+ let introPlaying=false,introReady=false,introStartedAt=0,introError=null,introCompletions=0,activeIntro=null,introMedia=null,introVideoStarted=false,introVideoEnded=false;
++let introDuration=0,introHandoff=false,introReturning=false;
+ let pendingInteraction=null,lastInteraction=null;const started=new Date().toISOString(),transitions=[];
+ const coldState=readJson(join(stateDir,'skin-state.json'),{}),coldKey=coldState.selected?.contentKey;
+ const coldRequested=process.env.DSH_COMPANION_PLAY_INTRO==='1';
+-let coldIntroPending=coldOpeningAllowed({requested:coldRequested,settings,state:coldState,hasStops:stopRequests(stateDir).length>0}),coldAutoStarted=false;
++let coldIntroPending=!coldState.pending&&coldOpeningAllowed({requested:coldRequested,settings,state:coldState,hasStops:stopRequests(stateDir).length>0}),coldAutoStarted=false;
+ function event(type,extra={}){transitions.push({at:Date.now(),type,...extra});if(transitions.length>200)transitions.shift();writeJson(join(stateDir,'runtime-events.json'),{version,started,transitions});}
+ function authorization(){const record=readJson(join(stateDir,'license.json'),null);if(!record||record.blocked)throw new Error(record?.blocked||'LICENSE_REQUIRED');return verifyLicense(record.receipt,{publicKey:service.publicKey,deviceId:deviceIdentity()});}
+ const startup=new NativeStartupRuntime({stateDir,dshVersion:integration.dshVersion,onCancel:reason=>{if(activeIntro?.custom)cancelIntro(reason);}});
+ const wantsPet=true;
+ const showPet=()=>settings.visible&&!introPlaying&&skin?.canShow();
+-function status(){const b=backend?.status();return {running:!quitting,bridgeReady:!!bridge,ready:b?.ready===true,phase:introPlaying?'intro':b?.ready?'ready':'standby',version,pid:process.pid,started,errorCode,settings,needsHost:ownerPid<1,skin:skin?.status(),backend:b,window:b?.windows?.[0]?{visible:b.windows[0].visible,bounds:b.windows[0].bounds}:null,action:b?.windows?.[0]?.renderer?.sprites?.[0]?.anim||'idle',availableActions:b?.ready?['idle','react']:[],interaction:lastInteraction,startup:{...startup.status(),playing:introPlaying,rendererReady:introReady,media:introMedia,videoEnded:introVideoEnded,hostReady:ownerPid>0,coldRequested,coldPending:coldIntroPending,coldAutoStarted,elapsedSeconds:introStartedAt?(Date.now()-introStartedAt)/1000:0,durationSeconds:activeIntro?.seconds||startup.descriptor?.seconds||pack.startup.seconds,completions:introCompletions,errorCode:introError||null,visible:!!introWindow&&!introWindow.isDestroyed()&&introWindow.isVisible(),bounds:introWindow&&!introWindow.isDestroyed()?introWindow.getBounds():null}};}
+-function sendState(){ready=backend?.ready===true;if(introWindow&&!introWindow.isDestroyed())introWindow.webContents.send('companion:intro-state',{content:activeIntro,playing:introPlaying,hostReady:ownerPid>0,elapsed:(Date.now()-introStartedAt)/1000,errorCode:introError});}
++function status(){const b=backend?.status();return {running:!quitting,bridgeReady:!!bridge,ready:b?.ready===true,phase:introPlaying?'intro':b?.ready?'ready':'standby',version,pid:process.pid,started,errorCode,settings,needsHost:ownerPid<1,skin:skin?.status(),backend:b,window:b?.windows?.[0]?{visible:b.windows[0].visible,bounds:b.windows[0].bounds}:null,action:b?.windows?.[0]?.renderer?.sprites?.[0]?.anim||'idle',availableActions:b?.ready?['idle','react']:[],interaction:lastInteraction,startup:{...startup.status(),playing:introPlaying,rendererReady:introReady,media:introMedia,videoEnded:introVideoEnded,handoff:introHandoff,hostReady:ownerPid>0,coldRequested,coldPending:coldIntroPending,coldAutoStarted,elapsedSeconds:introPlaying?(Date.now()-introStartedAt)/1000:0,durationSeconds:(introPlaying&&introDuration)||startup.descriptor?.seconds||pack.startup.seconds,completions:introCompletions,errorCode:introError||null,visible:!!introWindow&&!introWindow.isDestroyed()&&introWindow.isVisible(),bounds:introWindow&&!introWindow.isDestroyed()?introWindow.getBounds():null}};}
++function sendState(){ready=backend?.ready===true;if(introWindow&&!introWindow.isDestroyed())introWindow.webContents.send('companion:intro-state',{content:activeIntro,playing:introPlaying,hostReady:ownerPid>0,elapsed:(Date.now()-introStartedAt)/1000,duration:introDuration,errorCode:introError});}
+ function updateMenu(){} // No second pet tray or control window in this private path.
+ function openDsh(){event('isolated-host-return',{ownerPresent:ownerPid>0});}
+-async function releaseOpeningPet(){if(!coldIntroPending&&showPet()){await backend?.releaseVisibility();await backend?.resume();}}
+-async function maybeColdOpening(){
++async function releaseOpeningPet(){if(!coldIntroPending&&showPet()&&!readJson(join(stateDir,'skin-state.json'),{}).stopped&&!stopRequests(stateDir).length){await backend?.releaseVisibility();await backend?.resume();}}
++async function maybeColdOpening(workspace){
+  if(!coldIntroPending||!backend)return;
+  const state=readJson(join(stateDir,'skin-state.json'),{});
+  if(!coldOpeningAllowed({requested:true,settings,state,hasStops:stopRequests(stateDir).length>0})||state.selected?.contentKey!==coldKey||state.pending&&state.pending.contentKey!==coldKey){coldIntroPending=false;await releaseOpeningPet();return;}
+  if(!startup.canPlay()||startup.descriptor.contentKey!==coldKey)return;
+- coldIntroPending=false;coldAutoStarted=true;event('cold-intro-request',{contentKey:coldKey});
++ if(startup.descriptor.handoffSeconds&&(!workspace||workspace.contentKey!==coldKey||workspace.generation!==startup.generation||state.pending||state.generation!==workspace.generation||!hostWindowBounds(readJson(join(stateDir,'host-window.json'),null)?.bounds)))return;
++ coldIntroPending=false;coldAutoStarted=true;event('cold-intro-request',{contentKey:coldKey,generation:startup.generation,workspaceCommitted:!!workspace});
+  try{await showIntro();}catch(error){cancelIntro('load-error');throw error;}
+ }
+ async function showIntro(){
++   if(introPlaying||introReturning)return;
+   authorization();if(!introAvailable())throw new Error(startup.declared?'STARTUP_NOT_REGISTERED':'ACTION_UNAVAILABLE');
+   introStartedAt=Math.max(Date.now(),introStartedAt+1);const content=startup.declared?startup.playback():{...pack.startup,custom:false,name:pack.name,video:'/'+pack.animations[pack.startup.animation].file,contentKey:packToken};
+-  activeIntro={...content,theme:content.theme||pack.startup.theme,token:content.contentKey+':'+(content.generation||0)+':'+introStartedAt};introPlaying=true;introReady=false;introMedia=null;introVideoStarted=false;introVideoEnded=false;introError=null;phase='intro';await backend.suspend();introWindow?.hide();event('intro-start',{hostReady:ownerPid>0,custom:content.custom,contentKey:content.contentKey});
+-  if(!introWindow||introWindow.isDestroyed()){
+-    introReady=false;introWindow=new BrowserWindow({...currentIntroBounds(),show:false,frame:false,acceptFirstMouse:true,backgroundColor:'#111827',hasShadow:true,resizable:false,minimizable:false,maximizable:false,fullscreenable:false,alwaysOnTop:true,skipTaskbar:true,webPreferences:{preload:join(root,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,backgroundThrottling:false}});
+-    introWindow.setAlwaysOnTop(true,'screen-saver');if(process.platform==='darwin')introWindow.setVisibleOnAllWorkspaces(true,{visibleOnFullScreen:true,skipTransformProcessType:true});
+-    introWindow.webContents.setWindowOpenHandler(()=>({action:'deny'}));introWindow.webContents.on('will-navigate',event=>event.preventDefault());
+-    introWindow.webContents.on('render-process-gone',()=>{cancelIntro('renderer-exited');if(launchMode==='launcher'&&ownerPid<1)openDsh(false);});
+-    introWindow.on('closed',()=>{introWindow=undefined;introReady=false;});
+-    await introWindow.loadURL('dsh-companion://app/startup.html');
+-  }else{introWindow.setBounds(currentIntroBounds());sendState();}
+-  sendState();
++   const token=content.contentKey+':'+(content.generation||0)+':'+introStartedAt,cinematic=!!content.handoffSeconds;
++   activeIntro={...content,theme:content.theme||pack.startup.theme,token};
++   introPlaying=true;introReady=false;introMedia=null;introVideoStarted=false;introVideoEnded=false;introHandoff=false;introDuration=content.seconds;introError=null;phase='intro';
++   try{
++     await backend.suspend();
++     if(!introCurrent(token))return;
++     if(cinematic&&introWindow)introWindow.destroy();
++     if(!introWindow||introWindow.isDestroyed()){
++       const win=new BrowserWindow({...currentIntroBounds(),show:false,frame:false,acceptFirstMouse:true,transparent:cinematic,backgroundColor:cinematic?'#00000000':'#111827',hasShadow:!cinematic,resizable:false,minimizable:false,maximizable:false,fullscreenable:false,alwaysOnTop:true,skipTaskbar:true,webPreferences:{preload:join(root,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,backgroundThrottling:false}});
++       introWindow=win;
++       win.setAlwaysOnTop(true,'screen-saver');if(process.platform==='darwin')win.setVisibleOnAllWorkspaces(true,{visibleOnFullScreen:true,skipTransformProcessType:true});
++       win.webContents.setWindowOpenHandler(()=>({action:'deny'}));win.webContents.on('will-navigate',event=>event.preventDefault());
++       win.webContents.on('render-process-gone',()=>{if(introWindow===win)cancelIntro('renderer-exited');if(launchMode==='launcher'&&ownerPid<1)openDsh(false);});
++       if(cinematic)win.webContents.on('before-input-event',(event,input)=>{
++         if(input.type!=='keyDown'||input.key!=='Escape'||!introCurrent(token))return;
++         event.preventDefault();void finishIntro('escape',token).catch(error=>eventError('intro-finish-failed',error));
++       });
++       win.on('closed',()=>{if(introWindow===win){introWindow=undefined;introReady=false;if(introCurrent(token))cancelIntro('window-closed');}});
++       event('intro-start',{hostReady:ownerPid>0,custom:content.custom,contentKey:content.contentKey,generation:content.generation,cinematic,ownerPid,bounds:win.getBounds()});
++       await win.loadURL('dsh-companion://app/startup.html');
++     }else{introWindow.setBounds(currentIntroBounds());event('intro-start',{hostReady:ownerPid>0,custom:content.custom,contentKey:content.contentKey});}
++     if(introCurrent(token))sendState();
++   }catch(error){if(!introCurrent(token))return;cancelIntro('load-error');throw error;}
+ }
+-function introAvailable(){return startup.declared?startup.canPlay():!!pack.animations[pack.startup.animation];}
++function introAvailable(){
++ if(!startup.declared)return !!pack.animations[pack.startup.animation];
++ if(!startup.canPlay())return false;
++ if(!startup.descriptor.handoffSeconds)return true;
++ const state=readJson(join(stateDir,'skin-state.json'),{});
++ return !state.pending&&!state.stopped&&state.generation===startup.generation&&state.selected?.contentKey===startup.descriptor.contentKey&&state.results?.startup?.status==='ready';
++}
+ function introCurrent(token){return introPlaying&&activeIntro?.token===token&&(!activeIntro.custom||startup.canPlay(activeIntro));}
++function dismissOpening(content){
++ if(introWindow&&!introWindow.isDestroyed()){
++   if(content?.handoffSeconds)introWindow.destroy();else introWindow.hide();
++ }
++}
+ function cancelIntro(reason){
+   if(['skin-stop','startup-disabled'].includes(reason))coldIntroPending=false;
+-  if(!introPlaying){void releaseOpeningPet().catch(()=>{});return;}introPlaying=false;introReady=false;introMedia=null;introWindow?.hide();phase=ready?(ownerPid>0?'ready':'waiting-host'):'starting';event('intro-cancelled',{reason});if(reason!=='skin-stop')void releaseOpeningPet().catch(()=>{});sendState();
++  if(!introPlaying){void releaseOpeningPet().catch(()=>{});return;}
++  const content=activeIntro;introPlaying=false;introReady=false;introMedia=null;activeIntro=null;dismissOpening(content);phase=ready?(ownerPid>0?'ready':'waiting-host'):'starting';
++  event('intro-cancelled',{reason,contentKey:content.contentKey,generation:content.generation});
++  // A new generation owns the old pet's exit and the new pet's visibility.
++  // Resuming the old backend here would race its /skin/exit request.
++  if(!content.handoffSeconds||!['generation-changed','module-exit','content-applied','skin-stop'].includes(reason))void releaseOpeningPet().catch(()=>{});
++  sendState();
+ }
+ function currentIntroBounds(){
+   const bounds=hostWindowBounds(readJson(join(stateDir,'host-window.json'),null)?.bounds);
+   const display=bounds?screen.getDisplayMatching(bounds):screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+   return introBounds(bounds,display.workArea,display.bounds);
+ }
+-async function finishIntro(trigger='automatic'){
+-  if(!introCurrent(activeIntro?.token)||!introReady||!activeIntro.custom&&!backend.ready||ownerPid<1)return;introPlaying=false;phase='ready';introCompletions++;introWindow?.hide();sendState();
+-  await releaseOpeningPet();event('intro-complete',{trigger,hostReady:true,media:introMedia,videoEnded:introVideoEnded});
+-  openDsh();
+-  if(!wantsPet&&!skin.owned&&launchMode==='launcher'){setTimeout(()=>app.quit(),250);}launchMode='managed';
++function eventError(type,error){event(type,{code:error.message});}
++async function finishIntro(trigger='automatic',token=activeIntro?.token){
++   if(!introCurrent(token)||!introReady||!activeIntro.custom&&!backend.ready||ownerPid<1)return;
++   const content=activeIntro;introPlaying=false;introReturning=true;activeIntro=null;phase='ready';introCompletions++;
++   dismissOpening(content);sendState();
++   event('intro-complete',{trigger,hostReady:true,media:introMedia,videoEnded:introVideoEnded,handoff:introHandoff,contentKey:content.contentKey,generation:content.generation});
++   try{await releaseOpeningPet();openDsh();}finally{introReturning=false;}
++   if(!wantsPet&&!skin.owned&&launchMode==='launcher'){setTimeout(()=>app.quit(),250);}launchMode='managed';
+ }
+ 
+ 
+ async function applySettings(input){
+  if(skin.owned&&Object.keys(input).some(k=>['packId','size','profile','autonomous','followMouse','visible'].includes(k)))throw new Error('SKIN_MANAGED_SETTINGS');
+  settings=validatedSettings(input,settings);legacySettings={...legacySettings,...input};writeJson(statePath,{schemaVersion:1,settings:legacySettings});
+- if(!settings.startupEnabled){coldIntroPending=false;cancelIntro('startup-disabled');}sendState();return status();
++ if(!settings.startupEnabled&&Object.hasOwn(input,'startupEnabled')){coldIntroPending=false;cancelIntro('startup-disabled');}sendState();return status();
+ }
+ async function deliverInteraction(input){
+  if(!skin.canShow()||input.generation!==skin.generation||input.contentKey!==skin.contentKey)throw new Error('SKIN_OPERATION_SUPERSEDED');
+@@ -112,7 +148,12 @@
+   if(route==='/settings')return applySettings(input);
+   if(route==='/attach'){if(!Number.isSafeInteger(input.ownerPid)||!service.supportedDsh.includes(input.dshVersion))throw new Error('INVALID_OWNER');process.kill(input.ownerPid,0);ownerPid=input.ownerPid;sendState();return status();}
+   if(route==='/host-window'){if(!hostWindowBounds(input.bounds))throw new Error('HOST_WINDOW_INVALID');if(introWindow)introWindow.setBounds(currentIntroBounds());return {saved:true};}
+-  if(route==='/intro/replay'){await showIntro();return status();}
++  if(route==='/intro/workspace-ready'){
++   if(coldIntroPending)await maybeColdOpening(input);
++   else if(startup.descriptor?.handoffSeconds&&startup.canPlay(input)&&introAvailable())await releaseOpeningPet();
++   return status();
++  }
++  if(route==='/intro/replay'){if(introAvailable())coldIntroPending=false;await showIntro();return status();}
+   if(route==='/backend/input'){const config=skin.interactionSettings();if(input.contentKey!==skin.contentKey||input.generation!==skin.generation||!config)throw new Error('SKIN_OPERATION_SUPERSEDED');if(!config.allowActions)return {accepted:false,reason:'PET_ACTIONS_DISABLED'};pendingInteraction={trigger:'click',text:'用户轻点了你。',generation:skin.generation,contentKey:skin.contentKey};event('native-click-candidate',{generation:skin.generation});return {accepted:true};}
+   if(route==='/interaction/poll'){const value=pendingInteraction;pendingInteraction=null;return {input:skin.canShow()&&value?.generation===skin.generation?value:null};}
+   if(route==='/interaction')return deliverInteraction(input);
+@@ -123,13 +164,33 @@
+  backend=new WholePetBackend({stateDir,host:{origin:'http://127.0.0.1:'+bridge.port,token:bridge.token},event});
+  skin=new NativeSkinRuntime({stateDir,loadPack:id=>packs.get(id),hide:async({stop=false}={})=>{if(stop){coldIntroPending=false;startup.stop();cancelIntro('skin-stop');}pendingInteraction=null;await backend.stop();sendState();},isReady:token=>backend.status().ready&&backend.token===token,workAction:(action,current)=>backend.act(action,current),apply:async({pack:next,config,token,resources,contentKey,generation,assertCurrent})=>{pack=next;settings={...legacySettings,packId:pack.id,profile:config.profile,size:config.size,autonomous:false,followMouse:false,visible:true};await backend.apply({pack,config,token,resources,contentKey,generation,assertCurrent,holdVisibility:coldIntroPending||introPlaying});if(introPlaying)await backend.suspend();else if(!coldIntroPending)await backend.releaseVisibility();}});
+  const from=e=>introWindow&&!introWindow.isDestroyed()&&e.sender===introWindow.webContents&&e.senderFrame===introWindow.webContents.mainFrame;
+- ipcMain.on('companion:intro-ready',(e,value)=>{if(!from(e))return;if(value?.mounted){sendState();return;}if(!introCurrent(value?.token))return;const first=!introReady;if(first||value.playing===true&&!introVideoStarted)introStartedAt=Date.now();if(value.playing===true)introVideoStarted=true;if(value.ended===true)introVideoEnded=true;if(value.media)introMedia=value.media;introReady=true;introWindow.showInactive();sendState();});
+- ipcMain.on('companion:intro-control',(e,value)=>{if(from(e)&&introCurrent(value?.token)){if(value.action==='skip')finishIntro('enter-button');if(value.action==='open-dsh')openDsh();}});
++ ipcMain.on('companion:intro-ready',(e,value)=>{
++   if(!from(e))return;if(value?.mounted){sendState();return;}if(!introCurrent(value?.token))return;
++   const content=activeIntro,first=!introReady,cinematic=!!content.handoffSeconds;
++   if(cinematic&&value.handoff===true){
++     if(!introHandoff&&introVideoStarted&&Number.isFinite(value.mediaTime)&&Number.isFinite(value.mediaDuration)&&value.mediaTime>=value.mediaDuration-content.handoffSeconds&&value.mediaTime<=value.mediaDuration){
++       introHandoff=true;event('intro-handoff',{generation:content.generation,contentKey:content.contentKey,mediaTime:value.mediaTime,mediaDuration:value.mediaDuration});
++     }
++     return;
++   }
++   if(first||value.playing===true&&!introVideoStarted||cinematic&&value.fallback)introStartedAt=Date.now();
++   if(cinematic&&value.fallback){introDuration=content.stillSeconds;introVideoStarted=false;}
++   if(value.playing===true)introVideoStarted=true;if(value.ended===true)introVideoEnded=true;
++   if(value.media)introMedia=value.media;introReady=true;
++   if(first){
++     if(cinematic)introWindow.show();else introWindow.showInactive();
++   }
++   if(cinematic&&(first||value.playing||value.fallback))event('intro-presented',{generation:content.generation,contentKey:content.contentKey,media:introMedia,fallback:value.fallback||null,seconds:introDuration,assetSha256:introMedia==='video'?content.videoSha:content.posterSha});
++   if(cinematic&&value.ended===true)void finishIntro('media-ended',value.token).catch(error=>eventError('intro-finish-failed',error));else sendState();
++ });
++ ipcMain.on('companion:intro-control',(e,value)=>{if(from(e)&&introCurrent(value?.token)){if(value.action==='skip')void finishIntro('enter-button',value.token).catch(error=>eventError('intro-finish-failed',error));if(value.action==='open-dsh')openDsh();}});
+  writeJson(bridgePath,{schemaVersion:1,pid:process.pid,port:bridge.port,token:bridge.token,version,skinProtocol:1,startupProtocol:1});event('runtime-started',{backend:'whole-dsh-pet'});
+- monitor=setInterval(()=>{try{authorization();if(!profileGate(integration.profileDir).enabled)throw new Error('INTEGRATION_DISABLED');process.kill(ownerPid,0);if(introPlaying)sendState();void maybeColdOpening().catch(error=>event('cold-intro-failed',{code:error.message}));if(introPlaying&&introReady&&ownerPid>0&&Date.now()-introStartedAt>activeIntro.seconds*1000&&(!introVideoStarted||introVideoEnded||Date.now()-introStartedAt>(activeIntro.seconds+1)*1000))void finishIntro().catch(error=>event('intro-finish-failed',{code:error.message}));}catch(error){event('monitor-stop',{code:error.message});app.quit();}},250);
++ monitor=setInterval(()=>{try{authorization();if(!profileGate(integration.profileDir).enabled)throw new Error('INTEGRATION_DISABLED');process.kill(ownerPid,0);if(introPlaying)sendState();void maybeColdOpening().catch(error=>eventError('cold-intro-failed',error));if(introPlaying&&introReady&&ownerPid>0&&Date.now()-introStartedAt>introDuration*1000&&(!introVideoStarted||introVideoEnded||Date.now()-introStartedAt>(introDuration+1)*1000))void finishIntro().catch(error=>eventError('intro-finish-failed',error));}catch(error){event('monitor-stop',{code:error.message});app.quit();}},250);
+  await maybeColdOpening();
+ }
+ protocol.registerSchemesAsPrivileged([{scheme:'dsh-companion',privileges:{standard:true,secure:true,supportFetchAPI:true,corsEnabled:true,stream:true}}]);
+ if(!app.requestSingleInstanceLock())app.quit();else app.whenReady().then(start).catch(error=>{errorCode=error.message;event('start-failed',{errorCode});app.quit();});
++// The supervisor owns the pet backend even when its last intro window closes.
++app.on('window-all-closed',()=>{});
+ app.on('before-quit',e=>{if(exitAllowed)return;e.preventDefault();if(quitting)return;quitting=true;clearInterval(monitor);void(async()=>{try{await backend?.stop();introWindow?.destroy();bridge?.server.close();if(readJson(bridgePath,{})?.pid===process.pid)unlinkSync(bridgePath);}finally{exitAllowed=true;app.quit();}})();});
+ process.on('SIGTERM',()=>app.quit());
+--- a/runtime-src/startup-skin.mjs
++++ b/runtime-src/startup-skin.mjs
+@@ -10,7 +10,7 @@
+     Object.assign(this,{stateDir,dshVersion,onCancel});this.generation=0;this.declared=false;this.descriptor=null;this.resources={};this.stopRequested=false;
+     this.loadBoot();
+   }
+-  status(){return {protocolVersion:1,generation:this.generation,declared:this.declared,ready:!!this.descriptor&&!this.stopRequested,contentKey:this.descriptor?.contentKey||null,stopRequested:this.stopRequested,errorCode:this.errorCode||null};}
++  status(){return {protocolVersion:1,generation:this.generation,declared:this.declared,ready:!!this.descriptor&&!this.stopRequested,contentKey:this.descriptor?.contentKey||null,workspaceHandoff:!!this.descriptor?.handoffSeconds,stopRequested:this.stopRequested,errorCode:this.errorCode||null};}
+   loadBoot(){
+     try{
+       const state=JSON.parse(fs.readFileSync(path.join(this.stateDir,'skin-state.json'),'utf8'));
+@@ -49,10 +49,10 @@
+     for(const id of [config.poster,config.video].filter(Boolean)){
+       const asset=operation.assets[id],decl=manifest.assets[id];
+       if(!asset||asset.sha256!==decl.sha256||asset.path!==asset.sha256||asset.mime!==decl.mime)fail('SKIN_RESOURCE_INVALID');
+-      resources[id]={data:readAsset(path.join(this.stateDir,'skin-assets',contentKey),{...decl,path:asset.sha256}),mime:asset.mime};
++      resources[id]={data:readAsset(path.join(this.stateDir,'skin-assets',contentKey),{...decl,path:asset.sha256}),mime:asset.mime,sha256:asset.sha256};
+     }
+     const theme=manifest.modules.theme;
+-    const tokens=theme?.interfaceVersion===1&&theme.configVersion===1?theme.config.tokens:{};
++    const tokens=theme?.interfaceVersion===1&&[1,2,3].includes(theme.configVersion)?theme.config.tokens:{};
+     this.resources=resources;this.descriptor={contentKey,name:manifest.name,...config,tokens};this.declared=true;this.errorCode=null;
+   }
+   activate({generation,contentKey}){
+@@ -72,7 +72,7 @@
+   playback(){
+     if(!this.canPlay())fail('STARTUP_NOT_REGISTERED');
+     const d=this.descriptor,prefix='/startup-resource/'+d.contentKey+'/';
+-    return {...d,generation:this.generation,poster:prefix+d.poster,video:d.video?prefix+d.video:null,custom:true};
++    return {...d,generation:this.generation,poster:prefix+d.poster,video:d.video?prefix+d.video:null,posterSha:this.resources[d.poster].sha256,videoSha:d.video?this.resources[d.video].sha256:null,custom:true};
+   }
+   resource(url){
+     const parts=url.pathname.split('/');if(parts.length!==4||parts[2]!==this.descriptor?.contentKey)return new Response(null,{status:404});
+--- a/runtime-src/startup.mjs
++++ b/runtime-src/startup.mjs
+@@ -1,14 +1,63 @@
+ const video=document.querySelector('#character'),poster=document.querySelector('#poster'),greeting=document.querySelector('#greeting'),subtitle=document.querySelector('#subtitle'),progress=document.querySelector('#progress'),status=document.querySelector('#status'),skip=document.querySelector('#skip'),open=document.querySelector('#open');
+-let currentToken=null;
+-function clearMedia(){video.pause();video.removeAttribute('src');video.load();poster.removeAttribute('src');video.hidden=true;poster.hidden=true;}
++const stage=document.querySelector('main'),motion=matchMedia('(prefers-reduced-motion: reduce)');
++let currentToken=null,frame=null,stopMotionListener=null;
++function clearMedia(){
++  if(frame!==null){video.cancelVideoFrameCallback(frame);frame=null;}
++  video.onplaying=video.onended=video.onloadeddata=video.onerror=null;poster.onload=poster.onerror=null;
++  video.pause();video.removeAttribute('src');video.load();poster.removeAttribute('src');video.hidden=true;poster.hidden=true;
++  stage.style.removeProperty('--reveal');document.body.classList.remove('still');
++}
++function playCinematic(content,token){
++  let still=false,started=false,handingOff=false;
++  function showStill(reason){
++    if(currentToken!==token||still)return;
++    still=true;clearMedia();document.body.classList.add('still');
++    const ready=media=>{if(currentToken===token)window.companion.introReady({token,media,fallback:reason});};
++    poster.onload=()=>{if(currentToken===token){poster.hidden=false;ready('poster');}};
++    poster.onerror=()=>ready('poster-error');poster.src=content.poster;
++  }
++  if(content.reducedMotion||motion.matches){showStill('reduced-motion');return;}
++  const reduce=event=>{if(event.matches)showStill('reduced-motion');};
++  motion.addEventListener('change',reduce);stopMotionListener=()=>motion.removeEventListener('change',reduce);
++  function reveal(time){
++    const duration=video.duration;
++    if(!Number.isFinite(duration)||duration<=0||time<duration-content.handoffSeconds)return;
++    const p=Math.min(1,(time-(duration-content.handoffSeconds))/content.handoffSeconds);
++    stage.style.setProperty('--reveal',(50*p*p*(3-2*p))+'%');
++    if(!handingOff){handingOff=true;window.companion.introReady({token,handoff:true,mediaTime:time,mediaDuration:duration});}
++  }
++  function draw(_now,metadata){
++    frame=null;if(currentToken!==token||still)return;
++    reveal(metadata.mediaTime);frame=video.requestVideoFrameCallback(draw);
++  }
++  video.loop=false;video.muted=true;
++  video.onloadeddata=()=>{
++    if(currentToken!==token||still||new URL(video.currentSrc).pathname!==content.video)return;
++    if(!Number.isFinite(video.duration)||Math.abs(video.duration-content.seconds)>.1){showStill('duration-mismatch');return;}
++    video.play().catch(()=>showStill('video-error'));
++  };
++  video.onplaying=()=>{
++    if(currentToken!==token||still||started)return;
++    started=true;video.hidden=false;window.companion.introReady({token,media:'video',playing:true});
++    frame=video.requestVideoFrameCallback(draw);
++  };
++  video.onended=()=>{
++    if(currentToken!==token||still||!started)return;
++    if(frame!==null){video.cancelVideoFrameCallback(frame);frame=null;}
++    reveal(video.duration);window.companion.introReady({token,media:'video',ended:true});
++  };
++  video.onerror=()=>showStill('video-error');video.src=content.video;video.load();
++}
+ function applyContent(content){
+-  currentToken=content.token;clearMedia();const token=currentToken;
++  stopMotionListener?.();stopMotionListener=null;currentToken=content.token;clearMedia();const token=currentToken;
+   document.title='DSH 开场 · '+content.name;document.body.classList.toggle('night',content.theme==='night');document.body.classList.toggle('custom',content.custom===true);
++  document.body.classList.toggle('cinematic',!!content.handoffSeconds);
+   for(const [property,name] of [['--intro-bg','--dsw-alias-bg-base'],['--intro-text','--dsw-alias-label-primary'],['--intro-accent','--dsw-alias-state-business-primary']]){
+     const pair=content.tokens?.[name],scheme=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+     if(pair)document.body.style.setProperty(property,pair[scheme]);else document.body.style.removeProperty(property);
+   }
+   greeting.textContent=content.greeting;subtitle.textContent=content.subtitle;subtitle.hidden=!content.subtitle;
++  if(content.handoffSeconds){playCinematic(content,token);return;}
+   let posterReady=false;const report=media=>{if(currentToken===token)window.companion.introReady({token,media});};
+   if(content.poster){
+     poster.onload=()=>{if(currentToken===token){posterReady=true;if(video.hidden){poster.hidden=false;report('poster');}}};
+@@ -25,10 +74,10 @@
+   }
+ }
+ window.companion.onIntroState(state=>{
+-  if(!state.playing||!state.content){if(currentToken){currentToken=null;clearMedia();}return;}
++  if(!state.playing||!state.content){if(currentToken){currentToken=null;stopMotionListener?.();stopMotionListener=null;clearMedia();}return;}
+   if(state.content.token!==currentToken)applyContent(state.content);
+-  const percent=Math.min(state.hostReady?1:.94,state.elapsed/state.content.seconds);progress.style.width=Math.round(percent*100)+'%';
+-  status.textContent=state.errorCode?'DSH 启动较慢，可以直接打开 DSH 查看。':state.hostReady?'DSH 已就绪，马上见。':'正在打开 DSH…';skip.disabled=!state.hostReady;skip.textContent=state.hostReady?'进入 DSH':'等待 DSH 就绪…';open.hidden=!state.errorCode;
++  const percent=Math.min(state.hostReady?1:.94,state.elapsed/(state.duration||state.content.seconds));progress.style.width=Math.round(percent*100)+'%';
++  status.textContent=state.errorCode?'DSH 启动较慢，可以直接打开 DSH 查看。':state.hostReady?'DSH 已就绪。':'正在打开 DSH…';skip.disabled=!state.hostReady;skip.textContent=state.hostReady?(state.content.handoffSeconds?'进入工作区 · Esc':'进入 DSH'):'等待 DSH 就绪…';open.hidden=!state.errorCode;
+ });
+ skip.addEventListener('click',()=>window.companion.introControl({action:'skip',token:currentToken}));
+ open.addEventListener('click',()=>window.companion.introControl({action:'open-dsh',token:currentToken}));
+--- a/runtime-src/startup.css
++++ b/runtime-src/startup.css
+@@ -7,3 +7,14 @@
+ body.custom .buttons{position:absolute;top:20px;right:20px;z-index:2}body.custom button{background:var(--intro-bg,#f3efe6);border-color:var(--intro-text,#2b302c);border-radius:6px;letter-spacing:0;padding:9px 16px;font-size:12px}body.custom button:disabled{opacity:.45}
+ body.custom .progress{position:absolute;left:0;bottom:0;width:100%;height:3px;border-radius:0;z-index:3;background:var(--intro-text,#2b302c);opacity:.85}body.custom .progress span{background:var(--intro-accent,#a54c19)}
+ body.custom #status{position:absolute;left:20px;bottom:16px;margin:0;padding:4px 8px;min-height:0;border-radius:4px;background:var(--intro-bg,#f3efe6);font-size:10px;opacity:.8;z-index:2}
++/* This window sits over the existing native workspace. Clipping the opaque
++   plate at its sides reveals that live window without blending in the actor. */
++:root:has(body.cinematic),body.custom.cinematic{background:transparent}
++body.cinematic main{width:100vw;height:100vh;background:#070c14;clip-path:inset(0 var(--reveal,0%) 0 var(--reveal,0%))}
++body.cinematic .buttons{top:16px;right:16px}
++body.cinematic button{background:#0b1320;color:#eef3ff;border-color:#8192ab}
++body.cinematic button:focus-visible{outline:2px solid #bcd6fc;outline-offset:3px}
++body.cinematic .progress{display:none}
++body.cinematic #status{clip-path:inset(50%);width:1px;height:1px;padding:0;overflow:hidden}
++body.cinematic.still #greeting,body.cinematic.still #subtitle:not([hidden]){display:block;position:absolute;left:24px;bottom:42px;margin:0;padding:4px 10px;background:#0b1320;color:#eef3ff;font-size:16px;border-radius:4px;letter-spacing:0}
++body.cinematic.still #subtitle:not([hidden]){bottom:16px;font-size:12px;opacity:1}
+--- a/scripts/build-mac.mjs
++++ b/scripts/build-mac.mjs
+@@ -36,7 +36,7 @@
+ const pluginVersion = JSON.parse(fs.readFileSync(path.join(root, 'packages/dsh-companion/package.json'))).version;
+ const launchBin=path.join(root,'packages/dsh-companion/bin/darwin-arm64');fs.mkdirSync(launchBin,{recursive:true});
+ execFileSync('/usr/bin/clang',['-O2',path.join(root,'runtime-src/launcher.c'),'-o',path.join(launchBin,'companion-launch')],{stdio:'pipe'});
+-const settings = { CFBundleIdentifier: 'local.dsh.commander.native.supervisor', CFBundleName: 'DSHCompanion', CFBundleDisplayName: 'DSH 陪伴', CFBundleShortVersionString: pluginVersion.split('-')[0], CFBundleVersion: pluginVersion.match(/dev\.(\d+)/)?.[1] || '1' };
++const settings = { CFBundleIdentifier: 'local.dsh.commander.startup.supervisor', CFBundleName: 'DSHCompanion', CFBundleDisplayName: 'DSH 陪伴', CFBundleShortVersionString: pluginVersion.split('-')[0], CFBundleVersion: pluginVersion.match(/dev\.(\d+)/)?.[1] || '1' };
+ for (const [key, value] of Object.entries(settings)) execFileSync('/usr/libexec/PlistBuddy', ['-c', `Set :${key} ${value}`, path.join(contents, 'Info.plist')]);
+ execFileSync('/usr/bin/codesign', ['--force', '--sign', '-', '--timestamp=none', target], { stdio: 'pipe' });
+ // This is a local developer bundle. A distributable release needs our own signing

@@ -1,0 +1,83 @@
+{
+  "status": "complete audible offline candidate; user/primary audiovisual acceptance pending",
+  "video": "designs/dsh-skin-assets-v3/review/startup-entrance-01-2026-11-05/startup-entrance-01-with-sound.mp4",
+  "source": "designs/dsh-skin-assets-v3/assets/cinematic/source/entrance-01-source.mp4",
+  "source_sha256": "ece35294685f11dfb372c243c69d5f1acac1f4ba673ccfd12f537c194a3e250d",
+  "video_sha256": "4d3ed205fa1b0a9dc9fb0f5e68c7eb2ef251ee76030509cd2f154ef2eb83113b",
+  "size": [
+    1280,
+    720
+  ],
+  "fps": 24,
+  "duration_seconds": 12.0,
+  "source_seconds": 10.08,
+  "source_pixels_upscaled": false,
+  "source_review": "same working master04 identity cues retained: blue-purple long hair, white headpiece, navy long-sleeved dress, white apron, knee socks and laced shoes; not a final canon acceptance",
+  "events": [
+    {
+      "seconds": [
+        0,
+        1.8
+      ],
+      "event": "corridor/environment prelude"
+    },
+    {
+      "seconds": [
+        1.8,
+        3.2
+      ],
+      "event": "chamber approach and first silhouette through window"
+    },
+    {
+      "seconds": [
+        3.2,
+        4.3
+      ],
+      "event": "mechanical shutters release and full-body reveal"
+    },
+    {
+      "seconds": [
+        7.5,
+        9.1
+      ],
+      "event": "close-up, eyes open and optical charge"
+    },
+    {
+      "seconds": [
+        9.22,
+        11.572000000000001
+      ],
+      "event": "short synthetic report"
+    },
+    {
+      "seconds": [
+        11.65,
+        12.0
+      ],
+      "event": "reveal live workspace through existing lifecycle owner"
+    }
+  ],
+  "tail": "last source frame held from about 10.08s for the report and handoff; no new lip/eye/limb acting synthesized",
+  "audio": {
+    "voice": "designs/dsh-skin-assets-v3/review/machine-voice-2026-11-05/machine-report.wav",
+    "text": "指挥官，我已就位。",
+    "voice_at_seconds": 9.22,
+    "voice_seconds": 2.352,
+    "provider_and_processing": "one prior Edge online TTS short-line request, then local 30-band electronic-carrier resynthesis; see machine-voice voice-design.json",
+    "fx": "original local servo, interlocks, rail travel, charge and comms contacts retimed to this actual source",
+    "source_audio": "retained as original-source-audio.wav for review; replaced in this candidate",
+    "copied_reference_audio": false,
+    "new_tts_requests": 0,
+    "new_paid_generation": false,
+    "ear_review_completed": false
+  },
+  "nativeIntegrated": false,
+  "baked_workspace_screenshot": false,
+  "handoff": {
+    "at_seconds": 11.65,
+    "seconds": 0.34999999999999964,
+    "target": "live current workspace, never a baked test session",
+    "prototype": "existing preview owner, skip/Esc/mute/reduced-motion/cancel paths; no second full workspace intro"
+  },
+  "original_preserved": true
+}

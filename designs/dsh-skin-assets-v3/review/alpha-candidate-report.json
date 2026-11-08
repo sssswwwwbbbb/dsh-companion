@@ -1,0 +1,67 @@
+{
+  "status": "candidate-awaiting-visual-review",
+  "images": [
+    {
+      "name": "master-04",
+      "file": "designs/dsh-skin-assets-v3/assets/character/jimeng-flash-master-04-cutout-candidate.png",
+      "size": [
+        1664,
+        2496
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "transparent_pixels": 2800335,
+      "semi_transparent_pixels": 145415,
+      "alpha_bbox": [
+        295,
+        39,
+        1445,
+        2457
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "82070f97eb768b6c5165ce95dbfc80d10ffe2010f2a3b9667ea92c2f7aed03db",
+      "status": "candidate-awaiting-visual-edge-review",
+      "tool": "rembg 2.0.57; u2net; local CPU; alpha matting"
+    },
+    {
+      "name": "sit-01",
+      "file": "designs/dsh-skin-assets-v3/assets/character/jimeng-sit-01-cutout-candidate.png",
+      "size": [
+        1664,
+        2496
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "transparent_pixels": 2418436,
+      "semi_transparent_pixels": 192095,
+      "alpha_bbox": [
+        344,
+        50,
+        1592,
+        2465
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "ab65587d9998b163f76b463469fd813998aa993b17e3d3a25f76ebbb1052e291",
+      "status": "candidate-awaiting-visual-edge-review",
+      "tool": "rembg 2.0.57; u2net; local CPU; alpha matting"
+    }
+  ],
+  "review_board": "designs/dsh-skin-assets-v3/review/alpha-candidate-review.jpg",
+  "source_originals_unchanged": true
+}

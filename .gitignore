@@ -37,3 +37,19 @@ __pycache__/
 
 # 运维脚本与服务器信息不随仓库发布
 deploy/
+
+# 凭据与本地环境
+.npmrc
+.netrc
+.git-credentials
+.dsh/
+.codex/
+.ssh/
+id_rsa*
+*.p8
+*.cer
+*.mobileprovision
+
+# 系统生成
+.DS_Store
+Icon?

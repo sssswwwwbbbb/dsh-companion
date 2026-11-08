@@ -1,0 +1,143 @@
+diff --git a/dsh-pet/runtime/electron-helper/index.html b/dsh-pet/runtime/electron-helper/index.html
+index 3bc6ff7..ac3d594 100644
+--- a/dsh-pet/runtime/electron-helper/index.html
++++ b/dsh-pet/runtime/electron-helper/index.html
+@@ -339,6 +339,9 @@
+     <script src="./sprite/bubble.js"></script>
+     <script src="./sprite/menu.js"></script>
+     <script src="./events.js"></script>
++    <script src="./geometry-endpoint.js"></script>
++    <script src="./content-profiles.js"></script>
++    <script src="./content-adapter.js"></script>
+     <script src="./renderer.js"></script>
+   </body>
+ </html>
+diff --git a/dsh-pet/runtime/electron-helper/main/ipc.js b/dsh-pet/runtime/electron-helper/main/ipc.js
+index 3c584a4..b26ddd2 100644
+--- a/dsh-pet/runtime/electron-helper/main/ipc.js
++++ b/dsh-pet/runtime/electron-helper/main/ipc.js
+@@ -130,7 +130,10 @@ function registerIpc({ ipcMain, petWindows, shell, openTarget, petRoute }) {
+     const rects = input.rects.filter(
+       (r) => r && [r.x, r.y, r.width, r.height].every(Number.isFinite) && r.width > 0 && r.height > 0,
+     );
+-    petWindows.state.inputRegions.set(win.id, { dragging: input.dragging === true, rects });
++    const bodyRects = Array.isArray(input.bodyRects) && input.bodyRects.length <= 4096 && input.bodyRects.every(
++      (r) => r && [r.x, r.y, r.width, r.height].every(Number.isFinite) && r.width > 0 && r.height > 0,
++    ) ? input.bodyRects : undefined;
++    petWindows.state.inputRegions.set(win.id, { dragging: input.dragging === true, rects, ...(bodyRects ? { bodyRects } : {}) });
+   });
+ 
+   // 文本输入框拿到 DOM 焦点不等于窗口拿到键盘焦点：窗口是 showInactive 显示的，从不主动请求焦点，
+diff --git a/dsh-pet/runtime/electron-helper/main/windows.js b/dsh-pet/runtime/electron-helper/main/windows.js
+index 18537bf..66f3f8b 100644
+--- a/dsh-pet/runtime/electron-helper/main/windows.js
++++ b/dsh-pet/runtime/electron-helper/main/windows.js
+@@ -156,7 +156,7 @@ function createWindows({
+       const busy = inputBusy.get(win.id) === true;
+       const point = dpi.currentPointer();
+       const margin = winMargins.get(win.id);
+-      const zone = pointerZone(bounds, point, margin);
++      const zone = pointerZone(bounds, point, margin, inputRegions.get(win.id)?.bodyRects);
+       const nextMs = !busy && zone === 'margin' ? (offBodyMs.get(win.id) ?? 0) + POINTER_POLL_MS : 0;
+       offBodyMs.set(win.id, nextMs);
+       const next = decideWindowIgnore(bounds, point, ignoring, busy, nextMs, inputRegions.get(win.id), margin);
+diff --git a/dsh-pet/runtime/electron-helper/pointer-target.js b/dsh-pet/runtime/electron-helper/pointer-target.js
+index e7ac656..1dc360c 100644
+--- a/dsh-pet/runtime/electron-helper/pointer-target.js
++++ b/dsh-pet/runtime/electron-helper/pointer-target.js
+@@ -55,13 +55,16 @@ const OFF_BODY_RELEASE_MS = 400;
+  * @param margins - 渲染端上报的窗口余量（DIP），见 spriteHitRect。
+  * @returns 分区。
+  */
+-function pointerZone(bounds, point, margins) {
++function pointerZone(bounds, point, margins, bodyRects) {
+   const inWindow =
+     point.x >= bounds.x &&
+     point.x < bounds.x + bounds.width &&
+     point.y >= bounds.y &&
+     point.y < bounds.y + bounds.height;
+   if (!inWindow) return 'outside';
++  if (Array.isArray(bodyRects)) {
++    return bodyRects.some((r) => point.x >= bounds.x + r.x && point.x < bounds.x + r.x + r.width && point.y >= bounds.y + r.y && point.y < bounds.y + r.y + r.height) ? 'body' : 'margin';
++  }
+   const r = spriteHitRect(bounds, margins);
+   const inSprite = point.x >= r.left && point.x <= r.right && point.y >= r.top && point.y <= r.bottom;
+   return inSprite ? 'body' : 'margin';
+@@ -88,9 +91,9 @@ function decideWindowIgnore(bounds, point, ignoring, busy, offBodyMs = 0, input,
+         point.y >= bounds.y + r.y &&
+         point.y < bounds.y + r.y + r.height,
+     );
+-    return !inControl && pointerZone(bounds, point, margins) !== 'body';
++    return !inControl && pointerZone(bounds, point, margins, input?.bodyRects) !== 'body';
+   }
+-  const zone = pointerZone(bounds, point, margins);
++  const zone = pointerZone(bounds, point, margins, input?.bodyRects);
+   if (zone === 'outside') return true; // 窗外：恢复穿透
+   if (zone === 'body') return false; // 宠物身上：可交互
+   if (offBodyMs >= OFF_BODY_RELEASE_MS) return true; // 余量区停留超时：恢复穿透
+diff --git a/dsh-pet/runtime/electron-helper/sprite.js b/dsh-pet/runtime/electron-helper/sprite.js
+index efe3902..581246e 100644
+--- a/dsh-pet/runtime/electron-helper/sprite.js
++++ b/dsh-pet/runtime/electron-helper/sprite.js
+@@ -114,6 +114,7 @@ class PetSprite {
+     this.stopDragFollow();
+     this.stopSquash();
+     this.stopMove();
++    this.contentLayout?.dispose();
+     this.el.remove();
+   }
+ 
+diff --git a/dsh-pet/runtime/electron-helper/sprite/init.js b/dsh-pet/runtime/electron-helper/sprite/init.js
+index 39ee958..a708ab3 100644
+--- a/dsh-pet/runtime/electron-helper/sprite/init.js
++++ b/dsh-pet/runtime/electron-helper/sprite/init.js
+@@ -187,6 +187,7 @@ Object.assign(PetSprite.prototype, {
+     this.el.appendChild(this.bubble);
+     this.el.appendChild(this.tip);
+     this.el.appendChild(stage);
++    this.contentLayout = globalThis.DshContent?.mount(this, stage);
+     rootEl.appendChild(this.el);
+     this.position();
+   },
+@@ -201,6 +202,7 @@ Object.assign(PetSprite.prototype, {
+     this.inputRegionElements = new Set();
+     this.inputRegionMutation = new MutationObserver(() => this.syncInputRegions());
+     this.inputRegionMutation.observe(document.body, { childList: true, subtree: true });
++    if (this.contentBodyRects) this.syncInputRegions();
+     this.hit.addEventListener('pointerdown', (e) => this.onPointerDown(e), { signal: ac.signal });
+     this.hit.addEventListener('pointermove', (e) => this.onPointerMove(e), { signal: ac.signal });
+     this.hit.addEventListener('click', (e) => this.onClick(e), { signal: ac.signal });
+diff --git a/dsh-pet/runtime/electron-helper/sprite/input.js b/dsh-pet/runtime/electron-helper/sprite/input.js
+index 199ae98..826180b 100644
+--- a/dsh-pet/runtime/electron-helper/sprite/input.js
++++ b/dsh-pet/runtime/electron-helper/sprite/input.js
+@@ -307,7 +307,7 @@ Object.assign(PetSprite.prototype, {
+         rects.push({ x: toScreen(r.x), y: toScreen(r.y), width: toScreen(r.width), height: toScreen(r.height) });
+       }
+     }
+-    const input = { dragging: this.dragState.active, rects };
++    const input = { dragging: this.dragState.active, rects, ...(this.contentBodyRects ? { bodyRects: this.contentBodyRects.map((r) => ({ x: toScreen(r.x), y: toScreen(r.y), width: toScreen(r.width), height: toScreen(r.height) })) } : {}) };
+     const key = JSON.stringify(input);
+     if (key === this._inputRegions) return;
+     this._inputRegions = key;
+@@ -354,7 +354,7 @@ Object.assign(PetSprite.prototype, {
+     const wy = Number.isFinite(e.clientY) ? e.clientY : toLocal(e.screenY) - (this.pos.y + VIEW.y - this.margin.t);
+     const px = wx - this.margin.l;
+     const py = wy - this.margin.t;
+-    const inBody = px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h;
++    const inBody = this.contentHitTest ? this.contentHitTest(px, py) : px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h;
+     // 快捷键与拖拽都只在"光标在身体上"时生效，与提示/穿透同源，避免另一套判定
+     this.hoverBody = inBody;
+     // 光标存视口坐标（窗口原点 + 窗口内坐标）：窗口随宠物移动时贴光标不会漂。必须在 setTip 之前
+diff --git a/dsh-pet/runtime/electron-helper/sprite/playback.js b/dsh-pet/runtime/electron-helper/sprite/playback.js
+index 3e8c1dc..07a1148 100644
+--- a/dsh-pet/runtime/electron-helper/sprite/playback.js
++++ b/dsh-pet/runtime/electron-helper/sprite/playback.js
+@@ -9,6 +9,7 @@
+ 
+ Object.assign(PetSprite.prototype, {
+   switchTo(next, nextOnce, playbackId, url) {
++    nextOnce = globalThis.DshContent?.preparePlayback(this, next, nextOnce, playbackId) ?? nextOnce;
+     if (!next) return;
+     const pending = this.pending;
+     if (pending && pending.anim === next && pending.once === nextOnce) {

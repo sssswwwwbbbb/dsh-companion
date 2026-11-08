@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>档案暖白 · 沉浸细节 v1</title>
+  <link rel="icon" type="image/svg+xml" href="assets/archive-whale-mark.svg">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="immersion.css">
+  <script src="immersion.js" defer></script>
+</head>
+<body>
+  <!-- Extension of the existing Archive Warm world, not a new UI direction.
+       One manual-state sample; no DSH bridge, official-event claim or model call. -->
+  <div class="review-strip"><span>独立设计小样 · 所有状态与 Agent 模式均为手动模拟</span><button id="reset-demo" type="button">重置小样</button></div>
+  <main class="immersion-page" id="sample-root" data-mode="standard" data-phase="idle">
+    <header class="page-heading"><div><h1>档案暖白 · 沉浸细节</h1><p>入口、工作反馈与模式过渡，沿用同一套角色与纸面。</p></div><span class="scope-note">不连接真实工作会话</span></header>
+    <div class="demo-layout">
+      <section class="preview-column" aria-label="首套沉浸细节预览">
+        <div class="identity-strip"><h2>本套入口</h2><button class="theme-entry" id="theme-entry" type="button" aria-label="定位档案暖白预览"><img src="assets/archive-whale-mark.svg" width="24" height="24" alt="">档案暖白</button><span class="identity-recommendation">推荐 · 24px</span><div class="icon-sizes" aria-label="同一图标的16与32像素检查"><img src="assets/archive-whale-mark.svg" width="16" height="16" alt="16像素图标"><img src="assets/archive-whale-mark.svg" width="32" height="32" alt="32像素图标"></div></div>
+        <section class="workspace-preview" id="workspace-preview" tabindex="-1" aria-label="工作页与桌宠呼应模拟">
+          <header class="workspace-bar"><span class="host-name">DSH <span>工作页局部示意</span></span><span class="mode-name" id="mode-name">标准</span><span class="mode-mark" id="mode-mark" aria-hidden="true"><span></span><span></span><span></span></span></header>
+          <div class="sheet-surface">
+            <div class="sheet-ornament" aria-hidden="true"><span class="paper-corner"></span><span class="archive-seal">ARCHIVE</span></div>
+            <div class="work-content">
+              <div class="state-line"><svg class="state-symbol" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.5"></circle><path class="done-tick" d="m6.5 10 2.3 2.3 4.8-4.8"></path><path class="attention-tick" d="M10 5.8v5.3m0 3.1v.1"></path></svg><span id="state-label" role="status" aria-live="polite">待机</span><span class="running-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="state-side-note" id="state-side-note">纸面安静，信息在原处。</span></div>
+              <article class="archive-note"><h2>今日项目摘要</h2><p class="assistant-copy" id="assistant-copy">准备好后，我会先核对资料，再把结论与待确认项分开整理。</p><div class="note-lines"><div><span class="note-label">本页资料</span><p>一组用于设计演示的项目线索。</p></div><div><span class="note-label">整理方式</span><p>保留依据，明确下一步需要确认什么。</p></div></div></article>
+              <div class="attention-notice" id="attention-notice" hidden><div><strong>待你确认：摘要的时间范围</strong><p>这项模拟事项会保留，直到你明确解除。</p></div><button id="resolve-attention" class="button primary" type="button">模拟已处理</button></div>
+            </div>
+            <aside class="pet-preview" aria-label="既有桌宠资源在窗口内的呼应示意"><p class="pet-bubble" id="pet-bubble">这页先放稳，我在这里。</p><div class="pet-media"><video id="pet-video" src="assets/idle-a2.webm" autoplay muted playsinline loop preload="auto" aria-label="鲸鱼娘既有待机资源"></video><div class="pet-reference" id="pet-reference" hidden><span><img src="assets/character-atlas-r2.png" alt="鲸鱼娘静态形象参考"></span></div><div class="pet-disabled" id="pet-disabled" hidden>桌宠呼应已关闭<br><span>页面状态仍然保留</span></div></div><p class="pet-resource" id="pet-resource">既有 idle · 待机</p></aside>
+          </div>
+          <footer class="workspace-foot"><span id="mode-description">标准：稳定纸面，保留完整状态。</span><span id="motion-description">轻动效跟随系统</span></footer>
+        </section>
+        <p class="preview-caption" id="preview-caption">桌宠只复用 idle / react。状态来自右侧模拟输入，不读取真实任务。</p>
+      </section>
+      <aside class="demo-controls" aria-label="小样模拟输入与偏好">
+        <section class="control-section"><h2>模拟工作状态</h2><div class="state-controls"><button class="button" data-phase="idle" type="button" aria-pressed="true">回待机</button><button class="button primary" data-phase="running" type="button" aria-pressed="false">模拟执行</button><button class="button" data-phase="done" type="button" aria-pressed="false">模拟完成</button><button class="button" data-phase="attention" type="button" aria-pressed="false">模拟需处理</button></div><p class="control-hint" id="state-hint">手动输入，不代表真实任务结果。</p></section>
+        <section class="control-section"><h2>Agent 模式 <span>模拟外观</span></h2><div class="mode-controls" role="group" aria-label="Agent模式外观模拟"><button data-mode="standard" type="button" aria-pressed="true">标准</button><button data-mode="ptc" type="button" aria-pressed="false">PTC</button><button data-mode="minimal" type="button" aria-pressed="false">极简</button><button data-mode="creative" type="button" aria-pressed="false">创造</button></div><p class="control-hint">只切外观，任务与状态保留。</p></section>
+        <section class="control-section preferences"><h2>小样偏好</h2><div class="preference-row"><label for="feedback-switch">状态点缀 <small>默认开</small></label><button id="feedback-switch" class="toggle on" type="button" role="switch" aria-label="状态点缀" aria-checked="true"><span></span></button></div><div class="preference-row"><label for="motion-select">轻动效</label><select id="motion-select"><option value="system">跟随系统</option><option value="reduced">减少动态</option></select></div><div class="preference-row"><label for="echo-switch">桌宠呼应 <small>默认开</small></label><button id="echo-switch" class="toggle on" type="button" role="switch" aria-label="桌宠呼应" aria-checked="true"><span></span></button></div><div class="preference-row"><label for="mode-switch">模式细节 <small>默认开</small></label><button id="mode-switch" class="toggle on" type="button" role="switch" aria-label="模式细节" aria-checked="true"><span></span></button></div><p class="control-hint">设计候选，未接入当前设置。关闭点缀仍保留状态。</p></section>
+      </aside>
+    </div>
+    <section class="shared-voice" aria-labelledby="voice-title"><header><h2 id="voice-title">同一个角色，分别表达</h2><p>身份与语气可共用，各端上下文分别保留。</p><span>称呼候选：档案员；本页例句仍用“你”</span></header><div class="voice-example"><h3>工作助手</h3><p>“我把依据与待确认项分开记在这页。你确认范围后，我们再继续。”</p></div><div class="voice-example pet-voice"><h3>桌宠</h3><p>“这页先放稳，我陪你慢慢来。”</p></div></section>
+    <footer class="page-foot"><span>角色与台词均为本页设计表达，未改当前人设默认；不替换 DSH 官方品牌。</span><a href="README.md">素材与接入依赖</a></footer>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

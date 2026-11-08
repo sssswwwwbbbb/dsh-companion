@@ -1,0 +1,110 @@
+{
+  "at": "2026-11-05T01:01:44.466714+00:00",
+  "scope": "targeted review of user prop feedback; no full-theme or matrix retest",
+  "user_feedback": {
+    "file": "/var/folders/15/lt65k9j17517n25949z4gymr0000gn/T/codex-clipboard-844d19c0-d19c-4f59-90d6-fb773e6443bc.png",
+    "request": "道具应在动作中拿出使用，而非站姿脚边常驻"
+  },
+  "design_change": {
+    "default_visible_props": [],
+    "corrected_scenes": [
+      "desktop-scene-quiet-action-props.png",
+      "desktop-scene-respond-action-props.png",
+      "desktop-scene-edge-action-props.png"
+    ],
+    "source_materials_unchanged": true,
+    "source_master_retained": "master-04",
+    "matching_read_drink_pose_art_missing": true,
+    "old_floor_prop_plates": "retained as superseded history"
+  },
+  "native_no_props": {
+    "evidence": "reports/dsh-workspace-r2-2026-11-05/native-no-default-props.png",
+    "status_evidence": "reports/dsh-workspace-r2-2026-11-05/r2-applied-no-props-status.json",
+    "screenshot_viewed": true,
+    "verified_from_saved_status": {
+      "props": [],
+      "ready": true,
+      "errors": []
+    },
+    "verification_scope": "read-only review of primary/foundation evidence; no native app operated by this workstream"
+  },
+  "quality": {
+    "prepared_png_size": [
+      499,
+      1024
+    ],
+    "source_motion": {
+      "file": "designs/dsh-skin-assets-v3/assets/motion/idle-breathe.webm",
+      "frame_size": [
+        499,
+        1024
+      ],
+      "sample_seconds": 1.18,
+      "alpha_bbox_at_16": [
+        22,
+        14,
+        490,
+        1009
+      ],
+      "visible_height_px": 995
+    },
+    "runtime_motion": {
+      "file": ".local/dsh-pet-host-20261104/host-home/companion/7f31167629f7c4ee/whole-pet/home/dsh-pet/main-animation/webm/master-idle.webm",
+      "frame_size": [
+        640,
+        360
+      ],
+      "sample_seconds": 1.18,
+      "alpha_bbox_at_16": [
+        251,
+        12,
+        401,
+        330
+      ],
+      "visible_height_px": 318
+    },
+    "actual_capture_size": [
+      2740,
+      2204
+    ],
+    "actual_character_bbox_by_nonwhite_threshold": [
+      1221,
+      776,
+      1544,
+      1457
+    ],
+    "screenshot_visible_height_to_runtime_alpha_height": 2.141509433962264,
+    "comparison": "user-prop-quality-comparison-2026-11-05.jpg",
+    "confirmed": [
+      "authored motion has 1024-pixel canvas height, private runtime derivative has only 360",
+      "runtime derivative is used as master-idle according to saved active renderer status",
+      "actual no-props native capture shows only the character and no book/cup",
+      "native sampled character is enlarged relative to derivative visible pixels; this loses detail"
+    ],
+    "visual_observations": [
+      "fine hair and edge detail are softer/noisier in small runtime derivative than prepared/source-sized art",
+      "source matte can still be refined at selected wisps, but replacing the user-selected character is not justified by this comparison"
+    ],
+    "unknowns": [
+      "exact final display quality depends on the runtime sizing/DPR/filter path; screenshot crop is not a live videoWidth or CSS-rect probe",
+      "no claim of user approval for body proportions or final idle character performance"
+    ],
+    "next": "foundation should preserve source detail in the derived runtime canvas while mapping the existing geometry; do not merely enlarge the low-resolution derivative or re-generate a new master"
+  },
+  "first_actual_workspace_review": {
+    "screenshot": "reports/dsh-workspace-r2-2026-11-05/first-r2-empty-workspace.png",
+    "read_only": true,
+    "screenshot_viewed": true,
+    "observed": [
+      "bottom-left avatar matches master04 face, hair/headpiece and navy/white palette; no obvious aspect-ratio stretch or loss of facial features at this slot",
+      "warm paper/grid, navigation separator and lighter input surface appear in the real workspace",
+      "input has a solid outer and dashed inner outline in this single frame while skip-intro control is visible"
+    ],
+    "needs_stable_evidence": "one ordinary frame after intro completes/skips, to distinguish transient input outline from persistent double border",
+    "limits": [
+      "empty workspace; message/reference/file layouts not assessed",
+      "single intro-time frame does not establish intro/completion performance success or failure",
+      "private GUI not operated by design workstream"
+    ]
+  }
+}

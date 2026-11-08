@@ -1,0 +1,232 @@
+{
+  "origin": "Live CUA screenshots after a UI action; no synthetic interpolation",
+  "viewport": [
+    1218,
+    760
+  ],
+  "deviceScaleFactor": 1,
+  "action": "opening",
+  "sourceFreeze": "../source-freeze.json",
+  "frames": [
+    {
+      "file": "frame-0000.jpg",
+      "t": 0.0555
+    },
+    {
+      "file": "frame-0001.jpg",
+      "t": 0.1465
+    },
+    {
+      "file": "frame-0002.jpg",
+      "t": 0.1975
+    },
+    {
+      "file": "frame-0003.jpg",
+      "t": 0.23
+    },
+    {
+      "file": "frame-0004.jpg",
+      "t": 0.2825
+    },
+    {
+      "file": "frame-0005.jpg",
+      "t": 0.345
+    },
+    {
+      "file": "frame-0006.jpg",
+      "t": 0.3965
+    },
+    {
+      "file": "frame-0007.jpg",
+      "t": 0.4415
+    },
+    {
+      "file": "frame-0008.jpg",
+      "t": 0.482
+    },
+    {
+      "file": "frame-0009.jpg",
+      "t": 0.564
+    },
+    {
+      "file": "frame-0010.jpg",
+      "t": 0.6775
+    },
+    {
+      "file": "frame-0011.jpg",
+      "t": 0.7815
+    },
+    {
+      "file": "frame-0012.jpg",
+      "t": 0.8855
+    },
+    {
+      "file": "frame-0013.jpg",
+      "t": 0.973
+    },
+    {
+      "file": "frame-0014.jpg",
+      "t": 1.077
+    },
+    {
+      "file": "frame-0015.jpg",
+      "t": 1.198
+    },
+    {
+      "file": "frame-0016.jpg",
+      "t": 1.3545
+    },
+    {
+      "file": "frame-0017.jpg",
+      "t": 1.6145
+    },
+    {
+      "file": "frame-0018.jpg",
+      "t": 1.8235
+    },
+    {
+      "file": "frame-0019.jpg",
+      "t": 1.9515
+    },
+    {
+      "file": "frame-0020.jpg",
+      "t": 2.1055
+    },
+    {
+      "file": "frame-0021.jpg",
+      "t": 2.289
+    },
+    {
+      "file": "frame-0022.jpg",
+      "t": 2.4395
+    },
+    {
+      "file": "frame-0023.jpg",
+      "t": 2.507
+    },
+    {
+      "file": "frame-0024.jpg",
+      "t": 2.562
+    },
+    {
+      "file": "frame-0025.jpg",
+      "t": 2.6485
+    },
+    {
+      "file": "frame-0026.jpg",
+      "t": 2.753
+    },
+    {
+      "file": "frame-0027.jpg",
+      "t": 2.91
+    },
+    {
+      "file": "frame-0028.jpg",
+      "t": 3.115
+    },
+    {
+      "file": "frame-0029.jpg",
+      "t": 3.269
+    },
+    {
+      "file": "frame-0030.jpg",
+      "t": 3.374
+    },
+    {
+      "file": "frame-0031.jpg",
+      "t": 3.469
+    },
+    {
+      "file": "frame-0032.jpg",
+      "t": 3.5625
+    },
+    {
+      "file": "frame-0033.jpg",
+      "t": 3.6415
+    },
+    {
+      "file": "frame-0034.jpg",
+      "t": 3.702
+    },
+    {
+      "file": "frame-0035.jpg",
+      "t": 3.7645
+    },
+    {
+      "file": "frame-0036.jpg",
+      "t": 3.8165
+    },
+    {
+      "file": "frame-0037.jpg",
+      "t": 3.89
+    },
+    {
+      "file": "frame-0038.jpg",
+      "t": 3.995
+    },
+    {
+      "file": "frame-0039.jpg",
+      "t": 4.0645
+    },
+    {
+      "file": "frame-0040.jpg",
+      "t": 4.1055
+    },
+    {
+      "file": "frame-0041.jpg",
+      "t": 4.1925
+    },
+    {
+      "file": "frame-0042.jpg",
+      "t": 4.2785
+    },
+    {
+      "file": "frame-0043.jpg",
+      "t": 4.3305
+    },
+    {
+      "file": "frame-0044.jpg",
+      "t": 4.4135
+    },
+    {
+      "file": "frame-0045.jpg",
+      "t": 4.511
+    },
+    {
+      "file": "frame-0046.jpg",
+      "t": 4.572
+    },
+    {
+      "file": "frame-0047.jpg",
+      "t": 4.613
+    },
+    {
+      "file": "frame-0048.jpg",
+      "t": 4.655
+    },
+    {
+      "file": "frame-0049.jpg",
+      "t": 4.7235
+    },
+    {
+      "file": "frame-0050.jpg",
+      "t": 4.7935
+    },
+    {
+      "file": "frame-0051.jpg",
+      "t": 4.8445
+    },
+    {
+      "file": "frame-0052.jpg",
+      "t": 4.9315
+    },
+    {
+      "file": "frame-0053.jpg",
+      "t": 5.0245
+    },
+    {
+      "file": "frame-0054.jpg",
+      "t": 5.129
+    }
+  ]
+}

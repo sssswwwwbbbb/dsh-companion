@@ -22,9 +22,9 @@
 
 | 交付物 | SHA-256 |
 | --- | --- |
-| [Mac ARM64](<<本机路径>/dist/dsh-plugin-companion-1.0.0.tgz>) | `b24be919b54ee83422c749043390425e058cafb29be368b706fd6156f7705725` |
-| [Windows x64](<<本机路径>/dist/dsh-plugin-companion-1.0.0-win32-x64.tgz>) | `2938487c2681a63c65dfb4d95cbfd1594189c276a6fb56409a20659ae4098f09` |
-| [开发说明与全部素材清单](<<本机路径>/dist/dsh-skin-development-kit-1.0.0.zip>) | `bf16302877f34614c099516f1a1dfa17a4e5e6f38c30d17e818796436fbe325a` |
+| [Mac ARM64](<本机路径>/dist/dsh-plugin-companion-1.0.0.tgz>) | `b24be919b54ee83422c749043390425e058cafb29be368b706fd6156f7705725` |
+| [Windows x64](<本机路径>/dist/dsh-plugin-companion-1.0.0-win32-x64.tgz>) | `2938487c2681a63c65dfb4d95cbfd1594189c276a6fb56409a20659ae4098f09` |
+| [开发说明与全部素材清单](<本机路径>/dist/dsh-skin-development-kit-1.0.0.zip>) | `bf16302877f34614c099516f1a1dfa17a4e5e6f38c30d17e818796436fbe325a` |
 
 [开发交接入口](skin-kit-v1/README.md) · [配置参考](skin-author-reference.md) · [制作方反馈处理](second-skin-workspace-cue-response-2026-11-08.md)。机器证据在工作目录 `reports/v1.0.0-freeze-2026-11-08.json`。
 

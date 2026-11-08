@@ -1,0 +1,49 @@
+{
+  "text": "指挥官，我已就位。",
+  "reference": "https://www.bilibili.com/video/BV1T7nM6xEqo/",
+  "status": "private A/B audition; user voice selection pending",
+  "same_words": true,
+  "requested_loudness_lufs": -15,
+  "samples": [
+    {
+      "label": "A",
+      "source": "voice-report-icl-t090-raw.wav",
+      "wav": "voice-audition-A.wav",
+      "mp3": "voice-audition-A.mp3",
+      "levels": {
+        "input_i": "-15.01",
+        "input_tp": "-3.10",
+        "input_lra": "0.00",
+        "input_thresh": "-25.48",
+        "output_i": "-13.99",
+        "output_tp": "-2.09",
+        "output_lra": "0.00",
+        "output_thresh": "-24.47",
+        "normalization_type": "linear",
+        "target_offset": "-0.01"
+      },
+      "sha256": "c01c262390f18aa456b88676df438f72637bfce85d73eebc647af2393cef0e4d"
+    },
+    {
+      "label": "B",
+      "source": "voice-report-speaker-raw.wav",
+      "wav": "voice-audition-B.wav",
+      "mp3": "voice-audition-B.mp3",
+      "levels": {
+        "input_i": "-15.00",
+        "input_tp": "-3.67",
+        "input_lra": "1.20",
+        "input_thresh": "-26.34",
+        "output_i": "-12.94",
+        "output_tp": "-1.80",
+        "output_lra": "0.70",
+        "output_thresh": "-24.09",
+        "normalization_type": "dynamic",
+        "target_offset": "-1.06"
+      },
+      "sha256": "8178e85128c7a1b6583d4f4fa233eec40fa24bdebf4ef98c9951b8dfef5b991d"
+    }
+  ],
+  "asr_is_not_ear_review": true,
+  "bound_media_modified": false
+}

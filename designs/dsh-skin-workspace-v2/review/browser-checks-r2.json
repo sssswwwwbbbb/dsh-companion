@@ -1,0 +1,159 @@
+{
+  "date": "2026-11-04",
+  "scope": "Local synthetic prototype only; R2 revised performance checks",
+  "priorNormalUI": "browser-checks.json, quiet R1 baseline",
+  "checks": {
+    "escapePending": {
+      "attachment": true,
+      "draft": "先保留这个问题，等我补齐资料。",
+      "media": [
+        {
+          "currentTime": 0,
+          "hidden": true,
+          "paused": true
+        },
+        {
+          "currentTime": 0,
+          "hidden": true,
+          "paused": true
+        }
+      ],
+      "pending": "需要确认整理范围这次先整理本地资料，还是也包含可以公开查阅的资料？仅本地资料包含公开资料",
+      "resultHidden": true,
+      "stageHidden": true
+    },
+    "inputInterrupt": {
+      "draft": "演出中继续补充；原问题仍需我确认。",
+      "focused": "draft",
+      "pending": "需要确认整理范围这次先整理本地资料，还是也包含可以公开查阅的资料？仅本地资料包含公开资料",
+      "stageHidden": true
+    },
+    "explicitReduced": {
+      "allMediaPaused": true,
+      "attachment": true,
+      "draft": "演出中继续补充；原问题仍需我确认。",
+      "label": "动态已减少",
+      "pending": true,
+      "stageHidden": false,
+      "staticScene": true
+    },
+    "systemReduced": {
+      "allMediaPaused": true,
+      "draft": "演出中继续补充；原问题仍需我确认。",
+      "explicit": false,
+      "pending": true,
+      "staticScene": true
+    },
+    "uiMotionOff": {
+      "allSceneMediaPaused": true,
+      "checked": false,
+      "pending": true,
+      "staticScene": true
+    },
+    "roleEchoOff": {
+      "checked": false,
+      "draft": "演出中继续补充；原问题仍需我确认。",
+      "pending": true,
+      "sceneVideoPaused": true,
+      "stageHidden": false,
+      "staticCharacterVisible": true
+    },
+    "leaveWorkspace": {
+      "allMediaPaused": true,
+      "icons": 56,
+      "resultHidden": true,
+      "stageHidden": true,
+      "workspaceHidden": true
+    },
+    "errorNoSuccess": {
+      "draft": "演出中继续补充；原问题仍需我确认。",
+      "notice": "这轮回复没有完成示例连接中断，输入内容已保留。可以重试，或继续编辑补充。重试本地示例",
+      "resultHidden": true,
+      "stageHidden": true,
+      "state": "未完成"
+    },
+    "stopNoSuccess": {
+      "draft": "演出中继续补充；原问题仍需我确认。",
+      "notice": "本轮已停止已有内容与草稿保留，可以继续补充。",
+      "resultHidden": true,
+      "stageHidden": true,
+      "state": "已停止"
+    },
+    "openingSettled": {
+      "focused": "重播档案开卷主题演出",
+      "newMedia": [
+        {
+          "currentTime": 0,
+          "hidden": true,
+          "paused": true
+        },
+        {
+          "currentTime": 0,
+          "hidden": true,
+          "paused": true
+        }
+      ],
+      "overflow": false,
+      "resultHidden": true,
+      "stageHidden": true
+    },
+    "actualLocalCompletion": {
+      "answer": "我把这条补充接在这页后面。接下来先确认资料来源，再把结论和仍需要确认的部分分开整理。",
+      "citations": "0",
+      "completionMediaPaused": true,
+      "receipts": [
+        "本轮回复完成"
+      ],
+      "resultHidden": true,
+      "stageHidden": true,
+      "state": "已回复"
+    },
+    "finalResting": {
+      "overflow": false,
+      "stageHidden": true,
+      "toolbarWidth": 1218,
+      "viewport": [
+        1218,
+        760
+      ]
+    },
+    "citation": {
+      "citationCount": "2",
+      "excerptMarked": true,
+      "panelOpen": true,
+      "transientTags": 0
+    },
+    "dark1100": {
+      "overflow": false,
+      "stageSettled": true,
+      "theme": "dark",
+      "viewport": [
+        1100,
+        760
+      ]
+    },
+    "finalNative": {
+      "draft": "",
+      "overflow": false,
+      "resultHidden": true,
+      "sourceCount": "2",
+      "stageHidden": true,
+      "theme": "light",
+      "viewport": [
+        1218,
+        760
+      ]
+    },
+    "console": []
+  },
+  "limits": [
+    "No real DSH or external model integration",
+    "Screen-record sampling rate is not a rendering FPS benchmark",
+    "No long-running performance benchmark",
+    "Main review must play the complete scene live"
+  ],
+  "environmentRestored": {
+    "deviceMetricsOverrideCleared": true,
+    "emulatedMediaFeaturesCleared": true
+  }
+}

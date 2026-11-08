@@ -1,0 +1,823 @@
+{
+  "status": "local alpha candidates prepared; temporal and loop review pending",
+  "at": "2026-11-05T01:28:05.641437+00:00",
+  "source": "素材/女孩桌宠走路循环视频制作.mp4",
+  "archived_source": "designs/dsh-skin-assets-v3/assets/motion/source/walk-loop-01-source.mp4",
+  "source_sha256": "9eaae207c29a9706e42cebdc3849e6b9b97a9ac475c97f17dadbc4b2b87276ac",
+  "source_size": [
+    720,
+    960
+  ],
+  "source_fps": 24,
+  "context_frame_range_inclusive": [
+    28,
+    84
+  ],
+  "planned_cycle_start": 34,
+  "planned_cycle_end_exclusive": 79,
+  "planned_cycle_seconds": 1.875,
+  "source_identity": "user-provided video; visible source branding retained in original; generator/model not independently established",
+  "method": "rembg/u2net local CPU alpha matting; isolated non-character backdrop components removed",
+  "records": [
+    {
+      "frame": 28,
+      "file": ".local/walk-loop-01/alpha/0028.png",
+      "alpha_bbox": [
+        191,
+        6,
+        626,
+        959
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 29,
+      "file": ".local/walk-loop-01/alpha/0029.png",
+      "alpha_bbox": [
+        188,
+        4,
+        624,
+        957
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 30,
+      "file": ".local/walk-loop-01/alpha/0030.png",
+      "alpha_bbox": [
+        186,
+        2,
+        617,
+        953
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 31,
+      "file": ".local/walk-loop-01/alpha/0031.png",
+      "alpha_bbox": [
+        188,
+        2,
+        614,
+        952
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 32,
+      "file": ".local/walk-loop-01/alpha/0032.png",
+      "alpha_bbox": [
+        187,
+        1,
+        613,
+        952
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 33,
+      "file": ".local/walk-loop-01/alpha/0033.png",
+      "alpha_bbox": [
+        181,
+        0,
+        613,
+        950
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 34,
+      "file": ".local/walk-loop-01/alpha/0034.png",
+      "alpha_bbox": [
+        168,
+        0,
+        613,
+        951
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 35,
+      "file": ".local/walk-loop-01/alpha/0035.png",
+      "alpha_bbox": [
+        163,
+        0,
+        613,
+        953
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 36,
+      "file": ".local/walk-loop-01/alpha/0036.png",
+      "alpha_bbox": [
+        159,
+        0,
+        614,
+        955
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 37,
+      "file": ".local/walk-loop-01/alpha/0037.png",
+      "alpha_bbox": [
+        156,
+        0,
+        615,
+        958
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 38,
+      "file": ".local/walk-loop-01/alpha/0038.png",
+      "alpha_bbox": [
+        148,
+        2,
+        618,
+        949
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 39,
+      "file": ".local/walk-loop-01/alpha/0039.png",
+      "alpha_bbox": [
+        146,
+        3,
+        620,
+        949
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 40,
+      "file": ".local/walk-loop-01/alpha/0040.png",
+      "alpha_bbox": [
+        144,
+        5,
+        621,
+        952
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 41,
+      "file": ".local/walk-loop-01/alpha/0041.png",
+      "alpha_bbox": [
+        142,
+        8,
+        624,
+        955
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 42,
+      "file": ".local/walk-loop-01/alpha/0042.png",
+      "alpha_bbox": [
+        142,
+        10,
+        626,
+        958
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 43,
+      "file": ".local/walk-loop-01/alpha/0043.png",
+      "alpha_bbox": [
+        142,
+        11,
+        626,
+        957
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 44,
+      "file": ".local/walk-loop-01/alpha/0044.png",
+      "alpha_bbox": [
+        142,
+        11,
+        626,
+        960
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 45,
+      "file": ".local/walk-loop-01/alpha/0045.png",
+      "alpha_bbox": [
+        146,
+        11,
+        626,
+        960
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 46,
+      "file": ".local/walk-loop-01/alpha/0046.png",
+      "alpha_bbox": [
+        152,
+        8,
+        626,
+        960
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 47,
+      "file": ".local/walk-loop-01/alpha/0047.png",
+      "alpha_bbox": [
+        157,
+        7,
+        626,
+        960
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 48,
+      "file": ".local/walk-loop-01/alpha/0048.png",
+      "alpha_bbox": [
+        158,
+        6,
+        625,
+        960
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 49,
+      "file": ".local/walk-loop-01/alpha/0049.png",
+      "alpha_bbox": [
+        163,
+        5,
+        623,
+        960
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 50,
+      "file": ".local/walk-loop-01/alpha/0050.png",
+      "alpha_bbox": [
+        175,
+        3,
+        618,
+        958
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 51,
+      "file": ".local/walk-loop-01/alpha/0051.png",
+      "alpha_bbox": [
+        180,
+        2,
+        617,
+        957
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 52,
+      "file": ".local/walk-loop-01/alpha/0052.png",
+      "alpha_bbox": [
+        184,
+        2,
+        616,
+        957
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 53,
+      "file": ".local/walk-loop-01/alpha/0053.png",
+      "alpha_bbox": [
+        190,
+        1,
+        614,
+        955
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 54,
+      "file": ".local/walk-loop-01/alpha/0054.png",
+      "alpha_bbox": [
+        200,
+        0,
+        611,
+        952
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 55,
+      "file": ".local/walk-loop-01/alpha/0055.png",
+      "alpha_bbox": [
+        201,
+        0,
+        610,
+        952
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 56,
+      "file": ".local/walk-loop-01/alpha/0056.png",
+      "alpha_bbox": [
+        199,
+        0,
+        609,
+        951
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 57,
+      "file": ".local/walk-loop-01/alpha/0057.png",
+      "alpha_bbox": [
+        196,
+        0,
+        610,
+        950
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 58,
+      "file": ".local/walk-loop-01/alpha/0058.png",
+      "alpha_bbox": [
+        193,
+        0,
+        611,
+        954
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 59,
+      "file": ".local/walk-loop-01/alpha/0059.png",
+      "alpha_bbox": [
+        192,
+        0,
+        612,
+        953
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 60,
+      "file": ".local/walk-loop-01/alpha/0060.png",
+      "alpha_bbox": [
+        194,
+        0,
+        613,
+        950
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 61,
+      "file": ".local/walk-loop-01/alpha/0061.png",
+      "alpha_bbox": [
+        178,
+        1,
+        615,
+        946
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 62,
+      "file": ".local/walk-loop-01/alpha/0062.png",
+      "alpha_bbox": [
+        158,
+        4,
+        619,
+        957
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 63,
+      "file": ".local/walk-loop-01/alpha/0063.png",
+      "alpha_bbox": [
+        158,
+        6,
+        622,
+        957
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 64,
+      "file": ".local/walk-loop-01/alpha/0064.png",
+      "alpha_bbox": [
+        158,
+        8,
+        622,
+        960
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 65,
+      "file": ".local/walk-loop-01/alpha/0065.png",
+      "alpha_bbox": [
+        162,
+        9,
+        624,
+        960
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 66,
+      "file": ".local/walk-loop-01/alpha/0066.png",
+      "alpha_bbox": [
+        176,
+        12,
+        626,
+        960
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 67,
+      "file": ".local/walk-loop-01/alpha/0067.png",
+      "alpha_bbox": [
+        181,
+        13,
+        626,
+        960
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 68,
+      "file": ".local/walk-loop-01/alpha/0068.png",
+      "alpha_bbox": [
+        184,
+        12,
+        626,
+        960
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 69,
+      "file": ".local/walk-loop-01/alpha/0069.png",
+      "alpha_bbox": [
+        191,
+        9,
+        626,
+        960
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 70,
+      "file": ".local/walk-loop-01/alpha/0070.png",
+      "alpha_bbox": [
+        184,
+        5,
+        624,
+        960
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 71,
+      "file": ".local/walk-loop-01/alpha/0071.png",
+      "alpha_bbox": [
+        180,
+        6,
+        622,
+        960
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 72,
+      "file": ".local/walk-loop-01/alpha/0072.png",
+      "alpha_bbox": [
+        178,
+        4,
+        620,
+        960
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 73,
+      "file": ".local/walk-loop-01/alpha/0073.png",
+      "alpha_bbox": [
+        177,
+        3,
+        618,
+        959
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 74,
+      "file": ".local/walk-loop-01/alpha/0074.png",
+      "alpha_bbox": [
+        175,
+        2,
+        612,
+        956
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 75,
+      "file": ".local/walk-loop-01/alpha/0075.png",
+      "alpha_bbox": [
+        176,
+        1,
+        612,
+        955
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 76,
+      "file": ".local/walk-loop-01/alpha/0076.png",
+      "alpha_bbox": [
+        176,
+        0,
+        610,
+        954
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 77,
+      "file": ".local/walk-loop-01/alpha/0077.png",
+      "alpha_bbox": [
+        178,
+        0,
+        608,
+        952
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 78,
+      "file": ".local/walk-loop-01/alpha/0078.png",
+      "alpha_bbox": [
+        169,
+        0,
+        604,
+        948
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 79,
+      "file": ".local/walk-loop-01/alpha/0079.png",
+      "alpha_bbox": [
+        164,
+        0,
+        604,
+        948
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 80,
+      "file": ".local/walk-loop-01/alpha/0080.png",
+      "alpha_bbox": [
+        160,
+        0,
+        604,
+        953
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 81,
+      "file": ".local/walk-loop-01/alpha/0081.png",
+      "alpha_bbox": [
+        156,
+        0,
+        606,
+        955
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 82,
+      "file": ".local/walk-loop-01/alpha/0082.png",
+      "alpha_bbox": [
+        145,
+        0,
+        608,
+        957
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 83,
+      "file": ".local/walk-loop-01/alpha/0083.png",
+      "alpha_bbox": [
+        142,
+        0,
+        610,
+        952
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "frame": 84,
+      "file": ".local/walk-loop-01/alpha/0084.png",
+      "alpha_bbox": [
+        142,
+        0,
+        612,
+        950
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    }
+  ],
+  "reused_frame_files": 57,
+  "not_native_runtime_pack": true
+}

@@ -1,0 +1,87 @@
+--- a/runtime-src/backend.mjs
++++ b/runtime-src/backend.mjs
+@@ -9,6 +9,7 @@
+ const delay=ms=>new Promise(r=>setTimeout(r,ms));
+ const hash=data=>createHash('sha256').update(data).digest('hex');
+ const alive=pid=>{try{process.kill(pid,0);return true;}catch{return false;}};
++const idlePresented=(renderer,name)=>renderer?.videos.some(v=>v.front&&v.source===name+'.webm'&&v.loop&&(!v.paused||v.parkedIdle===true));
+ export class WholePetBackend {
+  constructor({stateDir,host,event}){
+   this.root=fileURLToPath(new URL('pet-backend/',import.meta.url));
+@@ -75,7 +76,7 @@
+   child.on('exit',()=>{if(this.child===child){this.ready=false;this.token=null;}});
+   this.lock=createNativeLock({acquire:ttl=>this.api('lock?pet=main',{ttl}),release:lockId=>this.api('lock/release?pet=main',{lockId})});
+   try{
+-   await this.wait(()=>{current();if(!alive(child.pid))throw new Error('BACKEND_EXITED');const s=this.snapshot();return fs.existsSync(path.join(this.dir,'connection.json'))&&s.windows.length===1&&s.windows[0].renderer?.videos.some(v=>v.front&&v.source===names.idle+'.webm'&&v.loop&&!v.paused)&&s.windows[0].renderer.props.every(p=>p.complete)&&s.bodyInputs?.[0]?.rects>0;},'BACKEND_MEDIA_NOT_READY');
++   await this.wait(()=>{current();if(!alive(child.pid))throw new Error('BACKEND_EXITED');const s=this.snapshot();return fs.existsSync(path.join(this.dir,'connection.json'))&&s.windows.length===1&&idlePresented(s.windows[0].renderer,names.idle)&&s.windows[0].renderer.props.every(p=>p.complete)&&s.bodyInputs?.[0]?.rects>0;},'BACKEND_MEDIA_NOT_READY');
+    current();this.token=token;this.ready=true;this.names=names;this.event('backend-ready',{pid:child.pid,contentKey,windows:1,size:cfg.pets[0].size});
+   }catch(error){if(this.child===child)await this.stop();throw error;}
+  }
+@@ -85,7 +86,7 @@
+   if(!this.suspended)await this.wait(()=>this.snapshot().windows[0]?.visible===true,'BACKEND_REVEAL_TIMEOUT',4000);
+   this.visibilityHeld=false;
+  }
+- async resume(){if(!this.child||!this.suspended)return;const revision=this.revision;await this.api('pet-display',{id:'main',display:'desktop'});await this.wait(()=>{if(revision!==this.revision)throw new Error('SKIN_OPERATION_SUPERSEDED');const w=this.snapshot().windows[0];return w?.visible===true&&w.renderer?.videos.some(v=>v.front&&v.source===this.names.idle+'.webm'&&!v.paused)&&w.renderer.props.every(p=>p.complete);},'BACKEND_RESUME_TIMEOUT',4000);this.suspended=false;}
++ async resume(){if(!this.child||!this.suspended)return;const revision=this.revision;await this.api('pet-display',{id:'main',display:'desktop'});await this.wait(()=>{if(revision!==this.revision)throw new Error('SKIN_OPERATION_SUPERSEDED');const w=this.snapshot().windows[0];return w?.visible===true&&idlePresented(w.renderer,this.names.idle)&&w.renderer.props.every(p=>p.complete);},'BACKEND_RESUME_TIMEOUT',4000);this.suspended=false;}
+  async act(action,assertCurrent=()=>{}){
+   if(!this.ready||!this.names[action])throw new Error('ACTION_UNAVAILABLE');
+   if(action==='walk'){
+--- a/runtime-src/pet-backend/dsh-pet/runtime/electron-helper/sprite/playback.js
++++ b/runtime-src/pet-backend/dsh-pet/runtime/electron-helper/sprite/playback.js
+@@ -31,12 +31,14 @@
+     const target = this.front === 0 ? this.videoB : this.videoA;
+     const el = target;
+     if (!el) return;
++    const parkIdle = !playbackId && !url && globalThis.DshContentProfiles?.animations[next]?.parkIdle === true;
+     // 素材地址两条路：url 形态直接用第三方给的完整地址（宿主已把 scheme 卡在 http/https，
+     // 不经 bridge、也不拼 BASE）；name 形态按「素材根 + 名字」拼。
+     el.src = url || this.assetBase + encodeURIComponent(next) + (S.ANIMATION_EXT || '.webm');
+     el.loop = !nextOnce;
+     el.muted = true;
+-    el.autoplay = true;
++    el.autoplay = !parkIdle;
++    el.companionParkedIdle = false;
+     el.playsInline = true;
+     el.onended = nextOnce ? () => {
+       if (!globalThis.DshContent?.continueWalk(this, el)) this.handleEnded();
+@@ -80,7 +82,10 @@
+       this.pending = null;
+       this.playback = playbackId || null;
+       el.style.transform = this.facing === 'right' ? 'scaleX(-1)' : '';
+-      el.play()
++      if (parkIdle) {
++        el.pause();
++        el.companionParkedIdle = true;
++      } else el.play()
+         .then(() => {
+           // 只有 play() 兑现才代表确实开始出画（loadeddata 只代表可解码）
+           if (playbackId) this.reportPlayback(playbackId, 'playing');
+--- a/runtime-src/pet-backend/dsh-pet/runtime/electron-helper/renderer.js
++++ b/runtime-src/pet-backend/dsh-pet/runtime/electron-helper/renderer.js
+@@ -169,7 +169,9 @@
+       sprites: [{ anim: s.anim, size: s.size, center: { x: s.currentCenterX(), y: s.currentCenterY() },
+         dragging: s.dragState.active, moving: s.moveRef !== null, positionFollow: s.posFollow !== null, playback: s.playback }],
+       videos: [{ front: true, source: front.currentSrc.split('/').pop(), loop: front.loop,
+-        paused: front.paused, time: s.playback ? front.currentTime : null }],
++        paused: front.paused, parkedIdle: front.companionParkedIdle === true && front.paused &&
++          front.readyState >= 2 && front.videoWidth > 0,
++        width: front.videoWidth, height: front.videoHeight, time: s.playback ? front.currentTime : null }],
+     };
+     const next = JSON.stringify(state);
+     if (next !== lastState) {
+--- a/packages/dsh-companion/README.md
++++ b/packages/dsh-companion/README.md
+@@ -2,11 +2,11 @@
+ 
+ ## 当前本地评审候选
+ 
+-2026-11-05。本地修复候选 0.1.0-dev.24 内置「冷启动 / 0.4.0」与「档案暖白 · 鲸鱼娘 / 0.7.1」。启用插件并完成统一授权后，可在「陪伴 → 皮肤」选择。已有选择和各套偏好由原 profile 保留。
++2026-11-05。本地修复候选 0.1.0-dev.25 内置「冷启动 / 0.4.0」与「档案暖白 · 鲸鱼娘 / 0.7.1」。启用插件并完成统一授权后，可在「陪伴 → 皮肤」选择。已有选择和各套偏好由原 profile 保留。
+ 
+ 整套皮肤使用主题、桌宠和开场三个模块及8项公开参数。开场区域的「预览开场」与「启动时自动播放」复用已有动作/同一偏好；「启用本套开场内容」是单独的模块启停。停止后从「恢复本套皮肤」恢复，保留已调整参数和模块关闭选择。已选整套时，旧配置选择/控制由皮肤设置入口替代；未选整套的旧流程保留。
+ 
+-直接打开 DSH 时，「冷启动」恢复工作区与桌宠。影片可从「本套设置」预览，也可用陪伴启动器从 DSH 关闭状态进入。选中「冷启动」后，菜单栏「07」提供「向左走」。旧素材 NOTICE 和 dsh-pet 上游 MIT 随桌面组件附带，本候选供 Mac 本地验证。
++直接打开 DSH 时，「冷启动」恢复工作区与桌宠。影片可从「本套设置」预览，也可用陪伴启动器从 DSH 关闭状态进入。单元-07 空闲时保持高清待机画面，互动与动作按原片播放。选中「冷启动」后，菜单栏「07」提供「向左走」。旧素材 NOTICE 和 dsh-pet 上游 MIT 随桌面组件附带，本候选供 Mac 本地验证。
+ 
+ ## 旧配置入口
+ 

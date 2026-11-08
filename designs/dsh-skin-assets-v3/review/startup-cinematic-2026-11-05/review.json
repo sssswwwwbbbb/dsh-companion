@@ -1,0 +1,91 @@
+{
+  "status": "rejected-by-user; historical comparison only",
+  "created_at": "2026-11-05T01:36:47.481459+00:00",
+  "surface": "startup opening, not an additional automatic workspace performance",
+  "duration_seconds": 5.8,
+  "fps": 30,
+  "size": [
+    1440,
+    1000
+  ],
+  "audio": false,
+  "selected_master": "designs/dsh-skin-assets-v3/assets/prepared/master-04-full.png",
+  "master_source_size": [
+    1664,
+    2496
+  ],
+  "master_sha256": "8cff47c4dfcc42477447a213ae7ca1954881937df2f8a9e420a31d7b8b397416",
+  "workspace_readonly_capture": "reports/dsh-workspace-r2-2026-11-05/opening-frames/033.png",
+  "palette_source": "frozen workspace-v2/tokens.css; existing light/dark paper and silver-blue tokens",
+  "phases": [
+    {
+      "seconds": [
+        0,
+        0.8
+      ],
+      "role": "ink-dark archive leaves and theme identity"
+    },
+    {
+      "seconds": [
+        0.55,
+        2.45
+      ],
+      "role": "large same-master close-up and one reading-line reveal"
+    },
+    {
+      "seconds": [
+        2.45,
+        4.2
+      ],
+      "role": "warm paper opens, camera pulls back, established headline"
+    },
+    {
+      "seconds": [
+        4.2,
+        5.4
+      ],
+      "role": "page retracts, identity returns to existing workspace avatar"
+    },
+    {
+      "seconds": [
+        5.4,
+        5.8
+      ],
+      "role": "ordinary workspace holds"
+    }
+  ],
+  "video": "designs/dsh-skin-assets-v3/review/startup-cinematic-2026-11-05/startup-cinematic-candidate.mp4",
+  "storyboard": "designs/dsh-skin-assets-v3/review/startup-cinematic-2026-11-05/sequence-board.jpg",
+  "native_integrated": false,
+  "new_character_action_claimed": false,
+  "new_paid_generation": false,
+  "r2_and_071_sources_unchanged": true,
+  "reference_video_media_adopted": false,
+  "integration_notes": [
+    "reuse existing skip/Esc/reduced-motion/stop ownership; offline MP4 does not implement these controls",
+    "startup owns this complete sequence; do not automatically play a second complete workspace opening",
+    "reduced motion uses existing same-master static presentation and a short opacity handoff",
+    "camera/mask/layout movement is not new eye/limb behavior or real walking",
+    "native timing, actual profile lifecycle and runtime performance remain separate acceptance"
+  ],
+  "video_sha256": "549bbbfd43568eb0774abf478d425a8e0d3c90ec0fffb0f2d438f3c96a7b1d61",
+  "author_checks": {
+    "full_video_decode_passed": true,
+    "keyframes_viewed": [
+      0.3,
+      1.15,
+      2.1,
+      3.65,
+      4.65,
+      5.6
+    ],
+    "master_full_size_used": true,
+    "thumbnail_upscale_used": false,
+    "initial_page_edge_leak_fixed": true,
+    "runtime_controls_tested": false,
+    "native_performance_tested": false,
+    "visual_scope": "startup camera/layout/reading-line candidate only; endpoint uses a read-only actual workspace capture"
+  },
+  "user_rejection_reason": "用户退回档案宣传语与静音开场",
+  "rejected_on": "2026-11-05"
+}

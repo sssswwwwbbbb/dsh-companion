@@ -1,0 +1,338 @@
+{
+  "status": "candidate-awaiting-visual-review",
+  "created_at": "2026-11-04T10:43:57.797486+00:00",
+  "tool": "rembg 2.0.57 / u2net / local CPU alpha matting",
+  "assets": [
+    {
+      "role": "action-keypose",
+      "facing": "left-three-quarter",
+      "review_note": "single contact keypose; gait cycle pending",
+      "source_original": "素材/图片+2.png",
+      "identity_parent": "jimeng-flash-master-04",
+      "visual_adoption": "review-pending",
+      "requires_cycle_frames": true,
+      "guide_included": false,
+      "id": "walk-a",
+      "source": "designs/dsh-skin-assets-v3/assets/character/jimeng-walk-a-source.png",
+      "file": "designs/dsh-skin-assets-v3/assets/character/jimeng-walk-a-cutout-candidate.png",
+      "size": [
+        1664,
+        2496
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        335,
+        38,
+        1496,
+        2464
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "transparent_pixels": 2843020,
+      "semi_transparent_pixels": 148681,
+      "sha256": "fc0934d2b5d91215d194fb547045d53c8c8fe40f1027c3ea9fcd3ae21b39dd58",
+      "status": "candidate-awaiting-visual-review",
+      "animated": false,
+      "loop": false
+    },
+    {
+      "role": "action-keypose",
+      "facing": "left-three-quarter",
+      "review_note": "single grip keypose with guide bar; cycle pending",
+      "source_original": "素材/图片+4.png",
+      "identity_parent": "jimeng-flash-master-04",
+      "visual_adoption": "review-pending",
+      "requires_cycle_frames": true,
+      "guide_included": true,
+      "id": "climb-a",
+      "source": "designs/dsh-skin-assets-v3/assets/character/jimeng-climb-a-source.png",
+      "file": "designs/dsh-skin-assets-v3/assets/character/jimeng-climb-a-cutout-candidate.png",
+      "size": [
+        1664,
+        2496
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        387,
+        0,
+        1533,
+        2496
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "transparent_pixels": 2725868,
+      "semi_transparent_pixels": 180750,
+      "sha256": "37603979645bd14c39f6ab6b03925a9afe7ba9e032537f5602ff22171eb9f2b0",
+      "status": "candidate-awaiting-visual-review",
+      "animated": false,
+      "loop": false
+    },
+    {
+      "role": "action-keypose",
+      "facing": "left-three-quarter",
+      "review_note": "single flight keypose; gait cycle pending",
+      "source_original": "素材/图片+5.png",
+      "identity_parent": "jimeng-flash-master-04",
+      "visual_adoption": "review-pending",
+      "requires_cycle_frames": true,
+      "guide_included": false,
+      "id": "run-a",
+      "source": "designs/dsh-skin-assets-v3/assets/character/jimeng-run-a-source.png",
+      "file": "designs/dsh-skin-assets-v3/assets/character/jimeng-run-a-cutout-candidate.png",
+      "size": [
+        1664,
+        2496
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        270,
+        64,
+        1483,
+        2362
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "transparent_pixels": 2779705,
+      "semi_transparent_pixels": 197258,
+      "sha256": "d4df4a4ecf6dc752aed07f5b7c219a8d218a1514f08fad2f0c5cdb3882b595e3",
+      "status": "candidate-awaiting-visual-review",
+      "animated": false,
+      "loop": false
+    },
+    {
+      "role": "action-keypose",
+      "facing": "left",
+      "review_note": "pose candidate; cel-shaded style and shoe design drift reported",
+      "source_original": "素材/图片+6.png",
+      "identity_parent": "jimeng-flash-master-04",
+      "visual_adoption": "style-drift-reported",
+      "requires_cycle_frames": false,
+      "guide_included": false,
+      "id": "lie-a",
+      "source": "designs/dsh-skin-assets-v3/assets/character/jimeng-lie-a-source.png",
+      "file": "designs/dsh-skin-assets-v3/assets/character/jimeng-lie-a-cutout-candidate.png",
+      "size": [
+        2496,
+        1664
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        31,
+        424,
+        2475,
+        1259
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "transparent_pixels": 2976374,
+      "semi_transparent_pixels": 112233,
+      "sha256": "f388ec19adc7e3914e8febbb3f128dfa12cd363f9838885f087bb5627ae85701",
+      "status": "candidate-awaiting-visual-review",
+      "animated": false,
+      "loop": false
+    },
+    {
+      "role": "independent-prop",
+      "source_sheet": "designs/dsh-skin-assets-v3/assets/theme/jimeng-props-01-source.png",
+      "source_crop": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "anchor_intent": "bottom-center; grip at fore-edge",
+      "visual_adoption": "review-pending",
+      "id": "book",
+      "source": "designs/dsh-skin-assets-v3/assets/theme/jimeng-book-source-crop.png",
+      "file": "designs/dsh-skin-assets-v3/assets/theme/jimeng-book-cutout-candidate.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        124,
+        168,
+        931,
+        924
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "transparent_pixels": 666450,
+      "semi_transparent_pixels": 29196,
+      "sha256": "b19a9ad23d9427ef7fa95bcec3d7dfd9e8e34d714374e93ed5b495fd70e7fb3d",
+      "status": "candidate-awaiting-visual-review",
+      "animated": false,
+      "loop": false
+    },
+    {
+      "role": "independent-prop",
+      "source_sheet": "designs/dsh-skin-assets-v3/assets/theme/jimeng-props-01-source.png",
+      "source_crop": [
+        1024,
+        0,
+        2048,
+        1024
+      ],
+      "anchor_intent": "bottom-center; grip at handle",
+      "visual_adoption": "review-pending",
+      "id": "cup",
+      "source": "designs/dsh-skin-assets-v3/assets/theme/jimeng-cup-source-crop.png",
+      "file": "designs/dsh-skin-assets-v3/assets/theme/jimeng-cup-cutout-candidate.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        227,
+        298,
+        881,
+        796
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "transparent_pixels": 829101,
+      "semi_transparent_pixels": 22876,
+      "sha256": "a20a612be0a12a1961432ae2016dc630c353fd4ba8a9cd0c457c938c0e45a3b0",
+      "status": "candidate-awaiting-visual-review",
+      "animated": false,
+      "loop": false
+    },
+    {
+      "role": "independent-prop",
+      "source_sheet": "designs/dsh-skin-assets-v3/assets/theme/jimeng-props-01-source.png",
+      "source_crop": [
+        0,
+        1024,
+        1024,
+        2048
+      ],
+      "anchor_intent": "bottom-center; top-center seat surface",
+      "visual_adoption": "review-pending",
+      "id": "cushion",
+      "source": "designs/dsh-skin-assets-v3/assets/theme/jimeng-cushion-source-crop.png",
+      "file": "designs/dsh-skin-assets-v3/assets/theme/jimeng-cushion-cutout-candidate.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        96,
+        229,
+        942,
+        794
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "transparent_pixels": 673708,
+      "semi_transparent_pixels": 33711,
+      "sha256": "9e7f08e2b69934a4b6fc01d34dda1d8b57959578cef27d2c690890295f528d77",
+      "status": "candidate-awaiting-visual-review",
+      "animated": false,
+      "loop": false
+    },
+    {
+      "role": "independent-prop",
+      "source_sheet": "designs/dsh-skin-assets-v3/assets/theme/jimeng-props-01-source.png",
+      "source_crop": [
+        1024,
+        1024,
+        2048,
+        2048
+      ],
+      "anchor_intent": "bottom-center; folded form only",
+      "visual_adoption": "review-pending",
+      "id": "blanket",
+      "source": "designs/dsh-skin-assets-v3/assets/theme/jimeng-blanket-source-crop.png",
+      "file": "designs/dsh-skin-assets-v3/assets/theme/jimeng-blanket-cutout-candidate.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        85,
+        247,
+        939,
+        793
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "transparent_pixels": 752072,
+      "semi_transparent_pixels": 27032,
+      "sha256": "3be1c4e3a52bba1ec451b43ba3a22e7c6805a1465a5d27b16a13111639dd9cc3",
+      "status": "candidate-awaiting-visual-review",
+      "animated": false,
+      "loop": false
+    }
+  ],
+  "source_originals_preserved": true,
+  "animation_cycles_created": false,
+  "side_lie_style_drift_reported": true
+}

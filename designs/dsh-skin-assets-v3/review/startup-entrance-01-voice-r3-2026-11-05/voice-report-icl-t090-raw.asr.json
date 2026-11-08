@@ -1,0 +1,44 @@
+{
+  "text": "日慧關我已就位",
+  "segments": [
+    {
+      "id": 0,
+      "seek": 0,
+      "start": 0.0,
+      "end": 1.0,
+      "text": "日慧關",
+      "tokens": [
+        50364,
+        6890,
+        12358,
+        100,
+        14899,
+        50414
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.7563516176663913,
+      "compression_ratio": 0.65625,
+      "no_speech_prob": 0.1934705525636673
+    },
+    {
+      "id": 1,
+      "seek": 0,
+      "start": 1.0,
+      "end": 2.0,
+      "text": "我已就位",
+      "tokens": [
+        50414,
+        1654,
+        15701,
+        3111,
+        11160,
+        50464
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.7563516176663913,
+      "compression_ratio": 0.65625,
+      "no_speech_prob": 0.1934705525636673
+    }
+  ],
+  "language": "zh"
+}

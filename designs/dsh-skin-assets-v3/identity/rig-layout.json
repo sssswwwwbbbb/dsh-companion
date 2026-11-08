@@ -1,0 +1,90 @@
+{
+  "source": "assets/character/character-master.png",
+  "canvas": [
+    512,
+    512
+  ],
+  "scale": 0.26,
+  "offset": [
+    122.88,
+    92.09999999999997
+  ],
+  "groundY": 486,
+  "headPivot": [
+    512,
+    346
+  ],
+  "hip": [
+    512,
+    885
+  ],
+  "joints": {
+    "shoulder-l": [
+      374,
+      410
+    ],
+    "elbow-l": [
+      362,
+      650
+    ],
+    "wrist-l": [
+      330,
+      802
+    ],
+    "shoulder-r": [
+      647,
+      410
+    ],
+    "elbow-r": [
+      674,
+      650
+    ],
+    "wrist-r": [
+      708,
+      812
+    ],
+    "hip-l": [
+      461,
+      895
+    ],
+    "knee-l": [
+      454,
+      1153
+    ],
+    "ankle-l": [
+      453,
+      1416
+    ],
+    "hip-r": [
+      571,
+      895
+    ],
+    "knee-r": [
+      568,
+      1154
+    ],
+    "ankle-r": [
+      568,
+      1416
+    ]
+  },
+  "layers": [
+    "head",
+    "hair-left",
+    "hair-right",
+    "torso",
+    "arm-l",
+    "forearm-l",
+    "hand-l",
+    "arm-r",
+    "forearm-r",
+    "hand-r",
+    "thigh-l",
+    "shin-l",
+    "foot-l",
+    "thigh-r",
+    "shin-r",
+    "foot-r"
+  ],
+  "method": "one master, extracted RGBA parts, local pixel-seal under skirt; no independent action-frame generation"
+}

@@ -1,0 +1,8 @@
+import fs from 'node:fs';import path from 'node:path';import {spawn} from 'node:child_process';
+const candidate=process.argv[2]||'dsh';if(!['dsh','phaser'].includes(candidate))throw new Error('UNKNOWN_CANDIDATE');
+const root=process.cwd(),lab=path.join(root,'.local/pet-engine-comparison-20261104'),app=candidate==='dsh'?'DshPetComparison':'PhaserComparison',env={...process.env};delete env.ELECTRON_RUN_AS_NODE;
+if(process.argv.includes('--fresh-profile'))env.PET_ENGINE_COMPARE_PROFILE=String(Date.now());
+const start=performance.now(),at=new Date().toISOString(),child=spawn(path.join(lab,app+'.app/Contents/MacOS/Electron'),[path.join(root,'experiments/pet-engine-comparison/renderer.cjs'),'--engine='+candidate],{cwd:root,env,stdio:['ignore','pipe','pipe']});
+let output='',recorded=false;child.stdout.on('data',chunk=>{output+=chunk;for(const line of output.split('\n').slice(0,-1)){try{const v=JSON.parse(line);if(v.ready===true&&!recorded){recorded=true;const result={at,candidate,pid:child.pid,spawnToReadyMs:Math.round(performance.now()-start),freshProfile:!!env.PET_ENGINE_COMPARE_PROFILE,commonElectron:'45.2.1',viewport:{width:1120,height:820},note:'One observed launch; OS file caches are warm. Readiness polls have up to 50ms granularity.'};fs.writeFileSync(path.join(root,'reports/pet-engine-comparison-2026-11-04/launch-'+candidate+'.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));}}catch{}}output=output.split('\n').at(-1);});
+child.stderr.on('data',chunk=>fs.appendFileSync(path.join(lab,candidate+'-renderer-stderr.log'),chunk));
+child.on('exit',code=>process.exit(code||0));process.on('SIGTERM',()=>child.kill('SIGTERM'));process.on('SIGINT',()=>child.kill('SIGTERM'));

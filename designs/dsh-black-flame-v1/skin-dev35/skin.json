@@ -1,0 +1,1717 @@
+{
+  "formatVersion": 2,
+  "id": "black-flame",
+  "version": "0.2.2",
+  "name": "黑焰",
+  "description": "无桌宠版：烬色与封存舱两套配色、50 枚中性色工作区图标、入口徽记、去掉落版主题字的 9.4 秒立体声开场与回复风格。作者 Dr.S，仅本人分发。按主题盒子 1.0 契约制作。",
+  "dshVersions": [
+    "0.2.2-rc.1"
+  ],
+  "replyStyle": {
+    "address": "契约者",
+    "tone": "一句话不超过 25 字。冷淡、句子短，先给结论再补一句必要的条件或后果，不做情绪铺垫。不用感叹号、语气词和表情符号。一律用第一人称「我」，正式报状态时可带编号 07，不说「本单元」这类机号口吻。承认不知道时直说，不编。用户要求展开时分层说明，否则只给最直接的一步。"
+  },
+  "assets": {
+    "icon-workspace-light": {
+      "path": "assets/icon-workspace-light.png",
+      "mime": "image/png",
+      "sha256": "b6dac03eeb2e6ecb88ccceb06bf49f2284835627c5be234fbcef05281d1c468f",
+      "bytes": 2325,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/workspace.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-workspace-dark": {
+      "path": "assets/icon-workspace-dark.png",
+      "mime": "image/png",
+      "sha256": "475c6c51a53a487bf7493ece02a5e92d1a7da315c553d03d152a337158746788",
+      "bytes": 2675,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/workspace.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-compose-light": {
+      "path": "assets/icon-compose-light.png",
+      "mime": "image/png",
+      "sha256": "301bebd9705301cde0ad84bc97e82ef50946df9e9e99251993ad688c74f40773",
+      "bytes": 2818,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/compose.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-compose-dark": {
+      "path": "assets/icon-compose-dark.png",
+      "mime": "image/png",
+      "sha256": "7cd8fe6c6a3b01ea3cb5bc4e1f091049393d7c2628b871ff916dd775c9bd0ad4",
+      "bytes": 3226,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/compose.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-conversation-light": {
+      "path": "assets/icon-conversation-light.png",
+      "mime": "image/png",
+      "sha256": "77b7461d3a6e4ccc0c38f83d6c4c9198c1237443a9e5a0794fcbb6ee31f86667",
+      "bytes": 2359,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/conversation.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-conversation-dark": {
+      "path": "assets/icon-conversation-dark.png",
+      "mime": "image/png",
+      "sha256": "16c87bd4b987ae66da2171139fb6502f71fe42b7d91e3e79ce5a86b1306b2721",
+      "bytes": 2622,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/conversation.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-search-light": {
+      "path": "assets/icon-search-light.png",
+      "mime": "image/png",
+      "sha256": "bff5f79e76a0f1471538d0f30312f4b9d6c18d2ef3a4548ca9024c1fefcc086c",
+      "bytes": 3456,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/search.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-search-dark": {
+      "path": "assets/icon-search-dark.png",
+      "mime": "image/png",
+      "sha256": "f9bc9803e2f949967e68ab08fdb0c283a39b61aa4884946fedd9644b1f24abef",
+      "bytes": 3897,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/search.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-panel-left-light": {
+      "path": "assets/icon-panel-left-light.png",
+      "mime": "image/png",
+      "sha256": "bf0777c0a18ce14999cef8b419abed32e89d7e367aa2aa2da550e91774bafc1e",
+      "bytes": 2204,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/panel-left.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-panel-left-dark": {
+      "path": "assets/icon-panel-left-dark.png",
+      "mime": "image/png",
+      "sha256": "bacaab7b2324eca540406620e0522ded6fd54d7c854a3a6b755132e1d1284251",
+      "bytes": 2560,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/panel-left.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-folder-light": {
+      "path": "assets/icon-folder-light.png",
+      "mime": "image/png",
+      "sha256": "4a8815ec7dd21ee24a1648a7ae83881f34056aa73cdc7e63c8d4790c2ddb3845",
+      "bytes": 2073,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/folder.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-folder-dark": {
+      "path": "assets/icon-folder-dark.png",
+      "mime": "image/png",
+      "sha256": "99cbacfd93b957a77816d24cde87911ddba8a159cffb38b335b287e845f52535",
+      "bytes": 2345,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/folder.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-folder-open-light": {
+      "path": "assets/icon-folder-open-light.png",
+      "mime": "image/png",
+      "sha256": "d2b663078021a7b2889da95a3acee216dfcbdf53ef3c85f843aadb2d4370d1de",
+      "bytes": 1911,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/folder-open.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-folder-open-dark": {
+      "path": "assets/icon-folder-open-dark.png",
+      "mime": "image/png",
+      "sha256": "06fdefbe69b2c3536eb7b0b33598baa2a8ce8d9aa8a99864149da000ca1c22ff",
+      "bytes": 2150,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/folder-open.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-pin-light": {
+      "path": "assets/icon-pin-light.png",
+      "mime": "image/png",
+      "sha256": "48f163fa75017a8ea8ed6a112cd0ee9369cb0caecd6a88bc6bdd05a8905f5c4d",
+      "bytes": 1961,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/pin.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-pin-dark": {
+      "path": "assets/icon-pin-dark.png",
+      "mime": "image/png",
+      "sha256": "75601d47416f95f3b37b0c6c418cb0bcb3ece073f1b1325d7f6a1b9a66ed6d77",
+      "bytes": 2234,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/pin.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-archive-light": {
+      "path": "assets/icon-archive-light.png",
+      "mime": "image/png",
+      "sha256": "849a3c842bafaea2777b6f26978f2824599e9d09957a2e2a3434ec2505d7281e",
+      "bytes": 1519,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/archive.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-archive-dark": {
+      "path": "assets/icon-archive-dark.png",
+      "mime": "image/png",
+      "sha256": "4814b37be4c125652c2240f50ab6b554fb38ab4603f52fc6e45c83460bec7f35",
+      "bytes": 1650,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/archive.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-more-light": {
+      "path": "assets/icon-more-light.png",
+      "mime": "image/png",
+      "sha256": "402d17d4f1a6e124cc9c0657311b02bbd5b9a3d7f5790ecf30158a246df4af7e",
+      "bytes": 652,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/more.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-more-dark": {
+      "path": "assets/icon-more-dark.png",
+      "mime": "image/png",
+      "sha256": "35f9db565301bc76a3a11ca577141ce80c5511aff476286feafdc14f356ee67f",
+      "bytes": 698,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/more.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-attachment-light": {
+      "path": "assets/icon-attachment-light.png",
+      "mime": "image/png",
+      "sha256": "5381ca1d6dfff1c43ea245272ffc60dff5c7f90874acb0add05cb3f1e95ce47a",
+      "bytes": 1724,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/attachment.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-attachment-dark": {
+      "path": "assets/icon-attachment-dark.png",
+      "mime": "image/png",
+      "sha256": "2c0115aa5e3797e8dac0c4917879371dc3973264475217ef800eb5e450cbee53",
+      "bytes": 1898,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/attachment.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-link-light": {
+      "path": "assets/icon-link-light.png",
+      "mime": "image/png",
+      "sha256": "b8ffefea3e6bb6cec57632b3637e0f5c444906eb09d19e42e5a02b98449af4f1",
+      "bytes": 1588,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/link.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-link-dark": {
+      "path": "assets/icon-link-dark.png",
+      "mime": "image/png",
+      "sha256": "6a4ee7121bf5946b959e7f627fb14d772934090118817bcca4116666a023fceb",
+      "bytes": 1730,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/link.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-copy-light": {
+      "path": "assets/icon-copy-light.png",
+      "mime": "image/png",
+      "sha256": "95c86f69d767e8206b9d0cb8859cfa612cc1f8db71b305dd362dc8180ad9fa7c",
+      "bytes": 2100,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/copy.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-copy-dark": {
+      "path": "assets/icon-copy-dark.png",
+      "mime": "image/png",
+      "sha256": "fb6c7284f68d6bdc36edf78918130bccb14eebc6948b28b2c054ee6a66506177",
+      "bytes": 2383,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/copy.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-retry-light": {
+      "path": "assets/icon-retry-light.png",
+      "mime": "image/png",
+      "sha256": "004a7de2e25fad2f6aadfde1eabf04c4bc95c6f91c757bed7a74e070b8b57863",
+      "bytes": 3737,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/retry.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-retry-dark": {
+      "path": "assets/icon-retry-dark.png",
+      "mime": "image/png",
+      "sha256": "6d4420e5d561becd4ea164f098e83dafd9dc350f0efa2b38cebd10a09cb9bf61",
+      "bytes": 4205,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/retry.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-edit-light": {
+      "path": "assets/icon-edit-light.png",
+      "mime": "image/png",
+      "sha256": "3b397642026165a9a3c9bd0572787a4614a094c1a81ae72c734bf877ba0b29cc",
+      "bytes": 1946,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/edit.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-edit-dark": {
+      "path": "assets/icon-edit-dark.png",
+      "mime": "image/png",
+      "sha256": "7735a068a83946182cb1147d938e476e849d4c2b10b1f0e98c9eba9b361b3bc3",
+      "bytes": 2088,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/edit.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-branch-light": {
+      "path": "assets/icon-branch-light.png",
+      "mime": "image/png",
+      "sha256": "4fd9f0ace349431ffb8b351a81c6d9849142a4f539ffa47bf9f2bddc54aea9b4",
+      "bytes": 1957,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/branch.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-branch-dark": {
+      "path": "assets/icon-branch-dark.png",
+      "mime": "image/png",
+      "sha256": "5847e4e6283d8c776f59b2e1e6dcd0da14fe6c307962ca26761a8288a0365c10",
+      "bytes": 2043,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/branch.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-send-light": {
+      "path": "assets/icon-send-light.png",
+      "mime": "image/png",
+      "sha256": "40a81d3e25a552b53b5d7931013bbb3255735369a7147eaeb61f85fcbf60ba80",
+      "bytes": 1999,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/send.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-send-dark": {
+      "path": "assets/icon-send-dark.png",
+      "mime": "image/png",
+      "sha256": "40a81d3e25a552b53b5d7931013bbb3255735369a7147eaeb61f85fcbf60ba80",
+      "bytes": 1999,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/send.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-stop-light": {
+      "path": "assets/icon-stop-light.png",
+      "mime": "image/png",
+      "sha256": "68e9eb2ff0dc49e47384e320308bc2cb0c076c4a5f7f139d29446ef5ecbfcef8",
+      "bytes": 689,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/stop.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-stop-dark": {
+      "path": "assets/icon-stop-dark.png",
+      "mime": "image/png",
+      "sha256": "68e9eb2ff0dc49e47384e320308bc2cb0c076c4a5f7f139d29446ef5ecbfcef8",
+      "bytes": 689,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/stop.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-chevron-down-light": {
+      "path": "assets/icon-chevron-down-light.png",
+      "mime": "image/png",
+      "sha256": "d565486b7cdb7026081d8849d1e3ae3ee78f1b644aef63a298d8b93ebdae885e",
+      "bytes": 1057,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/chevron-down.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-chevron-down-dark": {
+      "path": "assets/icon-chevron-down-dark.png",
+      "mime": "image/png",
+      "sha256": "08421b56f05cb516cc9b9f5f235757da0a6d928bff24f980fcdfb59df7a7806d",
+      "bytes": 1141,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/chevron-down.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-chevron-right-light": {
+      "path": "assets/icon-chevron-right-light.png",
+      "mime": "image/png",
+      "sha256": "c9fbe6fa1a5dc259c0ffad420aa0327fe11ecd660eae574993866b212fb41437",
+      "bytes": 1078,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/chevron-right.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-chevron-right-dark": {
+      "path": "assets/icon-chevron-right-dark.png",
+      "mime": "image/png",
+      "sha256": "e47e10b3392a9f83ac05e1a1e4aa35ffd6530eccb666729ec23b3f00ae414597",
+      "bytes": 1149,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/chevron-right.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-plus-light": {
+      "path": "assets/icon-plus-light.png",
+      "mime": "image/png",
+      "sha256": "afc3de9465cbb47ad70419dfa75012521d61d63ed55c277d16ce034599853c24",
+      "bytes": 1233,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/plus.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-plus-dark": {
+      "path": "assets/icon-plus-dark.png",
+      "mime": "image/png",
+      "sha256": "8d76b518033e90e502612c444ba9ea6f479d244e407e19ca90545b976d8d8813",
+      "bytes": 1375,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/plus.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-terminal-light": {
+      "path": "assets/icon-terminal-light.png",
+      "mime": "image/png",
+      "sha256": "0f122d78c13c978ac33b2ff3fef9df7130aa01869f21c47bc4d15e10e13eee68",
+      "bytes": 2633,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/terminal.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-terminal-dark": {
+      "path": "assets/icon-terminal-dark.png",
+      "mime": "image/png",
+      "sha256": "42140d1a6aee536a881432ab9ea4ce3bf8d44d26765a353e477759bfdfdcc2ba",
+      "bytes": 2991,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/terminal.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-external-light": {
+      "path": "assets/icon-external-light.png",
+      "mime": "image/png",
+      "sha256": "f8bec085e6bbff71bf7f3c357ad3502361a2a1406a90cdc122fa7e6984abf2bd",
+      "bytes": 2060,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/external.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-external-dark": {
+      "path": "assets/icon-external-dark.png",
+      "mime": "image/png",
+      "sha256": "10e2045b96cc96160253e9387f100927b6d37dd2e3dfd4ead7a191ad1a25ab64",
+      "bytes": 2295,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/external.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-file-code-light": {
+      "path": "assets/icon-file-code-light.png",
+      "mime": "image/png",
+      "sha256": "38a813b6d98a5f70dd7839e559bb7bde2d7d7bf0098ca8c7a03310e3d135fe42",
+      "bytes": 3075,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/file-code.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-file-code-dark": {
+      "path": "assets/icon-file-code-dark.png",
+      "mime": "image/png",
+      "sha256": "9e3aac49fd0c46508de3b4953a3ac8538b813c075186aad5e5fbf737891bfeaa",
+      "bytes": 3478,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/file-code.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-file-table-light": {
+      "path": "assets/icon-file-table-light.png",
+      "mime": "image/png",
+      "sha256": "5ef3323d5b7ab130c851a4d8f828436434cd3706484e2e76ff67e397f5e61acc",
+      "bytes": 1789,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/file-table.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-file-table-dark": {
+      "path": "assets/icon-file-table-dark.png",
+      "mime": "image/png",
+      "sha256": "f44c7f82730fbf3f419cd66703e69a2dbeed96635d84d097c0385f2cbab5a9c4",
+      "bytes": 2086,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/file-table.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-file-image-light": {
+      "path": "assets/icon-file-image-light.png",
+      "mime": "image/png",
+      "sha256": "f8049074c8ce6dea630b4d77f37cb366eab5e5a77bd84454793db22d1e5ee56b",
+      "bytes": 3143,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/file-image.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-file-image-dark": {
+      "path": "assets/icon-file-image-dark.png",
+      "mime": "image/png",
+      "sha256": "3692baf2bf176361bbcdf0a1166e758add2b16f9fcd5f99846aa0e8044197dba",
+      "bytes": 3525,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/file-image.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-file-text-light": {
+      "path": "assets/icon-file-text-light.png",
+      "mime": "image/png",
+      "sha256": "d83aad94384be3c8a4211429973772e38525daa533ceecff8d22737f071ae5c4",
+      "bytes": 1905,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/file-text.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-file-text-dark": {
+      "path": "assets/icon-file-text-dark.png",
+      "mime": "image/png",
+      "sha256": "13de97ddc7e393fd0c4332b62f8eff7c2afb8987db3ccfa47ae5d1ac5ff0b8e8",
+      "bytes": 2156,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/file-text.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-check-light": {
+      "path": "assets/icon-check-light.png",
+      "mime": "image/png",
+      "sha256": "0e671742242ec9c4578df9fe0b2952bae7ab717967b81b3e0630acc6b55b5936",
+      "bytes": 1753,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/check.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-check-dark": {
+      "path": "assets/icon-check-dark.png",
+      "mime": "image/png",
+      "sha256": "ff86b266801b6b1d61ab7c5b73aaa470de08900d25db04f14237078a1b4a5e80",
+      "bytes": 2167,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/check.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-clock-light": {
+      "path": "assets/icon-clock-light.png",
+      "mime": "image/png",
+      "sha256": "f70fe2f750695a28cafbc87d7ca7bc3d8593ef211adafb06cc2ec632c59f7405",
+      "bytes": 5076,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/clock.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-clock-dark": {
+      "path": "assets/icon-clock-dark.png",
+      "mime": "image/png",
+      "sha256": "9aeed75aff44807d9c014b9d3672f9772829bf322ab5050a91fe8f233d017359",
+      "bytes": 5770,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/clock.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-alert-light": {
+      "path": "assets/icon-alert-light.png",
+      "mime": "image/png",
+      "sha256": "b480817ccc5d342409ec94301de9cf6f1e620fedc211393d0c7b76be45f1f7ef",
+      "bytes": 3436,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/alert.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-alert-dark": {
+      "path": "assets/icon-alert-dark.png",
+      "mime": "image/png",
+      "sha256": "0c9ea2a3613bdc48339126f5afb530c5a3a653dfae2d6f71dcaa5e72660164f1",
+      "bytes": 3732,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/alert.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-info-light": {
+      "path": "assets/icon-info-light.png",
+      "mime": "image/png",
+      "sha256": "08cd3b96e3b952a6782abe2a3fc607d059906327152244a3bf4881bd503df0a6",
+      "bytes": 5267,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/info.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-info-dark": {
+      "path": "assets/icon-info-dark.png",
+      "mime": "image/png",
+      "sha256": "d4a20fb360fcaab74898f80b434bef1fac369b010a4d15ca8f7e5e833cd2c8a9",
+      "bytes": 5911,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/info.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-play-light": {
+      "path": "assets/icon-play-light.png",
+      "mime": "image/png",
+      "sha256": "6ef60783775c64ec6c1e908ba83467e6bcda4161f7ec8a6cdae9d2191167159c",
+      "bytes": 1117,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/play.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-play-dark": {
+      "path": "assets/icon-play-dark.png",
+      "mime": "image/png",
+      "sha256": "5005c61be4153ab25541571ad6b3bb15e442d4208296e7a6f9268fb0cf0e0333",
+      "bytes": 1233,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/play.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-pause-light": {
+      "path": "assets/icon-pause-light.png",
+      "mime": "image/png",
+      "sha256": "dbe5611de3a08fd1e3c281ccb41be7d607048c8728d7aa539c850cc3bc4cd156",
+      "bytes": 630,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/pause.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-pause-dark": {
+      "path": "assets/icon-pause-dark.png",
+      "mime": "image/png",
+      "sha256": "159a49f81b3f014e35925387c32b4bec6fde286398485607120065df006f0a6c",
+      "bytes": 688,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/pause.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-close-light": {
+      "path": "assets/icon-close-light.png",
+      "mime": "image/png",
+      "sha256": "06ca5152a4ae7d9deecce5a474ba17b8be0179d2113b0cf5b8fb8f663ee406da",
+      "bytes": 1494,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/close.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-close-dark": {
+      "path": "assets/icon-close-dark.png",
+      "mime": "image/png",
+      "sha256": "deffeca2d156af18784e8c47d1f605a8c515589ef27d0d5eb934e2ed785b6c63",
+      "bytes": 1658,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/close.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-settings-light": {
+      "path": "assets/icon-settings-light.png",
+      "mime": "image/png",
+      "sha256": "5ed2627cdcf27f30b34d08d062445516e2d816fa528f72d4ca039b38e2809b1e",
+      "bytes": 4495,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/settings.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-settings-dark": {
+      "path": "assets/icon-settings-dark.png",
+      "mime": "image/png",
+      "sha256": "feb442f8983e95fdf76fa14065fb9e7f28945f21a3bf3ff2053f7ea3a673daba",
+      "bytes": 4935,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/settings.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-sliders-light": {
+      "path": "assets/icon-sliders-light.png",
+      "mime": "image/png",
+      "sha256": "b4999c24ff8bc8ed89428fad45bc63b2b3110a6e2a4f0a18c56a729e03434ad4",
+      "bytes": 1226,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/sliders.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-sliders-dark": {
+      "path": "assets/icon-sliders-dark.png",
+      "mime": "image/png",
+      "sha256": "a298b8ab67b177196f3fc5160a3a5a6b95361f45d85a9e686a379dd7118746b5",
+      "bytes": 1416,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/sliders.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-sun-light": {
+      "path": "assets/icon-sun-light.png",
+      "mime": "image/png",
+      "sha256": "3696e7f7a6b61bbd4e07a728828c69062a1721ae066e5dda0add842675e91f58",
+      "bytes": 5174,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/sun.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-sun-dark": {
+      "path": "assets/icon-sun-dark.png",
+      "mime": "image/png",
+      "sha256": "b2c6a74131b90f486f78706cfc6a6ae13cd13099d953b9229f783b1134f6e10d",
+      "bytes": 5871,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/sun.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-moon-light": {
+      "path": "assets/icon-moon-light.png",
+      "mime": "image/png",
+      "sha256": "a0bcb8978f333e79ffd07085564ea08a83831dd57687679535ed3af68df7b23a",
+      "bytes": 3306,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/moon.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-moon-dark": {
+      "path": "assets/icon-moon-dark.png",
+      "mime": "image/png",
+      "sha256": "c46305de636b57ec6884b3dad4b9eda5a3b81efd4d9e6431c2a7f4f822c37d2d",
+      "bytes": 3912,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/moon.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-palette-light": {
+      "path": "assets/icon-palette-light.png",
+      "mime": "image/png",
+      "sha256": "37d70475f16a1c08cb277554348cb0a6c381a249eb6ffec2d1062163762875f6",
+      "bytes": 5462,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/palette.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-palette-dark": {
+      "path": "assets/icon-palette-dark.png",
+      "mime": "image/png",
+      "sha256": "612de3a55d4d9715b4e931178c1efa0db72f3c81df1ccec1beac98d34cd1e767",
+      "bytes": 6132,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/palette.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-download-light": {
+      "path": "assets/icon-download-light.png",
+      "mime": "image/png",
+      "sha256": "59f4c8647b7373a81808acd3d95d17417e42763601db4a3d6921324a3be1a891",
+      "bytes": 1755,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/download.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-download-dark": {
+      "path": "assets/icon-download-dark.png",
+      "mime": "image/png",
+      "sha256": "5ffe3685ffcc4f3ae7f1b91e1a451e775a8316cc26f9f11e2ea0b0dd7f8be3f5",
+      "bytes": 1950,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/download.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-shield-light": {
+      "path": "assets/icon-shield-light.png",
+      "mime": "image/png",
+      "sha256": "4d120e1dcde97addd03535377f97200637411bc32f45c271c0386cbbdeb093c6",
+      "bytes": 1800,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/shield.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-shield-dark": {
+      "path": "assets/icon-shield-dark.png",
+      "mime": "image/png",
+      "sha256": "788e214aed8166d655015cf5ea2b26a0aef8bacf1470d21575ce71bbb43615b8",
+      "bytes": 2001,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/shield.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-expand-light": {
+      "path": "assets/icon-expand-light.png",
+      "mime": "image/png",
+      "sha256": "72c3b25cccdf42c8b78c54214e764ec205724ee73f5d0c5fc88cb0122151dac8",
+      "bytes": 1770,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/expand.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-expand-dark": {
+      "path": "assets/icon-expand-dark.png",
+      "mime": "image/png",
+      "sha256": "44d30b99cb134d4c1606abb4ade911f5d4fcafb111c9d8e9283707c91ad0774b",
+      "bytes": 1916,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/expand.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-plugin-light": {
+      "path": "assets/icon-plugin-light.png",
+      "mime": "image/png",
+      "sha256": "a99017c83cbce83cb7ba37b24353cb24d856123b96a39563a6404e7a8ee567e8",
+      "bytes": 2042,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/plugin.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-plugin-dark": {
+      "path": "assets/icon-plugin-dark.png",
+      "mime": "image/png",
+      "sha256": "c054f9058e2612aa3f1ea14ad3cd3878d8441bd63f4c1f263b3b84f47ced9054",
+      "bytes": 2228,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/plugin.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-skill-light": {
+      "path": "assets/icon-skill-light.png",
+      "mime": "image/png",
+      "sha256": "d24ccdbc670c2618b5adfbcab92bdf92f6852751d496a676ee80ecfbc8cc6dc1",
+      "bytes": 3800,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/skill.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-skill-dark": {
+      "path": "assets/icon-skill-dark.png",
+      "mime": "image/png",
+      "sha256": "f2a8b1e263d74728455f17ef6721e802a667b6c7cc6e96a19267d0b0cfab840a",
+      "bytes": 4310,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/skill.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-model-light": {
+      "path": "assets/icon-model-light.png",
+      "mime": "image/png",
+      "sha256": "d9f2075a57889192cb80020e523a8adc4bde236977ff35b5fcbc8cb4727cf146",
+      "bytes": 3191,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/model.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-model-dark": {
+      "path": "assets/icon-model-dark.png",
+      "mime": "image/png",
+      "sha256": "2b9130b8383c380516c7a13af5c23e2628800e1e596e3d5e882378ecfa5f387f",
+      "bytes": 3460,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/model.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-agent-light": {
+      "path": "assets/icon-agent-light.png",
+      "mime": "image/png",
+      "sha256": "43c1392b1368909771bfd260155f9d5e6417a64d14ec1b4faa3b19a3520c1b59",
+      "bytes": 2419,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/agent.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-agent-dark": {
+      "path": "assets/icon-agent-dark.png",
+      "mime": "image/png",
+      "sha256": "5d97b2a81a70f617ca2c16c67b8c3fbc7cf0aa9814eda0ad086ea876409b17ea",
+      "bytes": 2727,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/agent.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-question-light": {
+      "path": "assets/icon-question-light.png",
+      "mime": "image/png",
+      "sha256": "b5c6fc3ab1517e78b4d6c1e7f0836002b868940c53084fa3a72df0e482369b32",
+      "bytes": 3745,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/question.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-question-dark": {
+      "path": "assets/icon-question-dark.png",
+      "mime": "image/png",
+      "sha256": "11b2f828c214877d6119918cfeba49c658cb9b22131708b64b4b48bbf36ccb16",
+      "bytes": 4175,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/question.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-plan-light": {
+      "path": "assets/icon-plan-light.png",
+      "mime": "image/png",
+      "sha256": "f33c3be179ba2a13dcbeea7c0e152b3a27306ca4b697f73febe3394bfcc31ef8",
+      "bytes": 2632,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/plan.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-plan-dark": {
+      "path": "assets/icon-plan-dark.png",
+      "mime": "image/png",
+      "sha256": "b515130a395c2abeaa2f47670fb5b802de30f22ee6ec573768dd36d9969d285f",
+      "bytes": 3005,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/plan.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-inbox-light": {
+      "path": "assets/icon-inbox-light.png",
+      "mime": "image/png",
+      "sha256": "f3a5e63a4e66ae9948be537a99c8ce8f5d0f589826e4ab4e342ccdf38ed9a743",
+      "bytes": 2794,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/inbox.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-inbox-dark": {
+      "path": "assets/icon-inbox-dark.png",
+      "mime": "image/png",
+      "sha256": "9413e79e8d70b24f4c07fdf0a8ece89c2b289955f1b1825efdccf8184fcf0b2f",
+      "bytes": 3121,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/inbox.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-git-diff-light": {
+      "path": "assets/icon-git-diff-light.png",
+      "mime": "image/png",
+      "sha256": "59b716f9011805e4ae713a04d3c3681c139fafae6725d1e372a9116dbc43bba4",
+      "bytes": 2180,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/light-neutral/git-diff.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "icon-git-diff-dark": {
+      "path": "assets/icon-git-diff-dark.png",
+      "mime": "image/png",
+      "sha256": "00ac7b619c4d7b57fbc0c7ec953ad0a7c856c80dfe3f63d9c9c0ded8572c3c02",
+      "bytes": 2463,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "素材包 exports/icons/dark-neutral/git-diff.png",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "mark-light": {
+      "path": "assets/mark-light.png",
+      "mime": "image/png",
+      "sha256": "03a44db865fd5dabe73bb2aedfd6f7ae7ceed2824c64504c23b0a99a7d06b72e",
+      "bytes": 7487,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "随素材包提供（烬角 · 黑焰 v3.6）",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "mark-dark": {
+      "path": "assets/mark-dark.png",
+      "mime": "image/png",
+      "sha256": "3e58db775dcd6d0fe95ad256a72a21f9ee15f335ff0ad9a69d3e2552bf8831af",
+      "bytes": 6902,
+      "width": 96,
+      "height": 96,
+      "alpha": true,
+      "source": "随素材包提供（烬角 · 黑焰 v3.6）",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "chat-bg": {
+      "path": "assets/chat-bg.png",
+      "mime": "image/png",
+      "sha256": "993845935deab5c73b91765aa3a937fe031c73b2db7f206ba05ec0f498a490a0",
+      "bytes": 85264,
+      "width": 1440,
+      "height": 900,
+      "source": "随素材包提供（烬角 · 黑焰 v3.6）",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "opening-poster": {
+      "path": "assets/opening-poster.png",
+      "mime": "image/png",
+      "sha256": "587d6a40db0df453073f85e5b972fd0eb7dfbc5b9337a395db56cf210a838ba9",
+      "bytes": 839815,
+      "width": 1280,
+      "height": 720,
+      "source": "取自素材包 v3.6 成片 9.0 s 的干净帧（1280×720），无落版主题字",
+      "license": "Dr.S 授权，禁止转发"
+    },
+    "opening-film": {
+      "path": "assets/opening-film.mp4",
+      "mime": "video/mp4",
+      "sha256": "1dd9b454683ca524e4930575019a6e521c0b3d6ec890c7e6fa5b4d67a7ab9c01",
+      "bytes": 7612044,
+      "width": 1280,
+      "height": 720,
+      "source": "素材包 v3.6 成片本地裁切：9.35 s 处截断（原 10.495 s），去掉 9.5 s 起的落版主题字，音频尾 0.35 s 淡出",
+      "license": "Dr.S 授权，禁止转发"
+    }
+  },
+  "modules": {
+    "theme": {
+      "interfaceVersion": 1,
+      "configVersion": 3,
+      "required": true,
+      "config": {
+        "tokens": {
+          "--dsw-alias-bg-base": {
+            "light": "#F4EDE6",
+            "dark": "#0F0A12"
+          },
+          "--dsw-alias-bg-layer-1": {
+            "light": "#FFF8F2",
+            "dark": "#1B1118"
+          },
+          "--dsw-alias-bg-layer-2": {
+            "light": "#F7EFE9",
+            "dark": "#24151C"
+          },
+          "--dsw-alias-bg-layer-3": {
+            "light": "#FFFCF8",
+            "dark": "#2C1A22"
+          },
+          "--dsw-alias-bg-overlay": {
+            "light": "#FFFCF8",
+            "dark": "#241A21"
+          },
+          "--dsw-alias-bg-skeleton": {
+            "light": "#E9DED5",
+            "dark": "#24151C"
+          },
+          "--dsw-alias-bg-mask-1": {
+            "light": "#0000000D",
+            "dark": "#FFFFFF0A"
+          },
+          "--dsw-alias-bg-mask-2": {
+            "light": "#0000001A",
+            "dark": "#FFFFFF12"
+          },
+          "--dsw-alias-bg-mask-3": {
+            "light": "#0000002E",
+            "dark": "#FFFFFF1F"
+          },
+          "--dsw-alias-bg-mask-drop": {
+            "light": "#00000026",
+            "dark": "#FFFFFF14"
+          },
+          "--dsw-alias-bg-mask-photo": {
+            "light": "#00000059",
+            "dark": "#FFFFFF2E"
+          },
+          "--dsw-alias-bg-module-platform": {
+            "light": "#EFE5DC",
+            "dark": "#1F1319"
+          },
+          "--dsw-alias-bg-multi-select": {
+            "light": "#F7E3DC",
+            "dark": "#3A1E1C"
+          },
+          "--dsw-alias-bg-document-preview": {
+            "light": "#FFFCF8",
+            "dark": "#241A21"
+          },
+          "--dsw-alias-bg-document-selection": {
+            "light": "#F3DAD2",
+            "dark": "#3A1E1C"
+          },
+          "--dsw-alias-border-inverted": {
+            "light": "#2A1A18",
+            "dark": "#F4E3D8"
+          },
+          "--dsw-alias-border-inverted2": {
+            "light": "#4A322D",
+            "dark": "#D6BAAD"
+          },
+          "--dsw-alias-border-l1": {
+            "light": "#E8DAD0",
+            "dark": "#241519"
+          },
+          "--dsw-alias-border-l2": {
+            "light": "#DCC3B4",
+            "dark": "#3B2229"
+          },
+          "--dsw-alias-border-l2-darkmode-thin": {
+            "light": "#E8DAD0",
+            "dark": "#382027"
+          },
+          "--dsw-alias-border-l3": {
+            "light": "#C6A897",
+            "dark": "#4E2E36"
+          },
+          "--dsw-alias-border-l4": {
+            "light": "#AE8F7E",
+            "dark": "#63404A"
+          },
+          "--dsw-alias-label-caption": {
+            "light": "#8F7670",
+            "dark": "#997C72"
+          },
+          "--dsw-alias-label-deep-diving": {
+            "light": "#C0282E",
+            "dark": "#FF8A5C"
+          },
+          "--dsw-alias-label-deep-diving-shimmer": {
+            "light": "#F0B49C",
+            "dark": "#FFC9A8"
+          },
+          "--dsw-alias-label-dimmed": {
+            "light": "#A08E88",
+            "dark": "#7E6660"
+          },
+          "--dsw-alias-label-document-preview": {
+            "light": "#2A1A18",
+            "dark": "#F4E3D8"
+          },
+          "--dsw-alias-label-primary": {
+            "light": "#2A1A18",
+            "dark": "#F4E3D8"
+          },
+          "--dsw-alias-label-primary-bluish": {
+            "light": "#2A2228",
+            "dark": "#E8D6CC"
+          },
+          "--dsw-alias-label-primary-dimmed": {
+            "light": "#3D2A25",
+            "dark": "#DCC6BA"
+          },
+          "--dsw-alias-label-primary-foreground": {
+            "light": "#FFF8F2",
+            "dark": "#0F0A12"
+          },
+          "--dsw-alias-label-primary-inverted": {
+            "light": "#FFF8F2",
+            "dark": "#0F0A12"
+          },
+          "--dsw-alias-label-secondary": {
+            "light": "#5C423C",
+            "dark": "#D6BAAD"
+          },
+          "--dsw-alias-label-shimmer": {
+            "light": "#E8D7C8",
+            "dark": "#3A2A24"
+          },
+          "--dsw-alias-label-tertiary": {
+            "light": "#7D615C",
+            "dark": "#A98A80"
+          },
+          "--dsw-alias-menu-group-header-fill": {
+            "light": "#EFE5DC",
+            "dark": "#1F1319"
+          },
+          "--dsw-alias-menu-icon": {
+            "light": "#5C423C",
+            "dark": "#D6BAAD"
+          },
+          "--dsw-alias-scrollbar-bg-l1": {
+            "light": "#E8DAD0",
+            "dark": "#2A1A22"
+          },
+          "--dsw-alias-scrollbar-bg-l2": {
+            "light": "#EFE5DC",
+            "dark": "#241720"
+          },
+          "--dsw-alias-scrollbar-hover-l1": {
+            "light": "#D6BFB0",
+            "dark": "#4E2E36"
+          },
+          "--dsw-alias-scrollbar-hover-l2": {
+            "light": "#DCC3B4",
+            "dark": "#3B2229"
+          },
+          "--dsw-alias-state-business-primary": {
+            "light": "#C0282E",
+            "dark": "#FF6A3C"
+          },
+          "--dsw-alias-state-business-tertiary": {
+            "light": "#F7E3DC",
+            "dark": "#3A1E1C"
+          },
+          "--dsw-alias-state-error-primary": {
+            "light": "#C0282E",
+            "dark": "#E6454C"
+          },
+          "--dsw-alias-state-error-secondary": {
+            "light": "#F3DAD2",
+            "dark": "#3A1E1C"
+          },
+          "--dsw-alias-state-idle-primary": {
+            "light": "#8F7670",
+            "dark": "#7E6660"
+          },
+          "--dsw-alias-state-success-primary": {
+            "light": "#3A7D44",
+            "dark": "#46A960"
+          },
+          "--dsw-alias-state-success-secondary": {
+            "light": "#E7F0E6",
+            "dark": "#1F3A28"
+          },
+          "--dsw-alias-state-success-tertiary": {
+            "light": "#EAF3E7",
+            "dark": "#1B3A22"
+          },
+          "--dsw-alias-state-warn-label": {
+            "light": "#8A5A16",
+            "dark": "#FFD08A"
+          },
+          "--dsw-alias-state-warn-primary": {
+            "light": "#D48828",
+            "dark": "#F2A93B"
+          },
+          "--dsw-alias-state-warn-secondary": {
+            "light": "#FBF0DE",
+            "dark": "#3A2A12"
+          },
+          "--dsw-alias-state-warn-tertiary": {
+            "light": "#FDF7EC",
+            "dark": "#2E2411"
+          },
+          "--dsw-alias-switch-thumb": {
+            "light": "#FFF8F2",
+            "dark": "#F4E3D8"
+          },
+          "--dsw-alias-toast-bg": {
+            "light": "#2A1A18",
+            "dark": "#2C1A22"
+          },
+          "--dsw-alias-toast-label": {
+            "light": "#FFF8F2",
+            "dark": "#F4E3D8"
+          },
+          "--dsw-alias-tooltip-bg": {
+            "light": "#2A1A18",
+            "dark": "#2C1A22"
+          },
+          "--dsw-alias-tooltip-key-bg": {
+            "light": "#4A322D",
+            "dark": "#3B2229"
+          },
+          "--dsw-alias-turn-trigger-bg": {
+            "light": "#EFE5DC",
+            "dark": "#241720"
+          },
+          "--dsw-alias-turn-trigger-bg-hover": {
+            "light": "#E8DAD0",
+            "dark": "#2C1A22"
+          },
+          "--dsw-specific-bubble": {
+            "light": "#F7EFE9",
+            "dark": "#24151C"
+          },
+          "--dsw-specific-bubble-highlight": {
+            "light": "#F7E3DC",
+            "dark": "#3A1E1C"
+          },
+          "--dsw-specific-input-major": {
+            "light": "#FFF8F2",
+            "dark": "#1B1118"
+          },
+          "--dsw-specific-login-input": {
+            "light": "#FFF8F2",
+            "dark": "#1B1118"
+          },
+          "--dsw-specific-menu": {
+            "light": "#FFF8F2",
+            "dark": "#1B1118"
+          },
+          "--dsw-specific-selector": {
+            "light": "#F7EFE9",
+            "dark": "#24151C"
+          },
+          "--dsw-specific-sidebar-fill": {
+            "light": "#EFE6DD",
+            "dark": "#150D13"
+          },
+          "--dsw-specific-sidebar-nav-item-active": {
+            "light": "#F7E3DC",
+            "dark": "#3A1E1C"
+          },
+          "--dsw-specific-sidebar-nav-item-active-accent": {
+            "light": "#C0282E",
+            "dark": "#FF6A3C"
+          },
+          "--dsw-specific-sidebar-nav-item-hover": {
+            "light": "#F3E9E1",
+            "dark": "#241720"
+          },
+          "--dsw-specific-tip": {
+            "light": "#EFE5DC",
+            "dark": "#241A21"
+          }
+        },
+        "background": "chat-bg",
+        "workspacePreset": "commander-v1",
+        "semanticIcons": {
+          "workspace": {
+            "light": "icon-workspace-light",
+            "dark": "icon-workspace-dark"
+          },
+          "compose": {
+            "light": "icon-compose-light",
+            "dark": "icon-compose-dark"
+          },
+          "conversation": {
+            "light": "icon-conversation-light",
+            "dark": "icon-conversation-dark"
+          },
+          "search": {
+            "light": "icon-search-light",
+            "dark": "icon-search-dark"
+          },
+          "panel-left": {
+            "light": "icon-panel-left-light",
+            "dark": "icon-panel-left-dark"
+          },
+          "folder": {
+            "light": "icon-folder-light",
+            "dark": "icon-folder-dark"
+          },
+          "folder-open": {
+            "light": "icon-folder-open-light",
+            "dark": "icon-folder-open-dark"
+          },
+          "pin": {
+            "light": "icon-pin-light",
+            "dark": "icon-pin-dark"
+          },
+          "archive": {
+            "light": "icon-archive-light",
+            "dark": "icon-archive-dark"
+          },
+          "more": {
+            "light": "icon-more-light",
+            "dark": "icon-more-dark"
+          },
+          "attachment": {
+            "light": "icon-attachment-light",
+            "dark": "icon-attachment-dark"
+          },
+          "link": {
+            "light": "icon-link-light",
+            "dark": "icon-link-dark"
+          },
+          "copy": {
+            "light": "icon-copy-light",
+            "dark": "icon-copy-dark"
+          },
+          "retry": {
+            "light": "icon-retry-light",
+            "dark": "icon-retry-dark"
+          },
+          "edit": {
+            "light": "icon-edit-light",
+            "dark": "icon-edit-dark"
+          },
+          "branch": {
+            "light": "icon-branch-light",
+            "dark": "icon-branch-dark"
+          },
+          "send": {
+            "light": "icon-send-light",
+            "dark": "icon-send-dark"
+          },
+          "stop": {
+            "light": "icon-stop-light",
+            "dark": "icon-stop-dark"
+          },
+          "chevron-down": {
+            "light": "icon-chevron-down-light",
+            "dark": "icon-chevron-down-dark"
+          },
+          "chevron-right": {
+            "light": "icon-chevron-right-light",
+            "dark": "icon-chevron-right-dark"
+          },
+          "plus": {
+            "light": "icon-plus-light",
+            "dark": "icon-plus-dark"
+          },
+          "terminal": {
+            "light": "icon-terminal-light",
+            "dark": "icon-terminal-dark"
+          },
+          "external": {
+            "light": "icon-external-light",
+            "dark": "icon-external-dark"
+          },
+          "file-code": {
+            "light": "icon-file-code-light",
+            "dark": "icon-file-code-dark"
+          },
+          "file-table": {
+            "light": "icon-file-table-light",
+            "dark": "icon-file-table-dark"
+          },
+          "file-image": {
+            "light": "icon-file-image-light",
+            "dark": "icon-file-image-dark"
+          },
+          "file-text": {
+            "light": "icon-file-text-light",
+            "dark": "icon-file-text-dark"
+          },
+          "check": {
+            "light": "icon-check-light",
+            "dark": "icon-check-dark"
+          },
+          "clock": {
+            "light": "icon-clock-light",
+            "dark": "icon-clock-dark"
+          },
+          "alert": {
+            "light": "icon-alert-light",
+            "dark": "icon-alert-dark"
+          },
+          "info": {
+            "light": "icon-info-light",
+            "dark": "icon-info-dark"
+          },
+          "play": {
+            "light": "icon-play-light",
+            "dark": "icon-play-dark"
+          },
+          "pause": {
+            "light": "icon-pause-light",
+            "dark": "icon-pause-dark"
+          },
+          "close": {
+            "light": "icon-close-light",
+            "dark": "icon-close-dark"
+          },
+          "settings": {
+            "light": "icon-settings-light",
+            "dark": "icon-settings-dark"
+          },
+          "sliders": {
+            "light": "icon-sliders-light",
+            "dark": "icon-sliders-dark"
+          },
+          "sun": {
+            "light": "icon-sun-light",
+            "dark": "icon-sun-dark"
+          },
+          "moon": {
+            "light": "icon-moon-light",
+            "dark": "icon-moon-dark"
+          },
+          "palette": {
+            "light": "icon-palette-light",
+            "dark": "icon-palette-dark"
+          },
+          "download": {
+            "light": "icon-download-light",
+            "dark": "icon-download-dark"
+          },
+          "shield": {
+            "light": "icon-shield-light",
+            "dark": "icon-shield-dark"
+          },
+          "expand": {
+            "light": "icon-expand-light",
+            "dark": "icon-expand-dark"
+          },
+          "plugin": {
+            "light": "icon-plugin-light",
+            "dark": "icon-plugin-dark"
+          },
+          "skill": {
+            "light": "icon-skill-light",
+            "dark": "icon-skill-dark"
+          },
+          "model": {
+            "light": "icon-model-light",
+            "dark": "icon-model-dark"
+          },
+          "agent": {
+            "light": "icon-agent-light",
+            "dark": "icon-agent-dark"
+          },
+          "question": {
+            "light": "icon-question-light",
+            "dark": "icon-question-dark"
+          },
+          "plan": {
+            "light": "icon-plan-light",
+            "dark": "icon-plan-dark"
+          },
+          "inbox": {
+            "light": "icon-inbox-light",
+            "dark": "icon-inbox-dark"
+          },
+          "git-diff": {
+            "light": "icon-git-diff-light",
+            "dark": "icon-git-diff-dark"
+          }
+        },
+        "entryMarks": {
+          "light": "mark-light",
+          "dark": "mark-dark"
+        }
+      },
+      "settings": {
+        "backgroundOpacity": {
+          "label": "背景浓度",
+          "default": 0.04
+        },
+        "entryMarkEnabled": {
+          "label": "入口标识",
+          "default": true
+        },
+        "workspaceDetailsEnabled": {
+          "label": "工作区细节",
+          "default": true
+        },
+        "workspaceMotionEnabled": {
+          "label": "界面动效",
+          "default": true
+        },
+        "workFeedbackEnabled": {
+          "label": "工作反馈",
+          "default": true
+        }
+      }
+    },
+    "startup": {
+      "interfaceVersion": 1,
+      "configVersion": 3,
+      "required": false,
+      "config": {
+        "poster": "opening-poster",
+        "video": "opening-film",
+        "seconds": 9.4,
+        "handoffSeconds": 0.35,
+        "stillSeconds": 1.2,
+        "greeting": "黑焰",
+        "subtitle": "封存体解除 · 单元苏醒"
+      },
+      "settings": {
+        "reducedMotion": {
+          "label": "减少开场动态",
+          "default": false
+        },
+        "soundEnabled": {
+          "label": "开场声音",
+          "default": true
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "type": "design",
+  "designSystems": [],
+  "primaryDesignSystem": null,
+  "assets": {
+    "鲸鱼娘 · A1/A2边缘对照": {
+      "versions": [
+        {
+          "path": "index.html",
+          "createdAt": "2026-11-03T13:46:44.010Z",
+          "status": "needs-review",
+          "subtitle": "单轮派生媒体候选；原A1与0.5.2保留",
+          "viewport": {
+            "width": 1280,
+            "height": 1000
+          }
+        }
+      ]
+    }
+  },
+  "createdAt": "2026-11-03T13:46:44.014Z",
+  "updatedAt": "2026-11-03T13:46:44.014Z"
+}

@@ -1,0 +1,65 @@
+{
+  "status": "originals-received; visual-review-pending",
+  "files": [
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/character/jimeng-flash-master-04-source.png",
+      "size": [
+        1664,
+        2496
+      ],
+      "mode": "RGB",
+      "bytes": 2979602,
+      "sha256": "53609dd32af4f43cac034e4f16ab0106ea48a405284f41068a62665afbb8fc62"
+    },
+    {
+      "file": "素材/图片+2.png",
+      "size": [
+        1664,
+        2496
+      ],
+      "mode": "RGB",
+      "bytes": 3256058,
+      "sha256": "2440bc3a4f0789635730c46357675fb6e8da2d384e7e3fa83cbda29146fd6d93"
+    },
+    {
+      "file": "素材/图片+3.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "RGB",
+      "bytes": 3545368,
+      "sha256": "ca496eece8bbe4ffdc80adc303f431d081d0d5325ee8fb17dc294a894ca84df9"
+    },
+    {
+      "file": "素材/图片+4.png",
+      "size": [
+        1664,
+        2496
+      ],
+      "mode": "RGB",
+      "bytes": 3351683,
+      "sha256": "e51be3c0caddf6c56db8fa4ec6d3ce6486c5b31663431ca9484ed0dd1bdc0cb3"
+    },
+    {
+      "file": "素材/图片+5.png",
+      "size": [
+        1664,
+        2496
+      ],
+      "mode": "RGB",
+      "bytes": 3034455,
+      "sha256": "772fdeb40b730ec0235750bbc2eb0f5dbd386d4740e88099eeb811c23d23a709"
+    },
+    {
+      "file": "素材/图片+6.png",
+      "size": [
+        2496,
+        1664
+      ],
+      "mode": "RGB",
+      "bytes": 2393322,
+      "sha256": "9cd49811ce2ff28c9d9d335199eddca743dd8309c54a0f742d3a9e230078e973"
+    }
+  ]
+}

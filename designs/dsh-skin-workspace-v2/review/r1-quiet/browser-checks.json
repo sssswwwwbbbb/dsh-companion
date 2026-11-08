@@ -1,0 +1,244 @@
+{
+  "scope": "independent local design prototype; synthetic data and replies only",
+  "date": "2026-11-04",
+  "initialFunctionalChecks": [
+    {
+      "case": "explicit attention resolution",
+      "complete": true,
+      "draft": "先只整理这两份资料，其他的稍后补充。",
+      "resolution": " 已确认：仅本地资料"
+    },
+    {
+      "alert": "这轮回复没有完成",
+      "case": "error preserves input",
+      "draft": "先只整理这两份资料，其他的稍后补充。",
+      "successReceiptAbsent": true
+    },
+    {
+      "case": "retry and copy",
+      "copyFeedback": "已复制",
+      "state": "complete"
+    },
+    {
+      "case": "source tab keyboard",
+      "focus": "文件 3",
+      "selected": "文件 3"
+    },
+    {
+      "case": "session menu keyboard and Escape",
+      "closed": true,
+      "focus": "会话「整理工作区观察」的更多操作"
+    },
+    {
+      "case": "focus reading",
+      "restoreVisible": true,
+      "sidebarHidden": true,
+      "sourceHidden": true
+    },
+    {
+      "case": "focus restored",
+      "overflow": false,
+      "sidebarWidth": 64,
+      "sourceVisible": true
+    },
+    {
+      "case": "empty search",
+      "emptyMessageVisible": true,
+      "sessionRows": 0
+    },
+    {
+      "case": "new conversation starter",
+      "draft": "帮我整理这份资料，保留结论、来源和待确认项。",
+      "notSent": true
+    },
+    {
+      "case": "new session during local reply",
+      "oldReplyAbsent": true,
+      "title": "新会话"
+    },
+    {
+      "case": "local reply belongs to source conversation",
+      "replies": 1,
+      "status": "complete",
+      "userMessages": 1
+    }
+  ],
+  "resolvedStopCheck": {
+    "header": "已停止",
+    "inkRemoved": true,
+    "lastNeutral": true,
+    "lastReceipt": "本轮已停止",
+    "reactHidden": true
+  },
+  "finiteWaiting": {
+    "inkRemoved": true,
+    "status": "执行中",
+    "successAbsent": true
+  },
+  "completionEchoStart": {
+    "idlePaused": true,
+    "reactHidden": false,
+    "reactLoop": false,
+    "reactPaused": false,
+    "reactTime": 0.1821,
+    "state": "已回复"
+  },
+  "completionEchoReturnedIdle": {
+    "idlePlaying": true,
+    "idleVisible": true,
+    "reactHidden": true,
+    "reactPaused": true,
+    "reactTime": 0
+  },
+  "newPageDuringInput": {
+    "emptyClip": "inset(0px 0px 0.000162366px)",
+    "emptyOpacity": "0.999996",
+    "emptyTransform": "matrix(1, 0, 0, 1, 0, 0.000108244)",
+    "inputEnabled": true,
+    "inputFocused": true
+  },
+  "readingRestore": {
+    "before": {
+      "content": 1340,
+      "height": 631,
+      "top": 709.5,
+      "window": [
+        1440,
+        900
+      ]
+    },
+    "after": {
+      "content": 1340,
+      "height": 631,
+      "top": 709.5,
+      "window": [
+        1440,
+        900
+      ]
+    }
+  },
+  "newReplyPreservesOldContent": true,
+  "returnToLatestExercised": true,
+  "motionOff": {
+    "echo": false,
+    "reactHidden": true,
+    "status": "已回复",
+    "transition": "0s",
+    "uiMotion": false
+  },
+  "pendingWithEffectsOff": {
+    "details": "false",
+    "draft": "请继续保留这些资料的出处。",
+    "questionVisible": true,
+    "reactHidden": true,
+    "sourceHidden": true,
+    "state": "attention"
+  },
+  "systemReducedMotion": {
+    "allMediaPaused": true,
+    "explicitReduce": false,
+    "pending": "attention",
+    "supported": true,
+    "transition": "0s"
+  },
+  "offscreenMedia": {
+    "allMediaPaused": true,
+    "workspaceHidden": true
+  },
+  "newConversationSources": {
+    "citationCount": "0",
+    "citationHighlighted": false,
+    "fileUsage": "位置我的工作台使用方式文件预览",
+    "inputFocused": true
+  },
+  "sentAttachment": {
+    "citationCount": "0",
+    "citationHighlighted": false,
+    "sentAttachments": 1,
+    "sourceVisible": true
+  },
+  "completionInView": {
+    "reactLoop": false,
+    "reactVisible": true,
+    "readingBottom": 732.5,
+    "receiptBottom": 712.390625
+  },
+  "desktopUserViewport": {
+    "actionsLeft": 964,
+    "composerBottom": 707,
+    "overflow": false,
+    "readingOverflow": false,
+    "reviewTitleRight": 303.3828125,
+    "tabsLeft": 535.6953125,
+    "tabsRight": 731.6953125,
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  "narrowDesktop": {
+    "composerBottom": 747,
+    "overflow": false,
+    "pending": "需处理",
+    "reactHidden": true,
+    "readingOverflow": false,
+    "viewport": [
+      1100,
+      760
+    ]
+  },
+  "iconCount": {
+    "allMediaPaused": true,
+    "count": 56,
+    "lastBottom": 1207.28125,
+    "viewport": [
+      1440,
+      1280
+    ]
+  },
+  "opticalSamples": [
+    [
+      16,
+      16
+    ],
+    [
+      20,
+      20
+    ],
+    [
+      24,
+      24
+    ]
+  ],
+  "fileSearchMatches": 4,
+  "screenshots": [
+    "desktop.png",
+    "user-1280.png",
+    "citation-process.png",
+    "dark.png",
+    "attention-1100.png",
+    "completion.png",
+    "new-page.png",
+    "icons-light.png",
+    "icons-dark.png",
+    "icon-detail.png",
+    "notes.png",
+    "user-1218.png"
+  ],
+  "consoleWarningsOrErrors": [],
+  "limits": [
+    "No real DSH/model/profile/native integration acceptance",
+    "No FPS or long-run performance measurement",
+    "Deletion remains host-governed candidate, not implemented as a new protocol",
+    "Screenshots show rendered endpoints; motion also exercised live and media playback checked"
+  ],
+  "nativeViewport": {
+    "pageOverflow": false,
+    "readingOverflow": false,
+    "viewport": [
+      1218,
+      760
+    ]
+  },
+  "modelGlyphDisplayPx": 16
+}

@@ -1,0 +1,112 @@
+--- a/staging/runtime-src/backend.mjs
++++ b/staging/runtime-src/backend.mjs
+@@ -48,7 +48,8 @@
+   const home=path.join(this.dir,'home'),animation=path.join(home,'dsh-pet/main-animation/webm');fs.mkdirSync(animation,{recursive:true});
+   const cfg=JSON.parse(fs.readFileSync(path.join(this.lab,'backend-template/config.json')));
+   const names={idle:entry.group+'-idle',react:entry.group+'-react',...(entry.walk?{walk:'master-walk-left'}:{})};
+-  for(const [action,name]of Object.entries(names)){
++  const mediaNames=entry.media.turnFront?{...names,turnFront:'master-turn-front'}:names;
++  for(const [action,name]of Object.entries(mediaNames)){
+    const f=path.join(this.lab,'backend-template',entry.media[action].file),data=fs.readFileSync(f);
+    if(hash(data)!==entry.media[action].sha256)throw new Error('BACKEND_DERIVATIVE_CHANGED');
+    fs.writeFileSync(path.join(animation,name+'.webm'),data);
+@@ -67,7 +68,9 @@
+   const props={};const helper=path.join(this.lab,'dsh-pet/runtime/electron-helper');
+   fs.mkdirSync(path.join(helper,'content-assets'),{recursive:true});
+   for(const item of entry.props){const asset=resources[item.asset];fs.writeFileSync(path.join(helper,'content-assets',item.id+'.png'),asset.data);props[item.id]=item.geometry;}
+-  const data={profiles,animations:Object.fromEntries(Object.entries(names).map(([a,n])=>[n,{group:entry.group,loop:a==='idle',movement:a==='walk'}])),props};
++  const animations=Object.fromEntries(Object.entries(mediaNames).map(([a,n])=>[n,{group:entry.group,loop:a==='idle',movement:a==='walk'}]));
++  if(mediaNames.turnFront)animations[names.walk].turnFront=mediaNames.turnFront;
++  const data={profiles,animations,props};
+   fs.writeFileSync(path.join(helper,'content-profiles.js'),'globalThis.DshContentProfiles='+JSON.stringify(data)+';\n');
+   fs.writeFileSync(path.join(helper,'content-context.js'),'globalThis.DshCompanionContent='+JSON.stringify({contentKey,group:entry.group,managedHost:true})+';\n');
+   for(const file of ['connection.json','snapshot.json','quit.json','reveal.json'])fs.rmSync(path.join(this.dir,file),{force:true});
+--- a/staging/runtime-src/candidate-map.mjs
++++ b/staging/runtime-src/candidate-map.mjs
+@@ -10,6 +10,10 @@
+   if(!Object.keys(e.requiredAssets||{}).length||!Object.entries(e.requiredAssets).every(([a,h])=>id(a)&&sha(h)))fail();
+   for(const action of ['idle','react'])if(!e.media?.[action]||!/^[a-z][a-z0-9-]+\.webm$/.test(e.media[action].file)||!sha(e.media[action].sha256))fail();
+   if(e.walk){if(e.group!=='master'||e.walk.direction!=='left'||e.walk.referenceWidth!==462||!finite(e.walk.distanceRef)||Math.abs(e.walk.distanceRef-e.walk.distanceLogical*462/640)>1e-6||e.walk.cycles!==6||e.walk.seconds!==11.25||!finite(e.walk.distanceLogical)||e.walk.distanceLogical<=0||e.walk.distanceLogical>1200||e.media?.walk?.file!=='master-walk-left.webm'||!sha(e.media.walk.sha256)||e.requiredAssets['master-walk-left']!==e.media.walk.sha256)fail();}
++  if(e.media?.turnFront){
++   const turn=e.media.turnFront;
++   if(!e.walk||turn.file!=='master-turn-front.webm'||turn.seconds!==0.625||!sha(turn.sha256)||e.requiredAssets['master-turn-front']!==turn.sha256)fail();
++  }
+   if(!Array.isArray(e.props)||e.props.length>2)fail();
+   for(const p of e.props)if(!['book','cup'].includes(p.id)||!id(p.asset)||!e.requiredAssets[p.asset]||!finite(p.referenceHeight)||p.referenceHeight<=0||p.groundOffset?.length!==2||!p.groundOffset.every(finite)||p.geometry?.prepared_size?.length!==2||!p.geometry.prepared_size.every(v=>finite(v)&&v>0)||!p.geometry.anchors?.ground?.every(finite))fail();
+  }
+--- a/dsh-pet/runtime/electron-helper/content-adapter.js
++++ b/dsh-pet/runtime/electron-helper/content-adapter.js
+@@ -2,6 +2,7 @@
+ 'use strict';
+ globalThis.DshContent={
+  preparePlayback(sprite,name,once,playbackId){
++  sprite.contentWalkEnd=null;
+   const spec=globalThis.DshContentProfiles.animations[name];
+   if(!spec)return once;
+   if(sprite.contentMoveActive&&!spec.movement)sprite.stopMove();
+@@ -10,6 +11,19 @@
+   if(globalThis.DshContentProfiles.profiles[spec.group].mirrorAllowed===false)sprite.facing='left';
+   return spec.loop&&!playbackId?false:once;
+  },
++ trackWalk(sprite,video,settle){
++  const next=globalThis.DshContentProfiles.animations[sprite.anim]?.turnFront;
++  if(next&&sprite.playback)sprite.contentWalkEnd={video,settle,next,playbackId:sprite.playback};
++ },
++ continueWalk(sprite,video){
++  const walk=sprite.contentWalkEnd;
++  if(walk?.video!==video)return false;
++  sprite.contentWalkEnd=null;
++  if(sprite.playback!==walk.playbackId||sprite.pending||sprite.dragState.active||!walk.settle())return false;
++  // Keep the original action receipt open until the one-shot turn ends.
++  sprite.playOnce(walk.next,walk.playbackId);
++  return true;
++ },
+  mount(sprite,stage){
+   const data=globalThis.DshContentProfiles,spec=data.animations[sprite.anim];if(!spec)return null;
+   const profile=data.profiles[spec.group],bounds=profile.hitBounds,unit=sprite.size/640;
+--- a/dsh-pet/runtime/electron-helper/sprite/motion.js
++++ b/dsh-pet/runtime/electron-helper/sprite/motion.js
+@@ -18,6 +18,7 @@
+     const token = ++this.moveToken;
+     const W = VIEW.w;
+     const H = VIEW.h;
++    const placeAt = ratioX => this.sendBounds(ratioX * W - this.halfW, startYRatio * H - this.halfH);
+     const step = () => {
+       if (this.moveToken !== token) return;
+       const t = el.currentTime || 0;
+@@ -28,7 +29,7 @@
+       // 否则规划往左、驱动往右，走完再跳回原本的方向。
+       else ratioX = startRatio + (targetRatio - startRatio) * ((t - leadSec) / travelWindow);
+       // 移动的是窗口（宠物包围盒跟随），sprite 在本窗口内不动
+-      this.sendBounds(ratioX * W - this.halfW, startYRatio * H - this.halfH);
++      placeAt(ratioX);
+       if (t < duration - tailSec) {
+         this.moveRef = requestAnimationFrame(step);
+       } else {
+@@ -37,6 +38,13 @@
+       }
+     };
+     this.moveRef = requestAnimationFrame(step);
++    globalThis.DshContent?.trackWalk(this, el, () => {
++      if (this.moveToken !== token) return false;
++      // ended can arrive before the final animation frame.
++      if (this.moveRef !== null) placeAt(targetRatio);
++      this.customPos = { rx: targetRatio, ry: startYRatio };
++      return true;
++    });
+   },
+ 
+   stopMove() {
+--- a/dsh-pet/runtime/electron-helper/sprite/playback.js
++++ b/dsh-pet/runtime/electron-helper/sprite/playback.js
+@@ -38,7 +38,9 @@
+     el.muted = true;
+     el.autoplay = true;
+     el.playsInline = true;
+-    el.onended = nextOnce ? () => this.handleEnded() : null;
++    el.onended = nextOnce ? () => {
++      if (!globalThis.DshContent?.continueWalk(this, el)) this.handleEnded();
++    } : null;
+     // 加载兜底（同浏览器端 10s 超时）：素材加载失败或卡住时必须释放 pending，否则它永久挂起——
+     // 相同目标会被防重分支吞掉、不同目标靠 gen 覆盖，表现就是「点了没反应」。
+     const loadGuard = (why) => {

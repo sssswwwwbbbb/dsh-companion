@@ -1,0 +1,74 @@
+{
+  "status": "two nonblocking review corrections completed",
+  "at": "2026-11-04T11:40:46.996862+00:00",
+  "primary_receipt": "reports/coordination/skin-assets-v3-primary/material-preparation-review.json",
+  "caption": {
+    "file": "designs/dsh-skin-assets-v3/review/react-tilt-frames.jpg",
+    "before_sha256": "c40e0a66bc8b4f1b38aed5d5aac06352f07ce4908596e708e7f175815d35974a",
+    "after_sha256": "9b9b75f31671360aae6e111f6c8877b9b69eacce86d5affdc5fd9a3a9aef260b",
+    "history": "designs/dsh-skin-assets-v3/review/motion-name-history/react-tilt-frames-before-title-fix.jpg",
+    "title": "react-tilt"
+  },
+  "source_endpoint_equality": "uncompressed generated RGBA source only; no byte equality promised after lossy VP9 decode",
+  "native_assets_unchanged_against_primary": [
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/master-04.png",
+      "sha_match": true
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/sit-01.png",
+      "sha_match": true
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/walk-a.png",
+      "sha_match": true
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/climb-a.png",
+      "sha_match": true
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/run-a.png",
+      "sha_match": true
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/lie-a.png",
+      "sha_match": true
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/book.png",
+      "sha_match": true
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/cup.png",
+      "sha_match": true
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/cushion.png",
+      "sha_match": true
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/blanket.png",
+      "sha_match": true
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/motion/idle-breathe.webm",
+      "sha_match": true
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/motion/react-tilt.webm",
+      "sha_match": true
+    }
+  ],
+  "gait_reference_video": {
+    "file": "designs/dsh-skin-assets-v3/review/gait-pace-reference.mp4",
+    "size": [
+      1280,
+      900
+    ],
+    "fps": 30.0,
+    "duration": 6.0,
+    "full_decode_passed": true,
+    "scope": "geometric illustration only"
+  }
+}

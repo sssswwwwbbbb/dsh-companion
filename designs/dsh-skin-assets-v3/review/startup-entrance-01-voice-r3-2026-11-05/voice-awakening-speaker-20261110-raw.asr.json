@@ -1,0 +1,24 @@
+{
+  "text": "開始換性",
+  "segments": [
+    {
+      "id": 0,
+      "seek": 0,
+      "start": 0.0,
+      "end": 6.44,
+      "text": "開始換性",
+      "tokens": [
+        50364,
+        21017,
+        36338,
+        21686,
+        50686
+      ],
+      "temperature": 0,
+      "avg_logprob": -1.507323424021403,
+      "compression_ratio": 0.5714285714285714,
+      "no_speech_prob": 0.11559212952852249
+    }
+  ],
+  "language": "zh"
+}

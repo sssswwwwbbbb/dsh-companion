@@ -1,0 +1,18 @@
+{
+  "source": "素材/10秒科幻游戏角色登场过场动画制作 (4).mp4",
+  "archive": "designs/dsh-skin-assets-v3/assets/cinematic/source/entrance-01-source.mp4",
+  "bytes": 3366813,
+  "sha256": "ece35294685f11dfb372c243c69d5f1acac1f4ba673ccfd12f537c194a3e250d",
+  "archive_sha256": "ece35294685f11dfb372c243c69d5f1acac1f4ba673ccfd12f537c194a3e250d",
+  "metadata": [
+    "Duration: 00:00:10.08, start: 0.000000, bitrate: 2672 kb/s",
+    "Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(progressive), 1280x720 [SAR 1:1 DAR 16:9], 2545 kb/s, 24 fps, 24 tbr, 12288 tbn (default)",
+    "Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 128 kb/s (default)",
+    "Stream #0:0(und): Video: wrapped_avframe, yuv420p(progressive), 1280x720 [SAR 1:1 DAR 16:9], q=2-31, 200 kb/s, 24 fps, 24 tbn (default)",
+    "Stream #0:1(und): Audio: pcm_s16le, 44100 Hz, stereo, s16, 1411 kb/s (default)"
+  ],
+  "full_decode_exit": 0,
+  "source_owner": "user supplied original; generating platform not assumed from filename",
+  "user_request": "过场铺垫后机械姬炫酷出场；机械姬×指挥官，同母版04",
+  "status": "received, visual and sound review in progress; not accepted"
+}

@@ -1,0 +1,93 @@
+{
+  "character_id": "archive-whale-opening-continuity-v3",
+  "status": "user-selected-working-master",
+  "selected_on": "2026-11-04",
+  "human_decision": {
+    "selection": 4,
+    "quote": "我喜欢第四张",
+    "source_file_provided_by_user": "素材/jimeng-2026-11-04-1900-请仅依据上传的开场动画原帧，重建画面中同一位蓝发女孩的一张完整全身角色母版。以原....png",
+    "scope": "后续同角色资产的工作母版；不是动画、透明素材或正式安装包验收"
+  },
+  "formal_canon_frozen": false,
+  "master_reference": "designs/dsh-skin-assets-v3/assets/character/jimeng-flash-master-04-source.png",
+  "master_sha256": "53609dd32af4f43cac034e4f16ab0106ea48a405284f41068a62665afbb8fc62",
+  "size": [
+    1664,
+    2496
+  ],
+  "mode": "RGB",
+  "native_alpha": false,
+  "source_brand_mark_preserved": true,
+  "provider": {
+    "name": "即梦官方网页版",
+    "model": "Seedream 5.0 Flash",
+    "ratio": "2:3",
+    "resolution": "2K",
+    "batch_images": 4,
+    "observed_credits_per_image": 3,
+    "observed_batch_credit_delta": 12,
+    "balance_before": 40,
+    "balance_after": 28,
+    "model_and_batch_adjusted_by_user": true,
+    "generation_state": "4 completed images observed in official result UI"
+  },
+  "source_reference": "designs/dsh-skin-v1/assets/reference/scan-middle.png",
+  "excluded_generation_reference": "MOSS master-01 fullbody was removed before this accepted batch",
+  "identity": {
+    "face": "偏窄的柔和脸部，细长眼睑、青蓝眼神、淡色鼻唇；以选中原图几何为准",
+    "hair": "深蓝紫长发，冷银蓝细发束高光，侧分刘海及两侧长鬓发；不能漂成浅白发",
+    "anchor": "画面左侧深蓝缎带、白色扇褶头饰和白边深蓝片状侧饰的组合",
+    "body": "以本图头身比例、肩腰关系、四肢与手脚几何为准；不改回旧大头Q版"
+  },
+  "costume": {
+    "upper": "深蓝高领长袖工作裙，白褶边领口、肩胸褶边和袖口，前中小扣",
+    "waist_and_skirt": "白色束腰及短围裙，深蓝裙摆与白色下摆褶边",
+    "hosiery_and_footwear": "深蓝及膝长袜、深蓝系带低跟鞋",
+    "human_selection_overrides_prompt": "第四张白围裙与完整褶饰按用户选择保留；不因先前提示词曾排除围裙而擅自删改"
+  },
+  "material_hierarchy": [
+    "发丝与皮肤的细腻CG层次",
+    "深蓝裙与缎带的克制布料高光",
+    "珍珠白褶边与围裙的布褶",
+    "深蓝鞋与袜的不同材质"
+  ],
+  "must_preserve": [
+    "脸型和五官几何",
+    "蓝紫发色、刘海和长发结构",
+    "头饰与缎带位置",
+    "白围裙及整套服装色块位置",
+    "身体比例、袜与鞋的设计",
+    "同一套精细CG画风"
+  ],
+  "may_vary": [
+    "表情、注视与同源裁切",
+    "姿势、步幅与动作节奏",
+    "随动作产生的头发和衣褶变化",
+    "可拆卸且符合主题的临时小道具"
+  ],
+  "must_not_invent": [
+    "新脸、新发色或旧Q版比例",
+    "新兽耳、角、翼、尾巴或永久武器",
+    "未经选择的永久服装改版",
+    "把开场扫描字符固定进虹膜",
+    "用旧A2动作和新母版静图拼成已统一的整套资产"
+  ],
+  "lineage": {
+    "opening_reference_preserved": true,
+    "old_moss_candidates_retained": true,
+    "old_r2_preserved": true,
+    "old_moss_rig_is_not_selected_master_rig": true
+  },
+  "outputs": {
+    "review_board": "designs/dsh-skin-assets-v3/review/selected-master-04-board.jpg",
+    "portrait_review": "designs/dsh-skin-assets-v3/assets/character/jimeng-flash-master-04-portrait-review.png"
+  },
+  "technical_review": {
+    "file_integrity": "Pillow verify passed; copied file matches source SHA256",
+    "full_body": "headpiece, hair ends, both hands, legs and shoes visible; no canvas-edge crop",
+    "hands_and_feet": "visual review: no obvious duplicated limbs or severe hand/foot connection defects; articulated poses still need their own review",
+    "production_alpha": "not created; original is RGB",
+    "animations": "not created from this selected master"
+  },
+  "updated_at": "2026-11-04T10:02:00.521722+00:00"
+}

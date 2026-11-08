@@ -1,0 +1,38 @@
+diff --git a/dsh-pet/runtime/electron-helper/index.html b/dsh-pet/runtime/electron-helper/index.html
+index 3bc6ff7..ef5a2f3 100644
+--- a/dsh-pet/runtime/electron-helper/index.html
++++ b/dsh-pet/runtime/electron-helper/index.html
+@@ -339,6 +339,8 @@
+     <script src="./sprite/bubble.js"></script>
+     <script src="./sprite/menu.js"></script>
+     <script src="./events.js"></script>
++    <script src="./integration-endpoint.js"></script>
++    <script src="./scene-adapter.js"></script>
+     <script src="./renderer.js"></script>
+   </body>
+ </html>
+diff --git a/dsh-pet/runtime/electron-helper/sprite.js b/dsh-pet/runtime/electron-helper/sprite.js
+index efe3902..bd36a81 100644
+--- a/dsh-pet/runtime/electron-helper/sprite.js
++++ b/dsh-pet/runtime/electron-helper/sprite.js
+@@ -114,6 +114,7 @@ class PetSprite {
+     this.stopDragFollow();
+     this.stopSquash();
+     this.stopMove();
++    this.sceneProps?.dispose();
+     this.el.remove();
+   }
+ 
+diff --git a/dsh-pet/runtime/electron-helper/sprite/init.js b/dsh-pet/runtime/electron-helper/sprite/init.js
+index 39ee958..e0f1eb0 100644
+--- a/dsh-pet/runtime/electron-helper/sprite/init.js
++++ b/dsh-pet/runtime/electron-helper/sprite/init.js
+@@ -187,6 +187,8 @@ Object.assign(PetSprite.prototype, {
+     this.el.appendChild(this.bubble);
+     this.el.appendChild(this.tip);
+     this.el.appendChild(stage);
++    // Optional product scene adapter: same native stage, no second window or behavior engine.
++    this.sceneProps = globalThis.DshPetScene?.mount(this, stage);
+     rootEl.appendChild(this.el);
+     this.position();
+   },

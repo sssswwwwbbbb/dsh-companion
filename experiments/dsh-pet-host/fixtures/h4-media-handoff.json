@@ -1,0 +1,262 @@
+{
+  "source": "<本机路径>/.local/dsh-pet-host-20261104/host-home/companion/7f31167629f7c4ee/whole-pet/telemetry.jsonl",
+  "timestamps": [
+    1793805423648,
+    1793805423749,
+    1793805423850
+  ],
+  "samples": [
+    {
+      "at": 1793805423648,
+      "windows": [
+        {
+          "id": 1,
+          "bounds": {
+            "x": 625,
+            "y": 38,
+            "width": 1370,
+            "height": 1102
+          },
+          "visible": true,
+          "renderer": {
+            "stages": 1,
+            "props": [
+              {
+                "id": "book",
+                "complete": true,
+                "box": {
+                  "x": 463.734375,
+                  "y": 646.84375,
+                  "width": 88.3828125,
+                  "height": 83.03125,
+                  "top": 646.84375,
+                  "right": 552.1171875,
+                  "bottom": 729.875,
+                  "left": 463.734375
+                }
+              },
+              {
+                "id": "cup",
+                "complete": true,
+                "box": {
+                  "x": 568.5078125,
+                  "y": 688.34375,
+                  "width": 52.890625,
+                  "height": 41.015625,
+                  "top": 688.34375,
+                  "right": 621.3984375,
+                  "bottom": 729.359375,
+                  "left": 568.5078125
+                }
+              }
+            ],
+            "sprites": [
+              {
+                "anim": "master-idle",
+                "size": 685,
+                "pos": {
+                  "x": 967,
+                  "y": 380
+                },
+                "dragging": false,
+                "playback": "pb-mw29flbk-7",
+                "workState": null
+              }
+            ],
+            "videos": [
+              {
+                "front": true,
+                "source": "master-idle.webm",
+                "time": 2.4077,
+                "loop": false,
+                "paused": false
+              },
+              {
+                "front": false,
+                "source": "master-idle.webm",
+                "time": 2.2957,
+                "loop": true,
+                "paused": true
+              }
+            ]
+          }
+        }
+      ],
+      "bodyInputs": [
+        {
+          "window": 1,
+          "rects": 297
+        }
+      ],
+      "errors": []
+    },
+    {
+      "at": 1793805423749,
+      "windows": [
+        {
+          "id": 1,
+          "bounds": {
+            "x": 625,
+            "y": 38,
+            "width": 1370,
+            "height": 1102
+          },
+          "visible": true,
+          "renderer": {
+            "stages": 1,
+            "props": [
+              {
+                "id": "book",
+                "complete": true,
+                "box": {
+                  "x": 463.734375,
+                  "y": 646.84375,
+                  "width": 88.3828125,
+                  "height": 83.03125,
+                  "top": 646.84375,
+                  "right": 552.1171875,
+                  "bottom": 729.875,
+                  "left": 463.734375
+                }
+              },
+              {
+                "id": "cup",
+                "complete": true,
+                "box": {
+                  "x": 568.5078125,
+                  "y": 688.34375,
+                  "width": 52.890625,
+                  "height": 41.015625,
+                  "top": 688.34375,
+                  "right": 621.3984375,
+                  "bottom": 729.359375,
+                  "left": 568.5078125
+                }
+              }
+            ],
+            "sprites": [
+              {
+                "anim": "master-idle",
+                "size": 685,
+                "pos": {
+                  "x": 967,
+                  "y": 380
+                },
+                "dragging": false,
+                "playback": null,
+                "workState": null
+              }
+            ],
+            "videos": [
+              {
+                "front": true,
+                "source": "master-idle.webm",
+                "time": 2.5,
+                "loop": false,
+                "paused": true
+              },
+              {
+                "front": false,
+                "source": "master-idle.webm",
+                "time": 2.2957,
+                "loop": true,
+                "paused": true
+              }
+            ]
+          }
+        }
+      ],
+      "bodyInputs": [
+        {
+          "window": 1,
+          "rects": 297
+        }
+      ],
+      "errors": []
+    },
+    {
+      "at": 1793805423850,
+      "windows": [
+        {
+          "id": 1,
+          "bounds": {
+            "x": 625,
+            "y": 38,
+            "width": 1370,
+            "height": 1102
+          },
+          "visible": true,
+          "renderer": {
+            "stages": 1,
+            "props": [
+              {
+                "id": "book",
+                "complete": true,
+                "box": {
+                  "x": 463.734375,
+                  "y": 646.84375,
+                  "width": 88.3828125,
+                  "height": 83.03125,
+                  "top": 646.84375,
+                  "right": 552.1171875,
+                  "bottom": 729.875,
+                  "left": 463.734375
+                }
+              },
+              {
+                "id": "cup",
+                "complete": true,
+                "box": {
+                  "x": 568.5078125,
+                  "y": 688.34375,
+                  "width": 52.890625,
+                  "height": 41.015625,
+                  "top": 688.34375,
+                  "right": 621.3984375,
+                  "bottom": 729.359375,
+                  "left": 568.5078125
+                }
+              }
+            ],
+            "sprites": [
+              {
+                "anim": "master-idle",
+                "size": 685,
+                "pos": {
+                  "x": 967,
+                  "y": 380
+                },
+                "dragging": false,
+                "playback": null,
+                "workState": null
+              }
+            ],
+            "videos": [
+              {
+                "front": false,
+                "source": "master-idle.webm",
+                "time": 2.5,
+                "loop": false,
+                "paused": true
+              },
+              {
+                "front": true,
+                "source": "master-idle.webm",
+                "time": 0.0647,
+                "loop": true,
+                "paused": false
+              }
+            ]
+          }
+        }
+      ],
+      "bodyInputs": [
+        {
+          "window": 1,
+          "rects": 297
+        }
+      ],
+      "errors": []
+    }
+  ]
+}

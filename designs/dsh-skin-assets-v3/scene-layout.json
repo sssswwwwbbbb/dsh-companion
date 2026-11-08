@@ -1,0 +1,107 @@
+{
+  "platform": "desktop-only",
+  "scope": "internal visual placement candidate; action-linked props revision",
+  "revision": "action-props",
+  "user_feedback": "Book/cup must be used in an action, not permanently displayed next to the standing character.",
+  "default_visible_props": [],
+  "prop_usage": "Show props only with matching authored take/use/put-away poses and valid grip/occlusion. Current art does not provide read/tea-use actions.",
+  "historical_floor_prop_plates": "desktop-scene-quiet.png, desktop-scene-respond.png and desktop-scene-edge.png remain historical; superseded as default scene presentation",
+  "uses_frozen_r2_screenshot_without_source_edits": true,
+  "lie_a_excluded_due_to_reported_style_drift": true,
+  "static_poses_do_not_establish_animation_cycles": true,
+  "scenes": [
+    {
+      "id": "quiet",
+      "preview": "designs/dsh-skin-assets-v3/review/desktop-scene-quiet-action-props.png",
+      "canvas": [
+        1440,
+        900
+      ],
+      "workspace_window": [
+        36,
+        70,
+        1120,
+        630
+      ],
+      "placements": [
+        {
+          "asset": "sit-01",
+          "file": "designs/dsh-skin-assets-v3/assets/prepared/sit-01.png",
+          "image_box": [
+            1178,
+            483,
+            184,
+            350
+          ],
+          "ground_y": 826,
+          "actor_center_x": 1270,
+          "source_anchor": "prepared PNG ground line; visual fit estimate"
+        }
+      ],
+      "stage": "internal composition plate; not native execution evidence"
+    },
+    {
+      "id": "respond",
+      "preview": "designs/dsh-skin-assets-v3/review/desktop-scene-respond-action-props.png",
+      "canvas": [
+        1440,
+        900
+      ],
+      "workspace_window": [
+        36,
+        70,
+        1120,
+        630
+      ],
+      "placements": [
+        {
+          "asset": "master-04",
+          "file": "designs/dsh-skin-assets-v3/assets/prepared/master-04.png",
+          "image_box": [
+            1184,
+            481,
+            171,
+            350
+          ],
+          "ground_y": 826,
+          "actor_center_x": 1270,
+          "source_anchor": "prepared PNG ground line; visual fit estimate"
+        }
+      ],
+      "stage": "internal composition plate; not native execution evidence"
+    },
+    {
+      "id": "edge",
+      "preview": "designs/dsh-skin-assets-v3/review/desktop-scene-edge-action-props.png",
+      "canvas": [
+        1440,
+        900
+      ],
+      "workspace_window": [
+        36,
+        70,
+        1120,
+        630
+      ],
+      "placements": [
+        {
+          "asset": "climb-a",
+          "file": "designs/dsh-skin-assets-v3/assets/prepared/climb-a.png",
+          "image_box": [
+            1127,
+            245,
+            175,
+            370
+          ],
+          "support_world_x": 1156,
+          "source_grip_anchor": [
+            80.0,
+            92.8
+          ],
+          "note": "guide bar retained from original; not a new climbing physics implementation"
+        }
+      ],
+      "stage": "internal composition plate; not native execution evidence"
+    }
+  ]
+}

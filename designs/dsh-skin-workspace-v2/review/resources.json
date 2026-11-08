@@ -1,0 +1,27 @@
+{
+  "svg": 56,
+  "png": 112,
+  "groups": {
+    "导航": 12,
+    "对话": 12,
+    "文件": 6,
+    "状态": 7,
+    "设置": 11,
+    "DSH功能": 8
+  },
+  "pngBytes": 174636,
+  "alphaPairMatches": 56,
+  "pngSize": [
+    96,
+    96
+  ],
+  "allEdgesTransparent": true,
+  "exactOpaqueSrgbColors": true,
+  "svgExternalContent": false,
+  "inheritedR3TokensUnchanged": true,
+  "zip": {
+    "path": "archive-warm-icons-v2.zip",
+    "sha256": "dcb734067b9b33b92a85515de48a35daf299365a4fe425b44a465c039b9ad89d",
+    "bytes": 222510
+  }
+}

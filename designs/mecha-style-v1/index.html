@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>单元-07 · 科研企业风视觉方向板</title>
+<style>
+  :root {
+    --bg: #101315;
+    --panel: #171b1e;
+    --line: #2a3034;
+    --text: #e8eae7;
+    --muted: #8b949a;
+    --cyan: #56d6e0;
+    --cyan-deep: #3fb6c8;
+    --amber: #e08a3c;
+    --warm-white: #f1f2ef;
+    --cool-gray: #c7cdd2;
+    --graphite: #2b3138;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.7 -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 56px 32px 80px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 20px; }
+  h1 { font-size: 22px; font-weight: 600; letter-spacing: .02em; margin: 0; }
+  .sub { color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+  .layout { display: grid; grid-template-columns: 380px 1fr; gap: 40px; margin-top: 40px; align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+  .board {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px 20px 18px;
+  }
+  .board svg { width: 100%; height: auto; display: block; }
+  .tag { font-size: 11px; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 14px; }
+
+  h2 { font-size: 13px; font-weight: 600; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; margin: 0 0 14px; }
+  section + section { margin-top: 44px; }
+
+  .anchors { list-style: none; padding: 0; margin: 0; }
+  .anchors li { display: grid; grid-template-columns: 22px 1fr; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .anchors li:first-child { border-top: 0; }
+  .num { color: var(--cyan); font-variant-numeric: tabular-nums; font-size: 12px; padding-top: 2px; }
+  .anchors b { display: block; font-weight: 600; font-size: 14px; }
+  .anchors span { color: var(--muted); font-size: 13px; }
+
+  .palette { display: flex; height: 54px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+  .sw { position: relative; display: flex; align-items: flex-end; padding: 8px 10px; font-size: 10px; letter-spacing: .06em; }
+  .sw.light { color: #2b3138; }
+  .sw.dark { color: #e8eae7; }
+  .palette-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+  .palette-meta b { display: block; color: var(--text); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  .materials { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 12px; color: var(--cool-gray); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-weight: 500; color: var(--muted); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 0 12px 10px 0; border-bottom: 1px solid var(--line); }
+  td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td.id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--cyan); white-space: nowrap; }
+  td.tone { color: var(--text); }
+  td.old { color: var(--muted); text-decoration: line-through; text-decoration-color: #3a4145; }
+
+  .note { border-left: 2px solid var(--amber); padding: 4px 0 4px 16px; color: #c9b8a6; font-size: 13px; }
+  .note b { color: var(--amber); font-weight: 600; }
+  .rules { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  @media (max-width: 720px) { .rules { grid-template-columns: 1fr; } }
+  .rules ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+  .rules li { margin: 6px 0; }
+  .kicker { color: var(--cyan); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; }
+  footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); color: #5f686d; font-size: 12px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="kicker">Design Direction Board · v1</div>
+      <h1>单元-07 · 科研企业风</h1>
+    </div>
+    <div class="sub">示意 blockout ／ 非最终美术</div>
+  </header>
+
+  <div class="layout">
+
+    <div class="board">
+      <div class="tag">Structural Blockout</div>
+      <svg viewBox="0 0 320 600" role="img" aria-label="机械姬结构示意">
+        <defs>
+          <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="7" />
+          </filter>
+        </defs>
+
+        <!-- 肩甲 / 斗篷式外骨骼 -->
+        <polygon points="118,118 84,130 90,200 118,186" fill="#d7dcd8" />
+        <polygon points="202,118 236,130 230,200 202,186" fill="#d7dcd8" />
+
+        <!-- 手臂 -->
+        <polygon points="88,132 100,132 96,246 84,246" fill="#cdd3cf" />
+        <polygon points="220,132 232,132 236,246 224,246" fill="#cdd3cf" />
+
+        <!-- 腿 -->
+        <polygon points="134,290 158,290 155,470 137,470" fill="#dde2dd" />
+        <polygon points="162,290 186,290 183,470 165,470" fill="#dde2dd" />
+
+        <!-- 脚（设备支脚） -->
+        <polygon points="128,478 158,478 162,512 122,512" fill="#aeb6b8" />
+        <polygon points="162,478 192,478 198,512 158,512" fill="#aeb6b8" />
+
+        <!-- 躯干 -->
+        <rect x="118" y="116" width="84" height="136" rx="10" fill="#e4e8e3" />
+
+        <!-- 腰部 / 束腰 -->
+        <rect x="124" y="244" width="72" height="22" rx="6" fill="#2b3138" />
+        <rect x="130" y="262" width="60" height="30" rx="8" fill="#d8ddd8" />
+
+        <!-- 胸口纵向开孔 -->
+        <rect x="150" y="132" width="20" height="82" rx="10" fill="#2b3138" />
+        <rect x="154" y="140" width="12" height="60" rx="6" fill="#56d6e0" opacity=".55" filter="url(#glow)" />
+        <rect x="154" y="140" width="12" height="60" rx="6" fill="#56d6e0" opacity=".85" />
+
+        <!-- 颈部 -->
+        <rect x="152" y="102" width="16" height="16" fill="#2b3138" />
+
+        <!-- 头壳 -->
+        <rect x="126" y="42" width="68" height="66" rx="20" fill="#f1f2ef" />
+
+        <!-- 观测窗 -->
+        <rect x="134" y="68" width="52" height="14" rx="7" fill="#23282c" />
+        <rect x="138" y="71" width="44" height="8" rx="4" fill="#56d6e0" filter="url(#glow)" opacity=".7" />
+        <rect x="138" y="71" width="44" height="8" rx="4" fill="#7fe6ee" />
+
+        <!-- 后脑散热鳍 -->
+        <rect x="106" y="52" width="16" height="26" rx="4" fill="#c7cdd2" />
+        <rect x="198" y="52" width="16" height="26" rx="4" fill="#c7cdd2" />
+
+        <!-- 关节 -->
+        <ellipse cx="146" cy="382" rx="13" ry="8" fill="#2b3138" />
+        <ellipse cx="174" cy="382" rx="13" ry="8" fill="#2b3138" />
+        <ellipse cx="146" cy="474" rx="11" ry="6" fill="#2b3138" />
+        <ellipse cx="174" cy="474" rx="11" ry="6" fill="#2b3138" />
+
+        <!-- 工牌带 -->
+        <polygon points="132,124 146,126 192,240 178,238" fill="#f7f8f6" />
+        <rect x="168" y="228" width="18" height="24" rx="3" fill="#f7f8f6" stroke="#c7cdd2" />
+
+        <!-- 识别锚点标记 -->
+        <g font-family="ui-monospace, Menlo, monospace" font-size="12">
+          <circle cx="224" cy="58" r="11" fill="#101315" stroke="#56d6e0" />
+          <text x="224" y="62" text-anchor="middle" fill="#56d6e0">1</text>
+          <circle cx="204" cy="230" r="11" fill="#101315" stroke="#56d6e0" />
+          <text x="204" y="234" text-anchor="middle" fill="#56d6e0">2</text>
+          <circle cx="112" cy="206" r="11" fill="#101315" stroke="#56d6e0" />
+          <text x="112" y="210" text-anchor="middle" fill="#56d6e0">3</text>
+        </g>
+      </svg>
+    </div>
+
+    <div>
+      <section>
+        <h2>三个识别锚点</h2>
+        <ul class="anchors">
+          <li><span class="num">01</span><div><b>观测窗</b><span>横向比例与两端收角。缩到 64px 高仍要认得出。</span></div></li>
+          <li><span class="num">02</span><div><b>胸口纵向开孔</b><span>露出内部结构与青色发光，是「被打开过」的叙事。</span></div></li>
+          <li><span class="num">03</span><div><b>左肩工牌带</b><span>唯一的织物软元素，也是她的编号所在地。</span></div></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>色彩 · 按面积分配</h2>
+        <div class="palette">
+          <div class="sw light" style="width:38%;background:#f1f2ef">暖白</div>
+          <div class="sw light" style="width:22%;background:#c7cdd2">冷灰</div>
+          <div class="sw dark" style="width:25%;background:#2b3138">石墨</div>
+          <div class="sw dark" style="width:10%;background:#3fb6c8">企业青</div>
+          <div class="sw dark" style="width:5%;background:#e08a3c">琥珀</div>
+        </div>
+        <div class="palette-meta">
+          <div><b>60%</b>暖白 + 冷灰</div>
+          <div><b>25%</b>石墨 · 关节内衬</div>
+          <div><b>10%</b>青 · 只做发光</div>
+          <div><b>5%</b>琥珀 · 只做警示</div>
+        </div>
+      </section>
+
+      <section>
+        <h2>材质五层</h2>
+        <div class="materials">
+          <span class="chip">哑光工程塑料</span>
+          <span class="chip">阳极氧化铝</span>
+          <span class="chip">抛光玻璃</span>
+          <span class="chip">织带</span>
+          <span class="chip">发光亚克力</span>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <section>
+    <h2>动作语义 · 企业口吻</h2>
+    <table>
+      <thead>
+        <tr><th style="width:22%">id</th><th style="width:34%">日常口吻</th><th>企业口吻（模型看到的是这一列）</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="id">idle</td><td class="old">安静站着待机</td><td class="tone">维持待机，周期性自检</td></tr>
+        <tr><td class="id">walk</td><td class="old">走到屏幕另一处</td><td class="tone">移动至指定坐标</td></tr>
+        <tr><td class="id">react_touch</td><td class="old">被点击时的回应</td><td class="tone">检测到接触，记录</td></tr>
+        <tr><td class="id">greet</td><td class="old">主动打招呼</td><td class="tone">使用者返回，建立会话</td></tr>
+        <tr><td class="id">charge_sleep</td><td class="old">进入充电休眠</td><td class="tone">进入低功耗维护模式</td></tr>
+        <tr><td class="id">wake</td><td class="old">从休眠中苏醒</td><td class="tone">维护完成，恢复运行</td></tr>
+        <tr><td class="id">glitch</td><td class="old">短暂故障</td><td class="tone">自检异常，正在恢复</td></tr>
+        <tr><td class="id">read_book</td><td class="old">拿出书来读</td><td class="tone">调阅纸质档案</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="rules">
+    <div>
+      <h2>可用（类型语言）</h2>
+      <ul>
+        <li>白 + 青的科研企业配色逻辑</li>
+        <li>工牌、编号、批次、维护状态</li>
+        <li>临床、报告式的语气</li>
+        <li>冷白与克制的发光层级</li>
+      </ul>
+    </div>
+    <div>
+      <h2>不可用（版权表达）</h2>
+      <ul>
+        <li>莱茵生命的标志与字样</li>
+        <li>具体角色的造型与配色组合</li>
+        <li>方舟专有名词进入界面或宣传</li>
+        <li>以「像某角色」作为卖点</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="note"><b>待定：脸的分岔。</b>当前方案是观测窗（屏幕脸），情绪靠 6 张叠加表情实现，成本最低、机械感最强。备选是单眼与完整五官：单眼更像「设备」，完整五官更可爱但会削弱企业资产感，且每一帧都要重画表情。</div>
+  </section>
+
+  <footer>
+    <span>单元-07 · Design Direction v1</span>
+    <span>配套文档 docs/mecha-pet-design-2026-11-05.md</span>
+  </footer>
+</div>
+</body>
+</html>

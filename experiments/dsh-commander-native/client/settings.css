@@ -1,0 +1,12 @@
+.dshc-r3[data-skin-preset=commander-v1]{--paper:#e9eff4;--surface:#f7fafc;--surface-soft:#e0e9f0;--ink:#1d3147;--muted:#52697e;--line:#cbd7e2;--accent:#17627d;--accent-soft:#d7eaf1;--signal:#1b6683;--signal-soft:#dfedf3;--positive:#28675d;--danger:#9c3d36;--font-title:'Avenir Next','PingFang SC',sans-serif}
+.dshc-r3[data-skin-preset=commander-v1][data-theme=dark]{--paper:#091321;--surface:#101c2c;--surface-soft:#1b2b40;--ink:#e1ecf5;--muted:#9badc2;--line:#2b3c52;--accent:#83d5ec;--accent-soft:#193b4d;--signal:#8bd5eb;--signal-soft:#142e40;--positive:#9dd9c9;--danger:#ffb2ab}
+.dshc-r3[data-skin-preset=commander-v1] :is(.r3-library-card,.r3-skin-banner,.r3-library-current){border-radius:6px}
+.dshc-r3[data-skin-preset=commander-v1] .r3-settings-head h1{font-size:28px;font-weight:550}
+.dshc-r3[data-skin-preset=commander-v1] .r3-skin-banner{min-height:174px;padding:22px;background:var(--paper)}
+.dshc-r3[data-skin-preset=commander-v1] .r3-banner-pet.workspace-role{height:164px;width:146px}
+.r3-library-cover.commander{height:auto;aspect-ratio:8/5;background:#091321}
+.r3-library-cover.commander>.commander-cover{display:block;width:100%;height:100%;object-fit:contain}
+.r3-library-cover.commander>:is(.r3-library-cover-title,.r3-library-portrait){display:none}
+.commander-legacy-tag{position:absolute;left:12px;top:10px;font-size:11px;color:var(--muted);z-index:1;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:3px 6px}
+.r3-semantic-icon{display:inline-grid;pointer-events:none}.r3-semantic-icon>img{grid-area:1/1;width:100%;height:100%;object-fit:contain}.r3-icon-dark{display:none}[data-theme=dark] .r3-icon-light{display:none}[data-theme=dark] .r3-icon-dark{display:block}
+@media(max-width:980px){.dshc-r3[data-skin-preset=commander-v1] .r3-skin-banner{padding:18px;min-height:164px}.dshc-r3[data-skin-preset=commander-v1] .r3-banner-pet.workspace-role{width:125px;height:145px}}

@@ -1,0 +1,18 @@
+{
+  "id": "props",
+  "source": "MOSS text-to-image",
+  "model": "moss-image-sft-1.0-2026-10-09",
+  "request": "designs/dsh-skin-assets-v3/identity/props-request.json",
+  "seed": 20261104041,
+  "sizeRequested": "1024x1024",
+  "usage": {
+    "generated_images": 1,
+    "output_width": 1024,
+    "output_height": 1024
+  },
+  "image": "assets/theme/props-source.png",
+  "sha256": "3e2d0c31abad4b97030c5c31f1b5bf5efc511044e25027a8a12d165e1be33fdd",
+  "bytes": 3148566,
+  "referenceImageInput": false,
+  "nativeAlphaRequested": false
+}

@@ -1,0 +1,57 @@
+﻿分组,中文名称,文件或配置ID,具体用途,浅色文件,深色文件,源文件,接入状态,对应配置
+导航,工作区,workspace,工作区入口。分栏框与简短内容线,assets/icon-workspace-light.png,assets/icon-workspace-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.workspace
+导航,新建会话,compose,新开一轮会话。页框配笔或新建标记,assets/icon-compose-light.png,assets/icon-compose-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.compose
+导航,会话,conversation,侧栏里的单个会话。对话框轮廓,assets/icon-conversation-light.png,assets/icon-conversation-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.conversation
+导航,历史记录 †,history,查历史。回转箭头配时钟,review/pending-icons/history-light.png,review/pending-icons/history-dark.png,scripts/themed-icons.py,储备（引擎暂无替换位）,
+导航,搜索,search,搜索工作区或会话。放大镜,assets/icon-search-light.png,assets/icon-search-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.search
+导航,侧栏,panel-left,显示或隐藏左侧栏。分栏框,assets/icon-panel-left-light.png,assets/icon-panel-left-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.panel-left
+导航,文件夹,folder,收起的目录。闭合文件夹,assets/icon-folder-light.png,assets/icon-folder-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.folder
+导航,展开文件夹,folder-open,展开的目录。打开的文件夹,assets/icon-folder-open-light.png,assets/icon-folder-open-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.folder-open
+导航,置顶,pin,固定会话或条目。图钉,assets/icon-pin-light.png,assets/icon-pin-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.pin
+导航,书签 †,bookmark,收藏或标记。书签飘带,review/pending-icons/bookmark-light.png,review/pending-icons/bookmark-dark.png,scripts/themed-icons.py,储备（引擎暂无替换位）,
+导航,归档,archive,将会话归档。档案盒,assets/icon-archive-light.png,assets/icon-archive-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.archive
+导航,更多,more,打开附加操作。省略号,assets/icon-more-light.png,assets/icon-more-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.more
+对话,添加附件,attachment,给消息加文件。回形针,assets/icon-attachment-light.png,assets/icon-attachment-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.attachment
+对话,链接,link,URL 或关联链接。链环,assets/icon-link-light.png,assets/icon-link-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.link
+对话,引用 †,quote,引用选中的内容。引号,review/pending-icons/quote-light.png,review/pending-icons/quote-dark.png,scripts/themed-icons.py,储备（引擎暂无替换位）,
+对话,复制,copy,复制消息或文本。两张叠放的纸,assets/icon-copy-light.png,assets/icon-copy-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.copy
+对话,重新生成,retry,重新生成回答。回转箭头,assets/icon-retry-light.png,assets/icon-retry-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.retry
+对话,编辑,edit,修改已有消息或名称。笔尖,assets/icon-edit-light.png,assets/icon-edit-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.edit
+对话,分支会话,branch,从当前内容创建分支。分叉节点,assets/icon-branch-light.png,assets/icon-branch-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.branch
+对话,发送,send,发送消息。纸飞机或送出箭头,assets/icon-send-light.png,assets/icon-send-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.send
+对话,停止,stop,中断当前执行。方形停止键,assets/icon-stop-light.png,assets/icon-stop-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.stop
+对话,展开,chevron-down,展开下拉内容。向下尖括号,assets/icon-chevron-down-light.png,assets/icon-chevron-down-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.chevron-down
+对话,进入,chevron-right,打开下一层。向右尖括号,assets/icon-chevron-right-light.png,assets/icon-chevron-right-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.chevron-right
+对话,添加,plus,打开添加入口。加号,assets/icon-plus-light.png,assets/icon-plus-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.plus
+文件,文本文件,file-text,文档、纯文本。折角纸加文字线,assets/icon-file-text-light.png,assets/icon-file-text-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.file-text
+文件,代码文件,file-code,源码文件。折角纸加代码符号,assets/icon-file-code-light.png,assets/icon-file-code-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.file-code
+文件,图像文件,file-image,图片附件。折角纸加山峰或日点,assets/icon-file-image-light.png,assets/icon-file-image-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.file-image
+文件,表格文件,file-table,表格数据。折角纸加网格,assets/icon-file-table-light.png,assets/icon-file-table-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.file-table
+文件,终端,terminal,终端或命令。小窗口加命令光标,assets/icon-terminal-light.png,assets/icon-terminal-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.terminal
+文件,在外部打开,external,跳转外部应用。框和朝外箭头,assets/icon-external-light.png,assets/icon-external-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.external
+状态,完成,check,成功、已完成或已复制。勾号,assets/icon-check-light.png,assets/icon-check-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.check
+状态,等待,clock,等待中或待执行。时钟,assets/icon-clock-light.png,assets/icon-clock-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.clock
+状态,需要处理,alert,警示或等待用户处理。感叹号,assets/icon-alert-light.png,assets/icon-alert-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.alert
+状态,说明,info,说明和提示。信息标记,assets/icon-info-light.png,assets/icon-info-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.info
+状态,播放,play,预览或开始播放。三角播放键,assets/icon-play-light.png,assets/icon-play-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.play
+状态,暂停,pause,临时暂停。两根竖线,assets/icon-pause-light.png,assets/icon-pause-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.pause
+状态,关闭,close,关闭弹层或移除。叉号,assets/icon-close-light.png,assets/icon-close-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.close
+设置,设置,settings,打开设置。齿轮,assets/icon-settings-light.png,assets/icon-settings-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.settings
+设置,偏好,sliders,调节选项。滑杆,assets/icon-sliders-light.png,assets/icon-sliders-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.sliders
+设置,浅色,sun,浅色主题。太阳,assets/icon-sun-light.png,assets/icon-sun-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.sun
+设置,深色,moon,深色主题。月牙,assets/icon-moon-light.png,assets/icon-moon-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.moon
+设置,皮肤,palette,打开主题或皮肤库。调色盘,assets/icon-palette-light.png,assets/icon-palette-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.palette
+设置,主题盒子入口 †,entryMarks,打开主题盒子。用本套徽记的浅深两版，入口资源独立于语义图标。,assets/mark-light.png,assets/mark-dark.png,素材包 exports/brand/entry-mark-light-96x96.png,独立入口,
+设置,声音 †,volume,音轨开启。扬声器加声波,review/pending-icons/volume-light.png,review/pending-icons/volume-dark.png,scripts/themed-icons.py,储备（引擎暂无替换位）,
+设置,静音 †,mute,音轨关闭。扬声器加静音标记,review/pending-icons/mute-light.png,review/pending-icons/mute-dark.png,scripts/themed-icons.py,储备（引擎暂无替换位）,
+设置,下载,download,下载文件或资源。向下箭头与托盘,assets/icon-download-light.png,assets/icon-download-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.download
+设置,权限,shield,权限、授权或受保护状态。盾形,assets/icon-shield-light.png,assets/icon-shield-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.shield
+设置,专注阅读,expand,展开阅读区。四个外扩角,assets/icon-expand-light.png,assets/icon-expand-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.expand
+DSH 功能,插件,plugin,插件管理入口。拼图块,assets/icon-plugin-light.png,assets/icon-plugin-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.plugin
+DSH 功能,技能,skill,技能条目或入口。技能卡片,assets/icon-skill-light.png,assets/icon-skill-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.skill
+DSH 功能,模型,model,模型选择或标识。立方体或节点,assets/icon-model-light.png,assets/icon-model-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.model
+DSH 功能,助手,agent,Agent 或执行助手。机器人轮廓,assets/icon-agent-light.png,assets/icon-agent-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.agent
+DSH 功能,问答,question,提问或等待答复。对话框加问号,assets/icon-question-light.png,assets/icon-question-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.question
+DSH 功能,计划清单,plan,查看执行计划。带勾选项的清单,assets/icon-plan-light.png,assets/icon-plan-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.plan
+DSH 功能,收件箱,inbox,收件箱入口。托盘,assets/icon-inbox-light.png,assets/icon-inbox-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.inbox
+DSH 功能,代码变更,git-diff,查看变更或差异。双栏配加减标记,assets/icon-git-diff-light.png,assets/icon-git-diff-dark.png,scripts/themed-icons.py,当前工作区,semanticIcons.git-diff

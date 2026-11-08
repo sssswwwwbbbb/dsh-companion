@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-03",
+  "type": "selected-startup-input",
+  "newCharacterGeneration": false,
+  "poster": "archive-frame.html rendered with CUA at1280x720; existing R3 text/theme reused",
+  "composition": "single encoded clip: archive still then selected scan; silent, scale1280x720,25fps, timestamps normalized; actual205frames/8.20sec",
+  "script": "reports/first-skin/build-startup-m6-input.py",
+  "sourceScan": {
+    "path": "designs/dsh-skin-v1/assets/reference/whale-girl-scan.mp4",
+    "bytes": 3900721,
+    "sha256": "3756348dfc0fc2fa9fb138d1cc8d5f571c4b448c0c73a0cb46802d650f15a1e8",
+    "durationSeconds": 7.04,
+    "audioPresent": true,
+    "videoPacketHash": "SHA256=fa88d58774d052585d71dcb445247d4c703271a3e1d595dd9a41038f44aff813",
+    "mediaInfo": [
+      "Stream #0:0[0x1](und): Video: av1 (libaom-av1) (Main) (av01 / 0x31307661), yuv420p(tv, bt709/bt709/iec61966-2-1), 2560x1440 [SAR 1:1 DAR 16:9], 4256 kb/s, 24 fps, 24 tbr, 12288 tbn (default)",
+      "Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 32000 Hz, stereo, fltp, 130 kb/s (default)"
+    ]
+  },
+  "silentIntermediate": {
+    "path": "designs/dsh-skin-v1/assets/startup-m6-input/whale-girl-scan-silent.webm",
+    "bytes": 3781029,
+    "sha256": "d0aa75e2a2230e6f39cb7a9b68a6d72b1e70168fda08a53024f7b27293056d90",
+    "durationSeconds": 7.04,
+    "audioPresent": false,
+    "videoPacketHash": "SHA256=fa88d58774d052585d71dcb445247d4c703271a3e1d595dd9a41038f44aff813",
+    "mediaInfo": [
+      "Stream #0:0: Video: av1 (libaom-av1) (Main), yuv420p(tv, bt709/bt709/iec61966-2-1), 2560x1440 [SAR 1:1 DAR 16:9], 24 fps, 24 tbr, 1k tbn (default)"
+    ]
+  },
+  "final": {
+    "path": "designs/dsh-skin-v1/assets/startup-m6-input/archive-whale-silent.webm",
+    "dimensions": [
+      1280,
+      720
+    ],
+    "durationSeconds": 8.2,
+    "frameCount": 205,
+    "fps": 25,
+    "audioPresent": false,
+    "codec": "vp9",
+    "alpha": false,
+    "archiveFrameStableMeanRgbDifference": 0.0006550202546296296,
+    "archivePosterMeanRgbDifferenceAfterEncoding": 2.3378
+  },
+  "files": {
+    "archive-poster.png": {
+      "bytes": 40039,
+      "sha256": "2ab79d8813b2ec0fc86a3e64bab568b14d46f855212fdabe6139cecceddaeee6"
+    },
+    "archive-whale-silent.webm": {
+      "bytes": 1717916,
+      "sha256": "7ec7897b6e3de830f1be4ba41d56e027575b3d2a01c50f8b5e48c0b46f6614b3"
+    },
+    "whale-girl-scan-silent.webm": {
+      "bytes": 3781029,
+      "sha256": "d0aa75e2a2230e6f39cb7a9b68a6d72b1e70168fda08a53024f7b27293056d90"
+    },
+    "archive-frame.html": {
+      "bytes": 2028,
+      "sha256": "e4d4f3ee9879ecb3e1c1112bcca2d38a09fcef903317a3ee131c2f4cd63ebb20"
+    }
+  },
+  "runtimeStatus": "input only; startup exact-key native acceptance pending",
+  "rights": "local isolated use only; original author/NOTICE mismatch unresolved"
+}

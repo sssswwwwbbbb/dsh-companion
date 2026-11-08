@@ -1,0 +1,61 @@
+{
+  "status": "rejected-by-user; historical comparison only",
+  "at": "2026-11-05T02:19:04.378171+00:00",
+  "theme": "机械姬 × 指挥官",
+  "user_role": "指挥官",
+  "human_direction": "whole skin follows this relationship; startup is her awakening and report, not archive advertising",
+  "selected_master": "designs/dsh-skin-assets-v3/assets/prepared/master-04-full.png",
+  "source_size": [
+    1664,
+    2496
+  ],
+  "source_sha256": "8cff47c4dfcc42477447a213ae7ca1954881937df2f8a9e420a31d7b8b397416",
+  "size": [
+    1600,
+    900
+  ],
+  "fps": 30,
+  "duration_seconds": 8.4,
+  "video": "designs/dsh-skin-assets-v3/review/startup-awakening-mechanical-r2-2026-11-05/mechanical-companion-commander.mp4",
+  "audio": {
+    "file": "designs/dsh-skin-assets-v3/review/startup-awakening-mechanical-r2-2026-11-05/audio/awakening-mix.wav",
+    "voice_source": "designs/dsh-skin-assets-v3/review/startup-awakening-mechanical-r2-2026-11-05/audio/commander-xiaoxiao.mp3",
+    "voice": "zh-CN-XiaoxiaoNeural via edge-tts",
+    "source_text": "指挥官，链路已接通。我已就位。",
+    "voice_start_seconds": 3.4,
+    "voice_seconds": 4.2,
+    "fx": "original deterministic synthesis; power hum, construction contacts, projection sweep, material lock, link tones",
+    "sample_rate": 48000,
+    "channels": 2,
+    "loudness_target_lufs": -17,
+    "true_peak_target_dbtp": -1.5,
+    "paid_generation": false,
+    "tts_runtime_dependency_added": false,
+    "normalization": "two-pass measured loudnorm"
+  },
+  "visual_treatment": [
+    "source-derived contours and projected mesh construction",
+    "seven registration plates approach opposite rails and lock with timed servo contacts",
+    "paired external actuator brackets close and retract",
+    "nonlinear in-silhouette material reveal with emissive boundary",
+    "same master resolves to full color, optical alignment and actual voice envelope"
+  ],
+  "does_not_claim": [
+    "new eye or limb acting",
+    "new 3D model or actual mechanical body parts",
+    "host authentication or hardware telemetry"
+  ],
+  "prior_candidate": "5.8-second archive-copy silent candidate rejected by user, retained as history",
+  "native_integrated": false,
+  "new_paid_generation": false,
+  "baked_workspace_screenshot": false,
+  "integration_notes": [
+    "use existing skip/stop/lifecycle owner; do not stack full workspace intro after startup",
+    "audio preview authorized by current user request; production volume/mute/control must follow the existing product entry",
+    "reduced motion: same-master stable portrait and short crossfade, no construction displacement/fast scan",
+    "final handoff must reveal live workspace, not test session content; no automatic audio played during authoring"
+  ],
+  "video_sha256": "8fddb2bdde82aeaf6dd91ad22e61b5d4e2a3bb9709df7c765ea4c730ca8916ee",
+  "user_rejection_reason": "用户退回当前声音和画面，要求真正过场后炫酷出场",
+  "rejected_on": "2026-11-05"
+}

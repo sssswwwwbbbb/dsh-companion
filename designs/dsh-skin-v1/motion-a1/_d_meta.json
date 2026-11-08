@@ -1,0 +1,23 @@
+{
+  "type": "design",
+  "designSystems": [],
+  "primaryDesignSystem": null,
+  "assets": {
+    "鲸鱼娘 · 连续动作 A1": {
+      "versions": [
+        {
+          "path": "index.html",
+          "createdAt": "2026-11-03T12:54:12.714Z",
+          "status": "needs-review",
+          "subtitle": "idle/react 两组连续帧样本，原生未接入",
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          }
+        }
+      ]
+    }
+  },
+  "createdAt": "2026-11-03T12:54:12.714Z",
+  "updatedAt": "2026-11-03T12:54:12.714Z"
+}

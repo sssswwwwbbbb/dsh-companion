@@ -1,0 +1,44 @@
+{
+  "text": "萬行程序啟動",
+  "segments": [
+    {
+      "id": 0,
+      "seek": 0,
+      "start": 0.0,
+      "end": 1.28,
+      "text": "萬行程序",
+      "tokens": [
+        50364,
+        14099,
+        8082,
+        29649,
+        6346,
+        237,
+        50428
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.757743028494028,
+      "compression_ratio": 0.6666666666666666,
+      "no_speech_prob": 0.17659831047058105
+    },
+    {
+      "id": 1,
+      "seek": 0,
+      "start": 1.92,
+      "end": 2.68,
+      "text": "啟動",
+      "tokens": [
+        50460,
+        3284,
+        253,
+        12572,
+        50498
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.757743028494028,
+      "compression_ratio": 0.6666666666666666,
+      "no_speech_prob": 0.17659831047058105
+    }
+  ],
+  "language": "zh"
+}

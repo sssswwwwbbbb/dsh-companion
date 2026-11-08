@@ -1,0 +1,346 @@
+{
+  "status": "material-preparation-author-reviewed; primary/native acceptance pending",
+  "pngs": [
+    {
+      "id": "master-04",
+      "size": [
+        499,
+        1024
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha_match": true
+    },
+    {
+      "id": "sit-01",
+      "size": [
+        539,
+        1024
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha_match": true
+    },
+    {
+      "id": "walk-a",
+      "size": [
+        500,
+        1024
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha_match": true
+    },
+    {
+      "id": "climb-a",
+      "size": [
+        484,
+        1024
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha_match": true
+    },
+    {
+      "id": "run-a",
+      "size": [
+        529,
+        1024
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha_match": true
+    },
+    {
+      "id": "lie-a",
+      "size": [
+        1024,
+        367
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha_match": true
+    },
+    {
+      "id": "book",
+      "size": [
+        512,
+        481
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha_match": true
+    },
+    {
+      "id": "cup",
+      "size": [
+        512,
+        397
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha_match": true
+    },
+    {
+      "id": "cushion",
+      "size": [
+        512,
+        350
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha_match": true
+    },
+    {
+      "id": "blanket",
+      "size": [
+        512,
+        336
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "corners": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha_match": true
+    }
+  ],
+  "motions": [
+    {
+      "id": "idle-breathe",
+      "decoded_frames": [
+        {
+          "frame": 0,
+          "extrema": [
+            0,
+            255
+          ],
+          "corners": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "frame": 30,
+          "extrema": [
+            0,
+            255
+          ],
+          "corners": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "frame": 59,
+          "extrema": [
+            0,
+            255
+          ],
+          "corners": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "sha_match": true,
+      "feet_unchanged_in_source_frames": true
+    },
+    {
+      "id": "react-tilt",
+      "decoded_frames": [
+        {
+          "frame": 0,
+          "extrema": [
+            0,
+            255
+          ],
+          "corners": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "frame": 18,
+          "extrema": [
+            0,
+            255
+          ],
+          "corners": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "frame": 35,
+          "extrema": [
+            0,
+            255
+          ],
+          "corners": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "sha_match": true,
+      "feet_unchanged_in_source_frames": true
+    }
+  ],
+  "originals": [
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/character/jimeng-flash-master-04-source.png",
+      "sha_match": true
+    },
+    {
+      "file": "素材/图片+2.png",
+      "sha_match": true
+    },
+    {
+      "file": "素材/图片+3.png",
+      "sha_match": true
+    },
+    {
+      "file": "素材/图片+4.png",
+      "sha_match": true
+    },
+    {
+      "file": "素材/图片+5.png",
+      "sha_match": true
+    },
+    {
+      "file": "素材/图片+6.png",
+      "sha_match": true
+    },
+    {
+      "file": "素材/图片+1.png",
+      "sha_match": true
+    }
+  ],
+  "frozen_r2_files_checked": 15,
+  "frozen_r2_mismatches": [],
+  "visual_reviews": [
+    "received-batch-02-contact.jpg",
+    "prepared-assets-contact.jpg",
+    "alpha-edge-review.jpg",
+    "climb-leg-alpha-diagnostic.jpg",
+    "idle-breathe-frames.jpg",
+    "react-tilt-frames.jpg",
+    "desktop-scene-quiet.png",
+    "desktop-scene-respond.png",
+    "desktop-scene-edge.png"
+  ],
+  "limits": [
+    "side-lying style/shoe drift retained, excluded from unified scene",
+    "walk/run/climb are static keyposes; gait cycles not completed",
+    "head response is 2D gentle side tilt, not a new 3D nod or blink",
+    "native DSH integration and continuous native playback not performed by this workstream"
+  ],
+  "source_originals_unchanged": true,
+  "updated_at": "2026-11-04T11:24:35.431713+00:00",
+  "composited_video_frame_review": {
+    "files": [
+      "desktop-idle-breathe-preview.mp4",
+      "desktop-react-tilt-preview.mp4"
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "sample_times_seconds": [
+      1.25,
+      0.75
+    ],
+    "board": "desktop-motion-frame-review.jpg",
+    "observed": "one master character per scene, composed book/cup separate; frame positions/alpha visually reviewed, not a native runtime screenshot or continuous playback acceptance"
+  }
+}

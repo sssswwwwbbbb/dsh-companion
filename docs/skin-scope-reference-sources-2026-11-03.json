@@ -1,0 +1,175 @@
+{
+  "date": "2026-11-03",
+  "timezone": "Asia/Shanghai",
+  "repository": {
+    "name": "LeeRolling/dsh-boot-suite",
+    "repositoryId": "1424119342",
+    "commit": "34b892eae168abf14fc9623cb109d6806ffeacf2",
+    "sourcePackageVersion": "2.16.0",
+    "files": [
+      {
+        "path": "README.md",
+        "blobSha": "7cf122b415666218f3dc615a159f78b43201e630",
+        "readScope": "full-text",
+        "url": "https://github.com/LeeRolling/dsh-boot-suite/blob/34b892eae168abf14fc9623cb109d6806ffeacf2/README.md"
+      },
+      {
+        "path": "LICENSE",
+        "blobSha": "6b48462f7a94c3d6e299b82041d2cfe03ffaee9e",
+        "readScope": "full-text",
+        "url": "https://github.com/LeeRolling/dsh-boot-suite/blob/34b892eae168abf14fc9623cb109d6806ffeacf2/LICENSE"
+      },
+      {
+        "path": "package.json",
+        "blobSha": "6ea560d4682bcd428f3cfeb226ff46e0c4d9641c",
+        "readScope": "full-text",
+        "url": "https://github.com/LeeRolling/dsh-boot-suite/blob/34b892eae168abf14fc9623cb109d6806ffeacf2/package.json"
+      },
+      {
+        "path": "lib/index.js",
+        "blobSha": "88b82d7f4dc7bab057e10b8869253aec4a243d8b",
+        "readScope": "full-text",
+        "url": "https://github.com/LeeRolling/dsh-boot-suite/blob/34b892eae168abf14fc9623cb109d6806ffeacf2/lib/index.js"
+      },
+      {
+        "path": "lib/client.js",
+        "blobSha": "087750cbbeb9218ecb3592d74c884b5150765e1b",
+        "readScope": "selected-sections",
+        "url": "https://github.com/LeeRolling/dsh-boot-suite/blob/34b892eae168abf14fc9623cb109d6806ffeacf2/lib/client.js"
+      },
+      {
+        "path": "lib/host-startup.js",
+        "blobSha": "30d589eb887d3221dc55ce4938bacb608f0d97fe",
+        "readScope": "selected-sections",
+        "url": "https://github.com/LeeRolling/dsh-boot-suite/blob/34b892eae168abf14fc9623cb109d6806ffeacf2/lib/host-startup.js"
+      },
+      {
+        "path": "lib/host-wallpaper.js",
+        "blobSha": "158e4ee1241faf5c68c7796ef267fb6166c84888",
+        "readScope": "selected-sections",
+        "url": "https://github.com/LeeRolling/dsh-boot-suite/blob/34b892eae168abf14fc9623cb109d6806ffeacf2/lib/host-wallpaper.js"
+      },
+      {
+        "path": "DESKTOP.md",
+        "blobSha": "b590c6df41fb025d966dd254ff09167434b5b85f",
+        "readScope": "full-text",
+        "url": "https://github.com/LeeRolling/dsh-boot-suite/blob/34b892eae168abf14fc9623cb109d6806ffeacf2/DESKTOP.md"
+      },
+      {
+        "path": "templates/archive-warm/template.json",
+        "blobSha": "0372a9c7fbaa995d07e3cf416740ad38d2b36d2b",
+        "readScope": "full-text",
+        "url": "https://github.com/LeeRolling/dsh-boot-suite/blob/34b892eae168abf14fc9623cb109d6806ffeacf2/templates/archive-warm/template.json"
+      },
+      {
+        "path": "templates/whale-girl-scan/template.json",
+        "blobSha": "d3115ce98adf700c713fa7c4d2c86234e5d88637",
+        "readScope": "full-text",
+        "url": "https://github.com/LeeRolling/dsh-boot-suite/blob/34b892eae168abf14fc9623cb109d6806ffeacf2/templates/whale-girl-scan/template.json"
+      },
+      {
+        "path": "templates/whale-girl-scan/NOTICE.md",
+        "blobSha": "08313a2cdf7ca67f328b3e36af9ac613a7a9521d",
+        "readScope": "full-text",
+        "url": "https://github.com/LeeRolling/dsh-boot-suite/blob/34b892eae168abf14fc9623cb109d6806ffeacf2/templates/whale-girl-scan/NOTICE.md"
+      },
+      {
+        "path": "templates/division-bigfish-codex/template.json",
+        "blobSha": "769551b3453563861df0eff871b0a2b0a617e0ca",
+        "readScope": "full-text",
+        "url": "https://github.com/LeeRolling/dsh-boot-suite/blob/34b892eae168abf14fc9623cb109d6806ffeacf2/templates/division-bigfish-codex/template.json"
+      },
+      {
+        "path": "templates/division-bigfish-codex/index.html",
+        "blobSha": "4cd65146a70e9d090614f1fac141e6f5b58a1053",
+        "readScope": "selected-sections",
+        "url": "https://github.com/LeeRolling/dsh-boot-suite/blob/34b892eae168abf14fc9623cb109d6806ffeacf2/templates/division-bigfish-codex/index.html"
+      },
+      {
+        "path": "docs/FUI-五要素.md",
+        "blobSha": "c04af0b409297781794ac25f7a412110c4c8e644",
+        "readScope": "selected-sections",
+        "url": "https://github.com/LeeRolling/dsh-boot-suite/blob/34b892eae168abf14fc9623cb109d6806ffeacf2/docs/FUI-五要素.md"
+      },
+      {
+        "path": "CHANGELOG.md",
+        "blobSha": "61271d746e9db25744fb9fb126230e9d3bce5e6c",
+        "readScope": "selected-sections",
+        "url": "https://github.com/LeeRolling/dsh-boot-suite/blob/34b892eae168abf14fc9623cb109d6806ffeacf2/CHANGELOG.md"
+      }
+    ]
+  },
+  "additionalPrimarySources": [
+    {
+      "title": "VPet Steam 简体中文页面",
+      "url": "https://store.steampowered.com/app/1920960/VPet/?l=schinese",
+      "purpose": "互动、可见评测规模；不作全平台排名"
+    },
+    {
+      "title": "VPet 源码 README",
+      "url": "https://github.com/LorisYounger/VPet/blob/main/README.md",
+      "blobSha": "c5dcd16cd66f7cfa0f4e0acedcecf885515ebfa2",
+      "purpose": "互动与制作扩展的项目自述；不采用其动画"
+    },
+    {
+      "title": "Desktop Mate Steam 页面",
+      "url": "https://store.steampowered.com/app/3301060/Desktop_Mate/?l=schinese",
+      "purpose": "窗口栖息、指针互动、语音、提醒和应用联动"
+    },
+    {
+      "title": "Bongo Cat Steam 页面",
+      "url": "https://store.steampowered.com/app/3419430/Bongo_Cat/?l=schinese",
+      "purpose": "输入反馈、轻量收集与可见评测规模"
+    },
+    {
+      "title": "Desktop Goose 作者页面",
+      "url": "https://samperson.itch.io/desktop-goose",
+      "purpose": "抢指针、桌面恶作剧作为打扰性对照"
+    }
+  ],
+  "localPrimarySource": {
+    "application": "DeepSeek Harness",
+    "runtimePackage": "@deepseek-ai/dsh-desktop-runtime",
+    "version": "0.2.1-rc.5",
+    "readOnly": true,
+    "files": [
+      {
+        "package": "@deepseek-ai/dsh-client-ui-model-selection",
+        "file": "README.zh.md",
+        "lines": [
+          14,
+          50,
+          54,
+          76
+        ],
+        "finding": "会话级模型目录、提供方/模型标识和名称插槽；非完整跨进程交互验收"
+      },
+      {
+        "package": "@deepseek-ai/dsh-client-ui-session",
+        "file": "README.zh.md",
+        "lines": [
+          11,
+          13
+        ],
+        "finding": "会话状态及完成提醒的静态说明"
+      },
+      {
+        "package": "@deepseek-ai/dsh-client-ui-chat",
+        "file": "README.zh.md",
+        "lines": [
+          13,
+          80
+        ],
+        "finding": "Chat呈现与轮次数据订阅说明"
+      }
+    ]
+  },
+  "limits": [
+    "未安装或运行参考项目",
+    "未操作用户真实DSH配置",
+    "Steam页面为抓取时快照，语言和缓存会影响数量；未建立全平台热度排名",
+    "Steam全语言评测JSON接口未取得有效JSON；不采用其统计",
+    "只读阅读本机官方包，不声明所有扩展接口已验证",
+    "模板/角色资源许可分别记录；未决定素材可对外收费或随开源包分发"
+  ]
+}

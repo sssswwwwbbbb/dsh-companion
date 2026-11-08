@@ -1,0 +1,18 @@
+{
+  "scope": "One static detector run on R2 changed targets, not a browser acceptance",
+  "findings": [
+    {
+      "rule": "tiny-text",
+      "count": 2,
+      "resolution": "11px is metadata/control labels; prose remains 14px in chat, 12px in source and performance supporting copy. Reviewer to judge actual captures."
+    },
+    {
+      "rule": "cream-palette",
+      "resolution": "Pinned R3 Archive Warm identity; retained deliberately."
+    },
+    {
+      "rule": "side-tab",
+      "resolution": "Changed result-paper bottom stripe from 3px to 1px hairline before final capture; no new detector run."
+    }
+  ]
+}

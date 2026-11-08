@@ -1,0 +1,202 @@
+--- a/runtime-src/startup.mjs
++++ b/runtime-src/startup.mjs
+@@ -1,5 +1,6 @@
+ const video=document.querySelector('#character'),poster=document.querySelector('#poster'),greeting=document.querySelector('#greeting'),subtitle=document.querySelector('#subtitle'),progress=document.querySelector('#progress'),status=document.querySelector('#status'),skip=document.querySelector('#skip'),open=document.querySelector('#open');
+ const stage=document.querySelector('main'),motion=matchMedia('(prefers-reduced-motion: reduce)');
++const openingLabel=document.querySelector('.eyebrow');
+ let currentToken=null,frame=null,stopMotionListener=null;
+ function clearMedia(){
+   if(frame!==null){video.cancelVideoFrameCallback(frame);frame=null;}
+@@ -52,6 +53,9 @@
+   stopMotionListener?.();stopMotionListener=null;currentToken=content.token;clearMedia();const token=currentToken;
+   document.title='DSH 开场 · '+content.name;document.body.classList.toggle('night',content.theme==='night');document.body.classList.toggle('custom',content.custom===true);
+   document.body.classList.toggle('cinematic',!!content.handoffSeconds);
++  const showRole=!!(content.roleName&&content.roleModel);
++  openingLabel.toggleAttribute('data-skin-role',showRole);
++  openingLabel.textContent=showRole?[content.name,content.roleName,content.roleModel].join(' · '):'DSH COMPANION';
+   for(const [property,name] of [['--intro-bg','--dsw-alias-bg-base'],['--intro-text','--dsw-alias-label-primary'],['--intro-accent','--dsw-alias-state-business-primary']]){
+     const pair=content.tokens?.[name],scheme=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+     if(pair)document.body.style.setProperty(property,pair[scheme]);else document.body.style.removeProperty(property);
+--- a/runtime-src/startup-skin.mjs
++++ b/runtime-src/startup-skin.mjs
+@@ -53,7 +53,11 @@
+     }
+     const theme=manifest.modules.theme;
+     const tokens=theme?.interfaceVersion===1&&[1,2,3].includes(theme.configVersion)?theme.config.tokens:{};
+-    this.resources=resources;this.descriptor={contentKey,name:manifest.name,...config,tokens};this.declared=true;this.errorCode=null;
++    const role=theme?.config.workspaceRole;
++    this.resources=resources;
++    this.descriptor={contentKey,name:manifest.name,...config,tokens,
++      ...(role?.name&&role?.model?{roleName:role.name,roleModel:role.model}:{})};
++    this.declared=true;this.errorCode=null;
+   }
+   activate({generation,contentKey}){
+     this.invalidate(generation);this.onCancel('content-applied');this.declared=true;
+@@ -72,7 +76,17 @@
+   playback(){
+     if(!this.canPlay())fail('STARTUP_NOT_REGISTERED');
+     const d=this.descriptor,prefix='/startup-resource/'+d.contentKey+'/';
+-    return {...d,generation:this.generation,poster:prefix+d.poster,video:d.video?prefix+d.video:null,posterSha:this.resources[d.poster].sha256,videoSha:d.video?this.resources[d.video].sha256:null,custom:true};
++    const preferences={};
++    if(d.handoffSeconds){
++      const state=JSON.parse(fs.readFileSync(path.join(this.stateDir,'skin-state.json'),'utf8'));
++      if(state.pending||state.stopped||state.generation!==this.generation||state.selected?.contentKey!==d.contentKey)fail('SKIN_OPERATION_SUPERSEDED');
++      const startup=resolveSettings(state.selected.manifest,state,{startup:true},{strictRequired:false}).startup;
++      if(startup?.status!=='enabled')fail('STARTUP_NOT_REGISTERED');
++      for(const field of ['soundEnabled','reducedMotion']){
++        if(typeof startup.values[field]==='boolean')preferences[field]=startup.values[field];
++      }
++    }
++    return {...d,...preferences,generation:this.generation,poster:prefix+d.poster,video:d.video?prefix+d.video:null,posterSha:this.resources[d.poster].sha256,videoSha:d.video?this.resources[d.video].sha256:null,custom:true};
+   }
+   resource(url){
+     const parts=url.pathname.split('/');if(parts.length!==4||parts[2]!==this.descriptor?.contentKey)return new Response(null,{status:404});
+--- a/runtime-src/startup.css
++++ b/runtime-src/startup.css
+@@ -12,6 +12,7 @@
+ :root:has(body.cinematic),body.custom.cinematic{background:transparent}
+ body.cinematic main{width:100vw;height:100vh;background:#070c14;clip-path:inset(0 var(--reveal,0%) 0 var(--reveal,0%))}
+ body.cinematic .buttons{top:16px;right:16px}
++body.cinematic .eyebrow[data-skin-role]{display:block;position:absolute;top:16px;left:16px;z-index:2;padding:6px 8px;border-radius:4px;background:#0b1320;color:#eef3ff;font-size:12px;letter-spacing:.08em;opacity:1}
+ body.cinematic button{background:#0b1320;color:#eef3ff;border-color:#8192ab}
+ body.cinematic button:focus-visible{outline:2px solid #bcd6fc;outline-offset:3px}
+ body.cinematic .progress{display:none}
+--- a/scripts/build-client.mjs
++++ b/scripts/build-client.mjs
+@@ -1,6 +1,7 @@
+ import { readFileSync, writeFileSync, copyFileSync, cpSync, rmSync, mkdirSync } from 'node:fs';
+ import {loadSkin,prepareResources} from '../packages/dsh-skin-core/src/resources.mjs';
+ import {fileURLToPath} from 'node:url';
++import {createHash} from 'node:crypto';
+ const base = new URL('../packages/dsh-companion/', import.meta.url);
+ const skinSource=new URL('../designs/dsh-skin-v1/content/archive-warm-whale-startup-m6-ready/',import.meta.url);
+ const skin=loadSkin(fileURLToPath(skinSource));prepareResources(skin);
+@@ -17,7 +18,9 @@
+ const skinClient=readFileSync(new URL('../packages/dsh-skin-core/adapters/page-client.mjs',import.meta.url),'utf8').replace(/^import \{installSessionFeedback\} from '\.\/session-feedback\.mjs';\n/m,'').replace(/^import \{installWorkspaceR2\} from '\.\/workspace-r2\.mjs';\n/m,'').replace(/^import \{installWorkspaceCommander\} from '\.\/workspace-commander\.mjs';\n/m,'').replace('export function installSkinPage','function installSkinPage');
+ const workspaceBase=new URL('../packages/dsh-skin-core/adapters/',import.meta.url);
+ const workspaceCode='const WORKSPACE_R2_STYLE='+JSON.stringify(readFileSync(new URL('workspace-r2.css',workspaceBase),'utf8'))+';\nconst WORKSPACE_R2_LEAVES='+readFileSync(new URL('workspace-leaves.json',workspaceBase),'utf8')+';\n'+readFileSync(new URL('workspace-performance.mjs',workspaceBase),'utf8').replace('export function createArchivePerformance','function createArchivePerformance')+'\n'+readFileSync(new URL('workspace-r2.mjs',workspaceBase),'utf8').replace('export function installWorkspaceR2','function installWorkspaceR2');
+-const commanderCode='const WORKSPACE_COMMANDER_BUILD='+JSON.stringify('2082678a190745d11d06687980192e481fbae301b530faaacacc97b9f0046efa')+';\nconst WORKSPACE_COMMANDER_STYLE='+JSON.stringify(readFileSync(new URL('workspace-commander.css',workspaceBase),'utf8'))+';\n'+readFileSync(new URL('commander-state.mjs',workspaceBase),'utf8').replace(/^export /gm,'')+'\n'+readFileSync(new URL('workspace-commander.mjs',workspaceBase),'utf8').replace(/^import \{commanderState\} from '\.\/commander-state\.mjs';\n/m,'').replace('export function installWorkspaceCommander','function installWorkspaceCommander');
++const presentationFiles=['workspace-commander.css','commander-state.mjs','workspace-commander.mjs'];
++const presentation= createHash('sha256').update(JSON.stringify(presentationFiles.map(file=>readFileSync(new URL(file,workspaceBase),'utf8')))).digest('hex');
++const commanderCode='const WORKSPACE_COMMANDER_BUILD='+JSON.stringify(presentation)+';\nconst WORKSPACE_COMMANDER_STYLE='+JSON.stringify(readFileSync(new URL('workspace-commander.css',workspaceBase),'utf8'))+';\n'+readFileSync(new URL('commander-state.mjs',workspaceBase),'utf8').replace(/^export /gm,'')+'\n'+readFileSync(new URL('workspace-commander.mjs',workspaceBase),'utf8').replace(/^import \{commanderState\} from '\.\/commander-state\.mjs';\n/m,'').replace('export function installWorkspaceCommander','function installWorkspaceCommander');
+ const sessionFeedback=readFileSync(new URL('../packages/dsh-skin-core/adapters/session-feedback.mjs',import.meta.url),'utf8').replace('export function installSessionFeedback','function installSessionFeedback');
+ const clientRequests=readFileSync(new URL('src/client-requests.mjs',base),'utf8').replace('export function createClientRequestGate','function createClientRequestGate');
+ const settingsUi=readFileSync(new URL('src/skin-settings-ui.mjs',base),'utf8').replace(/^export /gm,'');
+@@ -27,6 +30,8 @@
+ settingsAssets.workspace={contentKey:workspaceSkin.contentKey,portrait:'data:image/png;base64,'+readFileSync(new URL('skins/archive-workspace-r2-private/'+portrait.path,base)).toString('base64')};
+ 
+ settingsAssets.workspace.preset=workspaceSkin.manifest.modules.theme.config.workspacePreset;
++const role=workspaceSkin.manifest.modules.theme.config.workspaceRole;
++if(role.name&&role.model)settingsAssets.workspace.roleLabel=role.name+' · '+role.model;
+ const cover=workspaceSkin.manifest.assets['workspace-cover'];
+ settingsAssets.workspace.cover='data:image/png;base64,'+readFileSync(new URL('skins/archive-workspace-r2-private/'+cover.path,base)).toString('base64');
+ settingsAssets.workspace.controlIcons={};
+--- a/scripts/build-mac.mjs
++++ b/scripts/build-mac.mjs
+@@ -36,7 +36,7 @@
+ const pluginVersion = JSON.parse(fs.readFileSync(path.join(root, 'packages/dsh-companion/package.json'))).version;
+ const launchBin=path.join(root,'packages/dsh-companion/bin/darwin-arm64');fs.mkdirSync(launchBin,{recursive:true});
+ execFileSync('/usr/bin/clang',['-O2',path.join(root,'runtime-src/launcher.c'),'-o',path.join(launchBin,'companion-launch')],{stdio:'pipe'});
+-const settings = { CFBundleIdentifier: 'local.dsh.commander.startup.voiceb.supervisor', CFBundleName: 'DSHCompanion', CFBundleDisplayName: 'DSH 陪伴', CFBundleShortVersionString: pluginVersion.split('-')[0], CFBundleVersion: pluginVersion.match(/dev\.(\d+)/)?.[1] || '1' };
++const settings = { CFBundleIdentifier: 'local.dsh.commander.coldstart.supervisor', CFBundleName: 'DSHCompanion', CFBundleDisplayName: 'DSH 陪伴', CFBundleShortVersionString: pluginVersion.split('-')[0], CFBundleVersion: pluginVersion.match(/dev\.(\d+)/)?.[1] || '1' };
+ for (const [key, value] of Object.entries(settings)) execFileSync('/usr/libexec/PlistBuddy', ['-c', `Set :${key} ${value}`, path.join(contents, 'Info.plist')]);
+ execFileSync('/usr/bin/codesign', ['--force', '--sign', '-', '--timestamp=none', target], { stdio: 'pipe' });
+ // This is a local developer bundle. A distributable release needs our own signing
+--- a/packages/dsh-skin-core/adapters/startup.mjs
++++ b/packages/dsh-skin-core/adapters/startup.mjs
+@@ -3,6 +3,14 @@
+ export class NativeStartupAdapter {
+   constructor(controller){this.controller=controller;}
+   available(){return process.platform==='darwin'&&process.arch==='arm64';}
++  supportsUpdate(field){return field==='soundEnabled'||field==='reducedMotion';}
++  prepareUpdate(context){context.assertCurrent();return null;}
++  update(context){
++    // The native player reads these preferences from the committed Host state
++    // when it starts the next opening.
++    context.assertCurrent();
++    return {ready:true};
++  }
+   invalidate(generation){if(this.controller.credentials())void this.controller.request('/skin/startup/invalidate',{generation}).catch(()=>{});}
+   prepare({skin,config,resources}){
+     const live=this.controller.credentials();if(live&&live.startupProtocol!==1)fail('STARTUP_NATIVE_UPDATE_REQUIRED');
+--- a/packages/dsh-skin-core/adapters/page-mailbox.mjs
++++ b/packages/dsh-skin-core/adapters/page-mailbox.mjs
+@@ -37,7 +37,13 @@
+   prepare({config,resources,resumeStop}){
+     const image=id=>'data:'+resources[id].mime+';base64,'+resources[id].data.toString('base64');
+     const marks=config.entryMarks?{light:image(config.entryMarks.light),dark:image(config.entryMarks.dark)}:null;
+-    const workspace=config.workspacePreset?{preset:config.workspacePreset,enabled:config.workspaceDetailsEnabled===true,motion:config.workspaceMotionEnabled===true,petEcho:config.petEchoEnabled===true,opening:config.workspacePreset==='archive-warm-r2'&&resumeStop===true,feedback:config.workFeedbackEnabled===true,icons:Object.fromEntries(Object.entries(config.semanticIcons).map(([name,pair])=>[name,{light:image(pair.light),dark:image(pair.dark)}])),role:config.workspaceRole?Object.fromEntries(Object.entries(config.workspaceRole).map(([key,id])=>[key,image(id)])):null}:null;
++    let role=null;
++    if(config.workspaceRole){
++      const {name,model,...artwork}=config.workspaceRole;
++      role=Object.fromEntries(Object.entries(artwork).map(([key,id])=>[key,image(id)]));
++      if(name&&model)Object.assign(role,{name,model});
++    }
++    const workspace=config.workspacePreset?{preset:config.workspacePreset,enabled:config.workspaceDetailsEnabled===true,motion:config.workspaceMotionEnabled===true,petEcho:config.petEchoEnabled===true,opening:config.workspacePreset==='archive-warm-r2'&&resumeStop===true,feedback:config.workFeedbackEnabled===true,icons:Object.fromEntries(Object.entries(config.semanticIcons).map(([name,pair])=>[name,{light:image(pair.light),dark:image(pair.dark)}])),role}:null;
+     return {tokens:config.tokens,backgroundOpacity:config.backgroundOpacity,...(workspace?{workspace}:{}),...(config.background?{background:image(config.background)}:{}),
+       ...(marks?{entryMarkImages:marks,entryMarks:config.entryMarkEnabled?marks:null}:{}),
+       ...(typeof config.workFeedbackEnabled==='boolean'?{workFeedback:{enabled:config.workFeedbackEnabled,petEcho:config.petEchoEnabled===true}}:{})};
+--- a/packages/dsh-skin-core/adapters/workspace-commander.mjs
++++ b/packages/dsh-skin-core/adapters/workspace-commander.mjs
+@@ -21,9 +21,11 @@
+  off.push(ctx.slots.register({name:'shell.overlay',id:'commander-workspace-style',order:-99},()=>h('style',{'data-workspace-commander-style':true},WORKSPACE_COMMANDER_STYLE+'\n'+leaves)));
+  function Companion(){
+   const value=React.useSyncExternalStore(source.subscribe,source.getSnapshot);
+-  return h('section',{className:'dsh-commander-companion','data-commander-companion':true,'data-state':value.state,'aria-label':'机械姬陪伴位'},
+-   h('div',{className:'commander-portrait'},h('img',{src:config.role.portrait,alt:'机械姬 · 母版04',draggable:false}),h('i',{'aria-hidden':true})),
+-   h('div',{className:'commander-companion-copy'},h('strong',null,'机械姬',h('span',null,value.label)),h('p',null,value.copy)));
++  const name=config.role.name||'机械姬';
++  const model=config.role.model;
++  return h('section',{className:'dsh-commander-companion','data-commander-companion':true,'data-state':value.state,'aria-label':name+'陪伴位'},
++   h('div',{className:'commander-portrait'},h('img',{src:config.role.portrait,alt:model?name+' · '+model:name+' · 母版04',draggable:false}),h('i',{'aria-hidden':true})),
++   h('div',{className:'commander-companion-copy'},h('strong',null,model?name+' · '+model:name,h('span',null,value.label)),h('p',null,value.copy)));
+  }
+  if(config.role)off.push(ctx.slots.register({name:'sidebar.footer.action',id:'commander-companion',order:-20},Companion));
+  const abort=new AbortController();
+--- a/packages/dsh-skin-core/src/schema.mjs
++++ b/packages/dsh-skin-core/src/schema.mjs
+@@ -23,7 +23,12 @@
+ const entryMarks=x=>object(x)&&Object.keys(x).length===2&&id(x.light)&&id(x.dark);
+ const feedbackFields=['entryMarks','entryMarkEnabled','workFeedbackEnabled','petEchoEnabled'];
+ const workspaceIcons=x=>object(x)&&Object.keys(x).length>0&&Object.keys(x).length<=64&&Object.entries(x).every(([key,pair])=>id(key)&&entryMarks(pair));
+-const workspaceRole=x=>object(x)&&Object.keys(x).length===5&&['poster','portrait','avatar','idle','react'].every(k=>id(x[k]));
++function workspaceRole(value){
++  if(!object(value)||!['poster','portrait','avatar','idle','react'].every(key=>id(value[key])))return false;
++  const count=Object.keys(value).length;
++  return count===5||count===7&&text(value.name,32)&&value.name.trim().length>0
++    &&text(value.model,24)&&/^[A-Z0-9]+(?:-[A-Z0-9]+)*$/.test(value.model);
++}
+ const workspaceFields=['semanticIcons','workspacePreset','workspaceDetailsEnabled','workspaceMotionEnabled','workspaceRole'];
+ export const definitions = {
+   startup: {interfaceVersion:1,configVersion:1,configVersions:[1,2,3],fields:{
+--- a/packages/dsh-companion/src/skin-settings-ui.mjs
++++ b/packages/dsh-companion/src/skin-settings-ui.mjs
+@@ -72,8 +72,9 @@
+         const current=selected?.contentKey===row.contentKey,pending=selection?.contentKey===row.contentKey&&applying,failed=selection?.contentKey===row.contentKey&&selection.status==='failed',whale=row.contentKey===assets.contentKey||row.contentKey===assets.workspace?.contentKey,r2=row.contentKey===assets.workspace?.contentKey,commander=r2&&assets.workspace.preset==='commander-v1';
+         const unavailable=row.status==='unavailable',state=unavailable?'文件不可用':pending?'应用中':failed?'应用失败':current?(skin.stopped?'当前选择 · 已停止':applying?'当前选择':skin.phase==='ready'?'当前使用':'当前选择'):'已安装';
+         const sameLabel=rows.filter(other=>other.id===row.id&&other.version===row.version).length>1;
+-        return h('button',{key:row.contentKey||'unavailable-library',type:'button',className:'r3-library-card','aria-pressed':current,'aria-label':row.name+' '+row.version+' · '+state,'data-skin-key':row.contentKey,disabled:busy||!active||unavailable,onClick:()=>select(row)},
+-          h('span',{className:'r3-library-cover'+(commander?' commander':whale?' whale':''),style:whale?{'--library-grid':'url("'+assets.background+'")'}:undefined},commander&&h('img',{className:'commander-cover',src:assets.workspace.cover,alt:'机械姬 × 指挥官主题封面'}),row.contentKey===assets.contentKey&&h('span',{className:'commander-legacy-tag'},'旧版对照'),h('span',{className:'r3-library-cover-title'},whale?'档案暖白':row.name),whale?h('span',{className:'r3-library-portrait'+(r2?' workspace-role':'')},h('img',{src:r2?assets.workspace.portrait:assets.portrait,alt:'',draggable:false})):h(Icon,{name:'library'}),current&&h('span',{className:'r3-library-marker'},state)),
++        const roleLabel=commander?assets.workspace.roleLabel:null;
++        return h('button',{key:row.contentKey||'unavailable-library',type:'button',className:'r3-library-card','aria-pressed':current,'aria-label':[row.name+' '+row.version,roleLabel,state].filter(Boolean).join(' · '),'data-skin-key':row.contentKey,disabled:busy||!active||unavailable,onClick:()=>select(row)},
++          h('span',{className:'r3-library-cover'+(commander?' commander':whale?' whale':''),style:whale?{'--library-grid':'url("'+assets.background+'")'}:undefined},commander&&h('img',{className:'commander-cover',src:assets.workspace.cover,alt:row.name+'主题封面'}),row.contentKey===assets.contentKey&&h('span',{className:'commander-legacy-tag'},'旧版对照'),h('span',{className:'r3-library-cover-title'},whale&&!commander?'档案暖白':row.name),whale?h('span',{className:'r3-library-portrait'+(r2?' workspace-role':'')},h('img',{src:r2?assets.workspace.portrait:assets.portrait,alt:'',draggable:false})):h(Icon,{name:'library'}),current&&h('span',{className:'r3-library-marker'},state)),
+           h('span',{className:'r3-library-card-body'},h('span',{className:'r3-library-card-title'},h('strong',null,row.name),h('span',null,row.version)),sameLabel&&row.contentKey&&h('span',{className:'r3-caption'},'内容快照 '+row.contentKey.slice(0,8)),h('span',{className:'r3-library-modules'},...row.modules.map(module=>h('span',{key:module},modules[module]||module))),unavailable&&h('span',{className:'r3-caption'},row.reason==='SKIN_RESOURCE_MISSING'?'部分文件缺失，其他皮肤仍可使用。':'文件校验未通过，选择与偏好继续保留。'),h('span',{className:'r3-library-card-foot'},h('span',null,state),h('span',null,unavailable?'暂时无法使用':pending?'正在应用…':current&&!skin.stopped?(applying?'等待应用结果':skin.phase==='ready'?'使用中':skin.phase==='stopping'?'正在停止':'等待恢复'):current?'点击恢复':'点击使用'))));
+       }),!rows.length&&h('div',{className:'r3-library-empty'},h('h2',null,'从第一套皮肤开始'),h('p',null,'安装本地皮肤后，它会出现在这里。'),h(Button,{disabled:busy||!active,onClick:()=>void work('skinInstall')},'安装本地皮肤'))),
+       h('p',{className:'r3-library-note'},'皮肤装进库，授权留在插件。桌宠人设只作用于本套桌宠。'));
+@@ -81,6 +82,7 @@
+   function Settings({state,skin,view,active,busy,fieldBusy,fieldDrafts,saveField,work,stopSkin,stopping,modelDirectory,petText,setPetText,sendPet,petReply,setSection}){
+     const selected=skin?.selected,candidate=selected,modules=skin?.settings||{},r2=candidate?.contentKey===assets.workspace?.contentKey,commander=r2&&assets.workspace.preset==='commander-v1';
+     const candidateArt=r2?assets.workspace.portrait:candidate?.contentKey===assets.contentKey?assets.portrait:null;
++    const roleLabel=commander?assets.workspace.roleLabel:null;
+     if(!selected)return h('div',{className:'r3-library-empty'},h('p',null,'先在皮肤库选择一套皮肤。'),h(Button,{onClick:()=>setSection('library')},'前往皮肤库'));
+     if(!modules.pet)view='common';
+     const supported=module=>modules[module]?.status==='enabled';
+@@ -116,7 +118,7 @@
+       (petReply||state.petInteraction.last)&&h('p',{'data-pet-reply':true,role:'status'},(()=>{const reply=petReply||state.petInteraction.last;return (reply.actual.speech||'安静陪着你')+(reply.actual.action?' · '+reply.actual.action:'')+(reply.mode==='fallback'?'（本地回应）':'');})())):h('p',{className:'r3-caption'},skin?.stopped?'恢复本套后可互动。':skin?.disabled?.pet?'桌宠已关闭，参数已保留。':'本套尚未提供可用的桌宠互动。')));
+     return h(React.Fragment,null,h(Button,{onClick:()=>setSection('library')},'返回皮肤库'),stateNotice,skin?.error&&h('div',{className:'r3-notice error',role:'alert'},'恢复信息：'+skin.error.code),!active&&h('div',{className:'r3-notice'},'完成本机授权后即可应用皮肤。',h(Button,{onClick:()=>setSection('setup')},'前往开始使用')),
+       legacyExample&&h('div',{className:'r3-notice warning'},'当前保留的是历史技术样例。可返回皮肤库选择已安装的整套皮肤。'),
+-      view==='common'?h(React.Fragment,null,h('div',{className:'r3-skin-banner'},h('div',null,h('div',{className:'r3-eyebrow'},candidate?.contentKey===assets.contentKey?'ARCHIVE WARM / COMPANION':'本套皮肤'),h('h2',null,candidate?.name||'选择你的日常'),h('p',null,'这是当前皮肤的参数。换一套时，保留这一套的偏好。'),h('div',{className:'r3-actions'},h(Pill,null,candidate?.version||'本套偏好'),h(Pill,{tone:'blue'},skin.stopped?'当前选择 · 已停止':'当前选择'))),candidateArt&&h('span',{className:'r3-banner-pet'+(r2?' workspace-role':''),role:'img','aria-label':commander?'机械姬 · 母版04':'鲸鱼娘 · 安静待机'},h('img',{src:candidateArt,alt:'',draggable:false}))),
++      view==='common'?h(React.Fragment,null,h('div',{className:'r3-skin-banner'},h('div',null,h('div',{className:'r3-eyebrow'},candidate?.contentKey===assets.contentKey?'ARCHIVE WARM / COMPANION':'本套皮肤'),h('h2',null,candidate?.name||'选择你的日常'),h('p',null,roleLabel||'这是当前皮肤的参数。换一套时，保留这一套的偏好。'),h('div',{className:'r3-actions'},h(Pill,null,candidate?.version||'本套偏好'),h(Pill,{tone:'blue'},skin.stopped?'当前选择 · 已停止':'当前选择'))),candidateArt&&h('span',{className:'r3-banner-pet'+(r2?' workspace-role':''),role:'img','aria-label':roleLabel||(commander?'机械姬 · 母版04':'鲸鱼娘 · 安静待机')},h('img',{src:candidateArt,alt:'',draggable:false}))),
+         
+         modules.theme&&h(Section,{title:'阅读与表面'},moduleRow('theme','工作区主题','为会话工作区和左侧导航应用本套配色。'),supported('theme')&&h(React.Fragment,null,
+           fieldRow('theme',control('theme','backgroundOpacity'),'背景浓度','0 为纯色；保留本套的图案与浓度。'),

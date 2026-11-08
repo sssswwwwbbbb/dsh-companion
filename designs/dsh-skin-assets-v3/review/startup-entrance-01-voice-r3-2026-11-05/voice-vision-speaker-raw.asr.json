@@ -1,0 +1,25 @@
+{
+  "text": "視覺同步",
+  "segments": [
+    {
+      "id": 0,
+      "seek": 0,
+      "start": 0.0,
+      "end": 2.0,
+      "text": "視覺同步",
+      "tokens": [
+        50364,
+        27333,
+        9463,
+        13089,
+        31429,
+        50464
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.685600825718471,
+      "compression_ratio": 0.5714285714285714,
+      "no_speech_prob": 0.1103423461318016
+    }
+  ],
+  "language": "zh"
+}

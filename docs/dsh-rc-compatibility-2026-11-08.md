@@ -6,12 +6,12 @@
 
 | 项目 | 新版本 | 文件 |
 | --- | --- | --- |
-| Mac ARM64 插件 | 1.1.0-dev.5 | [dsh-plugin-companion-1.1.0-dev.5.tgz](<<本机路径>/dist/dsh-plugin-companion-1.1.0-dev.5.tgz>) |
-| Windows x64 插件 | 1.1.0-dev.5 | [dsh-plugin-companion-1.1.0-dev.5-win32-x64.tgz](<<本机路径>/dist/dsh-plugin-companion-1.1.0-dev.5-win32-x64.tgz>) |
-| 冷启动 | 1.0.1 | [commander-workspace-private-1.0.1-rc-compat.zip](<<本机路径>/dist/skin-rc-compat/commander-workspace-private-1.0.1-rc-compat.zip>) |
-| 黑焰 | 0.2.3 | [black-flame-0.2.3-rc-compat.zip](<<本机路径>/dist/skin-rc-compat/black-flame-0.2.3-rc-compat.zip>) |
-| 天空龙 | 1.0.6 | [duelist-sky-dragon-1.0.6-rc-compat.zip](<<本机路径>/dist/skin-rc-compat/duelist-sky-dragon-1.0.6-rc-compat.zip>) |
-| 独立作者校验工具 | 1.1.0-dev.5 | [dsh-skin-author-kit-1.1.0-dev.5.zip](<<本机路径>/dist/dsh-skin-author-kit-1.1.0-dev.5.zip>) |
+| Mac ARM64 插件 | 1.1.0-dev.5 | [dsh-plugin-companion-1.1.0-dev.5.tgz](<本机路径>/dist/dsh-plugin-companion-1.1.0-dev.5.tgz>) |
+| Windows x64 插件 | 1.1.0-dev.5 | [dsh-plugin-companion-1.1.0-dev.5-win32-x64.tgz](<本机路径>/dist/dsh-plugin-companion-1.1.0-dev.5-win32-x64.tgz>) |
+| 冷启动 | 1.0.1 | [commander-workspace-private-1.0.1-rc-compat.zip](<本机路径>/dist/skin-rc-compat/commander-workspace-private-1.0.1-rc-compat.zip>) |
+| 黑焰 | 0.2.3 | [black-flame-0.2.3-rc-compat.zip](<本机路径>/dist/skin-rc-compat/black-flame-0.2.3-rc-compat.zip>) |
+| 天空龙 | 1.0.6 | [duelist-sky-dragon-1.0.6-rc-compat.zip](<本机路径>/dist/skin-rc-compat/duelist-sky-dragon-1.0.6-rc-compat.zip>) |
+| 独立作者校验工具 | 1.1.0-dev.5 | [dsh-skin-author-kit-1.1.0-dev.5.zip](<本机路径>/dist/dsh-skin-author-kit-1.1.0-dev.5.zip>) |
 
 兼容包只修改 skin.json 的 version、dshVersions，原 ZIP 和制作者目录均未覆盖，所有其他清单字段和素材字节一致。稳定 skin.id 保持，领取名额继续按同一皮肤计算。新包 contentKey 会变化，需要下载安装并主动应用，新版不会自动替换旧选择。用户自行上架；本次没有上传或替换云端皮肤包。
 

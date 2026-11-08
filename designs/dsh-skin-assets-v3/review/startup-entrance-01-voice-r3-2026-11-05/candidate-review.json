@@ -1,0 +1,189 @@
+{
+  "status": "independent audiovisual audition; user auditory acceptance pending",
+  "video": "designs/dsh-skin-assets-v3/review/startup-entrance-01-voice-r3-2026-11-05/startup-entrance-01-four-lines-voice-b.mp4",
+  "video_sha256": "5704f18e13b521fc318a2cb4d2dfe92ea2d00a4fdb0dd557045cd63ac392d1b1",
+  "audio": "designs/dsh-skin-assets-v3/review/startup-entrance-01-voice-r3-2026-11-05/sound-scene-voice-b.mp3",
+  "audio_sha256": "66ebf6e24699abf7dd57471669988da09e31aa3897a8397dae72ace0ac3cc643",
+  "source": "designs/dsh-skin-assets-v3/assets/cinematic/source/entrance-01-source.mp4",
+  "source_sha256": "ece35294685f11dfb372c243c69d5f1acac1f4ba673ccfd12f537c194a3e250d",
+  "voice_reference": "https://www.bilibili.com/video/BV1T7nM6xEqo/",
+  "selected_voice": "B",
+  "method": "local reference-conditioned speech with speaker embedding",
+  "duration_seconds": 12.5,
+  "handoff_at_seconds": 12.15,
+  "lines": [
+    {
+      "id": "awakening",
+      "start": 0.35,
+      "end": 2.192625,
+      "text": "开始唤醒。",
+      "picture": "corridor and power approach",
+      "voice_take": "voice-awakening-speaker-20261109-raw.wav",
+      "voice_take_sha256": "566ce27cf3b640ea6ad2d90d883060adebcc0c87167f1cf76b18c62b43c8a534",
+      "pause_cuts_seconds": [],
+      "raw_seconds": 2.4,
+      "trimmed_seconds": 2.4,
+      "tempo_factor": 1.2938005390835579,
+      "prepared_levels": {
+        "input_i": "-16.07",
+        "input_tp": "-1.80",
+        "input_lra": "0.00",
+        "input_thresh": "-26.07",
+        "output_i": "-16.07",
+        "output_tp": "-1.80",
+        "output_lra": "0.00",
+        "output_thresh": "-26.07",
+        "normalization_type": "linear",
+        "target_offset": "2.07"
+      }
+    },
+    {
+      "id": "release",
+      "start": 2.8,
+      "end": 5.277979166666666,
+      "text": "隔离解除，机体上线。",
+      "picture": "interlocks and chamber reveal",
+      "voice_take": "voice-release-speaker-20261106-raw.wav",
+      "voice_take_sha256": "fc06f46b9a11aa048ee9e052296b4eb309bce75c8c55cd06b49b417729ee222b",
+      "pause_cuts_seconds": [],
+      "raw_seconds": 2.48,
+      "trimmed_seconds": 2.48,
+      "tempo_factor": 1.0,
+      "prepared_levels": {
+        "input_i": "-14.00",
+        "input_tp": "-2.56",
+        "input_lra": "0.00",
+        "input_thresh": "-24.00",
+        "output_i": "-14.00",
+        "output_tp": "-2.56",
+        "output_lra": "0.00",
+        "output_thresh": "-24.00",
+        "normalization_type": "linear",
+        "target_offset": "0.00"
+      }
+    },
+    {
+      "id": "vision",
+      "start": 7.48,
+      "end": 9.010833333333334,
+      "text": "视觉同步。",
+      "picture": "optical awakening",
+      "voice_take": "voice-vision-speaker-raw.wav",
+      "voice_take_sha256": "e3db6d9b1c4020c93882dfed7e2931b46502be8f90be6530f6cb54bfaa30f31f",
+      "pause_cuts_seconds": [],
+      "raw_seconds": 1.76,
+      "trimmed_seconds": 1.76,
+      "tempo_factor": 1.1617161716171622,
+      "prepared_levels": {
+        "input_i": "-14.01",
+        "input_tp": "-2.65",
+        "input_lra": "0.00",
+        "input_thresh": "-24.01",
+        "output_i": "-14.01",
+        "output_tp": "-2.64",
+        "output_lra": "0.00",
+        "output_thresh": "-24.01",
+        "normalization_type": "linear",
+        "target_offset": "0.01"
+      }
+    },
+    {
+      "id": "report",
+      "start": 9.15,
+      "end": 12.059041666666667,
+      "text": "指挥官，我已就位。",
+      "picture": "eye contact with commander",
+      "voice_take": "voice-report-speaker-raw.wav",
+      "voice_take_sha256": "302a5925272fa5452df058da55cc2b2b391d3ab9582815d359f724f36e0c78b2",
+      "pause_cuts_seconds": [
+        [
+          1.71,
+          1.927
+        ],
+        [
+          2.844,
+          3.233
+        ]
+      ],
+      "raw_seconds": 4.16,
+      "trimmed_seconds": 3.5355,
+      "tempo_factor": 1.208717948717949,
+      "prepared_levels": {
+        "input_i": "-14.62",
+        "input_tp": "-1.80",
+        "input_lra": "0.00",
+        "input_thresh": "-25.52",
+        "output_i": "-14.62",
+        "output_tp": "-1.80",
+        "output_lra": "0.00",
+        "output_thresh": "-25.52",
+        "normalization_type": "linear",
+        "target_offset": "0.62"
+      }
+    }
+  ],
+  "full_mix_levels": {
+    "input_i": "-14.03",
+    "input_tp": "-3.66",
+    "input_lra": "2.40",
+    "input_thresh": "-25.12",
+    "output_i": "-13.22",
+    "output_tp": "-1.80",
+    "output_lra": "3.10",
+    "output_thresh": "-24.29",
+    "normalization_type": "dynamic",
+    "target_offset": "-0.78"
+  },
+  "peak_dbfs": -3.7587086572267783,
+  "clipped_samples": 0,
+  "segment_rms_dbfs": [
+    {
+      "start": 0,
+      "end": 3,
+      "rms": -19.735878704654517
+    },
+    {
+      "start": 3,
+      "end": 7,
+      "rms": -18.441021302286654
+    },
+    {
+      "start": 7,
+      "end": 9.15,
+      "rms": -17.396853259766868
+    },
+    {
+      "start": 9.15,
+      "end": 12.5,
+      "rms": -17.506289306238326
+    }
+  ],
+  "full_decode_passed": true,
+  "source_recording_inserted_in_film": false,
+  "bound_media_modified": false,
+  "existing_bound_sha256": "4d3ed205fa1b0a9dc9fb0f5e68c7eb2ef251ee76030509cd2f154ef2eb83113b",
+  "paid_requests": 0,
+  "runtime_dependency_added": false,
+  "native_integrated": false,
+  "ear_review_completed": false,
+  "delivery_check": {
+    "video": {
+      "duration_seconds": 12.5,
+      "integrated_lufs": -14.04,
+      "true_peak_dbtp": -3.8,
+      "full_decode_passed": true,
+      "bytes": 5970115
+    },
+    "audio": {
+      "duration_seconds": 12.53,
+      "integrated_lufs": -14.28,
+      "true_peak_dbtp": -3.89,
+      "full_decode_passed": true,
+      "bytes": 301292
+    }
+  },
+  "mix_asr": {
+    "text": "開始換行隔離解除機體上線視覺同步指揮官我已就位",
+    "observation": "唤醒 was recognized as 换行; the other three scripted lines were transcribed."
+  }
+}

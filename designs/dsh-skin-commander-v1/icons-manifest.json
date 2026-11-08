@@ -1,0 +1,1093 @@
+{
+  "kind": "archive-warm-workspace-v2-design-assets",
+  "runtimeLoadable": false,
+  "count": 56,
+  "viewBox": [
+    0,
+    0,
+    24,
+    24
+  ],
+  "strokeWidth": 1.55,
+  "pngSize": [
+    96,
+    96
+  ],
+  "format": "transparent sRGB RGBA PNG",
+  "palettes": {
+    "light": {
+      "ink": "#68685e",
+      "detail": "#35677e"
+    },
+    "dark": {
+      "ink": "#b6b9ac",
+      "detail": "#91c3d7"
+    }
+  },
+  "items": [
+    {
+      "id": "workspace",
+      "label": "工作区",
+      "group": "导航",
+      "svg": "assets/icons/workspace.svg",
+      "svgSha256": "3a12f2571b3276bd9117363ff1a77c696ab1823eb49629652c0f96b4149906f6",
+      "png": {
+        "light": {
+          "path": "assets/png/light/workspace.png",
+          "sha256": "8124653e227c981dce780ef04ac6e639106f0c312e6574cccbe6d937f534b936",
+          "bytes": 1488
+        },
+        "dark": {
+          "path": "assets/png/dark/workspace.png",
+          "sha256": "00a4345d77570b2fcfde9f287958f494265050a54ee938993bc89e5713bdab39",
+          "bytes": 1532
+        }
+      }
+    },
+    {
+      "id": "compose",
+      "label": "新建会话",
+      "group": "导航",
+      "svg": "assets/icons/compose.svg",
+      "svgSha256": "69a46d1a31b356adfeeabff2cb636d9f2c89d5ebee15494fd7000a646e77473e",
+      "png": {
+        "light": {
+          "path": "assets/png/light/compose.png",
+          "sha256": "270220e7279ec5cd44e86910601d8360b4d52d3218173b8984ea4a0839b03584",
+          "bytes": 1242
+        },
+        "dark": {
+          "path": "assets/png/dark/compose.png",
+          "sha256": "b69a5e085b2c193cf6b1f2ce1f489d54cd4bea7683efc176667ad08cafacd550",
+          "bytes": 1360
+        }
+      }
+    },
+    {
+      "id": "conversation",
+      "label": "会话",
+      "group": "导航",
+      "svg": "assets/icons/conversation.svg",
+      "svgSha256": "1500b8006ec34467d559f806a630156e03092f8bc263f8172427ad88bb98b7f2",
+      "png": {
+        "light": {
+          "path": "assets/png/light/conversation.png",
+          "sha256": "2cb7cb4277fe0027ffaa783f042dde08e3d1a6a10806501dc9246ebd62106279",
+          "bytes": 1016
+        },
+        "dark": {
+          "path": "assets/png/dark/conversation.png",
+          "sha256": "005c02aabe040b49c5e0996202b7a8831eb66121ae42a033df05fe34db037b2f",
+          "bytes": 1065
+        }
+      }
+    },
+    {
+      "id": "history",
+      "label": "历史记录",
+      "group": "导航",
+      "svg": "assets/icons/history.svg",
+      "svgSha256": "019883f6bc71234646bbb2aa502e6c828991efa3538a00335b32fa07fb77a7f5",
+      "png": {
+        "light": {
+          "path": "assets/png/light/history.png",
+          "sha256": "bd86fc0c53d37ef47806c53f502f8b43c1f268656650f30b74209c02f92cf0e4",
+          "bytes": 2046
+        },
+        "dark": {
+          "path": "assets/png/dark/history.png",
+          "sha256": "682d0772537df07dddaa3511a74e009c841d1c3eeb167045b075ab916f233486",
+          "bytes": 2045
+        }
+      }
+    },
+    {
+      "id": "search",
+      "label": "搜索",
+      "group": "导航",
+      "svg": "assets/icons/search.svg",
+      "svgSha256": "a9d09787d228e6b8b9f1e481eb6337f68e13a205f3f2ae103d314a94816a7bd1",
+      "png": {
+        "light": {
+          "path": "assets/png/light/search.png",
+          "sha256": "9e070f5219fe7c4af55e54be745318c97a85360e800dbe715845aa17c6426ccf",
+          "bytes": 2653
+        },
+        "dark": {
+          "path": "assets/png/dark/search.png",
+          "sha256": "0e32c966fd4099da83a7bb8e441f7221e5492283f54a395f5b031b1af407c1e4",
+          "bytes": 2648
+        }
+      }
+    },
+    {
+      "id": "panel-left",
+      "label": "侧栏",
+      "group": "导航",
+      "svg": "assets/icons/panel-left.svg",
+      "svgSha256": "7ce3476bdcb6407b2aca71fad1d38ba84fb86a9bb23213ca4d34f3fe22ff1b27",
+      "png": {
+        "light": {
+          "path": "assets/png/light/panel-left.png",
+          "sha256": "f83da6174e82ed04ff5c43ad10b64b2aa295202fd0a768faeb9b24d0384c9574",
+          "bytes": 1270
+        },
+        "dark": {
+          "path": "assets/png/dark/panel-left.png",
+          "sha256": "55f03ccd82789896e476b7b8899e05f5a81d4e0fe27cd40f8f4daf629c27813e",
+          "bytes": 1298
+        }
+      }
+    },
+    {
+      "id": "folder",
+      "label": "文件夹",
+      "group": "导航",
+      "svg": "assets/icons/folder.svg",
+      "svgSha256": "73f984e91cedd2cb4dee1882e4ede7dc2e7c31d843ab344bb3ab31c5a59445ba",
+      "png": {
+        "light": {
+          "path": "assets/png/light/folder.png",
+          "sha256": "a4b172fdbb710f37dfe31ac6d780f1698650e8f94ac18a63329bf3b58260a58a",
+          "bytes": 971
+        },
+        "dark": {
+          "path": "assets/png/dark/folder.png",
+          "sha256": "60202260fbcf53336c9d12efe31a419e3e18f2ebcd6e131735799a9d022e101f",
+          "bytes": 967
+        }
+      }
+    },
+    {
+      "id": "folder-open",
+      "label": "展开文件夹",
+      "group": "导航",
+      "svg": "assets/icons/folder-open.svg",
+      "svgSha256": "439d6eb2831e350ad8393d4b03243a6e96cf9308c2a8ddbce2d9770d62539573",
+      "png": {
+        "light": {
+          "path": "assets/png/light/folder-open.png",
+          "sha256": "5a18c6712327a430e1587005510bddee2de2f9a2219f55aa88695950b96c66cb",
+          "bytes": 1445
+        },
+        "dark": {
+          "path": "assets/png/dark/folder-open.png",
+          "sha256": "d614e34b4400a6bf68918ed5e6cb0076a76d7fe7e9f8b6f3dd650348a33f4bf2",
+          "bytes": 1402
+        }
+      }
+    },
+    {
+      "id": "pin",
+      "label": "置顶",
+      "group": "导航",
+      "svg": "assets/icons/pin.svg",
+      "svgSha256": "f354cdd143229825eb326244b3db61a4f0ca68bb4586b485accc9c5d4d493179",
+      "png": {
+        "light": {
+          "path": "assets/png/light/pin.png",
+          "sha256": "23b31d16e20cd28154cb4ea7c86b9704cc8f943f0542c497f4f6262fb2f89215",
+          "bytes": 1231
+        },
+        "dark": {
+          "path": "assets/png/dark/pin.png",
+          "sha256": "1f02e862a1b2ced01d24c4c288c632337862a91a3e218fc41bd2b671c1283e46",
+          "bytes": 1358
+        }
+      }
+    },
+    {
+      "id": "bookmark",
+      "label": "书签",
+      "group": "导航",
+      "svg": "assets/icons/bookmark.svg",
+      "svgSha256": "124dc01d1a7e87376ab5572795f924a5548594ca703d9b3a56329bf06f0c6511",
+      "png": {
+        "light": {
+          "path": "assets/png/light/bookmark.png",
+          "sha256": "9bcd191a4e3bcb9160f2814d69972236e322b4087a6637c87ae83495d7d8511a",
+          "bytes": 1176
+        },
+        "dark": {
+          "path": "assets/png/dark/bookmark.png",
+          "sha256": "5a05bf62866101f884fab92b62fb4018d36220d1764d6a0939af95cf91426901",
+          "bytes": 1194
+        }
+      }
+    },
+    {
+      "id": "archive",
+      "label": "归档",
+      "group": "导航",
+      "svg": "assets/icons/archive.svg",
+      "svgSha256": "8cd332b9b63029f57a409e5b87d75657d241bf7a928ae70853c0e4a41dc873ef",
+      "png": {
+        "light": {
+          "path": "assets/png/light/archive.png",
+          "sha256": "2b3f3b7dd31420b5c72123e471148b76681d9014c5e75305de5718cbd9c6c3ed",
+          "bytes": 1078
+        },
+        "dark": {
+          "path": "assets/png/dark/archive.png",
+          "sha256": "831be10c5464f891c07003306ecd90b4926d6d80c90a6426eae5ab6f8d492699",
+          "bytes": 1102
+        }
+      }
+    },
+    {
+      "id": "more",
+      "label": "更多",
+      "group": "导航",
+      "svg": "assets/icons/more.svg",
+      "svgSha256": "19cb1516a97028b08e5bc3597e1043bfbc36d22fc424027fb12f9e9695b7a7a0",
+      "png": {
+        "light": {
+          "path": "assets/png/light/more.png",
+          "sha256": "bd25eed5e69a23829ae6f0f3ca3098f15d06167b2ce54a9a59178440c7633463",
+          "bytes": 939
+        },
+        "dark": {
+          "path": "assets/png/dark/more.png",
+          "sha256": "753e6b1d3426777a95ec87d6dbab1cdfea903c2e52faa4a8d6c75d2848e33d9b",
+          "bytes": 1028
+        }
+      }
+    },
+    {
+      "id": "attachment",
+      "label": "添加附件",
+      "group": "对话",
+      "svg": "assets/icons/attachment.svg",
+      "svgSha256": "1d8817b434339da6a886513ce794a634998cbc30d7196b5f3a6a1d60a7d085d8",
+      "png": {
+        "light": {
+          "path": "assets/png/light/attachment.png",
+          "sha256": "4529fa7f2de758ad26f6c49d91d7261f6b028791b96d84af023b9f1d77982d8d",
+          "bytes": 1926
+        },
+        "dark": {
+          "path": "assets/png/dark/attachment.png",
+          "sha256": "c3319e12d36e0d01e99863690e515a261de0f1e04d6754e29246d19f68f53728",
+          "bytes": 1825
+        }
+      }
+    },
+    {
+      "id": "link",
+      "label": "链接",
+      "group": "对话",
+      "svg": "assets/icons/link.svg",
+      "svgSha256": "fa11f82fca95cc78ec4b41d64859920efaf4535f191bf058816283cd0997afae",
+      "png": {
+        "light": {
+          "path": "assets/png/light/link.png",
+          "sha256": "5d9210449c2ba6c11da04ee17058972de3041b78affdfbce5fc9ceb7ce32872e",
+          "bytes": 2038
+        },
+        "dark": {
+          "path": "assets/png/dark/link.png",
+          "sha256": "7d34ce3111d07e4df1f7bc84bcd5c7c997e8a6dfe99012b028301645dab784dc",
+          "bytes": 1926
+        }
+      }
+    },
+    {
+      "id": "quote",
+      "label": "引用",
+      "group": "对话",
+      "svg": "assets/icons/quote.svg",
+      "svgSha256": "3c480ffa570d5c80b53c9d7bc862e95a026a79179ecf4600fa39c2c3f2a1eebe",
+      "png": {
+        "light": {
+          "path": "assets/png/light/quote.png",
+          "sha256": "bbce905a8673fa1f8f525bbd10344b41673dcab90822490e607ec74587c090d4",
+          "bytes": 1039
+        },
+        "dark": {
+          "path": "assets/png/dark/quote.png",
+          "sha256": "6d8b7b4837c5aebc0ca8fe0746116a4d626946e2204136acd3ba1a60ce4f7996",
+          "bytes": 1008
+        }
+      }
+    },
+    {
+      "id": "copy",
+      "label": "复制",
+      "group": "对话",
+      "svg": "assets/icons/copy.svg",
+      "svgSha256": "264345bc4a93a10d8e50a740b0dfbcba4d9ce6e17e9e51aa8babc3421d69d31a",
+      "png": {
+        "light": {
+          "path": "assets/png/light/copy.png",
+          "sha256": "24285d2ef56c8a3194c4f623f5099aec9cafb64e5f29b21dc9de3b3e4e61ce4c",
+          "bytes": 872
+        },
+        "dark": {
+          "path": "assets/png/dark/copy.png",
+          "sha256": "b4006ce5748151e9fbf7e62fab077dfdb129a361c9354b3247a994828bf22124",
+          "bytes": 877
+        }
+      }
+    },
+    {
+      "id": "retry",
+      "label": "重新生成",
+      "group": "对话",
+      "svg": "assets/icons/retry.svg",
+      "svgSha256": "7ae727ed43688e453ec6c0a29254f48cd96846442fb26081db6f6b0f2eb7f6ed",
+      "png": {
+        "light": {
+          "path": "assets/png/light/retry.png",
+          "sha256": "4d5b06bc576870576df77a88e649dff3d177203c91218ca7d79b56d678b06f8f",
+          "bytes": 2027
+        },
+        "dark": {
+          "path": "assets/png/dark/retry.png",
+          "sha256": "d6846c22310350740e60df8e7f6392210b5cee2860d134806e754e23ef73ccde",
+          "bytes": 2048
+        }
+      }
+    },
+    {
+      "id": "edit",
+      "label": "编辑",
+      "group": "对话",
+      "svg": "assets/icons/edit.svg",
+      "svgSha256": "aaf500f50e4d1286b69c66a7380cc0fc50e9977b081075ab2afac50b18135f06",
+      "png": {
+        "light": {
+          "path": "assets/png/light/edit.png",
+          "sha256": "09c48faac35271d3093300c0e3cf20d0163336a4f68c9ad4d46f88534fb4cb6c",
+          "bytes": 1564
+        },
+        "dark": {
+          "path": "assets/png/dark/edit.png",
+          "sha256": "0741027702818b33b465312c57d16913eec1f6b303c7bd0fd5dd8ab2816c2f73",
+          "bytes": 1672
+        }
+      }
+    },
+    {
+      "id": "branch",
+      "label": "分支会话",
+      "group": "对话",
+      "svg": "assets/icons/branch.svg",
+      "svgSha256": "bb318dc96a4197b7ea50d676a445cc6ea4c347eb229c31cb235626721d7b263a",
+      "png": {
+        "light": {
+          "path": "assets/png/light/branch.png",
+          "sha256": "5c4d6ed0dbd9aed5b6c42a8415855c411114213303d2d68047cb611620a842e6",
+          "bytes": 2069
+        },
+        "dark": {
+          "path": "assets/png/dark/branch.png",
+          "sha256": "701b6e8c3728e57dd342e4b49c343d55ba34fed9c1311f6cf976647f34b05052",
+          "bytes": 2100
+        }
+      }
+    },
+    {
+      "id": "send",
+      "label": "发送",
+      "group": "对话",
+      "svg": "assets/icons/send.svg",
+      "svgSha256": "cef399011cba20f527c86da776c78c72d734991be7e79802a23052f701e8fbf5",
+      "png": {
+        "light": {
+          "path": "assets/png/light/send.png",
+          "sha256": "1a7f25e8a02f7901281840dd46ffd036917d3c87b2c108cbff85d3771f1412da",
+          "bytes": 1670
+        },
+        "dark": {
+          "path": "assets/png/dark/send.png",
+          "sha256": "ab47cea1447f114a8715d433e0bcd168e782f49fe0e0ad00ac03983d715c618d",
+          "bytes": 1688
+        }
+      }
+    },
+    {
+      "id": "stop",
+      "label": "停止",
+      "group": "对话",
+      "svg": "assets/icons/stop.svg",
+      "svgSha256": "01369f620da1836725085792bafb2bdd5015dd6b11ecf1661559c11bbf6b3c15",
+      "png": {
+        "light": {
+          "path": "assets/png/light/stop.png",
+          "sha256": "0ada74a28910e6905579e7f1b527fab467ae3ef169ece4e67a48624ab0f19fbc",
+          "bytes": 1048
+        },
+        "dark": {
+          "path": "assets/png/dark/stop.png",
+          "sha256": "ec49f47e69b883fc2c1a0b164bc8c698afc525ee01e0a19ebf12a3ab936fe220",
+          "bytes": 1074
+        }
+      }
+    },
+    {
+      "id": "chevron-down",
+      "label": "展开",
+      "group": "对话",
+      "svg": "assets/icons/chevron-down.svg",
+      "svgSha256": "64ddc043e0d4af2f8f4e971c139dc8416b1077042270d6f911acd4a712db73fd",
+      "png": {
+        "light": {
+          "path": "assets/png/light/chevron-down.png",
+          "sha256": "548afc59cf1d3c0c24362bd47594ecca51b1019a03e8a7700070d690fc709567",
+          "bytes": 1106
+        },
+        "dark": {
+          "path": "assets/png/dark/chevron-down.png",
+          "sha256": "a5c822592036e9d9bf7fa9b81f55be6ea4a021ec45f4c5e6e8941dada32aeb25",
+          "bytes": 1266
+        }
+      }
+    },
+    {
+      "id": "chevron-right",
+      "label": "进入",
+      "group": "对话",
+      "svg": "assets/icons/chevron-right.svg",
+      "svgSha256": "afb6528e79235a894fffd5aa4a939e0902f404323680ead3b9a66342b2b6c4fa",
+      "png": {
+        "light": {
+          "path": "assets/png/light/chevron-right.png",
+          "sha256": "3bd96fd9f295993b0f4cccb164214a771849358e4d81b9da5237d2c7db6a4a71",
+          "bytes": 994
+        },
+        "dark": {
+          "path": "assets/png/dark/chevron-right.png",
+          "sha256": "e578ddd52337546b64cbf05a36961a21218b57bac6c4392b52b5884b5da2f491",
+          "bytes": 1002
+        }
+      }
+    },
+    {
+      "id": "plus",
+      "label": "添加",
+      "group": "对话",
+      "svg": "assets/icons/plus.svg",
+      "svgSha256": "56977c442ef34a710f675e3b78c9ea962fb7ff505e70e4c51f7df585449cd5a2",
+      "png": {
+        "light": {
+          "path": "assets/png/light/plus.png",
+          "sha256": "69162aaa0c5c45de1b49b8e23f1d46316d65410b5167d7556d4328294e5182f6",
+          "bytes": 781
+        },
+        "dark": {
+          "path": "assets/png/dark/plus.png",
+          "sha256": "7b714a6edf16b81e012879281a090e2133a8bfd41ccb567cb60c4b0d8659fc35",
+          "bytes": 787
+        }
+      }
+    },
+    {
+      "id": "file-text",
+      "label": "文本文件",
+      "group": "文件",
+      "svg": "assets/icons/file-text.svg",
+      "svgSha256": "a1dcdc19aa3585ffc6ed642a6128b6ef881ad47eef82fc46cef6c96802b290ab",
+      "png": {
+        "light": {
+          "path": "assets/png/light/file-text.png",
+          "sha256": "06b3d528b5b153584720dc7f3df495acd6c451f13722c197691d83500c7283db",
+          "bytes": 983
+        },
+        "dark": {
+          "path": "assets/png/dark/file-text.png",
+          "sha256": "f15f283d5531cbd41aa90f5b076aad854c46dbbf363c1731b477c28eb1f82804",
+          "bytes": 1005
+        }
+      }
+    },
+    {
+      "id": "file-code",
+      "label": "代码文件",
+      "group": "文件",
+      "svg": "assets/icons/file-code.svg",
+      "svgSha256": "67ffce6c08f04af5fbfc9e30b20b75d10d898da0ecf1fadff069a49e7f12287f",
+      "png": {
+        "light": {
+          "path": "assets/png/light/file-code.png",
+          "sha256": "3c70f5252204785e391b4a7a9feda14496e7d2af43cecfadefa8635f7d1b5427",
+          "bytes": 1444
+        },
+        "dark": {
+          "path": "assets/png/dark/file-code.png",
+          "sha256": "a6c9c29778cb366e951fc6e6fc0d53743fc645b78ef46151417ad9d8264c349b",
+          "bytes": 1466
+        }
+      }
+    },
+    {
+      "id": "file-image",
+      "label": "图像文件",
+      "group": "文件",
+      "svg": "assets/icons/file-image.svg",
+      "svgSha256": "b3fef94f49178369621d9b89c45dc585f9631d449c7cbd422b5d8ffd0094368a",
+      "png": {
+        "light": {
+          "path": "assets/png/light/file-image.png",
+          "sha256": "f074504247b0f302613bfd9f78bdd0b51d85b375ddc56853950c4b9a638dc232",
+          "bytes": 1515
+        },
+        "dark": {
+          "path": "assets/png/dark/file-image.png",
+          "sha256": "a6cab960e4d0386c5202a863eaacc7b5dfd32fdffdceb7578f08cda6ffb39657",
+          "bytes": 1537
+        }
+      }
+    },
+    {
+      "id": "file-table",
+      "label": "表格文件",
+      "group": "文件",
+      "svg": "assets/icons/file-table.svg",
+      "svgSha256": "be1d1ab56a1bf9917283621002b9c4ffa322feb42d175b8308e34da0b65172dd",
+      "png": {
+        "light": {
+          "path": "assets/png/light/file-table.png",
+          "sha256": "0a9859e246261cf9ba589f29cfa4c1652a50a558cbb8d58d5d0edea8af59093f",
+          "bytes": 937
+        },
+        "dark": {
+          "path": "assets/png/dark/file-table.png",
+          "sha256": "34fa10022c2f068c5af133619975a29999ce71b7a71c7bf221a39e01d5d8d13f",
+          "bytes": 950
+        }
+      }
+    },
+    {
+      "id": "terminal",
+      "label": "终端",
+      "group": "文件",
+      "svg": "assets/icons/terminal.svg",
+      "svgSha256": "197298ee7cc85844d6cb8049b03a2342e79a7eec5b16d90d6231ce71fced20b2",
+      "png": {
+        "light": {
+          "path": "assets/png/light/terminal.png",
+          "sha256": "c5b7503aeae650d3ba9e955f84b363ebc2d88ec88bce43a87aff876f52f7f16a",
+          "bytes": 1369
+        },
+        "dark": {
+          "path": "assets/png/dark/terminal.png",
+          "sha256": "d2cdabcf7776bdf0b717340b8b972c3bee1ca7e8786e56828c28f748cb248c03",
+          "bytes": 1423
+        }
+      }
+    },
+    {
+      "id": "external",
+      "label": "在外部打开",
+      "group": "文件",
+      "svg": "assets/icons/external.svg",
+      "svgSha256": "c3b01d49b0af97081f686474899cf97e469fadf73963666a39bc949d4572fe43",
+      "png": {
+        "light": {
+          "path": "assets/png/light/external.png",
+          "sha256": "5bafb7c08469230ad2dc27d7ae7f9b4edd1bbfd98857de29ae3a6d626494b36d",
+          "bytes": 1010
+        },
+        "dark": {
+          "path": "assets/png/dark/external.png",
+          "sha256": "af870acbdd30efd37f6476bad34d017ec2df75c7f4c68669d50726314b01698a",
+          "bytes": 1026
+        }
+      }
+    },
+    {
+      "id": "check",
+      "label": "完成",
+      "group": "状态",
+      "svg": "assets/icons/check.svg",
+      "svgSha256": "fc8c47dbd15aab206189ac106b1052c6b5bf77793fbf03f16e81e3f64157a754",
+      "png": {
+        "light": {
+          "path": "assets/png/light/check.png",
+          "sha256": "04f3eb6ac7ed4b0098ee45823774ae6b5aa8abf02fa3dc6000c2b15c1bca01c8",
+          "bytes": 1163
+        },
+        "dark": {
+          "path": "assets/png/dark/check.png",
+          "sha256": "a756dc3be1fc1c89f0fb46be322fb191d0754de3da37a825bb94a4d52d8b204f",
+          "bytes": 1143
+        }
+      }
+    },
+    {
+      "id": "clock",
+      "label": "等待",
+      "group": "状态",
+      "svg": "assets/icons/clock.svg",
+      "svgSha256": "3769d6519479e44c2493695c4787c6b024375fea066410042331195041f21817",
+      "png": {
+        "light": {
+          "path": "assets/png/light/clock.png",
+          "sha256": "c7691505f442436cd35b61dd59bfce023a3d1fca6c3613629bedc39f66a9be81",
+          "bytes": 3210
+        },
+        "dark": {
+          "path": "assets/png/dark/clock.png",
+          "sha256": "eed73610d7cd91e24025f928c739c59c774738ca79d60d502449288864fb1c24",
+          "bytes": 3260
+        }
+      }
+    },
+    {
+      "id": "alert",
+      "label": "需要处理",
+      "group": "状态",
+      "svg": "assets/icons/alert.svg",
+      "svgSha256": "853a3f0cb3249b500aeea9a9650f8d5ac2a5c317205a426a6942e3c2905c5769",
+      "png": {
+        "light": {
+          "path": "assets/png/light/alert.png",
+          "sha256": "5c115e3c6fe99774501284953678b7efd876264f80171037c9b453b1d84d16a6",
+          "bytes": 1554
+        },
+        "dark": {
+          "path": "assets/png/dark/alert.png",
+          "sha256": "ecf669edac0c95e7a9ea7ad9ac0188b2899f35753a07e79a8455157947c4a215",
+          "bytes": 1537
+        }
+      }
+    },
+    {
+      "id": "info",
+      "label": "说明",
+      "group": "状态",
+      "svg": "assets/icons/info.svg",
+      "svgSha256": "70f9a2b51a5f15e1d7daa9bd345593b41b91246c8ec199e318f9aab75259ce5f",
+      "png": {
+        "light": {
+          "path": "assets/png/light/info.png",
+          "sha256": "6c2c73666f48a61f1f6ed81c1d99f60c63529b98643fc6d6739b62be032350bc",
+          "bytes": 3209
+        },
+        "dark": {
+          "path": "assets/png/dark/info.png",
+          "sha256": "d916759602a7b811a31a8f0f51b36627a39a158f478e4db8f6d5a90e187121a5",
+          "bytes": 3243
+        }
+      }
+    },
+    {
+      "id": "play",
+      "label": "播放",
+      "group": "状态",
+      "svg": "assets/icons/play.svg",
+      "svgSha256": "b5b502f88c4fdd9f852218c846348c5346c7b1bc25ac98a6242f1bbad2b3e3ec",
+      "png": {
+        "light": {
+          "path": "assets/png/light/play.png",
+          "sha256": "2cff9ff6afc8cc406f96b19f3dee0995041af1fa4c182c533d29d5a748a41f70",
+          "bytes": 1160
+        },
+        "dark": {
+          "path": "assets/png/dark/play.png",
+          "sha256": "be9c417278f7a5a82075eab0ed28f1c1ce49004d7afbcd7eff9d019c18d32534",
+          "bytes": 1159
+        }
+      }
+    },
+    {
+      "id": "pause",
+      "label": "暂停",
+      "group": "状态",
+      "svg": "assets/icons/pause.svg",
+      "svgSha256": "88b0d90fe0a30ec0530ed254fc42070be24eba7c09feb60226c55c5551f1c4f5",
+      "png": {
+        "light": {
+          "path": "assets/png/light/pause.png",
+          "sha256": "5135b897f5b1d3d3302f07ce6f286a9083a93bb826f6414bde188b9536270e6f",
+          "bytes": 663
+        },
+        "dark": {
+          "path": "assets/png/dark/pause.png",
+          "sha256": "df001bfc77239afb393e96870aa5a29720cbcbc0c7ccd25438a5637a56685cb1",
+          "bytes": 667
+        }
+      }
+    },
+    {
+      "id": "close",
+      "label": "关闭",
+      "group": "状态",
+      "svg": "assets/icons/close.svg",
+      "svgSha256": "f62d52fc1df2f7de1059cad2631f9d2f0cb8ad42d28d2b3914bb007709fdb413",
+      "png": {
+        "light": {
+          "path": "assets/png/light/close.png",
+          "sha256": "fb9e26eb473295e9bcfdcb953d566f13de57b6b924b9f3ac431b77d1a7069f93",
+          "bytes": 992
+        },
+        "dark": {
+          "path": "assets/png/dark/close.png",
+          "sha256": "04d4ed733b0b07bad495d0a0efea6ed3e3da263724762b641d0a2941d02cde9c",
+          "bytes": 1682
+        }
+      }
+    },
+    {
+      "id": "settings",
+      "label": "设置",
+      "group": "设置",
+      "svg": "assets/icons/settings.svg",
+      "svgSha256": "57eea4ab2da07f64f0d1f8bec3c4fcfc010b431187e5e3437a356b124e6d0f14",
+      "png": {
+        "light": {
+          "path": "assets/png/light/settings.png",
+          "sha256": "87f96550d8c9428ce0eb98c615149d7c000ac404f1f03aed62174c664ebab55d",
+          "bytes": 3146
+        },
+        "dark": {
+          "path": "assets/png/dark/settings.png",
+          "sha256": "55e71461b6e72f1e384d6af82b203d35db6a2310f8d44b96633ccb9ef2c85b7a",
+          "bytes": 3132
+        }
+      }
+    },
+    {
+      "id": "sliders",
+      "label": "偏好",
+      "group": "设置",
+      "svg": "assets/icons/sliders.svg",
+      "svgSha256": "22b2a253a7bd739e49611c66dc2ace776a0f767d4cbaedf9465a195fbe771015",
+      "png": {
+        "light": {
+          "path": "assets/png/light/sliders.png",
+          "sha256": "838711885cdfb51f39b67df0c62c80dfc36f16c5fb3ea3b8e7bcb36746df0c0f",
+          "bytes": 1746
+        },
+        "dark": {
+          "path": "assets/png/dark/sliders.png",
+          "sha256": "1c954ab67a44cf2f74542ed4c3b8bc08bb99e7a5a229dafffff51241e860a482",
+          "bytes": 1855
+        }
+      }
+    },
+    {
+      "id": "sun",
+      "label": "浅色",
+      "group": "设置",
+      "svg": "assets/icons/sun.svg",
+      "svgSha256": "bdbfbd70251f200e5aa2a9ff2c16ddea6a10bf6fa084e754ddfa0d26c553a75e",
+      "png": {
+        "light": {
+          "path": "assets/png/light/sun.png",
+          "sha256": "922dd8db041502a6885459349d1f6fb83316b1d39aa75900d101bce321fa0b9f",
+          "bytes": 2509
+        },
+        "dark": {
+          "path": "assets/png/dark/sun.png",
+          "sha256": "5dc658a63f7f8c2fad877e4fd3f15d12f61525c21dc786fd318c6cb184fdc26f",
+          "bytes": 2597
+        }
+      }
+    },
+    {
+      "id": "moon",
+      "label": "深色",
+      "group": "设置",
+      "svg": "assets/icons/moon.svg",
+      "svgSha256": "ecd3a94c5f58b4e54989557b6ca1fafdee9dccc06e4be3b4eabfd1cb0b65b656",
+      "png": {
+        "light": {
+          "path": "assets/png/light/moon.png",
+          "sha256": "c882397af51da552ed2f685e304364dea346dfc7661ee08a51192dfdaa2a80b3",
+          "bytes": 2009
+        },
+        "dark": {
+          "path": "assets/png/dark/moon.png",
+          "sha256": "0f0bf9160ae4d088187383abd50097e1901af35d06f05bf199f86d9e66a6a988",
+          "bytes": 1892
+        }
+      }
+    },
+    {
+      "id": "palette",
+      "label": "皮肤",
+      "group": "设置",
+      "svg": "assets/icons/palette.svg",
+      "svgSha256": "d009fdee8d7a80fbf7dd67c68b217bf0e5741f62cad396aa3118f868b08e24cf",
+      "png": {
+        "light": {
+          "path": "assets/png/light/palette.png",
+          "sha256": "c57f659382f9155336e8d8c1a72b6b3e9d6580a3b6089e6f19ef3449ae57fdef",
+          "bytes": 2543
+        },
+        "dark": {
+          "path": "assets/png/dark/palette.png",
+          "sha256": "e38b53cda1b1b444cd252900907759c563b27784c6b2eb1c2c52dfdb44aea701",
+          "bytes": 2366
+        }
+      }
+    },
+    {
+      "id": "companion",
+      "label": "桌宠",
+      "group": "设置",
+      "svg": "assets/icons/companion.svg",
+      "svgSha256": "a010be98e9edbe45d51d28ddf414b813e71b927b2a73d98301cd47bc8b94e304",
+      "png": {
+        "light": {
+          "path": "assets/png/light/companion.png",
+          "sha256": "c5c02da4f13c888908001943939cfee33860d3bb4ab90043440dc8fe63ee8610",
+          "bytes": 2760
+        },
+        "dark": {
+          "path": "assets/png/dark/companion.png",
+          "sha256": "922c4c63dcf528a2cde866f54e23be69ab9fbef7abe3eea8ab2e81107538ee4f",
+          "bytes": 2727
+        }
+      }
+    },
+    {
+      "id": "volume",
+      "label": "声音",
+      "group": "设置",
+      "svg": "assets/icons/volume.svg",
+      "svgSha256": "1bfaafe9aa20252bc10ee8b64ec4248fc35d4d12ccea315a4beb573be09ccd0c",
+      "png": {
+        "light": {
+          "path": "assets/png/light/volume.png",
+          "sha256": "3991282e471dae0e8384ef45a47fbc4e8703259633335ac88ab4f41d6c3ffbe4",
+          "bytes": 1803
+        },
+        "dark": {
+          "path": "assets/png/dark/volume.png",
+          "sha256": "7e093694fe41a00420ca148eaa0b56114355040418ec1d49c46365d144b83ad3",
+          "bytes": 1816
+        }
+      }
+    },
+    {
+      "id": "mute",
+      "label": "静音",
+      "group": "设置",
+      "svg": "assets/icons/mute.svg",
+      "svgSha256": "07d717060e0848416157da5a00ad6a1b884f1af3e66309132a1e5dc950651ae2",
+      "png": {
+        "light": {
+          "path": "assets/png/light/mute.png",
+          "sha256": "1eec2841be900e80444b772867d099bcfe64ca86ae0cffcd8a35009ea708ad08",
+          "bytes": 1673
+        },
+        "dark": {
+          "path": "assets/png/dark/mute.png",
+          "sha256": "96e2766ef907ade0c1ed6fffa8f34c71c37344c658e1b0572be9b0507ede98cf",
+          "bytes": 1641
+        }
+      }
+    },
+    {
+      "id": "download",
+      "label": "下载",
+      "group": "设置",
+      "svg": "assets/icons/download.svg",
+      "svgSha256": "2adf7a451530249b1e52a24ba2776454bf86d11079317658f3cd4ea4125a755a",
+      "png": {
+        "light": {
+          "path": "assets/png/light/download.png",
+          "sha256": "faf7dbc8b768b6920a6d5687cb1174e639952ae31b4bbc9485ae6e9918f6fdfa",
+          "bytes": 1041
+        },
+        "dark": {
+          "path": "assets/png/dark/download.png",
+          "sha256": "38628777b224b145b0866323b7efbca81bbd04f934d170dda92e4a1f2f071f0f",
+          "bytes": 1257
+        }
+      }
+    },
+    {
+      "id": "shield",
+      "label": "权限",
+      "group": "设置",
+      "svg": "assets/icons/shield.svg",
+      "svgSha256": "c98fe4313e5419e911a24d98e7d7f84fc677d63f26c0b64c9737becc20f91835",
+      "png": {
+        "light": {
+          "path": "assets/png/light/shield.png",
+          "sha256": "82d1b5cdcb72e647878c01f853573a4fae8e419f5d3082bccebcc7542805dd40",
+          "bytes": 1929
+        },
+        "dark": {
+          "path": "assets/png/dark/shield.png",
+          "sha256": "607703082d9db09215be41d56ddf869db8c53b218b85773f5a0a7e2274382e84",
+          "bytes": 2103
+        }
+      }
+    },
+    {
+      "id": "expand",
+      "label": "专注阅读",
+      "group": "设置",
+      "svg": "assets/icons/expand.svg",
+      "svgSha256": "479b15f6e843a98938b4a268af5a012a3e44a8c159780be83ccb66130278c8f7",
+      "png": {
+        "light": {
+          "path": "assets/png/light/expand.png",
+          "sha256": "3531d51f9a72796fba17dbb2a944e3aac0bbebcd489649ec8325e275ff97236d",
+          "bytes": 944
+        },
+        "dark": {
+          "path": "assets/png/dark/expand.png",
+          "sha256": "1061bbc3dba0059937ddb89beafa6fd049c3592aacccbca9341acfd250b65118",
+          "bytes": 944
+        }
+      }
+    },
+    {
+      "id": "plugin",
+      "label": "插件",
+      "group": "DSH功能",
+      "svg": "assets/icons/plugin.svg",
+      "svgSha256": "1512b1c358eca58872b960feef76118e45919f14361e2ad63731e8812f866273",
+      "png": {
+        "light": {
+          "path": "assets/png/light/plugin.png",
+          "sha256": "9daf81d8ad2a98e733312c62855e0c4e891ba2851e80ce510fec5aedc0021edd",
+          "bytes": 1476
+        },
+        "dark": {
+          "path": "assets/png/dark/plugin.png",
+          "sha256": "3a122839e9b767266be1a314d48e3c91091c9e0f20bce244e08884da0870de95",
+          "bytes": 1426
+        }
+      }
+    },
+    {
+      "id": "skill",
+      "label": "技能",
+      "group": "DSH功能",
+      "svg": "assets/icons/skill.svg",
+      "svgSha256": "46d9e50ee1981728bd9b4928f0f1054afabd376242d8ed05f8b0729b17e5c054",
+      "png": {
+        "light": {
+          "path": "assets/png/light/skill.png",
+          "sha256": "2eafae787ff99c6b436e1f70db04aa201a4e4ac545defbdd8f5c1a839d0ddee0",
+          "bytes": 1562
+        },
+        "dark": {
+          "path": "assets/png/dark/skill.png",
+          "sha256": "40e8380a53105a197a779fde8aca14a46f5e718bab2b35e5f2f10b82869f6ec9",
+          "bytes": 1575
+        }
+      }
+    },
+    {
+      "id": "model",
+      "label": "模型",
+      "group": "DSH功能",
+      "svg": "assets/icons/model.svg",
+      "svgSha256": "b85052219dd1fd66c631c4e36b76b7104a83506749bec90f282e802ad8367149",
+      "png": {
+        "light": {
+          "path": "assets/png/light/model.png",
+          "sha256": "bdf3be2ee2cac2b2db718602750b6b01ee1b881a02db5972bc077d6e6bc732ef",
+          "bytes": 2107
+        },
+        "dark": {
+          "path": "assets/png/dark/model.png",
+          "sha256": "f70e7100bc430d4fe5e899e3aca0b8b96f856ee2b23bd3df21e066d0c18fae06",
+          "bytes": 2197
+        }
+      }
+    },
+    {
+      "id": "agent",
+      "label": "助手",
+      "group": "DSH功能",
+      "svg": "assets/icons/agent.svg",
+      "svgSha256": "126e4f0a9cd8d37c745c7ffd97d75b0f40151d2e83bdff3b7eb91dce31688f85",
+      "png": {
+        "light": {
+          "path": "assets/png/light/agent.png",
+          "sha256": "3a0a2094daeb1a56a542168031313e05f47ac30c3ee5681a7bb5b3dd52ca2e93",
+          "bytes": 1082
+        },
+        "dark": {
+          "path": "assets/png/dark/agent.png",
+          "sha256": "3f9abcf7bc5cca65b772d9d0447d07bc7308d9740192bda8aea90aad455fe947",
+          "bytes": 1115
+        }
+      }
+    },
+    {
+      "id": "question",
+      "label": "问答",
+      "group": "DSH功能",
+      "svg": "assets/icons/question.svg",
+      "svgSha256": "9f840efb3ba77619f46a06f7e5a830b53915ea8eaf439061ac4ebe607bc6ea4b",
+      "png": {
+        "light": {
+          "path": "assets/png/light/question.png",
+          "sha256": "d4195737d0b6864476ee05880c7674c9ceee540c956a703c635a84576c2ffa40",
+          "bytes": 1391
+        },
+        "dark": {
+          "path": "assets/png/dark/question.png",
+          "sha256": "6a0a8c7fcc487bc9b4697dbdc3ba2dbd0621e8c46d58533bbd2da863b517479b",
+          "bytes": 1482
+        }
+      }
+    },
+    {
+      "id": "plan",
+      "label": "计划清单",
+      "group": "DSH功能",
+      "svg": "assets/icons/plan.svg",
+      "svgSha256": "a7cbfd716f3542acc6d4d90c39f3f06ebee8d5411eb7a1b457c07a102680250b",
+      "png": {
+        "light": {
+          "path": "assets/png/light/plan.png",
+          "sha256": "22529981238288086d82cbb2c75a5b334d6c98b01e6c33d072b28ca0226550a1",
+          "bytes": 1283
+        },
+        "dark": {
+          "path": "assets/png/dark/plan.png",
+          "sha256": "a439ea180e7432eb3f59cab726d7dc90850f1d0a5c82794f7c3ff7757bb5f712",
+          "bytes": 1309
+        }
+      }
+    },
+    {
+      "id": "inbox",
+      "label": "收件箱",
+      "group": "DSH功能",
+      "svg": "assets/icons/inbox.svg",
+      "svgSha256": "e8ac0350ceda1a76dac4fa1ca809a2d6531dc60e755918d17aea93187c4c0938",
+      "png": {
+        "light": {
+          "path": "assets/png/light/inbox.png",
+          "sha256": "374a84d54900e46c77546ed87e01521a060cfcb731b487062f3eea8152eb5009",
+          "bytes": 1325
+        },
+        "dark": {
+          "path": "assets/png/dark/inbox.png",
+          "sha256": "50cd20aef29e04977cce1d5ee4a7f2b0d65b6dcf71bcf548db3f49003998e859",
+          "bytes": 1350
+        }
+      }
+    },
+    {
+      "id": "git-diff",
+      "label": "代码变更",
+      "group": "DSH功能",
+      "svg": "assets/icons/git-diff.svg",
+      "svgSha256": "78744eec8654bdda67f8fbd70e6c09fa5b9d94e78051cb45a18456562f1c88a3",
+      "png": {
+        "light": {
+          "path": "assets/png/light/git-diff.png",
+          "sha256": "3971b4500ed72660be32cba3ff60e2eb30498c82e5932bf693afb43440c09148",
+          "bytes": 1140
+        },
+        "dark": {
+          "path": "assets/png/dark/git-diff.png",
+          "sha256": "ff52a6d0a6dd73f5b79d28d481476958506be23d4be88f3bb7bf1e15b550c104",
+          "bytes": 1115
+        }
+      }
+    }
+  ]
+}

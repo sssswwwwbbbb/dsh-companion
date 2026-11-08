@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>档案暖白 · 本地图标 PNG 导出</title>
+<style>body{font:13px system-ui;margin:24px;color:#2b302c;background:#fffdf8}h1{font-size:20px}main{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}a{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #d9d4c7;color:inherit;font-size:11px}img{width:24px;height:24px}a.dark{background:#292e2c;color:#f1efe6}p{font-size:12px}</style>
+<h1>本地 SVG → sRGB PNG</h1>
+<p id="progress">正在读取矢量原稿…</p>
+<main id="exports"></main>
+<script>
+(async function(){
+  var items=await fetch('../icons.json').then(function(r){return r.json();});
+  var modes={light:{ink:'#68685e',detail:'#35677e'},dark:{ink:'#b6b9ac',detail:'#91c3d7'}};
+  for(var entry of Object.entries(modes)){
+    var mode=entry[0],colors=entry[1];
+    for(var item of items){
+      var body=item.body.replaceAll('class="icon-detail"','stroke="'+colors.detail+'"');
+      var source='<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="'+colors.ink+'" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round">'+body+'</svg>';
+      var url=URL.createObjectURL(new Blob([source],{type:'image/svg+xml'})),img=new Image();
+      img.src=url;await img.decode();
+      var canvas=document.createElement('canvas');canvas.width=96;canvas.height=96;
+      canvas.getContext('2d',{colorSpace:'srgb'}).drawImage(img,0,0,96,96);
+      var a=document.createElement('a'),preview=document.createElement('img');
+      a.href=canvas.toDataURL('image/png');a.dataset.asset=mode+'/'+item.id+'.png';
+      a.download=item.id+'-'+mode+'.png';a.className=mode;
+      preview.src=a.href;preview.alt='';a.append(preview,document.createTextNode(item.label+' · '+mode));
+      document.getElementById('exports').append(a);URL.revokeObjectURL(url);
+    }
+  }
+  document.getElementById('progress').textContent='已准备'+items.length*2+'份透明RGBA资源：'+items.length+'枚图标，每枚浅/深各一份，96×96，sRGB。';
+})();
+</script>
+</html>

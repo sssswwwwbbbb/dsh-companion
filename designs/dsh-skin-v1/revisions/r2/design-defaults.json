@@ -1,0 +1,122 @@
+{
+  "kind": "design-intent",
+  "version": "0.2.0",
+  "runtimeLoadable": false,
+  "skinIdProposal": "archive-warm-whale",
+  "note": "R2 design controls and unified-character pose preview only. The unchanged runtime manifest remains an R1 technical fixture and does not include this character.",
+  "defaults": {
+    "theme": "light",
+    "background": true,
+    "motion": "system",
+    "startup": true,
+    "pet": true,
+    "size": 160,
+    "clickResponse": true,
+    "completion": true,
+    "bubbles": true,
+    "cooldown": 30,
+    "completionAction": "greet"
+  },
+  "fixed": {
+    "sound": false,
+    "backgroundStyle": "original-archive-grid",
+    "idleAction": "idle",
+    "activeSessionOnly": true,
+    "needsUserTreatment": "static-label",
+    "decorativeSignalChangesBusinessState": false,
+    "character": "scan-whale-r2",
+    "posePreviewDurationsMs": {
+      "react": 1800,
+      "greet": 2600,
+      "stretch": 3000
+    },
+    "poseAsset": "assets/whale-unified-r2/character-atlas-r2.png"
+  },
+  "controls": {
+    "theme": {
+      "type": "enum",
+      "values": [
+        "light",
+        "dark"
+      ],
+      "default": "light",
+      "status": "dark-is-design-candidate"
+    },
+    "background": {
+      "type": "boolean",
+      "default": true
+    },
+    "motion": {
+      "type": "enum",
+      "values": [
+        "system",
+        "reduced"
+      ],
+      "default": "system"
+    },
+    "startup": {
+      "type": "boolean",
+      "default": true,
+      "status": "reference-local-only"
+    },
+    "pet": {
+      "type": "boolean",
+      "default": true
+    },
+    "size": {
+      "type": "number",
+      "min": 120,
+      "max": 220,
+      "step": 10,
+      "default": 160,
+      "visibleWhen": "pet"
+    },
+    "clickResponse": {
+      "type": "boolean",
+      "default": true,
+      "visibleWhen": "pet"
+    },
+    "completion": {
+      "type": "boolean",
+      "default": true,
+      "status": "design-proposal-event-unverified"
+    },
+    "bubbles": {
+      "type": "boolean",
+      "default": true,
+      "visibleWhen": "completion"
+    },
+    "cooldown": {
+      "type": "enum",
+      "values": [
+        15,
+        30,
+        60
+      ],
+      "default": 30,
+      "visibleWhen": "completion"
+    },
+    "completionAction": {
+      "type": "enum",
+      "values": [
+        "greet",
+        "stretch"
+      ],
+      "default": "greet",
+      "visibleWhen": "completion"
+    }
+  },
+  "unsupportedHidden": [
+    "sound-volume",
+    "model-character-mapping",
+    "input-monitor",
+    "external-wallpaper",
+    "market",
+    "creator-editor"
+  ],
+  "globalPreviewDefaults": {
+    "stopped": false,
+    "muted": true
+  },
+  "scope": "Local design preview. No user DSH data, credentials, or external requests."
+}

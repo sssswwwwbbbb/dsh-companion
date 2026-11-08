@@ -1,0 +1,152 @@
+{
+  "status": "offline transition candidate for existing native player",
+  "theme": "冷启动",
+  "character": "单元-07",
+  "model": "CS-07",
+  "master": "04",
+  "inputs": {
+    "designs/dsh-skin-assets-v3/assets/motion/source/walk-loop-01-source.mp4": "9eaae207c29a9706e42cebdc3849e6b9b97a9ac475c97f17dadbc4b2b87276ac",
+    "designs/dsh-skin-assets-v3/assets/motion/walk-loop-01.webm": "f7a64c9d56306d34ff82d236a34eef812fcacb4237fb5bee59e847fbab91c6a8",
+    ".local/dsh-walk-native-20261105/backend-template/master-walk-left.webm": "931f2109773c1f6ca718cc0572bdbc911897582e38a38423527399cb31adff63",
+    ".local/dsh-walk-native-20261105/backend-template/master-idle.webm": "7d05a9174cd5ef1714ada5af6415f42c6ddad4d529b65427e766cf8bc5c43a9f"
+  },
+  "asset": {
+    "file": "master04-left-stop-turn-idle.webm",
+    "sha256": "30093949d3049327d86df2f1417b21896fda2c5e2612edeead80de623e8c38c4",
+    "bytes": 960631,
+    "format": "WebM VP9 alpha (yuva420p)",
+    "width": 1920,
+    "height": 1080,
+    "fps": 24,
+    "frames": 15,
+    "seconds": 0.625,
+    "audio": false
+  },
+  "comparison": {
+    "file": "left-stop-before-after.mp4",
+    "sha256": "7f7e230f1a568663480621e103e12f9aa683e3e2b37c3d6356e7ec5f91c166d0",
+    "full_decode_passed": true
+  },
+  "logical_canvas": [
+    640,
+    360
+  ],
+  "pixel_density": 3,
+  "ground_logical": [
+    320,
+    330
+  ],
+  "ground_pixel": [
+    960,
+    990
+  ],
+  "root_delta_logical": [
+    0,
+    0
+  ],
+  "opaque_sole_y_logical_by_frame": [
+    330.0,
+    330.0,
+    330.3333333333333,
+    330.0,
+    330.0,
+    329.6666666666667,
+    328.6666666666667,
+    329.3333333333333,
+    330.0,
+    330.3333333333333,
+    330.6666666666667,
+    330.3333333333333,
+    330.0,
+    329.3333333333333,
+    329.0
+  ],
+  "decoded_alpha_ranges": [
+    [
+      0,
+      255
+    ],
+    [
+      0,
+      255
+    ],
+    [
+      0,
+      255
+    ],
+    [
+      0,
+      255
+    ],
+    [
+      0,
+      255
+    ],
+    [
+      0,
+      255
+    ],
+    [
+      0,
+      255
+    ],
+    [
+      0,
+      255
+    ],
+    [
+      0,
+      255
+    ],
+    [
+      0,
+      255
+    ],
+    [
+      0,
+      255
+    ],
+    [
+      0,
+      255
+    ],
+    [
+      0,
+      255
+    ],
+    [
+      0,
+      255
+    ],
+    [
+      0,
+      255
+    ]
+  ],
+  "timeline": {
+    "natural_walk_end_seconds": 11.25,
+    "first_frame": "exact decoded last walk frame",
+    "landing_source_frames_inclusive": [
+      79,
+      80,
+      81,
+      82
+    ],
+    "last_landing_frame": 4,
+    "turn_start_seconds": 0.16666666666666666,
+    "idle_match_frame": 14,
+    "idle_start_after_seconds": 0.625,
+    "idle_entry_time": 0
+  },
+  "handoff": "On natural left-walk completion, stop root movement, play this clip once, then enter the existing idle at time zero. Interruptions follow the existing cancel path.",
+  "image_difference": {
+    "method": "mean absolute premultiplied RGBA difference over alpha union",
+    "direct_cut": 0.2599489390850067,
+    "max_with_transition": 0.10624527186155319,
+    "walk_entry": 0.004135336726903915,
+    "idle_exit": 0.006583012640476227
+  },
+  "method": "original landing frames followed by matched landmarks, a single alpha contour and dominant textures at high-contrast details",
+  "observed_limits": "Short interpolated turn. Some shoe and hem detail changes shape in the middle frames.",
+  "native_transition_tested": false
+}

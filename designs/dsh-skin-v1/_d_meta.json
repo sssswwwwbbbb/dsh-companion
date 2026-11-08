@@ -1,0 +1,45 @@
+{
+  "type": "design",
+  "designSystems": [],
+  "primaryDesignSystem": null,
+  "assets": {
+    "档案暖白 · 首套皮肤关键稿": {
+      "versions": [
+        {
+          "path": "index-r1.html",
+          "createdAt": "2026-11-03T10:16:22.714Z",
+          "status": "changes-requested",
+          "subtitle": "R1 历史稿：角色尚未统一，按用户反馈修订",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        {
+          "path": "index-r2.html",
+          "createdAt": "2026-11-03T10:40:10.006Z",
+          "status": "changes-requested",
+          "subtitle": "R2 历史稿：独立验收复现两处状态问题，配置深度待补",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        {
+          "path": "index.html",
+          "createdAt": "2026-11-03T11:50:50.199Z",
+          "status": "needs-review",
+          "subtitle": "R3：状态反例修复、常用/更多设置与结构化映射规则",
+          "viewport": {
+            "width": 1440,
+            "height": 1100
+          }
+        }
+      ]
+    }
+  },
+  "createdAt": "2026-11-03T10:16:22.729Z",
+  "updatedAt": "2026-11-03T11:50:50.204Z",
+  "title": "DSH first skin R3 - state repairs and configurable preferences",
+  "prompt": "Revise D-R2-01/02 independent state defects and D-R2-03 configuration depth: common/more, structured example rules and five supported runtime settings. Reuse existing components/core. New character runtime and full animation pending."
+}

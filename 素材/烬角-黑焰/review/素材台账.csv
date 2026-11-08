@@ -1,0 +1,315 @@
+﻿文件名,用途,宽,高,格式,Alpha,时长,帧率,循环,作者,来源,授权
+exports/character/avatar-256x256.png,角色素材,256,256,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/character/avatar-square-256x256.png,角色素材,256,256,PNG RGBA 8-bit sRGB,否,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/character/bust-1024x1024.png,角色素材,1024,1024,PNG RGBA 8-bit sRGB,否,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/character/expression-sheet.png,角色素材,2896,1448,PNG RGBA 8-bit sRGB,否,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/character/three-view.png,角色素材,2730,1536,PNG RGBA 8-bit sRGB,否,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/character/three-view_raw.png,角色素材,2730,1536,PNG RGBA 8-bit sRGB,否,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/brand/entry-mark-dark-96x96.png,主题标识与待机素材,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/brand/entry-mark-light-96x96.png,主题标识与待机素材,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/brand/idle-loop-512x512.mp4,主题标识与待机素材,1280,"(512, 512)",MP4 H.264/AAC,—,2.00,24,是,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/brand/idle-loop-still-512x512.png,主题标识与待机素材,512,512,PNG RGBA 8-bit sRGB,否,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/opening/opening-film.mp4,开场静帧与正片,1280,720,MP4 H.264/AAC,—,10.50,24,否,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/opening/opening-film_silent.mp4,开场静帧与正片,1280,720,MP4 H.264（无音轨）,—,10.50,24,否,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/opening/opening-still-1280x720.png,开场静帧与正片,1280,720,PNG RGBA 8-bit sRGB,否,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/opening/opening-still.png,开场静帧与正片,1280,720,PNG RGBA 8-bit sRGB,否,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/backgrounds/chat-bg-1440x900.png,界面背景与封面,1440,900,PNG RGBA 8-bit sRGB,否,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/backgrounds/chat-bg-in-context-1440x900.png,界面背景与封面,1440,900,PNG RGBA 8-bit sRGB,否,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/backgrounds/cover-960x600.png,界面背景与封面,960,600,PNG RGBA 8-bit sRGB,否,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/backgrounds/cover-960x600.webp,界面背景与封面,960,600,WebP lossy,否,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/backgrounds/workspace-dark-1440x900.png,界面背景与封面,1440,900,PNG RGBA 8-bit sRGB,否,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/backgrounds/workspace-light-1440x900.png,界面背景与封面,1440,900,PNG RGBA 8-bit sRGB,否,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/VO-T01_dry.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,1.79,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/VO-T01_wet.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,1.79,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/VO-T02_dry.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,2.02,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/VO-T02_wet.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,2.02,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/VO-T03_dry.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,1.58,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/VO-T03_wet.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,1.58,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/VO-audition-T01.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,1.79,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/ambience-bed-8s.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,8.00,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/opening-mix-10.5.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,10.50,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/sfx-end-hit.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,0.90,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/sfx-flame-ignite.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,1.89,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/sfx-lock-release.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,1.90,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/sfx-power-on.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,1.87,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/sfx-scan.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,1.88,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/sfx-ui-tick.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,0.50,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/stem-ambience.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,10.50,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/stem-sfx.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,10.50,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/audio/stem-voice.wav,音频素材,—,—,WAV PCM 24-bit 立体声 48 kHz,—,10.50,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/agent.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/alert.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/archive.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/attachment.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/bookmark.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/branch.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/check.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/chevron-down.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/chevron-right.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/clock.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/close.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/companion.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/compose.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/conversation.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/copy.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/download.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/edit.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/expand.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/external.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/file-code.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/file-image.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/file-table.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/file-text.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/folder-open.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/folder.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/git-diff.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/history.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/inbox.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/info.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/link.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/model.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/moon.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/more.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/mute.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/palette.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/panel-left.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/pause.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/pin.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/plan.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/play.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/plugin.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/plus.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/question.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/quote.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/retry.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/search.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/send.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/settings.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/shield.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/skill.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/sliders.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/stop.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/sun.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/terminal.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/volume.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light-neutral/workspace.png,功能图标 96×96（中性色·浅，用于强调色按钮）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/agent.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/alert.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/archive.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/attachment.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/bookmark.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/branch.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/check.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/chevron-down.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/chevron-right.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/clock.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/close.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/companion.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/compose.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/conversation.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/copy.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/download.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/edit.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/expand.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/external.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/file-code.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/file-image.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/file-table.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/file-text.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/folder-open.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/folder.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/git-diff.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/history.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/inbox.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/info.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/link.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/model.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/moon.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/more.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/mute.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/palette.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/panel-left.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/pause.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/pin.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/plan.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/play.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/plugin.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/plus.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/question.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/quote.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/retry.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/search.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/send.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/settings.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/shield.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/skill.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/sliders.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/stop.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/sun.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/terminal.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/volume.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/light/workspace.png,功能图标 96×96（强调色·浅）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/agent.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/alert.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/archive.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/attachment.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/bookmark.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/branch.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/check.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/chevron-down.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/chevron-right.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/clock.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/close.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/companion.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/compose.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/conversation.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/copy.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/download.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/edit.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/expand.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/external.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/file-code.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/file-image.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/file-table.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/file-text.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/folder-open.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/folder.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/git-diff.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/history.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/inbox.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/info.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/link.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/model.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/moon.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/more.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/mute.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/palette.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/panel-left.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/pause.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/pin.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/plan.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/play.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/plugin.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/plus.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/question.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/quote.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/retry.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/search.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/send.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/settings.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/shield.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/skill.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/sliders.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/stop.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/sun.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/terminal.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/volume.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark/workspace.png,功能图标 96×96（强调色·深）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/agent.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/alert.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/archive.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/attachment.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/bookmark.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/branch.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/check.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/chevron-down.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/chevron-right.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/clock.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/close.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/companion.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/compose.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/conversation.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/copy.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/download.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/edit.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/expand.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/external.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/file-code.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/file-image.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/file-table.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/file-text.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/folder-open.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/folder.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/git-diff.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/history.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/inbox.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/info.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/link.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/model.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/moon.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/more.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/mute.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/palette.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/panel-left.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/pause.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/pin.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/plan.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/play.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/plugin.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/plus.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/question.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/quote.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/retry.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/search.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/send.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/settings.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/shield.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/skill.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/sliders.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/stop.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/sun.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/terminal.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/volume.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/icons/dark-neutral/workspace.png,功能图标 96×96（中性色·深，send/stop 近白）,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/states/state-done-96x96-dark.png,任务状态图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/states/state-done-96x96-light.png,任务状态图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/states/state-failed-96x96-dark.png,任务状态图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/states/state-failed-96x96-light.png,任务状态图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/states/state-need-action-96x96-dark.png,任务状态图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/states/state-need-action-96x96-light.png,任务状态图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/states/state-running-96x96-dark.png,任务状态图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/states/state-running-96x96-light.png,任务状态图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/states/state-start-96x96-dark.png,任务状态图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/states/state-start-96x96-light.png,任务状态图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/states/state-stop-96x96-dark.png,任务状态图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/states/state-stop-96x96-light.png,任务状态图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/action-copy-success-96x96.png,小操作图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/action-copy-success-dark-96x96.png,小操作图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/action-new-session-96x96.png,小操作图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/action-new-session-dark-96x96.png,小操作图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/action-send-96x96.png,小操作图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/action-send-dark-96x96.png,小操作图标,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-copy-success-dark-feedback-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-copy-success-dark-initial-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-copy-success-dark-settled-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-copy-success-light-feedback-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-copy-success-light-initial-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-copy-success-light-settled-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-new-session-dark-feedback-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-new-session-dark-initial-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-new-session-dark-settled-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-new-session-light-feedback-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-new-session-light-initial-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-new-session-light-settled-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-send-dark-feedback-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-send-dark-initial-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-send-dark-settled-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-send-light-feedback-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-send-light-initial-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+exports/actions/states/action-send-light-settled-96x96.png,小操作三态帧,96,96,PNG RGBA 8-bit sRGB,是,—,—,—,本套生成,AI 生成 / 本地脚本,随包交付（二创自用）
+copy/基础文案.md,主题名/简介/开场/台词文案,—,—,MD,—,—,—,—,本套生成,本地脚本 / 文档,随包交付（二创自用）
+copy/角色人设与回复风格.md,人设与三组回复示例,—,—,MD,—,—,—,—,本套生成,本地脚本 / 文档,随包交付（二创自用）
+copy/状态文案与动效.md,状态短文案,—,—,MD,—,—,—,—,本套生成,本地脚本 / 文档,随包交付（二创自用）
+copy/开场分镜.md,开场分镜与音效时间码,—,—,MD,—,—,—,—,本套生成,本地脚本 / 文档,随包交付（二创自用）
+copy/动效参数表.md,动效参数（待机/小操作/状态/小演出）,—,—,MD,—,—,—,—,本套生成,本地脚本 / 文档,随包交付（二创自用）
+copy/台词表与时间码.csv,台词 ID 与时间码,—,—,CSV,—,—,—,—,本套生成,本地脚本 / 文档,随包交付（二创自用）
+review/素材台账.csv,本表,—,—,CSV,—,—,—,—,本套生成,本地脚本 / 文档,随包交付（二创自用）
+review/色板与排版.md,色值与字号字重,—,—,MD,—,—,—,—,本套生成,本地脚本 / 文档,随包交付（二创自用）
+review/交付对照.md,清单交付对照,—,—,MD,—,—,—,—,本套生成,本地脚本 / 文档,随包交付（二创自用）
+review/visual-comparison-board.png,统一视觉对照板,1600,1238,PNG RGBA 8-bit sRGB,否,—,—,—,本套生成,本地脚本 / 文档,随包交付（二创自用）
+review/icons-contact-sheet-light.png,图标对照板（浅）,1080,734,PNG RGBA 8-bit sRGB,否,—,—,—,本套生成,本地脚本 / 文档,随包交付（二创自用）
+review/icons-contact-sheet-dark.png,图标对照板（深）,1080,734,PNG RGBA 8-bit sRGB,否,—,—,—,本套生成,本地脚本 / 文档,随包交付（二创自用）
+source/README-工程说明.md,源工程与软件版本,—,—,MD,—,—,—,—,本套生成,本地脚本 / 文档,随包交付（二创自用）
+source/icons/_generator/gen_icons.py,图标生成器（含 `accent`/`neutral` 两套预设）,—,—,PY,—,—,—,—,本套生成,本地脚本 / 文档,随包交付（二创自用）
+licenses/README.md,授权与字体说明,—,—,MD,—,—,—,—,本套生成,本地脚本 / 文档,随包交付（二创自用）
+README-交付说明.md,包说明,—,—,MD,—,—,—,—,本套生成,本地脚本 / 文档,随包交付（二创自用）

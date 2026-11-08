@@ -1,0 +1,152 @@
+{
+  "origin": "Live CUA screenshots after a UI action; no synthetic interpolation",
+  "viewport": [
+    1218,
+    760
+  ],
+  "deviceScaleFactor": 1,
+  "action": "echooff",
+  "sourceFreeze": "../source-freeze.json",
+  "frames": [
+    {
+      "file": "frame-0000.jpg",
+      "t": 0.0315
+    },
+    {
+      "file": "frame-0001.jpg",
+      "t": 0.089
+    },
+    {
+      "file": "frame-0002.jpg",
+      "t": 0.142
+    },
+    {
+      "file": "frame-0003.jpg",
+      "t": 0.203
+    },
+    {
+      "file": "frame-0004.jpg",
+      "t": 0.255
+    },
+    {
+      "file": "frame-0005.jpg",
+      "t": 0.3245
+    },
+    {
+      "file": "frame-0006.jpg",
+      "t": 0.428
+    },
+    {
+      "file": "frame-0007.jpg",
+      "t": 0.532
+    },
+    {
+      "file": "frame-0008.jpg",
+      "t": 0.6065
+    },
+    {
+      "file": "frame-0009.jpg",
+      "t": 0.6575
+    },
+    {
+      "file": "frame-0010.jpg",
+      "t": 0.714
+    },
+    {
+      "file": "frame-0011.jpg",
+      "t": 0.766
+    },
+    {
+      "file": "frame-0012.jpg",
+      "t": 0.811
+    },
+    {
+      "file": "frame-0013.jpg",
+      "t": 0.862
+    },
+    {
+      "file": "frame-0014.jpg",
+      "t": 0.923
+    },
+    {
+      "file": "frame-0015.jpg",
+      "t": 0.975
+    },
+    {
+      "file": "frame-0016.jpg",
+      "t": 1.0495
+    },
+    {
+      "file": "frame-0017.jpg",
+      "t": 1.154
+    },
+    {
+      "file": "frame-0018.jpg",
+      "t": 1.228
+    },
+    {
+      "file": "frame-0019.jpg",
+      "t": 1.281
+    },
+    {
+      "file": "frame-0020.jpg",
+      "t": 1.364
+    },
+    {
+      "file": "frame-0021.jpg",
+      "t": 1.4595
+    },
+    {
+      "file": "frame-0022.jpg",
+      "t": 1.554
+    },
+    {
+      "file": "frame-0023.jpg",
+      "t": 1.629
+    },
+    {
+      "file": "frame-0024.jpg",
+      "t": 1.689
+    },
+    {
+      "file": "frame-0025.jpg",
+      "t": 1.775
+    },
+    {
+      "file": "frame-0026.jpg",
+      "t": 1.8785
+    },
+    {
+      "file": "frame-0027.jpg",
+      "t": 1.9715
+    },
+    {
+      "file": "frame-0028.jpg",
+      "t": 2.0765
+    },
+    {
+      "file": "frame-0029.jpg",
+      "t": 2.192
+    },
+    {
+      "file": "frame-0030.jpg",
+      "t": 2.295
+    },
+    {
+      "file": "frame-0031.jpg",
+      "t": 2.3985
+    },
+    {
+      "file": "frame-0032.jpg",
+      "t": 2.484
+    },
+    {
+      "file": "frame-0033.jpg",
+      "t": 2.537
+    },
+    {
+      "file": "frame-0034.jpg",
+      "t": 2.6075
+    }
+  ]
+}

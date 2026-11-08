@@ -1,0 +1,249 @@
+{
+  "status": "focused P2/P3 corrections and new cinematic self-checked; primary rereview pending",
+  "at": "2026-11-05T03:33:54.728307+00:00",
+  "preview": "http://127.0.0.1:4314/dsh-skin-commander-v1/",
+  "theme": "机械姬 × 指挥官",
+  "selected_master": "04",
+  "checked_flows": [
+    "attention question/action visible and resolve receipt",
+    "new conversation and local simulated reply",
+    "immediate stop preserves submitted record",
+    "mute and reduced-motion controls",
+    "reduced static opening and Esc keep unsent draft",
+    "historical film playback has audio; end returns to live page and preserves draft",
+    "same-character cover and settings banner",
+    "light error view",
+    "1000px desktop source drawer restore",
+    "56 icons rendered; file filter and 16/20/24px inspector"
+  ],
+  "screenshots": [
+    "workspace.jpg",
+    "attention.jpg",
+    "stopped.jpg",
+    "settings.jpg",
+    "reduced-opening.jpg",
+    "skin-cover.jpg",
+    "error.jpg",
+    "light-error.jpg",
+    "narrow-drawer.jpg",
+    "icons.jpg"
+  ],
+  "latest_browser_console_errors": [],
+  "sizes_observed": [
+    [
+      1280,
+      720
+    ],
+    [
+      1000,
+      760
+    ]
+  ],
+  "whole_page_horizontal_overflow_observed": false,
+  "computed_sizes_px": {
+    "message_body": 14,
+    "source_paragraphs": 12,
+    "companion_copy": 12,
+    "composer_caption": 11
+  },
+  "contrast_samples": [
+    {
+      "foreground": "#e1ecf5",
+      "background": "#101c2c",
+      "ratio": 14.31
+    },
+    {
+      "foreground": "#9badc2",
+      "background": "#101c2c",
+      "ratio": 7.47
+    },
+    {
+      "foreground": "#9badc2",
+      "background": "#091321",
+      "ratio": 8.12
+    },
+    {
+      "foreground": "#9badc2",
+      "background": "#1b2b40",
+      "ratio": 6.24
+    },
+    {
+      "foreground": "#efc486",
+      "background": "#352d23",
+      "ratio": 8.32
+    },
+    {
+      "foreground": "#ffb2ab",
+      "background": "#3b282d",
+      "ratio": 7.99
+    },
+    {
+      "foreground": "#52697e",
+      "background": "#f7fafc",
+      "ratio": 5.44
+    },
+    {
+      "foreground": "#52697e",
+      "background": "#e9eff4",
+      "ratio": 4.92
+    },
+    {
+      "foreground": "#52697e",
+      "background": "#e0e9f0",
+      "ratio": 4.64
+    },
+    {
+      "foreground": "#17627d",
+      "background": "#d7eaf1",
+      "ratio": 5.5
+    }
+  ],
+  "manual_detector": "one batch; undersized functional text and companion inset were corrected and computed sizes observed in browser",
+  "scripts_syntax_checked": [
+    "app.js",
+    "performance.js",
+    "motion.js"
+  ],
+  "current_files": [
+    {
+      "file": "index.html",
+      "sha256": "59d2571fa0b064c43bf7d7427f0bd3e21999ae9cade2c8388678f417ba86a708"
+    },
+    {
+      "file": "tokens.css",
+      "sha256": "d79cbf1e97829de01d8b0606606c6bbdae301f1915b4231c4d1ed89f2a75c7e8"
+    },
+    {
+      "file": "workspace.css",
+      "sha256": "028048d63cb86349cd9e5fd62f66171315e8f46254d4ce6c7fb764869ecd2dcf"
+    },
+    {
+      "file": "commander.css",
+      "sha256": "46c8339517493411cd4809104adaa0dc2c9c3347dc7ff5bb9bbffb83ed44c5be"
+    },
+    {
+      "file": "app.js",
+      "sha256": "2d2c3089e74a53c090ef598ec0ea4e7c3df262b2d1f5d8b011bc5c64554650e4"
+    },
+    {
+      "file": "performance.js",
+      "sha256": "a469fcbb34255affd7133ebcc1facbef81c0c3aa452bce7cff3f64a59cb4d950"
+    },
+    {
+      "file": "motion.js",
+      "sha256": "f7a2aa15ea74012d39d7c4569b042f1cfec275e9c6a96a2c0bc1290ec111d58a"
+    },
+    {
+      "file": "icons.json",
+      "sha256": "fdd7b19a623926a4504238850a61b04be40004913deabfb97f188c0e9701ac00"
+    },
+    {
+      "file": "assets/commander-cover.svg",
+      "sha256": "40356bfb2d6ed5eaebf4a68290c64c9b79084b193e8e2f94066ca904b2df63e3"
+    },
+    {
+      "file": "assets/command-link.svg",
+      "sha256": "753488f8b2378fe600dba483195b336873bd025fa56974afeb4537d06090bc84"
+    },
+    {
+      "file": "README.md",
+      "sha256": "eb353ce49d8f422e69b29bfcd1a6408c6df3146a9147b2c1cd8d93f07941a741"
+    }
+  ],
+  "opening_status": "new user source received; new 12-second audible candidate bound to local preview; audiovisual acceptance pending",
+  "nativeIntegrated": false,
+  "real_model_called": false,
+  "runtime_config_persisted": false,
+  "daily_install_changed": false,
+  "note": "focused review paths rechecked on corrected source; latest new-film full playback/return, mute, Esc and reduced fallback observed; old full matrices not rerun; not native or user aesthetic acceptance",
+  "primary_first_review": {
+    "report": "reports/coordination/commander-workspace-v1-primary/independent/review.md",
+    "returned": [
+      "P2 pending decision lost on supplement",
+      "P2 stopped answer stale after retry",
+      "P3 short response not immediately cancelled"
+    ],
+    "correction_status": "design-line fixed and targeted rechecked; not yet primary accepted"
+  },
+  "targeted_fixes": {
+    "decision_supplement": {
+      "duringRunningChoices": 2,
+      "duringRunningOriginalCompletedReceipts": 0,
+      "afterSupplementHeader": "需处理",
+      "afterSupplementChoices": 2,
+      "afterExplicitChoiceHeader": "已回复",
+      "draftPreserved": true
+    },
+    "retry": {
+      "originalButtonDisabledOnceFollowupsExist": true,
+      "latestReplyHasScopedRetry": true,
+      "stoppedReceiptsWhileRetrying": 0,
+      "finalReceipts": [
+        "本轮回复完成",
+        "本条回复完成"
+      ],
+      "finalHeader": "已回复",
+      "userMessageCount": 2,
+      "draftAndAttachmentPreserved": true,
+      "retryCancelledStaysStoppedPastOriginalDelay": true
+    },
+    "concurrency_and_drafts": {
+      "explicitChoiceDuringSupplementKeepsRunning": true,
+      "finishedSupplementAfterChoiceCompletes": true,
+      "conversationDraftsIsolated": true,
+      "stopSupplementRetainsOriginalDecision": true
+    },
+    "echo_cancel": {
+      "test": "review/state-fixes-2026-11-05/motion-cancel-check.mjs",
+      "checks": 6,
+      "result": "passed",
+      "browserObservation": "off returns opacity .4; on does not replay; immediate cancellation established with controlled Animation timing, not unsupported page-proxy getAnimations"
+    }
+  },
+  "new_cinematic_browser": {
+    "durationSeconds": 12,
+    "size": [
+      1280,
+      720
+    ],
+    "source": "../dsh-skin-assets-v3/review/startup-entrance-01-2026-11-05/startup-entrance-01-with-sound.mp4",
+    "fullPlaybackReturnedToLivePage": true,
+    "draftPreserved": true,
+    "originalDecisionChoicesAfterReturn": 2,
+    "headerAfterReturn": "需处理",
+    "mutedFalsePlaybackObserved": true,
+    "midPlaybackMutedTrueWithoutPausing": true,
+    "earlyEscStopsAndHidesFilm": true,
+    "reducedShowsStaticAndPausedVideo": true,
+    "earReviewCompleted": false,
+    "note": "long wait helper exhausted its short locator deadline while film still played; later direct observation confirmed natural completion and state-preserving return"
+  },
+  "fix_screenshots": [
+    "review/state-fixes-2026-11-05/pending-after-supplement.jpg",
+    "review/state-fixes-2026-11-05/decision-resolved.jpg",
+    "review/state-fixes-2026-11-05/retry-consistent.jpg",
+    "review/state-fixes-2026-11-05/new-cinematic-return-pending.jpg"
+  ],
+  "media_files": [
+    {
+      "file": "designs/dsh-skin-assets-v3/review/startup-entrance-01-2026-11-05/startup-entrance-01-with-sound.mp4",
+      "sha256": "4d3ed205fa1b0a9dc9fb0f5e68c7eb2ef251ee76030509cd2f154ef2eb83113b"
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/cinematic/source/entrance-01-source.mp4",
+      "sha256": "ece35294685f11dfb372c243c69d5f1acac1f4ba673ccfd12f537c194a3e250d"
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/review/machine-voice-2026-11-05/machine-report.mp3",
+      "sha256": "0d4b44709bb3c3822ce6830732b65806ce5dd44feba78100c0ee37ab26e22d95"
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/portrait.png",
+      "sha256": "b0e1495d6c1fcce27ab7cdd93a24ef18ec6bbadca90b76bbe7e2c188266bc4e0"
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/assets/character/jimeng-flash-master-04-source.png",
+      "sha256": "53609dd32af4f43cac034e4f16ab0106ea48a405284f41068a62665afbb8fc62"
+    }
+  ]
+}

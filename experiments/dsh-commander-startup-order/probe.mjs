@@ -1,0 +1,3 @@
+import fs from 'node:fs';import path from 'node:path';import {randomUUID} from 'node:crypto';import {lab} from './setup.mjs';
+const method=process.argv[2]||'status',dir=path.join(lab,'commands');fs.mkdirSync(dir,{recursive:true});const f=path.join(dir,randomUUID()+'.request.json');
+fs.writeFileSync(f,JSON.stringify({method}),{mode:0o600});for(let i=0;i<1800;i++){const out=f.replace('.request.json','.response.json');if(fs.existsSync(out)){const v=JSON.parse(fs.readFileSync(out));fs.rmSync(out);console.log(JSON.stringify(v));process.exit(v.ok?0:1);}await new Promise(r=>setTimeout(r,100));}throw new Error('HOST_COMMAND_TIMEOUT');

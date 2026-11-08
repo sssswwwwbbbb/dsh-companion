@@ -1,0 +1,164 @@
+--- a/runtime-src/main.mjs
++++ b/runtime-src/main.mjs
+@@ -29,7 +29,10 @@
+ let pendingInteraction=null,lastInteraction=null;const started=new Date().toISOString(),transitions=[];
+ const coldState=readJson(join(stateDir,'skin-state.json'),{}),coldKey=coldState.selected?.contentKey;
+ const coldRequested=process.env.DSH_COMPANION_PLAY_INTRO==='1';
+-let coldIntroPending=!coldState.pending&&coldOpeningAllowed({requested:coldRequested,settings,state:coldState,hasStops:stopRequests(stateDir).length>0}),coldAutoStarted=false;
++// Host recovery fences abandoned transactions before spawning this process.
++// A same-content restore in progress may register after the bridge opens.
++const restoringColdContent=coldState.pending?.contentKey===coldKey&&!!coldState.selected?.manifest.modules.startup?.config?.handoffSeconds;
++let coldIntroPending=(!coldState.pending||restoringColdContent)&&coldOpeningAllowed({requested:coldRequested,settings,state:coldState,hasStops:stopRequests(stateDir).length>0}),coldAutoStarted=false,coldWorkspaceReady=null;
+ function event(type,extra={}){transitions.push({at:Date.now(),type,...extra});if(transitions.length>200)transitions.shift();writeJson(join(stateDir,'runtime-events.json'),{version,started,transitions});}
+ function authorization(){const record=readJson(join(stateDir,'license.json'),null);if(!record||record.blocked)throw new Error(record?.blocked||'LICENSE_REQUIRED');return verifyLicense(record.receipt,{publicKey:service.publicKey,deviceId:deviceIdentity()});}
+ const startup=new NativeStartupRuntime({stateDir,dshVersion:integration.dshVersion,onCancel:reason=>{if(activeIntro?.custom)cancelIntro(reason);}});
+@@ -40,13 +43,24 @@
+ function updateMenu(){} // No second pet tray or control window in this private path.
+ function openDsh(){event('isolated-host-return',{ownerPresent:ownerPid>0});}
+ async function releaseOpeningPet(){if(!coldIntroPending&&showPet()&&!readJson(join(stateDir,'skin-state.json'),{}).stopped&&!stopRequests(stateDir).length){await backend?.releaseVisibility();await backend?.resume();}}
++function clearColdOpening(){coldIntroPending=false;coldWorkspaceReady=null;}
++function forgetSupersededCold(generation){if(coldWorkspaceReady&&coldWorkspaceReady.generation!==generation)clearColdOpening();}
+ async function maybeColdOpening(workspace){
+  if(!coldIntroPending||!backend)return;
+  const state=readJson(join(stateDir,'skin-state.json'),{});
+- if(!coldOpeningAllowed({requested:true,settings,state,hasStops:stopRequests(stateDir).length>0})||state.selected?.contentKey!==coldKey||state.pending&&state.pending.contentKey!==coldKey){coldIntroPending=false;await releaseOpeningPet();return;}
++ if(!coldOpeningAllowed({requested:true,settings,state,hasStops:stopRequests(stateDir).length>0})||state.selected?.contentKey!==coldKey||state.pending&&state.pending.contentKey!==coldKey){clearColdOpening();await releaseOpeningPet();return;}
+  if(!startup.canPlay()||startup.descriptor.contentKey!==coldKey)return;
+- if(startup.descriptor.handoffSeconds&&(!workspace||workspace.contentKey!==coldKey||workspace.generation!==startup.generation||state.pending||state.generation!==workspace.generation||!hostWindowBounds(readJson(join(stateDir,'host-window.json'),null)?.bounds)))return;
+- coldIntroPending=false;coldAutoStarted=true;event('cold-intro-request',{contentKey:coldKey,generation:startup.generation,workspaceCommitted:!!workspace});
++ if(startup.descriptor.handoffSeconds){
++  const committed=receipt=>!!receipt&&!state.pending&&receipt.contentKey===coldKey&&receipt.generation===state.generation&&startup.canPlay(receipt);
++  const bounds=hostWindowBounds(readJson(join(stateDir,'host-window.json'),null)?.bounds);
++  if(committed(workspace)&&!coldWorkspaceReady){
++   coldWorkspaceReady={generation:workspace.generation,contentKey:workspace.contentKey};
++   event('cold-workspace-ready',{...coldWorkspaceReady,boundsReady:!!bounds});
++  }
++  if(!committed(coldWorkspaceReady)||!bounds)return;
++ }
++ const workspaceCommitted=!!coldWorkspaceReady;
++ clearColdOpening();coldAutoStarted=true;event('cold-intro-request',{contentKey:coldKey,generation:startup.generation,workspaceCommitted});
+  try{await showIntro();}catch(error){cancelIntro('load-error');throw error;}
+ }
+ async function showIntro(){
+@@ -91,7 +105,7 @@
+  }
+ }
+ function cancelIntro(reason){
+-  if(['skin-stop','startup-disabled'].includes(reason))coldIntroPending=false;
++   if(['skin-stop','startup-disabled'].includes(reason))clearColdOpening();
+   if(!introPlaying){void releaseOpeningPet().catch(()=>{});return;}
+   const content=activeIntro;introPlaying=false;introReady=false;introMedia=null;activeIntro=null;dismissOpening(content);phase=ready?(ownerPid>0?'ready':'waiting-host'):'starting';
+   event('intro-cancelled',{reason,contentKey:content.contentKey,generation:content.generation});
+@@ -119,7 +133,7 @@
+ async function applySettings(input){
+  if(skin.owned&&Object.keys(input).some(k=>['packId','size','profile','autonomous','followMouse','visible'].includes(k)))throw new Error('SKIN_MANAGED_SETTINGS');
+  settings=validatedSettings(input,settings);legacySettings={...legacySettings,...input};writeJson(statePath,{schemaVersion:1,settings:legacySettings});
+- if(!settings.startupEnabled&&Object.hasOwn(input,'startupEnabled')){coldIntroPending=false;cancelIntro('startup-disabled');}sendState();return status();
++ if(!settings.startupEnabled&&Object.hasOwn(input,'startupEnabled')){cancelIntro('startup-disabled');}sendState();return status();
+ }
+ async function deliverInteraction(input){
+  if(!skin.canShow()||input.generation!==skin.generation||input.contentKey!==skin.contentKey)throw new Error('SKIN_OPERATION_SUPERSEDED');
+@@ -138,8 +152,8 @@
+   if(route==='/shutdown'){await backend.stop();introWindow?.destroy();introWindow=null;setTimeout(()=>app.quit(),50);return {stopping:true,cleared:true};}
+   if(route==='/skin/invalidate'){await skin.invalidate(input.generation);return {generation:input.generation};}
+   if(route==='/skin/exit')return skin.exit(input.generation);
+-  if(route==='/skin/startup/invalidate'){startup.invalidate(input.generation);return {generation:input.generation};}
+-  if(route==='/skin/startup/exit')return startup.exit(input);
++  if(route==='/skin/startup/invalidate'){startup.invalidate(input.generation);forgetSupersededCold(input.generation);return {generation:input.generation};}
++  if(route==='/skin/startup/exit'){const result=startup.exit(input);forgetSupersededCold(input.generation);return result;}
+   authorization();
+   if(route==='/skin/apply'){const result=await skin.activate(input);skin.assertReady(result);sendState();return result;}
+   if(route==='/skin/startup/apply'){const result=startup.activate(input);await maybeColdOpening();return result;}
+@@ -147,13 +161,18 @@
+   if(route==='/skin/work'){const result=await skin.work.deliver(input);event('work-feedback',result);return result;}
+   if(route==='/settings')return applySettings(input);
+   if(route==='/attach'){if(!Number.isSafeInteger(input.ownerPid)||!service.supportedDsh.includes(input.dshVersion))throw new Error('INVALID_OWNER');process.kill(input.ownerPid,0);ownerPid=input.ownerPid;sendState();return status();}
+-  if(route==='/host-window'){if(!hostWindowBounds(input.bounds))throw new Error('HOST_WINDOW_INVALID');if(introWindow)introWindow.setBounds(currentIntroBounds());return {saved:true};}
++  if(route==='/host-window'){
++   if(!hostWindowBounds(input.bounds))throw new Error('HOST_WINDOW_INVALID');
++   if(introWindow)introWindow.setBounds(currentIntroBounds());
++   if(coldIntroPending)await maybeColdOpening();
++   return {saved:true};
++  }
+   if(route==='/intro/workspace-ready'){
+    if(coldIntroPending)await maybeColdOpening(input);
+    else if(startup.descriptor?.handoffSeconds&&startup.canPlay(input)&&introAvailable())await releaseOpeningPet();
+    return status();
+   }
+-  if(route==='/intro/replay'){if(introAvailable())coldIntroPending=false;await showIntro();return status();}
++  if(route==='/intro/replay'){if(introAvailable())clearColdOpening();await showIntro();return status();}
+   if(route==='/backend/input'){const config=skin.interactionSettings();if(input.contentKey!==skin.contentKey||input.generation!==skin.generation||!config)throw new Error('SKIN_OPERATION_SUPERSEDED');if(!config.allowActions)return {accepted:false,reason:'PET_ACTIONS_DISABLED'};pendingInteraction={trigger:'click',text:'用户轻点了你。',generation:skin.generation,contentKey:skin.contentKey};event('native-click-candidate',{generation:skin.generation});return {accepted:true};}
+   if(route==='/interaction/poll'){const value=pendingInteraction;pendingInteraction=null;return {input:skin.canShow()&&value?.generation===skin.generation?value:null};}
+   if(route==='/interaction')return deliverInteraction(input);
+@@ -162,7 +181,7 @@
+   throw new Error('UNKNOWN_ROUTE');
+  }});
+  backend=new WholePetBackend({stateDir,host:{origin:'http://127.0.0.1:'+bridge.port,token:bridge.token},event});
+- skin=new NativeSkinRuntime({stateDir,loadPack:id=>packs.get(id),hide:async({stop=false}={})=>{if(stop){coldIntroPending=false;startup.stop();cancelIntro('skin-stop');}pendingInteraction=null;await backend.stop();sendState();},isReady:token=>backend.status().ready&&backend.token===token,workAction:(action,current)=>backend.act(action,current),apply:async({pack:next,config,token,resources,contentKey,generation,assertCurrent})=>{pack=next;settings={...legacySettings,packId:pack.id,profile:config.profile,size:config.size,autonomous:false,followMouse:false,visible:true};await backend.apply({pack,config,token,resources,contentKey,generation,assertCurrent,holdVisibility:coldIntroPending||introPlaying});if(introPlaying)await backend.suspend();else if(!coldIntroPending)await backend.releaseVisibility();}});
++ skin=new NativeSkinRuntime({stateDir,loadPack:id=>packs.get(id),hide:async({stop=false}={})=>{if(stop){startup.stop();cancelIntro('skin-stop');}pendingInteraction=null;await backend.stop();sendState();},isReady:token=>backend.status().ready&&backend.token===token,workAction:(action,current)=>backend.act(action,current),apply:async({pack:next,config,token,resources,contentKey,generation,assertCurrent})=>{pack=next;settings={...legacySettings,packId:pack.id,profile:config.profile,size:config.size,autonomous:false,followMouse:false,visible:true};await backend.apply({pack,config,token,resources,contentKey,generation,assertCurrent,holdVisibility:coldIntroPending||introPlaying});if(introPlaying)await backend.suspend();else if(!coldIntroPending)await backend.releaseVisibility();}});
+  const from=e=>introWindow&&!introWindow.isDestroyed()&&e.sender===introWindow.webContents&&e.senderFrame===introWindow.webContents.mainFrame;
+  ipcMain.on('companion:intro-ready',(e,value)=>{
+    if(!from(e))return;if(value?.mounted){sendState();return;}if(!introCurrent(value?.token))return;
+--- a/packages/dsh-companion/src/skins.mjs
++++ b/packages/dsh-companion/src/skins.mjs
+@@ -40,7 +40,7 @@
+       const state=this.core.state;
+       if(this.core.phase==='ready'&&state.selected&&!state.stopped&&!state.pending){
+         const live=await this.controller.nativeStatus();
+-        if(live.startup?.workspaceHandoff&&!live.startup.playing&&live.backend?.suspended){
++        if(live.startup?.workspaceHandoff&&!live.startup.playing&&(live.backend?.suspended||live.backend?.visibilityHeld)){
+           await this.controller.request('/intro/workspace-ready',{generation:state.generation,contentKey:state.selected.contentKey}).catch(()=>{});
+         }
+       }
+@@ -85,10 +85,19 @@
+     await this.core.restore();
+     // The cinematic reveals the real shell. On an opted-in cold boot wait
+     // for this page's ordinary committed restore before showing the overlay.
+-    if(!live.startup?.coldPending||!live.startup.workspaceHandoff)return;
+-    const state=this.core.state,ready=this.page.lastReady,confirmed=state.results.theme?.status!=='ready'||ready?.clientId===clientId&&ready.generation===state.generation&&ready.contentKey===contentKey;
+-    if(this.page.client?.id===clientId&&confirmed&&this.core.phase==='ready'&&!state.stopped&&!state.pending&&state.selected?.contentKey===contentKey){
+-      await this.controller.request('/intro/workspace-ready',{generation:state.generation,contentKey});
++    const generationAfterRestore=this.core.state.generation;
++    const committed=()=>{
++      const state=this.core.state,ready=this.page.lastReady;
++      const confirmed=state.results?.theme?.status!=='ready'||ready?.clientId===clientId&&ready.generation===generationAfterRestore&&ready.contentKey===contentKey;
++      return this.page.client?.id===clientId&&confirmed&&this.core.phase==='ready'&&!state.stopped&&!state.pending&&
++        state.generation===generationAfterRestore&&state.selected?.contentKey===contentKey&&state.results?.startup?.status==='ready'&&
++        !!state.selected.manifest.modules.startup?.config.handoffSeconds;
++    };
++    if(!committed())return;
++    // The native bridge may have started as part of this very restore.
++    const boot=(await this.controller.nativeStatus()).startup;
++    if(boot?.coldPending&&boot.workspaceHandoff&&boot.generation===generationAfterRestore&&boot.contentKey===contentKey&&committed()){
++      await this.controller.request('/intro/workspace-ready',{generation:generationAfterRestore,contentKey});
+     }
+   }
+   async maintain(){
+--- a/packages/dsh-skin-core/tests/startup.test.mjs
++++ b/packages/dsh-skin-core/tests/startup.test.mjs
+@@ -58,12 +58,12 @@
+   const legacy=structuredClone(state);delete legacy.selected.manifest.modules.startup;atomicJson(path.join(dir,'skin-state.json'),legacy);assert.equal(new NativeStartupRuntime({stateDir:dir,dshVersion:'0.2.1-rc.5'}).declared,false);
+ });
+ test('page recovery lets the same opening finish once before advancing the coordinator',async()=>{
+-  let polls=0,restores=0;const core={generation:7,pendingSelections:0,state:{stopped:false,selected:{contentKey:'same'}},restore:async()=>{restores++;assert.ok(polls>=2);}};
++  let polls=0,restores=0;const core={generation:7,timeout:20000,pendingSelections:0,state:{stopped:false,selected:{contentKey:'same'}},restore:async()=>{restores++;assert.ok(polls>=2);}};
+   const service={core,recoveryClient:'page',page:{client:{id:'page'}},controller:{nativeStatus:async()=>({startup:{playing:++polls===1,contentKey:'same',generation:7,durationSeconds:1.2,elapsedSeconds:.5}})}};
+   await CompanionSkins.prototype.restorePage.call(service,'page');assert.equal(restores,1);assert.equal(core.generation,7);
+ });
+ test('an explicit stop during page recovery wins instead of restoring the captured choice',async()=>{
+-  let polls=0,restores=0;const core={generation:7,pendingSelections:0,state:{stopped:false,selected:{contentKey:'same'}},restore:async()=>restores++};
++  let polls=0,restores=0;const core={generation:7,timeout:20000,pendingSelections:0,state:{stopped:false,selected:{contentKey:'same'}},restore:async()=>restores++};
+   const service={core,recoveryClient:'page',page:{client:{id:'page'}},controller:{nativeStatus:async()=>{if(++polls===2){core.generation++;core.state.stopped=true;}return {startup:{playing:true,contentKey:'same',generation:7,durationSeconds:1.2,elapsedSeconds:.5}};}}};
+   await CompanionSkins.prototype.restorePage.call(service,'page');assert.equal(restores,0);
+ });
+--- a/scripts/build-mac.mjs
++++ b/scripts/build-mac.mjs
+@@ -36,7 +36,7 @@
+ const pluginVersion = JSON.parse(fs.readFileSync(path.join(root, 'packages/dsh-companion/package.json'))).version;
+ const launchBin=path.join(root,'packages/dsh-companion/bin/darwin-arm64');fs.mkdirSync(launchBin,{recursive:true});
+ execFileSync('/usr/bin/clang',['-O2',path.join(root,'runtime-src/launcher.c'),'-o',path.join(launchBin,'companion-launch')],{stdio:'pipe'});
+-const settings = { CFBundleIdentifier: 'local.dsh.commander.startup.supervisor', CFBundleName: 'DSHCompanion', CFBundleDisplayName: 'DSH 陪伴', CFBundleShortVersionString: pluginVersion.split('-')[0], CFBundleVersion: pluginVersion.match(/dev\.(\d+)/)?.[1] || '1' };
++const settings = { CFBundleIdentifier: 'local.dsh.commander.startup.order.supervisor', CFBundleName: 'DSHCompanion', CFBundleDisplayName: 'DSH 陪伴', CFBundleShortVersionString: pluginVersion.split('-')[0], CFBundleVersion: pluginVersion.match(/dev\.(\d+)/)?.[1] || '1' };
+ for (const [key, value] of Object.entries(settings)) execFileSync('/usr/libexec/PlistBuddy', ['-c', `Set :${key} ${value}`, path.join(contents, 'Info.plist')]);
+ execFileSync('/usr/bin/codesign', ['--force', '--sign', '-', '--timestamp=none', target], { stdio: 'pipe' });
+ // This is a local developer bundle. A distributable release needs our own signing

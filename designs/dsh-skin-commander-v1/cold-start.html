@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>冷启动 · DSH 皮肤</title>
+  <link rel="icon" href="assets/command-link.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="workspace.css">
+  <link rel="stylesheet" href="commander.css">
+  <script src="cold-start-performance.js" defer></script>
+  <script src="motion.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body data-theme="dark" data-details="true" data-reduced="false" data-motion="true">
+  <header class="review-bar">
+    <div class="review-title"><strong>冷启动</strong><span>单元-07</span><small>交互设计稿 · 本地示例</small></div>
+    <nav class="review-tabs" aria-label="关键稿视图">
+      <button class="selected" data-view="workspace" aria-current="page">工作区</button>
+      <button data-view="skin">皮肤与设置</button><button data-view="icons">整套图标</button>
+      <button data-view="notes">设计与演出</button>
+    </nav>
+    <div class="review-actions">
+      <label class="preview-state-control"><span class="sr-only">预览情景</span><select id="sample-state" aria-label="预览情景"><option value="complete">已有回复</option><option value="running">执行中</option><option value="attention">需处理</option><option value="error">连接中断</option><option value="stopped">已停止</option><option value="empty">新会话</option></select></label>
+      <button class="text-control theme-performance-button" data-action="preview-theme" aria-label="预览冷启动开场"><span data-icon="companion"></span>有声开场</button>
+      <button class="text-control motion-preview" data-action="preview-motion" aria-label="预演当前情景反馈"><span data-icon="play"></span>情景反馈</button>
+      <button id="sound-toggle" class="text-control sound-control" aria-pressed="true" aria-label="关闭演出与事件声音"><span data-icon="volume"></span><span>声音开</span></button><button id="details-toggle" class="text-control" aria-pressed="true">细节开启</button>
+      <button id="theme-toggle" class="icon-button" aria-label="切换明亮预览" title="切换明亮预览" data-icon="sun"></button>
+    </div>
+  </header>
+
+  <main id="workspace-view" class="workspace-view">
+    <aside id="sidebar" class="sidebar" aria-label="工作区导航">
+      <div class="sidebar-brand"><strong>DSH</strong><span>指挥工作区</span><button class="icon-button" data-action="collapse" data-icon="panel-left" aria-label="收起导航" title="收起导航"></button></div>
+      <button class="new-conversation" data-action="new"><span data-icon="compose"></span><span class="nav-label">新建会话</span><kbd>⌘ N</kbd></button>
+      <div class="search-field"><span data-icon="search"></span><input id="session-search" type="search" aria-label="搜索本地示例会话" placeholder="搜索会话"><kbd>⌘ K</kbd></div>
+      <button class="collapsed-search icon-button" data-action="expand-search" data-icon="search" aria-label="展开导航并搜索" title="搜索会话"></button>
+      <div class="nav-scroll">
+        <section class="session-group"><button class="section-label" data-action="toggle-pinned" aria-expanded="true"><span data-icon="pin"></span><span class="nav-label">置顶</span><span class="section-count">2</span><span class="group-chevron" data-icon="chevron-down"></span></button><div id="pinned-list"></div></section>
+        <section class="session-group"><div class="section-label"><span data-icon="history"></span><span class="nav-label">最近</span></div><div id="recent-list"></div></section>
+        <p id="no-sessions" class="no-sessions" hidden>没有匹配的会话。换个关键词试试。</p>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="sidebar-tool" data-action="files"><span data-icon="folder-open"></span><span class="nav-label">工作区文件</span><small class="nav-label">3</small></button>
+        <button class="sidebar-tool" data-action="appearance"><span data-icon="palette"></span><span class="nav-label">主题与陪伴</span></button>
+        <section class="companion-line" aria-label="单元-07陪伴位"><div class="companion-portrait"><img id="companion-static" src="../dsh-skin-assets-v3/assets/prepared/portrait.png" alt="单元-07肖像"><video id="companion-idle" hidden muted playsinline preload="none"></video><video id="companion-react" hidden muted playsinline preload="none"></video><span class="portrait-registration" aria-hidden="true"></span></div><div class="nav-label"><strong>单元-07<span id="companion-state">待命</span></strong><span id="companion-copy">指挥官，结果已就绪。</span></div></section>
+      </div>
+    </aside>
+
+    <section class="workspace-main" aria-label="会话工作区">
+      <header class="workspace-header">
+        <div class="workspace-location"><button class="icon-button" data-action="collapse" data-icon="panel-left" aria-label="展开或收起导航" title="展开或收起导航"></button><span class="workspace-name">指挥工作区</span><span class="path-divider">/</span><h1 id="conversation-title">桌宠行动方案</h1></div>
+        <div class="workspace-utilities"><span id="header-status" class="header-status"><span class="status-dot"></span>已回复</span><button class="icon-button" data-action="focus" data-icon="expand" aria-label="开启专注阅读" aria-pressed="false" title="专注阅读"></button><button class="icon-button" data-action="files" data-icon="folder-open" aria-label="显示或隐藏资料侧栏" aria-expanded="true" title="资料侧栏"></button></div>
+      </header>
+      
+      <div id="conversation-scroll" class="conversation-scroll" tabindex="0" aria-label="聊天记录">
+        <div id="thread" class="thread"></div>
+      </div>
+      <div class="composer-zone"><div id="command-state" class="command-state"><span data-icon="companion"></span><span>单元-07</span><span id="command-copy">指挥官，结果已就绪。</span><span class="command-pulse" aria-hidden="true"></span></div>
+        <button id="jump-latest" class="jump-latest" type="button" data-action="latest" hidden><span data-icon="chevron-down"></span>新回复 · 回到最新</button>
+        <form id="composer-form" class="composer-form">
+          <div id="draft-attachments" class="draft-attachments" hidden><span data-icon="file-text"></span><span>行动素材清单.md</span><small>2.4 KB</small><button type="button" class="icon-button small" data-action="remove-attachment" data-icon="close" aria-label="移除示例附件"></button></div>
+          <textarea id="draft" aria-label="输入消息" rows="2" placeholder="指挥官，下一步需要我做什么？"></textarea>
+          <div class="composer-controls"><div class="composer-options"><button type="button" class="icon-button" data-action="attach" data-icon="attachment" aria-label="添加或移除示例附件" title="添加示例附件"></button><button type="button" id="model-button" class="model-button" data-action="model" aria-haspopup="menu" aria-expanded="false"><span data-icon="model"></span><span id="model-name">DeepSeek</span><span data-icon="chevron-down"></span></button><span class="composer-mode"><span data-icon="workspace"></span>标准模式</span></div><button id="send-button" type="submit" class="send-button" aria-label="发送本地示例消息" disabled><span data-icon="send"></span></button></div>
+        </form>
+        <div class="composer-caption"><span id="draft-status">草稿保留在本页</span><span><kbd>⌘ Enter</kbd> 发送 · <kbd>Shift Enter</kbd> 换行</span></div>
+      </div>
+    </section>
+
+    <aside id="source-panel" class="source-panel" aria-label="资料侧栏">
+      <header class="source-panel-header"><h2>资料</h2><button class="icon-button" data-action="files" data-icon="close" aria-label="关闭资料侧栏" title="关闭资料侧栏"></button></header>
+      <div class="source-tabs" role="tablist" aria-label="资料视图"><button role="tab" data-source-tab="files" aria-selected="true">文件 <span>3</span></button><button role="tab" data-source-tab="citations" aria-selected="false">会话引用 <span id="citation-count">2</span></button></div>
+      <div id="source-list" class="source-list"></div>
+      <div id="source-content" class="source-content"></div>
+      <div class="source-panel-footer"><span data-icon="shield"></span><span>只读资料预览</span></div>
+    </aside>
+  </main>
+
+  <main id="skin-view" class="skins-view" hidden>
+    <header class="skin-page-heading"><h1>她与你的工作区。</h1><p>同一角色贯穿皮肤封面、设置横幅、开场与陪伴位。</p></header>
+    <section class="skin-overview"><img class="skin-cover" src="assets/cold-start-cover.svg" alt="冷启动皮肤封面，单元-07"><div class="skin-description"><h2>冷启动</h2><p>深海蓝指挥台，银蓝链路与清楚的执行回执。她已就位，日常工作由你指挥。</p><dl><div><dt>角色</dt><dd>单元-07</dd></div><div><dt>机体型号</dt><dd>CS-07</dd></div><div><dt>覆盖</dt><dd>工作区 · 开场 · 桌宠 · 设置</dd></div><div><dt>本页状态</dt><dd>本地设计候选</dd></div></dl><button class="skin-settings-button" data-action="appearance"><span data-icon="sliders"></span>主题与陪伴设置</button><button class="skin-opening-button" data-action="preview-theme"><span data-icon="play"></span>查看有声开场</button></div></section>
+    <p class="skin-page-note">声音、界面动态与角色呼应分别控制。桌宠道具随实际使用动作出现，现有设置与皮肤库由底座接入。</p>
+  </main>
+
+  <main id="icons-view" class="icons-view" hidden>
+    <header class="collection-header"><div><h1>一套图标，同一种笔触。</h1><p>导航、对话、文件、状态、设置与 DSH 功能，共 56 枚。统一 24 单位画布与 1.55px 线宽。</p></div><label class="icon-search"><span data-icon="search"></span><input id="icon-search" type="search" placeholder="按名称或用途查找" aria-label="查找图标"></label></header>
+    <div class="collection-legend"><span>点击图标查看 16 / 20 / 24px 的实际大小。</span><span><i></i>正文线条 <i class="signal"></i>辅助细节</span></div>
+    <div id="icon-collection"></div>
+    <aside id="icon-inspector" class="icon-inspector" hidden aria-label="图标详情"></aside>
+  </main>
+
+  <main id="notes-view" class="notes-view" hidden>
+    <div class="notes-intro"><h1>她已就位，工作由你指挥。</h1><p>机械姬与指挥官的关系贯穿开场、工作区、桌宠和反馈。功能名称保持清楚；角色在合适的时刻回应。</p></div>
+    <section class="motion-notes"><h2>同一条指挥链路，不同节奏的回应。</h2><div class="table-wrap"><table><thead><tr><th>时刻</th><th>视觉与回应</th><th>控制与边界</th></tr></thead><tbody>
+      <tr><td>进入主题</td><td>科研设施供能、单元-07登场与报到、进入工作区</td><td>12.5 秒有声开场，可跳过，也可查看静态画面</td></tr>
+      <tr><td>新建 / 切换会话</td><td>建立新的任务上下文，导航定位同步</td><td>轻量展开，保留草稿；切换历史不重播完成演出</td></tr>
+      <tr><td>发送 / 执行</td><td>指令进入记录，状态线作有限两次扫描</td><td>执行状态持续可读；停止优先于演出</td></tr>
+      <tr><td>需要决定</td><td>琥珀色提示原问题，单元-07 请求你的决策</td><td>问题持续保留，不用闪烁或反复播报催促</td></tr>
+      <tr><td>完成</td><td>回执锁定、陪伴位一次短回应、清脆提示音</td><td>反馈留在回执与陪伴位，避让正文和输入</td></tr>
+      <tr><td>异常 / 中止</td><td>中断原因、已保留内容与恢复入口一起出现</td><td>即刻取消声画；保留输入与阅读位置</td></tr>
+      <tr><td>附件 / 引用</td><td>带编号的资料签对接出处</td><td>只在主动打开引用后发生，来源始终可查</td></tr>
+    </tbody></table></div></section>
+    <div class="design-notes">
+      <section><h2>导航保留任务的来路</h2><p>深海蓝外壳、银蓝选中接点与清楚的层级。陪伴位使用你选定的第四张母版，不侵入主要阅读区。</p><button data-try="navigation">查看导航收起</button></section>
+      <section><h2>对话分清指令、过程与回执</h2><p>用户是指挥官，信息按照请求、执行与结果组织。真实 DSH 助手保留自己的身份，不强行把每个模型都改写成机械姬。</p><button data-try="citation">打开一条资料引用</button></section>
+      <section><h2>输入像接通一条短链路</h2><p>聚焦时接点亮起，附件和发送保持明确。没有循环闪烁、键盘噪音或占据输入区的角色演出。</p><button data-try="composer">试试输入与附件</button></section>
+      <section><h2>56枚图标共同表达</h2><p>沿用已完成的完整图标家族，以统一笔画、接点和银蓝辅助色融入控制台。普通动作保持熟悉的名称。</p><button data-view="icons">查看整套图标</button></section>
+      <section><h2>她会请求决策，也接受打断</h2><p>需要处理时保留实际问题和选择；错误给出恢复入口。角色回应服务状态，声音和动态可以独立关闭。</p><button data-try="attention">查看需要决策</button></section>
+      <section><h2>道具属于行动，不属于摆拍</h2><p>书杯随拿取、使用、收起出现。缺少握持与使用动作时不陈列道具，也不把未制作的喝茶、读书标为可执行能力。</p><button data-action="appearance">查看主题与陪伴设置</button></section>
+    </div>
+    <section class="references"><h2>统一角色与使用边界</h2><p>开场、陪伴位、设置横幅与皮肤封面均引用第四张母版。本页演示界面与状态；真实模型行为、原生接入及设置持久化由现有底座承接。</p><p><a href="README.md">设计交接与素材来源</a></p></section>
+  </main>
+
+  <div id="popover" class="popover" hidden></div>
+  <aside id="appearance-panel" class="appearance-panel" hidden aria-label="本页外观选项"><header><h2>主题与陪伴</h2><button class="icon-button" data-action="close-appearance" data-icon="close" aria-label="关闭外观选项"></button></header><section class="skin-identity"><img src="../dsh-skin-assets-v3/assets/prepared/portrait.png" alt="同角色主题封面"><div><h3>冷启动</h3><p>单元-07 已就位，等待你的指令。</p><small>机体型号 CS-07</small></div></section><div class="appearance-row"><div><strong>阅读配色</strong><p>深海蓝指挥台与明亮阅读配色</p></div><div class="theme-choices"><button data-theme-choice="light" aria-pressed="false">明亮</button><button data-theme-choice="dark" aria-pressed="true">深海</button></div></div><label class="appearance-row"><div><strong>主题细节</strong><p>控制接点、定位线与辅助色</p></div><input id="appearance-details" type="checkbox" role="switch" checked></label><label class="appearance-row"><div><strong>界面动效</strong><p>链路展开、资料对接与完成回执</p></div><input id="appearance-motion" type="checkbox" role="switch" checked></label><label class="appearance-row"><div><strong>角色呼应</strong><p>完成与主动互动时，陪伴位短回应</p></div><input id="appearance-echo" type="checkbox" role="switch" checked></label><label class="appearance-row"><div><strong>声音</strong><p>主动开场语音与关键事件提示，可随时静音</p></div><input id="appearance-sound" type="checkbox" role="switch" checked></label><label class="appearance-row"><div><strong>减少动态</strong><p>保留状态，并遵守系统减少动态</p></div><input id="appearance-reduced" type="checkbox" role="switch"></label><p class="appearance-footnote">只调整这份关键稿，关闭选项后保留本页输入。</p></aside>
+  <div id="live-status" class="sr-only" role="status" aria-live="polite"></div>
+</body>
+</html>

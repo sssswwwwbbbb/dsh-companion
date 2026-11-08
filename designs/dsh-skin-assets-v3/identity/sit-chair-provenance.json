@@ -1,0 +1,18 @@
+{
+  "id": "sit-chair",
+  "source": "MOSS text-to-image",
+  "model": "moss-image-sft-1.0-2026-10-09",
+  "request": "designs/dsh-skin-assets-v3/identity/sit-chair-request.json",
+  "seed": 20261104031,
+  "sizeRequested": "1024x1536",
+  "usage": {
+    "generated_images": 1,
+    "output_width": 1024,
+    "output_height": 1536
+  },
+  "image": "assets/character/sit-chair-source.png",
+  "sha256": "b42663964410d0c8524d9d037230045b308dcccd89da78608820bf0c85123b42",
+  "bytes": 4722460,
+  "referenceImageInput": false,
+  "nativeAlphaRequested": false
+}

@@ -1,0 +1,4 @@
+import fs from 'node:fs';import path from 'node:path';import {spawn} from 'node:child_process';
+const mode=process.argv[2];if(!['console','native'].includes(mode))throw new Error('console or native required');const root=process.cwd(),lab=path.join(root,'.local/dsh-pet-integration-20261104'),env={...process.env};delete env.ELECTRON_RUN_AS_NODE;
+const out=fs.openSync(path.join(lab,mode+'-app.log'),'a'),child=spawn(path.join(lab,(mode==='console'?'PetIntegrationConsole':'PetIntegrationNative')+'.app/Contents/MacOS/Electron'),[path.join(root,'experiments/dsh-pet-integration',mode+'-wrapper.cjs')],{cwd:root,env,stdio:['ignore',out,out]});
+fs.writeFileSync(path.join(lab,mode+'-pid.json'),JSON.stringify({pid:child.pid,at:new Date().toISOString()}));console.log(JSON.stringify({mode,pid:child.pid}));child.on('exit',code=>process.exit(code||0));process.on('SIGTERM',()=>child.kill('SIGTERM'));process.on('SIGINT',()=>child.kill('SIGTERM'));

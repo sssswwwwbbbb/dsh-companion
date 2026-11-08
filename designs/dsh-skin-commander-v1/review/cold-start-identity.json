@@ -1,0 +1,19 @@
+{
+  "theme_name": "冷启动",
+  "character_name": "单元-07",
+  "model": "CS-07",
+  "master": "04",
+  "concept": "机械姬 × 指挥官",
+  "user_role": "指挥官",
+  "preview": "http://127.0.0.1:4314/dsh-skin-commander-v1/cold-start.html",
+  "skin_id_for_native_handoff": "commander-workspace-private",
+  "opening": {
+    "path": "designs/dsh-skin-assets-v3/review/startup-entrance-01-voice-r3-2026-11-05/startup-entrance-01-four-lines-voice-b.mp4",
+    "sha256": "5704f18e13b521fc318a2cb4d2dfe92ea2d00a4fdb0dd557045cd63ac392d1b1",
+    "duration_seconds": 12.5,
+    "handoff_at_seconds": 12.15,
+    "voice": "B",
+    "opening_line_audible_confirmed_by_user": true
+  },
+  "status": "offline preview for naming review and native handoff"
+}

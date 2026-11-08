@@ -1,0 +1,42 @@
+{
+  "status": "B selected and four-shot candidate rendered",
+  "source_video": "designs/dsh-skin-assets-v3/assets/cinematic/source/entrance-01-source.mp4",
+  "reference_url": "https://www.bilibili.com/video/BV1T7nM6xEqo/",
+  "full_duration_seconds": 12.5,
+  "lines": [
+    {
+      "id": "awakening",
+      "start": 0.35,
+      "end": 2.192625,
+      "text": "开始唤醒。",
+      "picture": "corridor and power approach"
+    },
+    {
+      "id": "release",
+      "start": 2.8,
+      "end": 5.277979166666666,
+      "text": "隔离解除，机体上线。",
+      "picture": "interlocks and chamber reveal"
+    },
+    {
+      "id": "vision",
+      "start": 7.48,
+      "end": 9.010833333333334,
+      "text": "视觉同步。",
+      "picture": "optical awakening"
+    },
+    {
+      "id": "report",
+      "start": 9.15,
+      "end": 12.059041666666667,
+      "text": "指挥官，我已就位。",
+      "picture": "eye contact with commander"
+    }
+  ],
+  "sound_direction": "match selected DSH reference timbre and measured speech rhythm; leave gaps for interlocks, motors and charge; increase early FX audibility without simply turning up the whole film",
+  "first_probe_text": "指挥官，我已就位。",
+  "existing_bound_files_unchanged": true,
+  "prior_shot_board": "four-shot-voice-plan.jpg",
+  "selected_voice": "B",
+  "handoff_at_seconds": 12.15
+}

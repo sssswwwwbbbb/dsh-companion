@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>档案暖白 · 工作区细节 V2</title>
+  <link rel="icon" href="assets/icons/palette.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="workspace.css">
+  <link rel="stylesheet" href="performance.css">
+  <script src="performance.js" defer></script>
+  <script src="motion.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body data-theme="light" data-details="true" data-reduced="false" data-motion="true">
+  <header class="review-bar">
+    <div class="review-title"><strong>档案暖白</strong><span>工作区细节 V2</span><small>本地关键稿 · 示例数据</small></div>
+    <nav class="review-tabs" aria-label="关键稿视图">
+      <button class="selected" data-view="workspace" aria-current="page">工作区</button>
+      <button data-view="icons">整套图标</button>
+      <button data-view="notes">动效与取舍</button>
+    </nav>
+    <div class="review-actions">
+      <label class="preview-state-control"><span class="sr-only">预览情景</span><select id="sample-state" aria-label="预览情景"><option value="complete">已有回复</option><option value="running">执行中</option><option value="attention">需处理</option><option value="error">连接中断</option><option value="stopped">已停止</option><option value="empty">新会话</option></select></label>
+      <button class="text-control theme-performance-button" data-action="preview-theme" aria-label="重播档案开卷主题演出"><span data-icon="companion"></span>主题演出</button>
+      <button class="text-control motion-preview" data-action="preview-motion" aria-label="预演当前情景反馈"><span data-icon="play"></span>情景反馈</button>
+      <button id="details-toggle" class="text-control" aria-pressed="true">细节开启</button>
+      <button id="theme-toggle" class="icon-button" aria-label="切换夜间预览" title="切换夜间预览" data-icon="moon"></button>
+    </div>
+  </header>
+
+  <main id="workspace-view" class="workspace-view">
+    <aside id="sidebar" class="sidebar" aria-label="工作区导航">
+      <div class="sidebar-brand"><strong>DSH</strong><span>我的工作台</span><button class="icon-button" data-action="collapse" data-icon="panel-left" aria-label="收起导航" title="收起导航"></button></div>
+      <button class="new-conversation" data-action="new"><span data-icon="compose"></span><span class="nav-label">新建会话</span><kbd>⌘ N</kbd></button>
+      <div class="search-field"><span data-icon="search"></span><input id="session-search" type="search" aria-label="搜索本地示例会话" placeholder="搜索会话"><kbd>⌘ K</kbd></div>
+      <button class="collapsed-search icon-button" data-action="expand-search" data-icon="search" aria-label="展开导航并搜索" title="搜索会话"></button>
+      <div class="nav-scroll">
+        <section class="session-group"><button class="section-label" data-action="toggle-pinned" aria-expanded="true"><span data-icon="pin"></span><span class="nav-label">置顶</span><span class="section-count">2</span><span class="group-chevron" data-icon="chevron-down"></span></button><div id="pinned-list"></div></section>
+        <section class="session-group"><div class="section-label"><span data-icon="history"></span><span class="nav-label">最近</span></div><div id="recent-list"></div></section>
+        <p id="no-sessions" class="no-sessions" hidden>没有匹配的会话。换个关键词试试。</p>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="sidebar-tool" data-action="files"><span data-icon="folder-open"></span><span class="nav-label">工作区文件</span><small class="nav-label">3</small></button>
+        <button class="sidebar-tool" data-action="appearance"><span data-icon="palette"></span><span class="nav-label">外观与陪伴</span></button>
+        <div class="companion-line"><div class="companion-portrait"><img id="companion-static" src="../dsh-skin-v1/assets/whale-unified-r2/character-atlas-r2.png" alt="本套鲸鱼娘角色"><video id="companion-idle" src="../dsh-skin-v1/assets/whale-motion-a2/idle-a2.webm" muted playsinline loop preload="auto" hidden aria-label="鲸鱼娘既有待机"></video><video id="companion-react" src="../dsh-skin-v1/assets/whale-motion-a2/react-a2.webm" muted playsinline preload="metadata" hidden aria-label="鲸鱼娘既有一次回应"></video></div><div class="nav-label"><strong>档案暖白 · 鲸鱼娘</strong><span id="companion-copy">这页先放稳，我在这里。</span></div><span class="companion-bow" data-icon="companion"></span></div>
+      </div>
+    </aside>
+
+    <section class="workspace-main" aria-label="会话工作区">
+      <header class="workspace-header">
+        <div class="workspace-location"><button class="icon-button" data-action="collapse" data-icon="panel-left" aria-label="展开或收起导航" title="展开或收起导航"></button><span class="workspace-name">我的工作台</span><span class="path-divider">/</span><h1 id="conversation-title">整理工作区观察</h1></div>
+        <div class="workspace-utilities"><span id="header-status" class="header-status"><span class="status-dot"></span>已回复</span><button class="icon-button" data-action="focus" data-icon="expand" aria-label="开启专注阅读" aria-pressed="false" title="专注阅读"></button><button class="icon-button" data-action="files" data-icon="folder-open" aria-label="显示或隐藏资料侧栏" aria-expanded="true" title="资料侧栏"></button></div>
+      </header>
+      
+      <div id="conversation-scroll" class="conversation-scroll" tabindex="0" aria-label="聊天记录">
+        <div id="thread" class="thread"></div>
+      </div>
+      <div class="composer-zone">
+        <button id="jump-latest" class="jump-latest" type="button" data-action="latest" hidden><span data-icon="chevron-down"></span>新回复 · 回到最新</button>
+        <form id="composer-form" class="composer-form">
+          <div id="draft-attachments" class="draft-attachments" hidden><span data-icon="file-text"></span><span>观察记录.md</span><small>2.4 KB</small><button type="button" class="icon-button small" data-action="remove-attachment" data-icon="close" aria-label="移除示例附件"></button></div>
+          <textarea id="draft" aria-label="输入消息" rows="2" placeholder="继续这份记录，或说说你的新想法…"></textarea>
+          <div class="composer-controls"><div class="composer-options"><button type="button" class="icon-button" data-action="attach" data-icon="attachment" aria-label="添加或移除示例附件" title="添加示例附件"></button><button type="button" id="model-button" class="model-button" data-action="model" aria-haspopup="menu" aria-expanded="false"><span data-icon="model"></span><span id="model-name">DeepSeek</span><span data-icon="chevron-down"></span></button><span class="composer-mode"><span data-icon="workspace"></span>标准模式</span></div><button id="send-button" type="submit" class="send-button" aria-label="发送本地示例消息" disabled><span data-icon="send"></span></button></div>
+        </form>
+        <div class="composer-caption"><span id="draft-status">草稿保留在本页</span><span><kbd>⌘ Enter</kbd> 发送 · <kbd>Shift Enter</kbd> 换行</span></div>
+      </div>
+    </section>
+
+    <aside id="source-panel" class="source-panel" aria-label="资料侧栏">
+      <header class="source-panel-header"><h2>资料</h2><button class="icon-button" data-action="files" data-icon="close" aria-label="关闭资料侧栏" title="关闭资料侧栏"></button></header>
+      <div class="source-tabs" role="tablist" aria-label="资料视图"><button role="tab" data-source-tab="files" aria-selected="true">文件 <span>3</span></button><button role="tab" data-source-tab="citations" aria-selected="false">会话引用 <span id="citation-count">2</span></button></div>
+      <div id="source-list" class="source-list"></div>
+      <div id="source-content" class="source-content"></div>
+      <div class="source-panel-footer"><span data-icon="shield"></span><span>只读资料预览</span></div>
+    </aside>
+  </main>
+
+  <main id="icons-view" class="icons-view" hidden>
+    <header class="collection-header"><div><h1>一套图标，同一种笔触。</h1><p>导航、对话、文件、状态、设置与 DSH 功能，共 56 枚。统一 24 单位画布与 1.55px 线宽。</p></div><label class="icon-search"><span data-icon="search"></span><input id="icon-search" type="search" placeholder="按名称或用途查找" aria-label="查找图标"></label></header>
+    <div class="collection-legend"><span>点击图标查看 16 / 20 / 24px 的实际大小。</span><span><i></i>正文线条 <i class="signal"></i>辅助细节</span></div>
+    <div id="icon-collection"></div>
+    <aside id="icon-inspector" class="icon-inspector" hidden aria-label="图标详情"></aside>
+  </main>
+
+  <main id="notes-view" class="notes-view" hidden>
+    <div class="notes-intro"><h1>让主题进入每天会用到的地方。</h1><p>沿用暖白纸面、铜橙操作与银蓝角色，把个性落在导航、阅读与操作的细节里。</p></div>
+    <section class="motion-notes"><h2>从开卷，到把这一页放稳。</h2><p>顶部“主题演出”重播完整开卷：封面翻开、角色出现、银蓝扫描、落印，再收回导航陪伴位。常用输入一直可用，可点击跳过或按 Esc；“情景反馈”重看当前状态。外观选项独立控制界面动效、角色呼应和减少动态。</p><div class="table-wrap"><table><thead><tr><th>时刻</th><th>适合的表达</th><th>使用理由</th></tr></thead><tbody><tr><td>应用主题 / 主动重播</td><td>约3.9秒完整开卷，角色随纸页回到导航</td><td>建立整套主题的记忆点；本稿打开时示范一次</td></tr><tr><td>开始一页、切换上下文</td><td>纸页展开，索引位置连贯</td><td>知道内容换到了哪里</td></tr><tr><td>附件、引用与资料</td><td>编号资料签从引用飞入原文</td><td>把依据和出处连起来</td></tr><tr><td>发送与等待</td><td>便笺入页，有限两轮墨迹</td><td>确认已接收，随后安静等待</td></tr><tr><td>需要确认与异常</td><td>文字、颜色与短显现</td><td>保留问题和恢复入口</td></tr><tr><td>本轮新回复完成</td><td>约2.4秒归档便笺、角色与回执落印</td><td>明确结果，历史切换不补播；回看旧内容时不抢走阅读</td></tr><tr><td>删除等管理动作</td><td>完成后短收起，恢复机制从属原功能</td><td>先让操作后果清楚可控</td></tr></tbody></table></div></section>
+    <div class="design-notes">
+      <section><h2>导航是一叠索引页</h2><p>当前会话向前抽出一层，折角承接档案主题；常用会话与最近会话有清楚的层级。悬停与键盘聚焦都能看到同一组操作，收起后保留可恢复入口。</p><button data-try="navigation">看看选中与收起</button></section>
+      <section><h2>对话是一页整理记录</h2><p>用户提问像便笺，助手回复像整理页。过程可展开，引用可打开对应资料，正文、表格与代码各自保持舒适的阅读密度。</p><button data-try="citation">打开一条引用</button></section>
+      <section><h2>输入是一张待写的便笺</h2><p>输入获得焦点时细线变为铜橙；附件、模型和发送各归其位。发送、复制等反馈只在明确操作后出现，日常阅读保持安静。</p><button data-try="composer">试试输入与附件</button></section>
+      <section><h2>图标有完整的家族关系</h2><p>文件沿用同一个折角母形，导航采用同一笔画与光学校正。银蓝只出现在有意义的辅助笔画，不给每个操作都加蝴蝶结。</p><button data-view="icons">查看全部 56 枚</button></section>
+      <section><h2>反馈保留真实语义</h2><p>本轮回复完成、需处理、连接中断有各自的文字与图形。关闭资料或切换外观不会把待处理事项清掉；减少动态时保留完整状态。</p><button data-try="attention">查看需处理情景</button></section>
+      <section><h2>让角色和界面一起演出</h2><p>开卷时角色随纸页出现，银蓝扫描连接资料与角色，最后一起回到导航陪伴位。新回复完成用同一语言作短回应；日常阅读与输入保留完整空间。</p><button data-action="preview-theme">重播完整主题演出</button></section>
+    </div>
+    <section class="references"><h2>参考与取舍</h2><p>参考成熟产品的组织方式，界面和图标在本项目内重新设计。</p><ul><li><a href="https://linear.app/now/behind-the-latest-design-refresh" target="_blank" rel="noreferrer">Linear · 导航层次、图标光学尺寸与界面减重</a></li><li><a href="https://support.craft.do/hc/en-us/articles/10293992410780-Document-Styling" target="_blank" rel="noreferrer">Craft · 阅读表面与文字、页面的分层样式</a></li><li><a href="https://zed.dev/docs/extensions/icon-themes" target="_blank" rel="noreferrer">Zed · 按文件与目录用途组织完整图标主题</a></li><li><a href="https://github.com/zhang66633/dsh-pixel-ui" target="_blank" rel="noreferrer">dsh-pixel-ui · DSH 内整套界面的皮肤表达参考</a></li></ul><p class="reference-boundary">本页是独立本地关键稿。真实接入范围、资源清单及来源说明见 <a href="README.md">短说明</a>；原皮肤和运行包保持原版本。</p></section>
+  </main>
+
+  <div id="popover" class="popover" hidden></div>
+  <aside id="appearance-panel" class="appearance-panel" hidden aria-label="本页外观选项"><header><h2>本页外观</h2><button class="icon-button" data-action="close-appearance" data-icon="close" aria-label="关闭外观选项"></button></header><div class="appearance-row"><div><strong>阅读配色</strong><p>沿用本套暖白与夜间配色</p></div><div class="theme-choices"><button data-theme-choice="light" aria-pressed="true">暖白</button><button data-theme-choice="dark" aria-pressed="false">夜间</button></div></div><label class="appearance-row"><div><strong>纸面细节</strong><p>控制折角、索引与辅助色</p></div><input id="appearance-details" type="checkbox" role="switch" checked></label><label class="appearance-row"><div><strong>界面动效</strong><p>开卷、资料签与归档演出</p></div><input id="appearance-motion" type="checkbox" role="switch" checked></label><label class="appearance-row"><div><strong>角色呼应</strong><p>开卷和新回复完成时回应</p></div><input id="appearance-echo" type="checkbox" role="switch" checked></label><label class="appearance-row"><div><strong>减少动态</strong><p>保留状态，并遵守系统减少动态</p></div><input id="appearance-reduced" type="checkbox" role="switch"></label><p class="appearance-footnote">只调整这份关键稿，关闭选项后保留本页输入。</p></aside>
+  <div id="live-status" class="sr-only" role="status" aria-live="polite"></div>
+</body>
+</html>

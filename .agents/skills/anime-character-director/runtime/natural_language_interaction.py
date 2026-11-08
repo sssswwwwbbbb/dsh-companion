@@ -1,0 +1,698 @@
+"""Deterministic natural-language intent parsing for interaction gates."""
+
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass, field
+from copy import deepcopy
+from enum import Enum
+import re
+from typing import Any, Mapping, Sequence
+
+
+class IntentType(str, Enum):
+    SELECTION = "SELECTION"
+    MIX_SELECTION = "MIX_SELECTION"
+    CUSTOM_UPDATE = "CUSTOM_UPDATE"
+    DELEGATION = "DELEGATION"
+    PARTIAL_DELEGATION = "PARTIAL_DELEGATION"
+    ACCEPT_RECOMMENDED = "ACCEPT_RECOMMENDED"
+    ACCEPT_ALL_RECOMMENDED = "ACCEPT_ALL_RECOMMENDED"
+    BACK = "BACK"
+    MODE_SWITCH = "MODE_SWITCH"
+    REGENERATE_OPTIONS = "REGENERATE_OPTIONS"
+    CANCEL = "CANCEL"
+    CONTINUE = "CONTINUE"
+    QUESTION_ONLY = "QUESTION_ONLY"
+    CONSTRAINT_UPDATE = "CONSTRAINT_UPDATE"
+    AMBIGUOUS = "AMBIGUOUS"
+    INVALID = "INVALID"
+
+
+@dataclass
+class ParsedInteractionIntent:
+    intent_type: str
+    action: str | None = None
+    target_gate: str | None = None
+    selected_options: list[str] = field(default_factory=list)
+    field_updates: dict[str, Any] = field(default_factory=dict)
+    delegated_fields: list[str] = field(default_factory=list)
+    accepted_recommended_fields: list[str] = field(default_factory=list)
+    mode_switch_target: str | None = None
+    question: str | None = None
+    regenerate_requested: bool = False
+    continue_requested: bool = False
+    cancel_requested: bool = False
+    confidence: float = 0.0
+    needs_clarification: bool = False
+    clarification_reason: str = ""
+    raw_text: str = ""
+    rationale: str = ""
+    human_fields: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "intent_type": self.intent_type,
+            "target_gate": self.target_gate,
+            "selected_options": list(self.selected_options),
+            "field_updates": self.field_updates,
+            "delegated_fields": list(self.delegated_fields),
+            "accepted_recommended_fields": list(self.accepted_recommended_fields),
+            "mode_switch_target": self.mode_switch_target,
+            "question": self.question,
+            "regenerate_requested": self.regenerate_requested,
+            "continue_requested": self.continue_requested,
+            "cancel_requested": self.cancel_requested,
+            "confidence": self.confidence,
+            "needs_clarification": self.needs_clarification,
+            "clarification_reason": self.clarification_reason,
+            "raw_text": self.raw_text,
+            "rationale": self.rationale,
+            "human_fields": list(self.human_fields),
+        }
+
+
+class ExplicitConstraintExtractor:
+    """Extract high-confidence user constraints before any exploration."""
+
+    _NEGATION = r"(?:不要|不想要|不需要|禁止|拒绝|不希望|no|not)"
+    _HAIR_PATTERN = r"(?P<color>银灰|银白|粉色|粉|银|白|黑|蓝|红|金|紫)(?:色)?(?:的)?(?P<length>长|短)?发"
+    _HAIR = {
+        "粉": "粉发",
+        "粉色": "粉发",
+        "银灰": "银灰发",
+        "银白": "银白发",
+        "银": "银发",
+        "白": "白发",
+        "黑": "黑发",
+        "蓝": "蓝发",
+        "红": "红发",
+        "金": "金发",
+        "紫": "紫发",
+    }
+    _COLORS = {"粉": "pink", "粉色": "pink", "银": "silver", "银白": "silver-white", "银灰": "silver-gray", "白": "white", "黑": "black", "蓝": "blue", "红": "red", "金": "gold", "紫": "purple", "绿": "green", "绿色": "green", "琥珀": "amber", "teal": "teal"}
+    _NEGATED_COLOR_PATTERN = r"(?P<color>粉色|粉|银灰|银白|银|白|黑|蓝|红|金|紫)(?!色?(?:的)?(?:长|短)?发)(?=\s*(?:[,，、。；;]|和|也|但|或|$))"
+    _NEGATION_PREFIX = rf"{_NEGATION}\s*(?:使用|默认)?\s*"
+
+    def extract(self, text: str) -> dict[str, Any]:
+        raw = str(text)
+        lower = raw.lower()
+        constraints: dict[str, Any] = {
+            "raw": raw,
+            "explicit_user_fields": [],
+            "explicit_constraint_records": {},
+            "raw_hard_constraints": [],
+            "negative_constraints": {},
+            "prohibited": [],
+            "prohibited_constraints": [],
+            "constraint_provenance": {},
+        }
+        positive: dict[str, Any] = {}
+        negative: dict[str, Any] = {}
+
+        def prohibit(kind: str, text_value: str, attributes: Mapping[str, Any] | None = None) -> None:
+            item = {"kind": kind, "scope": "same_entity" if kind == "combination" else "identity" if kind == "archetype" else "independent", "text": text_value}
+            if attributes:
+                item["attributes"] = dict(attributes)
+            if item not in constraints["prohibited_constraints"]:
+                constraints["prohibited_constraints"].append(item)
+            if text_value not in constraints["prohibited"]:
+                constraints["prohibited"].append(text_value)
+
+        def positive_field(name: str, value: Any, evidence: str | None = None, *, record: bool = True) -> None:
+            constraints[name] = value
+            positive[name] = value
+            if name not in constraints["explicit_user_fields"]:
+                constraints["explicit_user_fields"].append(name)
+            constraints["constraint_provenance"][name] = "explicit_user"
+            if record:
+                constraints["explicit_constraint_records"][name] = {
+                    "field": name,
+                    "value": deepcopy(value) if isinstance(value, (dict, list)) else value,
+                    "required_value": deepcopy(value) if isinstance(value, (dict, list)) else value,
+                    "source": "human_explicit",
+                    "confidence": 1.0,
+                    "raw_evidence": evidence or raw,
+                    "priority": "HARD",
+                    "locked": True,
+                }
+
+        def explicit_field(name: str, value: Any, evidence: str, *aliases: str) -> None:
+            positive_field(name, value, evidence)
+            for alias in aliases:
+                positive_field(alias, value, evidence, record=False)
+
+        def list_field(name: str, value: Any, evidence: str, *aliases: str) -> None:
+            current = constraints.get(name)
+            values = list(current) if isinstance(current, list) else []
+            if value not in values:
+                values.append(value)
+            explicit_field(name, values, evidence, *aliases)
+
+        def raw_hard_constraint(clause: str, evidence: str) -> None:
+            item = {
+                "field": "raw_hard_constraint",
+                "value": clause.strip(),
+                "required_value": clause.strip(),
+                "source": "human_explicit",
+                "confidence": 1.0,
+                "raw_evidence": evidence,
+                "priority": "HARD",
+                "locked": True,
+            }
+            if item not in constraints["raw_hard_constraints"]:
+                constraints["raw_hard_constraints"].append(item)
+
+        for match in re.finditer(r"(?:硬性要求|必须保留|must\s+(?:include|retain|keep))\s*[:：]?\s*([^。.!！;；\n]+)", raw, re.IGNORECASE):
+            raw_hard_constraint(match.group(1), match.group(0))
+
+        def negative_field(name: str, value: Any, label: str | None = None) -> None:
+            negative[name] = value
+            constraints["constraint_provenance"][name] = "explicit_user"
+            prohibit("concept", label or str(value))
+
+        if re.search(r"(?:不要|拒绝|不想要|no)\s*(?:欧美脸(?:型)?|西式脸(?:型)?|western face(?: aesthetics)?)", raw, re.IGNORECASE):
+            positive_field("face_aesthetic_profile", "EAST_ASIAN_COMMERCIAL_GACHA_FACE")
+            constraints["face_aesthetic_source"] = "human_explicit"
+        elif re.search(r"东亚脸型|二游标准脸|日系商业二游脸|亚洲审美|east asian(?: commercial gacha)? face", raw, re.IGNORECASE):
+            positive_field("face_aesthetic_profile", "EAST_ASIAN_COMMERCIAL_GACHA_FACE")
+            constraints["face_aesthetic_source"] = "human_explicit"
+        elif re.search(r"欧美脸型|欧美审美|欧系脸|西方面部骨相|欧式成熟脸|更立体更深邃的五官|western-inspired face|western face aesthetics|more sculpted and deep-set features", raw, re.IGNORECASE):
+            positive_field("face_aesthetic_profile", "WESTERN_INSPIRED_GACHA_FACE")
+            constraints["face_aesthetic_source"] = "human_explicit"
+
+        negated_hair_matches = list(re.finditer(rf"{self._NEGATION_PREFIX}{self._HAIR_PATTERN}", raw, re.IGNORECASE))
+        for match in negated_hair_matches:
+            token = match.group("color")
+            color = self._COLORS.get(token, token.lower())
+            length = match.group("length")
+            if length:
+                style = "long hair" if length == "长" else "short hair"
+                prohibit("combination", f"{color} {style}", {"hair_color": color, "hair_style_family": style})
+                negative["forbid_hair_combination"] = {"hair_color": color, "hair_style_family": style}
+                constraints["constraint_provenance"]["forbid_hair_combination"] = "explicit_user"
+            else:
+                negative_field("forbid_hair_color", f"{color} hair")
+
+        negated_style_matches = [
+            match
+            for match in re.finditer(rf"{self._NEGATION_PREFIX}(?P<length>长|短)发", raw, re.IGNORECASE)
+            if not any(negated.start() <= match.start() and match.end() <= negated.end() for negated in negated_hair_matches)
+        ]
+        for match in negated_style_matches:
+            style = "long hair" if match.group("length") == "长" else "short hair"
+            negative_field("forbid_hair_style_family", style)
+
+        negated_color_matches = [
+            match
+            for match in re.finditer(rf"{self._NEGATION_PREFIX}{self._NEGATED_COLOR_PATTERN}", raw, re.IGNORECASE)
+            if not any(negated.start() <= match.start() and match.end() <= negated.end() for negated in negated_hair_matches)
+        ]
+        for match in negated_color_matches:
+            color = self._COLORS.get(match.group("color"), match.group("color").lower())
+            negative_field("forbid_hair_color", f"{color} hair")
+
+        hair_matches = list(re.finditer(self._HAIR_PATTERN, raw, re.IGNORECASE))
+        positive_hair_matches = [
+            match
+            for match in hair_matches
+            if not any(negated.start() <= match.start() and match.end() <= negated.end() for negated in (*negated_hair_matches, *negated_style_matches))
+        ]
+        if positive_hair_matches:
+            token = positive_hair_matches[-1].group("color")
+            positive_field("hair_color", self._HAIR.get(token, token.lower()))
+        positive_style_matches = [
+            match
+            for match in re.finditer(r"(?P<length>长|短)发", raw)
+            if not any(negated.start() <= match.start() and match.end() <= negated.end() for negated in (*negated_hair_matches, *negated_style_matches))
+        ]
+        if positive_style_matches:
+            positive_field("hair_style_family", "long hair" if positive_style_matches[-1].group("length") == "长" else "short hair")
+        if "hair_color" in constraints or "hair_style_family" in constraints:
+            hair_parts = [constraints.get("hair_color"), constraints.get("hair_style_family")]
+            explicit_field("hair", " ".join(str(part) for part in hair_parts if part), "发色/发型")
+            # Keep the legacy explicit_user_fields shape; hair_color/hair_style_family remain the UI locks.
+            constraints["explicit_user_fields"].remove("hair")
+        if re.search(r"很拽|拽|傲娇|高冷|冷淡|arrogant|aloof", raw, re.IGNORECASE):
+            positive_field("personality", "arrogant/aloof")
+        if re.search(r"成年|adult", raw, re.IGNORECASE):
+            positive_field("age_group", "adult")
+        if re.search(r"女性|女人|女角色|女仆|女仆长|侍女|female|woman", raw, re.IGNORECASE):
+            explicit_field("gender_presentation", "female", "女性/女角色/女仆", "gender")
+        elif re.search(r"男性|男人|男角色|男仆|male|man", raw, re.IGNORECASE):
+            explicit_field("gender_presentation", "male", "男性/男角色", "gender")
+
+        role_match = re.search(r"女仆长|head\s*maid|maid\s*leader", raw, re.IGNORECASE)
+        if role_match:
+            explicit_field("role_identity", "head_maid", role_match.group(0))
+        elif re.search(r"女仆|侍女|maid", raw, re.IGNORECASE):
+            explicit_field("role_identity", "maid", "女仆/侍女/maid")
+        if re.search(r"女仆装|maid\s*(?:outfit|uniform|dress)", raw, re.IGNORECASE) or constraints.get("role_identity") in {"maid", "head_maid"}:
+            explicit_field("costume_identity", "maid_outfit", "女仆装/maid outfit")
+        if re.search(r"幽灵|ghost", raw, re.IGNORECASE):
+            explicit_field("supernatural_state", "ghost", "幽灵/ghost")
+            explicit_field("character_state", "ghost", "幽灵/ghost")
+        if re.search(r"人类形态|人类的样貌|人类全身|human\s+(?:form|appearance)|full[- ]body human", raw, re.IGNORECASE):
+            explicit_field("human_form_requirement", "human_form", "人类形态/人类的样貌和全身")
+        if re.search(r"全身|full[- ]body", raw, re.IGNORECASE):
+            explicit_field("composition", "full_body", "全身/full-body")
+        if re.search(r"欧美脸型|欧美审美|western[- ]inspired face|western face", raw, re.IGNORECASE):
+            explicit_field("face_reference", "western_face", "欧美脸型")
+        if re.search(r"商业二游|商业 gacha|commercial gacha", raw, re.IGNORECASE):
+            explicit_field("style_contract", "contemporary commercial gacha anime", "商业二游/commercial gacha")
+
+        bust_match = re.search(r"(大胸|大胸部|large\s*(?:bust|breasts?)|large[- ]bust|中胸|medium\s*bust|小胸|small\s*bust)", raw, re.IGNORECASE)
+        if bust_match:
+            bust_value = "large_bust" if re.search(r"大胸|large", bust_match.group(0), re.IGNORECASE) else "medium_bust" if re.search(r"中胸|medium", bust_match.group(0), re.IGNORECASE) else "small_bust"
+            emphasis = bust_value.split("_", 1)[0]
+            explicit_field("body_proportion", bust_value, bust_match.group(0), "body_build")
+            explicit_field("bust_emphasis", emphasis, bust_match.group(0))
+        if re.search(r"扇子|fan", raw, re.IGNORECASE):
+            list_field("props", "fan", "扇子/fan", "major_accessories")
+        doll_match = re.search(r"(两个|兩個|2|two)\s*幽灵娃娃|(two|2)\s*ghost\s*dolls?", raw, re.IGNORECASE)
+        if doll_match:
+            list_field("props", "ghost_dolls", doll_match.group(0), "major_accessories")
+            explicit_field("quantity_constraints", {"ghost_dolls": 2}, doll_match.group(0))
+            explicit_field("companion_type", "ghost_doll", doll_match.group(0))
+            explicit_field("companion_count", 2, doll_match.group(0))
+        elif re.search(r"幽灵娃娃|ghost\s*dolls?", raw, re.IGNORECASE):
+            list_field("props", "ghost_dolls", "幽灵娃娃/ghost dolls", "major_accessories")
+
+        fox_evidence = re.search(r"狐耳(?:朵)?.{0,8}白色|白色.{0,8}狐耳(?:朵)?|white\s+fox\s+ears?|白色狐耳(?:朵)?|狐耳(?:朵)?", raw, re.IGNORECASE)
+        if fox_evidence:
+            explicit_field("nonhuman_features", "white_fox_ears", fox_evidence.group(0), "nonhuman_trait_level")
+        elif re.search(r"狐耳|狐狸|狐系|fox", raw, re.IGNORECASE):
+            explicit_field("nonhuman_features", "fox_ears", "狐耳/狐狸/fox", "nonhuman_trait_level")
+        horn_match = re.search(r"(魅魔角|恶魔角|公羊角|羊角|有角|horns?)", raw, re.IGNORECASE)
+        if horn_match and not re.search(r"(?:不要|没有|无|no|without)\s*" + re.escape(horn_match.group(1)), raw, re.IGNORECASE):
+            horn_value = {
+                "魅魔角": "demon horns",
+                "恶魔角": "demon horns",
+                "公羊角": "ram horns",
+                "羊角": "ram horns",
+            }.get(horn_match.group(1).lower(), "horns")
+            explicit_field("horns", horn_value, horn_match.group(0), "horn_topology")
+        if re.search(r"(?:有|带有|拥有)\s*(?:翅膀|羽翼)|\bwings?\b", raw, re.IGNORECASE):
+            explicit_field("wings", "physical wings", "翅膀/wings", "wing_strategy")
+        if re.search(r"(?:有|带有|拥有)\s*(?:尾巴|尾)|\btail\b", raw, re.IGNORECASE):
+            explicit_field("tail", "tail", "尾巴/tail", "tail_design")
+
+        if re.search(r"条纹丝袜\s*(?:蓝白|白蓝)|蓝白(?:色)?(?:相间)?条纹丝袜|蓝白相间丝袜|blue[- ]white\s+striped\s+stockings?", raw, re.IGNORECASE):
+            explicit_field("legwear", "blue_white_striped_stockings", "条纹丝袜蓝白/蓝白条纹丝袜", "legwear_family")
+        if re.search(r"露趾(?:的)?(?:细|尖头)?高跟|露趾高跟鞋|open[- ]toe\s+high\s+heels?", raw, re.IGNORECASE):
+            explicit_field("footwear", "open_toe_high_heels", "露趾的高跟/露趾高跟", "footwear_family")
+        if re.search(r"脚趾被丝袜包裹|脚趾.*丝袜包裹|toes?\s+(?:covered|wrapped)\s+by\s+stockings?", raw, re.IGNORECASE):
+            explicit_field("footwear_detail", "toes_covered_by_stockings", "脚趾被丝袜包裹")
+        palette_match = re.search(r"(?:整体色调|主色调)\s*(?:以)?\s*(白色|白|white)\s*(?:为主|dominant).*?(?:蓝色|蓝|blue)\s*(?:为辅助|secondary|辅助)", raw, re.IGNORECASE)
+        if palette_match:
+            explicit_field("palette_primary", "white", palette_match.group(1))
+            explicit_field("palette_secondary", "blue", palette_match.group(0))
+        else:
+            primary = re.search(r"(?:white|白色?)\s*(?:dominant|为主)", raw, re.IGNORECASE)
+            secondary = re.search(r"(?:blue|蓝色?)\s*(?:secondary|为辅助|辅助)", raw, re.IGNORECASE)
+            if primary:
+                explicit_field("palette_primary", "white", primary.group(0))
+            if secondary:
+                explicit_field("palette_secondary", "blue", secondary.group(0))
+
+        eye = self._last_color(raw, r"(?:眼睛|瞳色|眼眸)(?:改成|换成|用|是|为)?\s*(银灰|银白|粉色|粉|银|白|黑|蓝|红|金|紫|绿|绿色|琥珀)")
+        if eye:
+            positive_field("eye_color", self._COLORS.get(eye, eye))
+        if re.search(r"白色连裤袜|白色\s*连裤袜|white opaque tights", raw, re.IGNORECASE):
+            positive_field("legwear_family", "white opaque tights")
+            positive_field("tights", "white opaque")
+        if re.search(r"(?:不要|不穿)\s*(?:默认\s*)?(?:黑丝|丝袜|连裤袜|长袜)|no stockings|no tights", raw, re.IGNORECASE):
+            constraints["legwear_family"] = "none"
+            if "legwear_family" not in constraints["explicit_user_fields"]:
+                constraints["explicit_user_fields"].append("legwear_family")
+            negative_field("forbid_legwear", "stockings/tights", "black stockings" if re.search(r"黑丝", raw) else "stockings/tights")
+        if re.search(r"裸足|赤脚|barefoot", raw, re.IGNORECASE):
+            positive_field("footwear_family", "barefoot")
+        if re.search(r"(?:不要|不穿)\s*(?:默认\s*)?高跟鞋|(?:不要|不穿)\s*(?:默认\s*)?黑丝\s*高跟鞋|no high heels", raw, re.IGNORECASE):
+            negative_field("forbid_footwear_family", "heels", "high heels")
+        if re.search(r"不要成熟御姐感|不要成熟大姐姐感|no mature older-sister vibe", raw, re.IGNORECASE):
+            negative_field("forbid_mature_older_sister_vibe", "mature older-sister vibe")
+        if re.search(r"不要交叉腿|不交叉腿|禁止交叉腿|no crossed legs", raw, re.IGNORECASE):
+            negative_field("forbid_crossed_legs", "crossed legs")
+        if re.search(r"不要裙子|不穿裙子|no skirt", raw, re.IGNORECASE):
+            negative_field("forbid_outfit_lower", "skirt")
+        if re.search(r"短裤|裤装|长裤|shorts|trousers|pants", raw, re.IGNORECASE):
+            positive_field("outfit_lower", "shorts/pants")
+        if re.search(r"性感程度\s*(?:为|改成|换成)?\s*中等|中等性感|moderate fanservice", raw, re.IGNORECASE):
+            positive_field("fanservice_level", "moderate")
+        if re.search(r"兽耳|狐狸|狐系|fox", raw, re.IGNORECASE) and "nonhuman_features" not in constraints:
+            explicit_field("nonhuman_features", "fox_ears", "兽耳/狐狸/fox", "nonhuman_trait_level")
+        if re.search(r"正面|正对镜头|站立|front-facing", raw, re.IGNORECASE):
+            explicit_field("pose", "front-facing stable open stance", "正面/正对镜头/站立", "pose_intent")
+        if re.search(r"右手.*(?:向前伸出|向外伸出|伸出).*(?:张开手掌|开掌)|right hand.*(?:extend|reach).*(?:open palm)", raw, re.IGNORECASE):
+            positive_field("right_arm_action", "extended outward")
+            positive_field("right_hand_gesture", "open palm outward")
+        if re.search(r"左手.*(?:放低|下垂|自然垂下)|left hand.*(?:relaxed low|hanging)", raw, re.IGNORECASE):
+            positive_field("left_arm_action", "relaxed at side")
+            positive_field("left_hand_gesture", "relaxed fingers")
+        if re.search(r"双手.*远离脸|双手不要靠脸|hands? away from (?:the )?face", raw, re.IGNORECASE):
+            positive_field("arm_configuration", "hands away from face")
+            positive_field("left_hand_gesture", "away from face")
+            positive_field("right_hand_gesture", "away from face")
+        if re.search(r"右手.*(?:摸脸|碰脸|扶脸)|right hand.*(?:touching|near|beside) (?:the )?(?:face|cheek)", raw, re.IGNORECASE):
+            positive_field("right_hand_gesture", "touching cheek")
+        background_match = re.search(r"背景\s*(?:是|为|用)?\s*([^。.!！;；]+)|background\s*(?:is|with)?\s*([^.!?]+)", raw, re.IGNORECASE)
+        if background_match:
+            explicit_field("background", next((item for item in background_match.groups() if item), "" ).strip(), background_match.group(0))
+
+        if re.search(r"不能只是普通人类女性加动物耳朵|not merely a human female with animal ears", raw, re.IGNORECASE):
+            prohibit("archetype", "human female with cosmetic animal ears only", {"archetype": "cosmetic-animal-ears-only"})
+        if re.search(r"拿着扳手、?戴着护目镜的字面化机械师|literal mechanic", raw, re.IGNORECASE):
+            prohibit("archetype", "literal mechanic visualization", {"archetype": "literal-mechanic-visualization"})
+        for source, label in (("白色连衣裙", "white dress"), ("蕾丝", "lace"), ("软妹系", "soft-girl styling"), ("传统制服模板", "traditional uniform template")):
+            if source in raw and re.search(rf"{self._NEGATION_PREFIX}[^。.!！;；]*{re.escape(source)}", raw, re.IGNORECASE):
+                prohibit("concept", label)
+
+        aliases = {
+            "pink long hair": "粉色长发",
+            "pink hair": "粉色",
+            "long hair": "长发",
+            "black stockings": "黑丝",
+            "high heels": "高跟鞋",
+            "crossed legs": "交叉腿",
+            "mature older-sister vibe": "成熟御姐感",
+            "white dress": "白色连衣裙",
+            "lace": "蕾丝",
+            "soft-girl styling": "软妹系",
+        }
+        constraints["prohibited_constraints"].sort(key=lambda item: raw.find(aliases.get(item["text"], item["text"])))
+
+        constraints["positive_constraints"] = positive
+        constraints["negative_constraints"] = negative
+        conflicts = []
+        if constraints.get("footwear") and constraints.get("footwear_family") == "barefoot":
+            conflicts.append("footwear=open_toe_high_heels conflicts with footwear_family=barefoot")
+        if conflicts:
+            constraints["constraint_conflicts"] = conflicts
+        if not constraints["explicit_user_fields"]:
+            constraints.pop("explicit_user_fields")
+        return constraints
+
+    @staticmethod
+    def _last_color(text: str, pattern: str) -> str | None:
+        matches = list(re.finditer(pattern, text, re.IGNORECASE))
+        return matches[-1].group(1) if matches else None
+
+
+class NaturalLanguageInteractionParser:
+    """A small deterministic parser at the interaction seam.
+
+    The parser only describes intent. Gate legality, state changes, and
+    provenance remain in InteractionRuntime and GateResolver.
+    """
+
+    _FIELD_ALIASES = {
+        "hair_color": ("发色", "头发", "发型"),
+        "outfit_direction": ("衣服", "服装", "上衣", "穿着"),
+        "footwear_family": ("鞋子", "鞋", "鞋履"),
+        "eye_color": ("眼睛", "瞳色", "眼眸"),
+        "legwear_family": ("黑丝", "丝袜", "连裤袜", "长袜"),
+        "fanservice_level": ("性感程度", "性感"),
+        "hair_style_family": ("发型",),
+        "face_aesthetic_profile": ("脸型", "面部审美", "五官", "face aesthetic"),
+    }
+    _COLOR_VALUES = {
+        "粉": "pink", "粉色": "pink", "银": "silver", "银白": "silver-white", "银灰": "silver-gray", "灰蓝": "gray-blue",
+        "白": "white", "蓝": "blue", "红": "red", "黑": "black", "金": "gold", "紫": "purple", "绿": "green",
+    }
+
+    def parse(self, text: str, context: Mapping[str, Any] | None = None) -> ParsedInteractionIntent:
+        raw = str(text).strip()
+        ctx = context or {}
+        gate = str(ctx.get("gate_type") or "")
+        mode = str(ctx.get("mode") or "")
+        options = list(ctx.get("options") or [])
+        option_ids = [str(item.get("id")) for item in options if item.get("id")]
+        variables = dict(ctx.get("visual_variables") or {})
+        base = {"target_gate": gate, "raw_text": raw}
+        if not raw:
+            return ParsedInteractionIntent(IntentType.INVALID.value, confidence=1.0, needs_clarification=True, clarification_reason="请告诉我你想选择、修改，还是交给 AI。", rationale="empty input", **base)
+        selected_in_question = self._candidate_selection(raw, option_ids, options) if gate in {"CHARACTER_DIRECTION_GATE", "ART_DIRECTION_GATE"} and self._is_question(raw) else None
+        if selected_in_question:
+            return ParsedInteractionIntent(IntentType.SELECTION.value, action="SELECT", selected_options=[selected_in_question], confidence=0.99, rationale="matched candidate selection in a mixed recommendation question", **base)
+        if self._is_question(raw):
+            return ParsedInteractionIntent(IntentType.QUESTION_ONLY.value, question=raw, confidence=0.98, rationale="question does not imply selection", **base)
+        if re.search(r"^(?:取消|不做了(?:[，,]?取消)?|先算了|停止这个角色|cancel)\s*[。.!！]?$", raw, re.IGNORECASE):
+            return ParsedInteractionIntent(IntentType.CANCEL.value, action="CANCEL", cancel_requested=True, confidence=0.99, rationale="explicit cancellation", **base)
+        if self._is_regenerate(raw):
+            return ParsedInteractionIntent(IntentType.REGENERATE_OPTIONS.value, action="REGENERATE_OPTIONS", regenerate_requested=True, confidence=0.97, rationale="user requested another set of options", **base)
+        if self._is_back(raw):
+            target = "CHARACTER" if re.search(r"人物|角色方向|最开始", raw) else "ART" if re.search(r"美术|视觉方向", raw) else "ART" if gate == "VISUAL_PREFERENCE_GATE" else "CHARACTER" if gate == "ART_DIRECTION_GATE" else None
+            return ParsedInteractionIntent(IntentType.BACK.value, action="BACK", confidence=0.96, rationale="explicit return request", target_gate=target or gate, **{k: v for k, v in base.items() if k != "target_gate"})
+
+        partial = self._partial_delegate(raw, variables) if gate == "VISUAL_PREFERENCE_GATE" else None
+        if partial:
+            return ParsedInteractionIntent(IntentType.PARTIAL_DELEGATION.value, action="PARTIAL_DELEGATE", confidence=0.96, rationale="named fields remain human-owned; remaining fields are delegated", human_fields=partial["human_fields"], field_updates=partial["field_updates"], delegated_fields=partial["delegated_fields"], **base)
+
+        if mode == "USER_DECIDE" and re.search(r"(?:后面|接下来).*(?:都|全|交给|你帮我决定|你决定)|剩下.*(?:你来|你决定)|全交给你", raw):
+            return ParsedInteractionIntent(IntentType.MODE_SWITCH.value, action="DELEGATE", mode_switch_target="AI_DECIDE", confidence=0.97, rationale="explicitly delegated the remaining workflow", **base)
+        if re.search(r"(?:切成|切换到|改成|换成|switch\s+to)\s*(?:快速模式|quick(?:\s+mode)?)", raw, re.IGNORECASE):
+            return ParsedInteractionIntent(IntentType.MODE_SWITCH.value, action="DELEGATE", mode_switch_target="QUICK", confidence=0.97, rationale="explicitly switched to quick mode", **base)
+        if mode == "AI_DECIDE" and re.search(r"等一下|等等|想自己选|让我选|接下来我来决定|不要直接替我决定", raw):
+            return ParsedInteractionIntent(IntentType.MODE_SWITCH.value, action="DELEGATE", mode_switch_target="USER_DECIDE", confidence=0.96, rationale="explicitly reclaimed control", **base)
+
+        if self._is_delegate(raw) and not (gate == "VISUAL_PREFERENCE_GATE" and self._field_in_text(raw, variables)):
+            return ParsedInteractionIntent(IntentType.DELEGATION.value, action="DELEGATE", confidence=0.97, rationale="explicit current-gate delegation", **base)
+
+        if self._is_all_recommended(raw):
+            updates = self._visual_updates(raw, variables)
+            return ParsedInteractionIntent(IntentType.ACCEPT_ALL_RECOMMENDED.value, action="USE_ALL_RECOMMENDED", accepted_recommended_fields=[name for name in variables if name not in updates], field_updates=updates, confidence=0.97, rationale="accept recommendations except explicit overrides", **base)
+
+        if self._is_single_recommended(raw, variables):
+            name = self._field_in_text(raw, variables)
+            if name:
+                return ParsedInteractionIntent(IntentType.ACCEPT_RECOMMENDED.value, action="USE_RECOMMENDED", accepted_recommended_fields=[name], confidence=0.96, rationale="accepted one field recommendation", field_updates={name: {"source": "human_accept_recommended"}}, **base)
+
+        if re.search(r"^继续\s*[。.!！]?$", raw, re.IGNORECASE):
+            return ParsedInteractionIntent(IntentType.CONTINUE.value, continue_requested=True, confidence=0.99, rationale="continue request", **base)
+
+        if gate in {"CHARACTER_DIRECTION_GATE", "ART_DIRECTION_GATE"}:
+            mix = self._candidate_mix(raw, option_ids)
+            if mix:
+                field_mix = self._field_mix(raw, option_ids)
+                return ParsedInteractionIntent(IntentType.MIX_SELECTION.value, action="MIX", selected_options=mix, confidence=0.95, rationale="combined candidate directions", field_updates={"field_mix": field_mix} if field_mix else {}, **base)
+            visual_updates = self._visual_updates(raw, variables)
+            if visual_updates:
+                return ParsedInteractionIntent(IntentType.CONSTRAINT_UPDATE.value, action="CONSTRAINT_UPDATE", field_updates=visual_updates, confidence=0.9, rationale="future visual constraint saved without selecting the current candidate gate", **base)
+            selected = self._candidate_selection(raw, option_ids, options)
+            if selected:
+                return ParsedInteractionIntent(IntentType.SELECTION.value, action="SELECT", selected_options=[selected], confidence=0.99, rationale="matched candidate id or ordinal", **base)
+            if "中间" in raw and option_ids:
+                middle = [option_ids[(len(option_ids) - 1) // 2], option_ids[len(option_ids) // 2]] if len(option_ids) % 2 == 0 else [option_ids[len(option_ids) // 2]]
+                if len(middle) == 1:
+                    return ParsedInteractionIntent(IntentType.SELECTION.value, action="SELECT", selected_options=middle, confidence=0.9, rationale="resolved the only middle option", **base)
+                return ParsedInteractionIntent(IntentType.AMBIGUOUS.value, confidence=0.98, needs_clarification=True, clarification_reason=f"你指 {middle[0]} 还是 {middle[1]}？", rationale="two middle options are equally plausible", **base)
+            constraint_updates = ExplicitConstraintExtractor().extract(raw)
+            field_updates = {name: {"value": value, "source": "explicit_user"} for name, value in constraint_updates.items() if name in variables}
+            if field_updates:
+                return ParsedInteractionIntent(IntentType.CONSTRAINT_UPDATE.value, action="CONSTRAINT_UPDATE", field_updates=field_updates, confidence=0.9, rationale="future visual constraint saved without selecting the current candidate gate", **base)
+            if re.search(r"自定义|自己描述|我想要一个|做成|我想自己定|我想自定义|我自己定", raw) or (len(raw) >= 8 and re.search(r"应该|希望|想要|需要|不要|但是|带一点|表面|整体|气质|感觉|偏|攻击性|危险|安静|克制|冰冷|成熟", raw)):
+                return ParsedInteractionIntent(IntentType.CUSTOM_UPDATE.value, action="CUSTOM", confidence=0.85, rationale="explicit custom candidate direction", **base)
+            return ParsedInteractionIntent(IntentType.INVALID.value, confidence=0.55, needs_clarification=True, clarification_reason="请选一个当前方向，或说“混一下”“你来决定”。", rationale="no safe candidate action matched", **base)
+
+        if gate == "VISUAL_PREFERENCE_GATE":
+            updates = self._visual_updates(raw, variables)
+            field_delegates = [
+                name
+                for name in variables
+                if self._field_alias_present(raw, name)
+                and re.search(rf"(?:{'|'.join(map(re.escape, self._FIELD_ALIASES[name]))}).{{0,6}}(?:随你|你决定|交给你)", raw)
+            ]
+            if updates or field_delegates:
+                if field_delegates or re.search(r"其他.*(?:随你|你决定|交给你)|剩下.*(?:随你|你决定|交给你)", raw):
+                    human_fields = list(updates)
+                    delegated = [name for name in variables if name not in human_fields]
+                    return ParsedInteractionIntent(IntentType.PARTIAL_DELEGATION.value, action="PARTIAL_DELEGATE", field_updates=updates, human_fields=human_fields, delegated_fields=delegated, confidence=0.95, rationale="explicit visual overrides plus delegated remainder", **base)
+                return ParsedInteractionIntent(IntentType.CUSTOM_UPDATE.value, action="CUSTOM", field_updates=updates, confidence=0.94, rationale="field-level visual updates", **base)
+            if field_delegates:
+                return ParsedInteractionIntent(IntentType.PARTIAL_DELEGATION.value, action="PARTIAL_DELEGATE", human_fields=[], delegated_fields=list(variables), confidence=0.9, rationale="named visual fields were delegated to AI", **base)
+            if self._has_visual_field_request(raw, variables):
+                human_fields = [name for name in variables if self._field_alias_present(raw, name)]
+                delegated = [name for name in variables if name not in human_fields]
+                return ParsedInteractionIntent(IntentType.PARTIAL_DELEGATION.value, action="PARTIAL_DELEGATE", human_fields=human_fields, delegated_fields=delegated, confidence=0.9, rationale="fields were named as human-owned without values", **base)
+            return ParsedInteractionIntent(IntentType.INVALID.value, confidence=0.5, needs_clarification=True, clarification_reason="你可以修改发色、衣服、鞋子等少数字段，其余可按推荐或交给我。", rationale="no safe visual action matched", **base)
+
+        return ParsedInteractionIntent(IntentType.INVALID.value, confidence=0.4, needs_clarification=True, clarification_reason="请告诉我下一步怎么处理。", rationale="unsupported gate context", **base)
+
+    @staticmethod
+    def _is_question(text: str) -> bool:
+        return bool(re.search(r"[?？]|为什么|有何区别|什么区别|最大的区别|你推荐哪个|推荐哪个|你觉得哪个|哪个更适合", text, re.IGNORECASE))
+
+    @staticmethod
+    def _is_regenerate(text: str) -> bool:
+        return bool(re.search(r"都不喜欢.*(?:再来|重新|换一批|换一组)|(?:这些|我)都?不喜欢|换一批|换一组|重新给几个|没有喜欢的|再生成几个方向", text))
+
+    @staticmethod
+    def _is_back(text: str) -> bool:
+        return bool(re.search(r"返回上一步|回到上一步|重选前面|回去重选|重选最开始|换回上一步|重新选(?:角色|美术|视觉)方向|我还是想换角色方向", text))
+
+    @staticmethod
+    def _is_delegate(text: str) -> bool:
+        return bool(re.search(r"你来决定|你决定|你来选|帮我选|交给你|这个你定|你挑一个最好的|按你觉得最适合|按你认为最适合|我不想选了", text))
+
+    @staticmethod
+    def _is_all_recommended(text: str) -> bool:
+        return bool(
+            re.search(
+                r"都按(?:你)?(?:的)?推荐|全部按推荐|其他(?:就)?(?:按|用)?(?:你)?(?:的)?推荐(?:就行)?|剩下(?:的)?(?:都)?(?:按|用)(?:你)?(?:的)?推荐|就按你(?:的)?推荐|那就按你(?:的)?推荐|大体按推荐|这个按推荐|(?:use|follow|leave)\s+(?:your\s+)?recommendations?\s+for\s+(?:the\s+)?(?:rest|remaining)",
+                text,
+                re.IGNORECASE,
+            )
+        )
+
+    @staticmethod
+    def _is_single_recommended(text: str, variables: Mapping[str, Any]) -> bool:
+        return bool(re.search(r"按(?:你)?(?:的)?推荐", text)) and not NaturalLanguageInteractionParser._is_all_recommended(text) and bool(NaturalLanguageInteractionParser._field_in_text(text, variables))
+
+    def _candidate_selection(self, text: str, option_ids: Sequence[str], options: Sequence[Mapping[str, Any]] | None = None) -> str | None:
+        if not option_ids:
+            return None
+        upper = text.upper()
+        match = re.search(r"(?:我选|选|就|还是|选择)\s*([A-Z])", upper)
+        if not match:
+            match = re.fullmatch(r"\s*([A-Z])(?:吧|了|比较好)?(?:\s*[,，。.!！]?\s*(?:然后)?继续)?", upper)
+        if match:
+            index = ord(match.group(1)) - ord("A")
+            if index < len(option_ids):
+                return option_ids[index]
+        for item in options or ():
+            identifier = str(item.get("id") or "")
+            labels = [str(item.get(key) or "") for key in ("design_thesis", "short_label", "title", "title_zh", "title_en", "summary", "description_zh", "description_en")]
+            if identifier in option_ids and any(label and label.lower() in text.lower() for label in labels):
+                return identifier
+        ordinals = {"一": 1, "二": 2, "三": 3, "四": 4, "1": 1, "2": 2, "3": 3, "4": 4}
+        ordinal_matches = list(re.finditer(r"第\s*([一二三四1-4])\s*(?:个|套|项|种|方案)", text))
+        if len(ordinal_matches) > 1:
+            return None
+        match = ordinal_matches[0] if ordinal_matches else None
+        if match:
+            index = ordinals[match.group(1)] - 1
+            return option_ids[index] if index < len(option_ids) else None
+        if re.search(r"最后一个|最后一项|最后一套|最后一种|最后一个方案", text):
+            return option_ids[-1]
+        return None
+
+    @staticmethod
+    def _candidate_mix(text: str, option_ids: Sequence[str]) -> list[str] | None:
+        letters = [letter for letter in re.findall(r"[A-Z]", text.upper()) if ord(letter) - ord("A") < len(option_ids)]
+        identifiers = [option_ids[ord(letter) - ord("A")] for letter in letters]
+        if len(set(identifiers)) >= 2 and ("+" in text or re.search(r"混|结合|加|参考|整体感觉|轮廓|头发|衣服|服装", text)):
+            return list(dict.fromkeys(identifiers))
+        return None
+
+    @staticmethod
+    def _field_mix(text: str, option_ids: Sequence[str]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for name, aliases in (("hair_color", ("头发", "发色", "发型")), ("outfit_direction", ("衣服", "服装", "上衣"))):
+            values = []
+            for alias in aliases:
+                values.extend(re.findall(rf"([A-D])[^A-D，,。；;]{{0,8}}{alias}", text.upper()))
+            values = [value for value in values if value in option_ids]
+            if values:
+                result[name] = list(dict.fromkeys(values))
+        return result
+
+    def _visual_updates(self, text: str, variables: Mapping[str, Any]) -> dict[str, Any]:
+        updates: dict[str, Any] = {}
+
+        def put(name: str, value: Any = None, *, option_id: str | None = None, source: str | None = None, mix: list[str] | None = None) -> None:
+            if name not in variables:
+                return
+            update: dict[str, Any] = {}
+            if option_id:
+                update["option_id"] = option_id
+            elif mix:
+                update["mix"] = mix
+            else:
+                update["value"] = value
+            if source:
+                update["source"] = source
+            updates[name] = update
+
+        hair_match = re.search(r"(?:发色|头发)\s*(?:(?:我?(?:想)?要|改成|换成|换为|自定义)\s*)?(灰蓝|银灰|银白|银|粉色|粉|深红|红色|红|黑|蓝|白)", text)
+        if hair_match:
+            put("hair_color", self._COLOR_VALUES.get(hair_match.group(1), hair_match.group(1)))
+        else:
+            match = re.search(r"(?:发色|头发)(?:用|我?选)\s*([A-D])", text.upper())
+            if match:
+                put("hair_color", option_id=match.group(1), source="human_select")
+            else:
+                match = re.search(r"(?:我(?:就)?要|我想要)\s*(银灰发|银白发|银发|粉色发|粉发|深红发|红发|黑发|蓝发|白发)", text)
+                if match:
+                    put("hair_color", match.group(1))
+        match = re.search(r"(?:衣服|服装|上衣).{0,6}(?:(?:用|选|改成|换成)\s*)?([A-D])\s*(?:和|\+)\s*([A-D]).{0,5}(?:混|结合)", text.upper())
+        if match:
+            put("outfit_direction", mix=[match.group(1), match.group(2)], source="human_mix")
+        else:
+            match = re.search(r"(?:衣服|服装|上衣).{0,6}(?:(?:用|选|改成|换成)\s*)?([A-D])", text.upper())
+            if match:
+                put("outfit_direction", option_id=match.group(1), source="human_select")
+        match = re.search(r"(?:眼睛|瞳色|眼眸)(?:用|选|改成|换成)?\s*([A-D])", text.upper())
+        if match:
+            put("eye_color", option_id=match.group(1), source="human_select")
+        else:
+            match = re.search(r"(?:眼睛|瞳色|眼眸).{0,6}(?:改成|换成|用|是)\s*(绿色|绿|琥珀|蓝|紫)", text)
+            if match:
+                put("eye_color", self._COLOR_VALUES.get(match.group(1), match.group(1)))
+        if re.search(r"(?:鞋子|鞋履|鞋).*?(?:裸足|赤脚)|(?:裸足|赤脚).*?(?:鞋子|鞋履|鞋)", text):
+            put("footwear_family", "barefoot")
+        if re.search(r"(?:不要|不穿)(?:黑丝|丝袜|连裤袜)|(?:黑丝|丝袜|连裤袜)(?:不要|不穿)", text):
+            put("legwear_family", "none")
+        elif re.search(r"白色连裤袜", text):
+            put("legwear_family", "white opaque tights")
+        match = re.search(r"性感程度\s*(?:改成|换成|为)?\s*(低|中等|高|moderate|low|high)", text, re.IGNORECASE)
+        if match:
+            put("fanservice_level", {"低": "restrained", "中等": "moderate", "高": "strong", "low": "restrained", "moderate": "moderate", "high": "strong"}.get(match.group(1).lower(), match.group(1)))
+        extracted = ExplicitConstraintExtractor().extract(text)
+        if "face_aesthetic_profile" in extracted:
+            put("face_aesthetic_profile", extracted["face_aesthetic_profile"], source="explicit_user")
+        if "game_rendering_style" in extracted:
+            put(
+                "game_rendering_style",
+                extracted.get("game_style_id") or extracted.get("game_style_request"),
+                source="human_select",
+            )
+        return updates
+
+    def _partial_delegate(self, text: str, variables: Mapping[str, Any]) -> dict[str, Any] | None:
+        has_delegate = bool(
+            re.search(
+                r"其他.*(?:你决定|随你|交给你)|剩下.*(?:你决定|随你|交给你)|其他你决定|剩下你来|(?:the\s+)?(?:rest|remaining|other\s+fields?).*(?:you\s+decide|up\s+to\s+you|your\s+call)|leave\s+(?:the\s+)?(?:rest|remaining)\s+to\s+you|you\s+decide\s+(?:the\s+)?(?:rest|remaining)",
+                text,
+                re.IGNORECASE,
+            )
+        )
+        has_human = bool(re.search(r"自己选|我选|我来定|让我选|我想自己", text))
+        updates = self._visual_updates(text, variables)
+        if not has_delegate and not (has_human and updates):
+            return None
+        human_fields = list(updates)
+        for name in variables:
+            if self._field_alias_present(text, name) and name not in human_fields and has_human:
+                human_fields.append(name)
+        delegated = [name for name in variables if name not in human_fields]
+        return {"human_fields": human_fields, "delegated_fields": delegated, "field_updates": updates}
+
+    def _has_visual_field_request(self, text: str, variables: Mapping[str, Any]) -> bool:
+        return bool(re.search(r"自己选|我选|我来定|让我选|我想自己", text)) and bool(self._field_in_text(text, variables))
+
+    @staticmethod
+    def _field_in_text(text: str, variables: Mapping[str, Any]) -> str | None:
+        for name in variables:
+            if NaturalLanguageInteractionParser._field_alias_present(text, name):
+                return name
+        return None
+
+    @staticmethod
+    def _field_alias_present(text: str, name: str) -> bool:
+        return any(alias in text for alias in NaturalLanguageInteractionParser._FIELD_ALIASES.get(name, ()))
+
+
+__all__ = ["ExplicitConstraintExtractor", "IntentType", "NaturalLanguageInteractionParser", "ParsedInteractionIntent"]

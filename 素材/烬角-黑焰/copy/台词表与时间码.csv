@@ -1,0 +1,7 @@
+﻿台词ID,台词,入点(秒),时长(秒),干声,临场版,字幕行
+T01,封印碎了。,2.40,1.79,exports/audio/VO-T01_dry.wav,exports/audio/VO-T01_wet.wav,封印碎了。
+T02,火……我只有火记得我。,4.64,2.02,exports/audio/VO-T02_dry.wav,exports/audio/VO-T02_wet.wav,火……我只有火记得我。
+T03,手给我。火认得你。,7.26,1.58,exports/audio/VO-T03_dry.wav,exports/audio/VO-T03_wet.wav,手给我。火认得你。
+—,环境与音效,0.55,—,exports/audio/sfx-lock-release.wav,—,无
+—,环境与音效,3.95,—,exports/audio/sfx-flame-ignite.wav,—,无
+—,环境与音效,6.81,—,exports/audio/sfx-ui-tick.wav,—,无

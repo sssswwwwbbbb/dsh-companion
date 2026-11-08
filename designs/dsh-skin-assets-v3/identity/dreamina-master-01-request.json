@@ -1,0 +1,34 @@
+{
+  "candidate_id": "dreamina-master-01",
+  "status": "web-flash-batch-completed-user-selected-image-4",
+  "purpose": "依用户修正，直接参考开场原帧生成即梦同角色母版；先审查母版，再派生坐姿与其他动作。",
+  "provider": "即梦官方网页版",
+  "model": "Seedream 5.0 Pro",
+  "resolution": "2K",
+  "ratio": "2:3",
+  "observed_width": 1664,
+  "observed_height": 2496,
+  "generate_num": 1,
+  "observed_cost_credits_per_image": 8,
+  "reference": "designs/dsh-skin-v1/assets/reference/scan-middle.png",
+  "old_moss_reference_removed": true,
+  "old_seated_request_submitted": false,
+  "prompt": "请仅依据上传的开场动画原帧，重建画面中同一位蓝发女孩的一张完整全身角色母版。以原帧的人物身份和细腻3D动漫CG质感为最高优先：保留偏深的蓝灰、蓝紫发色和冷银色细发丝高光，侧分刘海的形状、发束方向、上眼睑与细长睫毛、柔和鼻唇和清透皮肤；保留画面左侧深海蓝缎带、局部白色扇褶头饰以及原帧可见的白边深蓝片状侧饰的轮廓关系。完整脸部要自然补全，不能改成圆脸大头的Q版、塑料娃娃、平涂漫画或另一个女孩。眼睛保留蓝灰青蓝的通透层次，去掉扫描代码反光，不要把文字画进虹膜。画面只有一个人物，正面略转15度，自然站立，双臂放松并稍离躯干，双手五指自然可读，双腿与双脚分开，表情安静亲切。全身按约6头身的自然游戏角色比例设计，头饰、发梢、双手和鞋全部完整，不裁切，人物占画面高度约85%。原帧未展示的全身服装作克制的同风格延展：深海蓝高领长袖工作裙，领口和袖口承接原画珍珠白细褶边，裙摆到膝上，腰部剪裁简洁，深蓝长袜和低跟系带鞋；不要大块白围裙、繁复花饰、金色装甲或新配饰。长发自然垂至大腿附近，细密分束，有柔和体积与发丝透光，保持原帧冷蓝质感而非浅白头发。柔和正面主光与克制冷色轮廓光，材质精致而不过度油亮。纯浅暖灰背景，不添加场景、道具、界面、品牌文字、边框、扫描网格或第二个人物，不画多视图、不画角色设定排版。输出为同一角色的单张全身母版候选。",
+  "unseen_parts": "完整脸轮廓、发长、身体比例和全身服装均为待审设计延展；不宣称原动画已经展示或确认。",
+  "quality_checks": [
+    "开场原帧是唯一输入参考，不继承MOSS全身候选偏差",
+    "比对偏深蓝灰发色、缎带/褶饰位置、眼睑睫毛和精细CG质感",
+    "单人完整全身，双手、鞋与发梢可读且不裁切",
+    "未把扫描代码、品牌文字或HUD固化进人物",
+    "人物一致性与技术生成成功分开验收，母版未通过前不批量派生"
+  ],
+  "execution": {
+    "initial_pro_attempt": "rejected: membership required for Seedream 5.0 Pro and 2K; no image generated",
+    "actual_model": "Seedream 5.0 Flash",
+    "actual_generate_num": 4,
+    "observed_credits_per_image": 3,
+    "observed_batch_credit_delta": 12,
+    "model_and_batch_adjusted_by_user": true,
+    "result": "selected-master.json"
+  }
+}

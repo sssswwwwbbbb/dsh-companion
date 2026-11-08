@@ -1,0 +1,901 @@
+--- a/runtime-src/main.mjs
++++ b/runtime-src/main.mjs
+@@ -15,6 +15,9 @@
+ import { readJson, writeJson } from './storage.mjs';
+ import { profileGate } from './integration.mjs';
+ import { hostWindowBounds, introBounds } from './host-window.mjs';
++import { WholePetBackend } from './backend.mjs';
++import { coldOpeningAllowed, openingWorkspaceReady } from './compatibility.mjs';
++import { stopRequests } from './skin-core/src/state.mjs';
+ 
+ const version=JSON.parse(readFileSync(new URL('./package.json',import.meta.url),'utf8')).version,root=dirname(fileURLToPath(import.meta.url));
+ app.setName('DSH Companion');
+@@ -27,18 +30,46 @@
+ const wantsPet=launchMode==='managed'||settings.autoStart;
+ const packs=new PackStore(join(root,'packs'),stateDir);
+ let pack=packs.get(settings.packId),packToken=tokenFor(pack);
+-let window,introWindow,tray,bridge,model,workArea,timer,monitor,ready=false,quitting=false,dragOffset,lastCursor,lastPosition,previousAction,lastEvent,speech='',speechSequence=0;
++let window,introWindow,tray,bridge,backend,model,workArea,timer,monitor,ready=false,quitting=false,exitAllowed=false,dragOffset,lastCursor,lastPosition,previousAction,lastEvent,speech='',speechSequence=0;
+ let ownerPid=Number(process.env.DSH_COMPANION_OWNER_PID||0),phase='starting',errorCode=null;
+ let introPlaying=false,introReady=false,introStartedAt=0,introError=null,introCompletions=0,openingDsh=false,activeIntro=null,introMedia=null,introVideoStarted=false,introVideoEnded=false;
++let introDuration=0,introHandoff=false,introReturning=false,introAudioMuted=null;
+ const started=new Date().toISOString(),geometry={positionUpdates:0,negativeZeroNormalizations:0,rejectedPositions:0};
+ const transitions=[];
+ let legacySettings={...settings},readyActions=[],pendingInteraction=null,lastInteraction=null;
++const coldState=readJson(join(stateDir,'skin-state.json'),{});
++const cinematicCold=!!coldState.selected?.manifest.modules.startup?.config?.handoffSeconds;
++let coldKey=coldState.selected?.contentKey,explicitLauncher=launchMode==='launcher',coldRequestedAt=explicitLauncher?Date.now():0;
++let coldRequested=explicitLauncher||process.env.DSH_COMPANION_PLAY_INTRO==='1';
++const sameContentRestore=coldState.pending?.contentKey===coldKey;
++let coldIntroPending=cinematicCold&&(!coldState.pending||sameContentRestore)&&coldOpeningAllowed({
++ requested:coldRequested,explicitLauncher,settings,state:coldState,hasStops:stopRequests(stateDir).length>0,
++});
++let coldAutoStarted=false;
+ const startup=new NativeStartupRuntime({stateDir,dshVersion:integration.dshVersion,onCancel:reason=>{if(activeIntro?.custom)cancelIntro(reason);}});
+-const skin=new NativeSkinRuntime({stateDir,loadPack:id=>packs.get(id),hide:({stop=false}={})=>{if(stop){startup.stop();cancelIntro('skin-stop');}window?.hide();sendState();},isReady:token=>ready&&packToken===token,apply:({pack:next,config,token})=>{
++const usesWorker=()=>backend?.supports(skin.contentKey)===true;
++const desktopReady=()=>usesWorker()?backend.status().ready:ready;
++const skin=new NativeSkinRuntime({stateDir,loadPack:id=>packs.get(id),workAction:(action,current)=>{
++  if(usesWorker())return backend.act(action,current);
++  if(!ready||!model||!readyActions.includes(action)||!pack.animations[action])return null;
++  if(!model.perform(action,pack.animations[action].seconds))return null;
++  sendState();return action;
++},hide:async({stop=false}={})=>{
++  if(stop){startup.stop();cancelIntro('skin-stop');}
++  pendingInteraction=null;closeLegacyPet();await backend?.stop();updateMenu();sendState();
++},isReady:token=>usesWorker()?backend.token===token&&backend.status().ready:ready&&packToken===token,apply:async context=>{
++  const {pack:next,config,token,contentKey}=context;
+   pack=next;packToken=token;ready=false;readyActions=[];pendingInteraction=null;say('');settings={...legacySettings,packId:pack.id,profile:config.profile,size:config.size,autonomous:config.autonomous,followMouse:config.followMouse,visible:true};
+-  model.setProfile(pack.profiles[settings.profile]);model.autonomous=settings.autonomous;model.follow=settings.followMouse;settleUnsupportedAction();sizeWindow();updateMenu();sendState();
++  if(backend.supports(contentKey)){
++    await backend.apply({...context,holdVisibility:coldIntroPending||introPlaying});
++    if(introPlaying)await backend.suspend();else if(!coldIntroPending)await backend.releaseVisibility();
++  }else{
++    model.setProfile(pack.profiles[settings.profile]);model.autonomous=settings.autonomous;model.follow=settings.followMouse;
++    settleUnsupportedAction();await createLegacyPet();
++  }
++  updateMenu();sendState();
+ }});
+-const showPet=()=>settings.visible&&!introPlaying&&(!skin.owned||skin.canShow());
++const showPet=()=>settings.visible&&!introPlaying&&!coldIntroPending&&(!skin.owned||skin.canShow());
+ 
+ function tokenFor(value){return createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0,12);}
+ function event(type,extra={}){transitions.push({at:Date.now(),type,packId:settings.packId,...extra});if(transitions.length>80)transitions.shift();writeJson(join(stateDir,'runtime-events.json'),{version,started,transitions});}
+@@ -49,38 +80,69 @@
+   app.on('second-instance',(_event,_args,_directory,data)=>{
+     if(data?.mode==='launcher'){
+       if(!settings.launcherEnabled||!profileGate(integration.profileDir||'').enabled){openDsh(false);return;}
++      const state=readJson(join(stateDir,'skin-state.json'),{});
++      if(state.selected?.manifest.modules.startup?.config?.handoffSeconds||startup.descriptor?.handoffSeconds){
++        bringDsh();
++        if(!introPlaying&&!introReturning&&!coldIntroPending&&!state.pending&&
++           coldOpeningAllowed({requested:true,explicitLauncher:true,settings,state,hasStops:stopRequests(stateDir).length>0})){
++          coldKey=state.selected.contentKey;coldRequested=true;explicitLauncher=true;
++          coldRequestedAt=Date.now();coldIntroPending=true;coldAutoStarted=false;
++        }
++        return;
++      }
+       if(settings.startupEnabled&&introAvailable())void showIntro().catch(()=>openDsh(false));else openDsh(false);
+-    }else if(ready&&window&&showPet())window.showInactive();
++    }else if(desktopReady()&&showPet())void releaseOpeningPet().catch(()=>{});
+   });
+   app.whenReady().then(start).catch(error=>{errorCode=/^[A-Z_]+$/.test(error.message||'')?error.message:'DESKTOP_START_FAILED';phase='error';event('start-failed',{errorCode});app.quit();});
+ }
+ function persist(){if(model)writeJson(statePath,{schemaVersion:1,settings:skin.owned?legacySettings:settings,position:{displayId:workArea.displayId,x:model.x,y:model.y},savedAt:new Date().toISOString()});}
+-function status(){return {running:!quitting,bridgeReady:!!bridge,ready,phase,version,skin:skin.status(),platform:process.platform,arch:process.arch,pid:process.pid,started,errorCode,settings,action:model?.action||'idle',needsHost:ownerPid<1,pack:{id:pack.id,name:pack.name,token:packToken},position:model?{x:Math.round(model.x),y:Math.round(model.y)}:null,window:window&&!window.isDestroyed()?{visible:window.isVisible(),bounds:window.getBounds(),alwaysOnTop:window.isAlwaysOnTop()}:null,startup:{...startup.status(),playing:introPlaying,rendererReady:introReady,media:introMedia,videoEnded:introVideoEnded,hostReady:ownerPid>0,elapsedSeconds:introStartedAt?(Date.now()-introStartedAt)/1000:0,durationSeconds:activeIntro?.seconds||startup.descriptor?.seconds||pack.startup.seconds,completions:introCompletions,errorCode:introError||startup.errorCode||null,visible:!!introWindow&&!introWindow.isDestroyed()&&introWindow.isVisible(),bounds:introWindow&&!introWindow.isDestroyed()?introWindow.getBounds():null},availableActions:[...actions].filter(id=>readyActions.includes(id)),interaction:lastInteraction};}
++function openingAudioAudible(){return !!introWindow&&!introWindow.isDestroyed()&&introWindow.webContents.isCurrentlyAudible();}
++function status(){
++  const worker=usesWorker()?backend.status():null;
++  const nativeWindow=worker?worker.windows[0]||null:window&&!window.isDestroyed()?{visible:window.isVisible(),bounds:window.getBounds(),alwaysOnTop:window.isAlwaysOnTop()}:null;
++  return {running:!quitting,bridgeReady:!!bridge,ready:worker?.ready??ready,phase,version,skin:skin.status(),platform:process.platform,arch:process.arch,pid:process.pid,started,errorCode,settings,
++    action:worker?worker.lastAction?.action||'idle':model?.action||'idle',needsHost:ownerPid<1,pack:{id:pack.id,name:pack.name,token:packToken},
++    backend:worker,position:model&&!worker?{x:Math.round(model.x),y:Math.round(model.y)}:null,window:nativeWindow,
++    startup:{...startup.status(),playing:introPlaying,rendererReady:introReady,media:introMedia,videoEnded:introVideoEnded,handoff:introHandoff,audioMuted:introAudioMuted,audioAudible:openingAudioAudible(),
++      hostReady:ownerPid>0,coldRequested,coldPending:coldIntroPending,coldAutoStarted,elapsedSeconds:introPlaying?(Date.now()-introStartedAt)/1000:0,
++      durationSeconds:introPlaying?introDuration:startup.descriptor?.seconds||pack.startup.seconds,completions:introCompletions,errorCode:introError||startup.errorCode||null,
++      visible:!!introWindow&&!introWindow.isDestroyed()&&introWindow.isVisible(),bounds:introWindow&&!introWindow.isDestroyed()?introWindow.getBounds():null},
++    availableActions:worker?.ready?['idle','react','walk']:[...actions].filter(id=>readyActions.includes(id)),interaction:lastInteraction};
++}
+ function say(text){speech=text;speechSequence++;}
+ function applySettings(input){
+   if(skin.owned&&Object.keys(input).some(key=>['packId','size','profile','autonomous','followMouse','visible'].includes(key)))throw new Error('SKIN_MANAGED_SETTINGS');
+   const next=validatedSettings(input,settings),nextPack=skin.owned?pack:packs.get(next.packId),nextToken=skin.owned?packToken:tokenFor(nextPack);if(nextToken!==packToken)ready=false;settings=next;legacySettings={...legacySettings,...input};pack=nextPack;packToken=nextToken;
+   model.setProfile(pack.profiles[settings.profile]);model.autonomous=settings.autonomous;model.follow=settings.followMouse;sizeWindow();
+-  if(!settings.startupEnabled&&introPlaying){cancelIntro('startup-disabled');if(launchMode==='launcher'&&ownerPid<1)openDsh();}
+-  if(showPet()&&ready)window.showInactive();else window.hide();persist();updateMenu();sendState();return status();
++  if(!settings.startupEnabled&&(introPlaying||coldIntroPending)){cancelIntro('startup-disabled');if(launchMode==='launcher'&&ownerPid<1)openDsh();}
++  if(showPet()&&ready)window?.showInactive();else window?.hide();persist();updateMenu();sendState();return status();
+ }
+ function perform(action){
+   authorization();if(!actions.has(action))throw new Error('UNKNOWN_ACTION');if(!readyActions.includes(action)||!pack.animations[action])throw new Error('ACTION_UNAVAILABLE');
+   const messages={react:'欸，头发要被摸乱啦。',eat:'白饭！我才不是一直在等这个。',play:'和小猫玩一会儿。',stretch:'你也记得活动一下呀。','sleep-in':'先眯一会儿，醒来再陪你。',wake:'我醒啦，今天做点什么？',greet:'欢迎回来，今天也一起加油。'};
+   model.perform(action,action==='sleep'?Infinity:pack.animations[action].seconds,messages[action]);if(messages[action])say(messages[action]);sendState();return status();
+ }
+-function deliverInteraction(input){
+-  if(!ready||!skin.canShow()||input.generation!==skin.generation||input.contentKey!==skin.contentKey)throw new Error('SKIN_OPERATION_SUPERSEDED');
++async function deliverInteraction(input){
++  const current=()=>{
++    if(!desktopReady()||!skin.canShow()||input.generation!==skin.generation||input.contentKey!==skin.contentKey)throw new Error('SKIN_OPERATION_SUPERSEDED');
++  };
++  current();
+   const config=skin.interactionSettings();if(!config)throw new Error('SKIN_OPERATION_SUPERSEDED');
+   if(typeof input.speech!=='string'||input.speech.length>120||!(input.action===null||actions.has(input.action)))throw new Error('PET_DECISION_INVALID');
+-  let action=config.allowActions&&config.actionDescriptions?.[input.action]&&readyActions.includes(input.action)?input.action:null;
++  let action=config.allowActions&&config.actionDescriptions?.[input.action]?input.action:null;
+   const speech=config.allowSpeech?input.speech:'';
+-  if(action&&!model.perform(action,action==='sleep'?Infinity:pack.animations[action].seconds))action=null;
+-  say(speech);sendState();lastInteraction={speech,action,generation:skin.generation,at:Date.now()};return lastInteraction;
++  if(usesWorker()){
++    if(speech)throw new Error('BACKEND_SPEECH_UNAVAILABLE');
++    if(action)await backend.act(action,current);
++  }else{
++    if(action&&(!readyActions.includes(action)||!model.perform(action,action==='sleep'?Infinity:pack.animations[action].seconds)))action=null;
++    say(speech);sendState();
++  }
++  current();lastInteraction={speech,action,generation:skin.generation,at:Date.now()};return lastInteraction;
+ }
+ function settleUnsupportedAction(){if(!pack.animations[model.action]){model.action='idle';model.remaining=pack.animations.idle.seconds;}}
+ function resolveDisplay(){const displays=screen.getAllDisplays();const display=displays.find(item=>item.id===saved.position?.displayId)||screen.getDisplayNearestPoint(screen.getCursorScreenPoint());workArea={...display.workArea,displayId:display.id};}
+-function sizeWindow(){const scale=settings.size/100,height=Math.round((pack.canvasHeight||300)*scale),width=Math.round(height*640/360);model.setBounds(workArea.width,workArea.height,height*92/300,height*235/300);window.setSize(width,height+50);positionWindow();}
++function sizeWindow(){if(!window)return;const scale=settings.size/100,height=Math.round((pack.canvasHeight||300)*scale),width=Math.round(height*640/360);model.setBounds(workArea.width,workArea.height,height*92/300,height*235/300);window.setSize(width,height+50);positionWindow();}
+ function positionWindow(){
+   if(!window||window.isDestroyed())return;const [width,height]=window.getSize();
+   const rawX=workArea.x+model.x-width/2,rawY=workArea.y+model.y-height+8*settings.size/100,position=nativePosition(rawX,rawY);
+@@ -98,48 +160,145 @@
+   openingDsh=true;const args=[...(background?['-g','-j']:[]),'-a',integration.dshApp];
+   const child=spawn('/usr/bin/open',args,{stdio:'ignore',env:{HOME:process.env.HOME,PATH:process.env.PATH,LANG:process.env.LANG}});child.once('exit',()=>{openingDsh=false;});child.once('error',()=>{openingDsh=false;introError='DSH_START_FAILED';});event('dsh-open-requested');
+ }
++function bringDsh(){void shell.openExternal('dsh://open').catch(()=>openDsh(false));}
++async function releaseOpeningPet(){
++  if(!showPet()||readJson(join(stateDir,'skin-state.json'),{}).stopped||stopRequests(stateDir).length)return;
++  if(usesWorker()){await backend.releaseVisibility();await backend.resume();}
++  else if(ready&&wantsPet)window?.showInactive();
++  updateMenu();
++}
++function clearColdOpening(){coldIntroPending=false;}
++async function maybeColdOpening(workspace){
++ if(!coldIntroPending||!backend)return;
++ const state=readJson(join(stateDir,'skin-state.json'),{});
++ if(!coldOpeningAllowed({requested:true,explicitLauncher,settings,state,hasStops:stopRequests(stateDir).length>0})||state.selected?.contentKey!==coldKey||state.pending&&state.pending.contentKey!==coldKey){clearColdOpening();await releaseOpeningPet();return;}
++ if(!startup.canPlay()||startup.descriptor.contentKey!==coldKey)return;
++ const hostWindow=readJson(join(stateDir,'host-window.json'),null);
++ if(!openingWorkspaceReady({workspace,state,contentKey:coldKey,ownerPid,hostWindow,requestedAt:coldRequestedAt})||
++    !hostWindowBounds(hostWindow.bounds)||!startup.canPlay(workspace))return;
++ event('cold-workspace-ready',{generation:workspace.generation,contentKey:workspace.contentKey,boundsReady:true});
++ clearColdOpening();coldAutoStarted=true;event('cold-intro-request',{contentKey:coldKey,generation:startup.generation,workspaceCommitted:true,explicitLauncher});
++ try{await showIntro();}catch(error){cancelIntro('load-error');throw error;}
++}
+ async function showIntro(){
++   if(introPlaying||introReturning)return;
+   authorization();if(!introAvailable())throw new Error(startup.declared?'STARTUP_NOT_REGISTERED':'ACTION_UNAVAILABLE');
+   introStartedAt=Math.max(Date.now(),introStartedAt+1);const content=startup.declared?startup.playback():{...pack.startup,custom:false,name:pack.name,video:'/'+pack.animations[pack.startup.animation].file,contentKey:packToken};
+-  activeIntro={...content,theme:content.theme||pack.startup.theme,token:content.contentKey+':'+(content.generation||0)+':'+introStartedAt};introPlaying=true;introReady=false;introMedia=null;introVideoStarted=false;introVideoEnded=false;introError=null;phase='intro';window?.hide();introWindow?.hide();event('intro-start',{hostReady:ownerPid>0,custom:content.custom,contentKey:content.contentKey});
+-  if(!introWindow||introWindow.isDestroyed()){
+-    introReady=false;introWindow=new BrowserWindow({...currentIntroBounds(),show:false,frame:false,acceptFirstMouse:true,backgroundColor:'#111827',hasShadow:true,resizable:false,minimizable:false,maximizable:false,fullscreenable:false,alwaysOnTop:true,skipTaskbar:true,webPreferences:{preload:join(root,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,backgroundThrottling:false}});
+-    introWindow.setAlwaysOnTop(true,'screen-saver');if(process.platform==='darwin')introWindow.setVisibleOnAllWorkspaces(true,{visibleOnFullScreen:true,skipTransformProcessType:true});
+-    introWindow.webContents.setWindowOpenHandler(()=>({action:'deny'}));introWindow.webContents.on('will-navigate',event=>event.preventDefault());
+-    introWindow.webContents.on('render-process-gone',()=>{cancelIntro('renderer-exited');if(launchMode==='launcher'&&ownerPid<1)openDsh(false);});
+-    introWindow.on('closed',()=>{introWindow=undefined;introReady=false;});
+-    await introWindow.loadURL('dsh-companion://app/startup.html');
+-  }else{introWindow.setBounds(currentIntroBounds());sendState();}
+-  sendState();
++   const token=content.contentKey+':'+(content.generation||0)+':'+introStartedAt,cinematic=!!content.handoffSeconds;
++   activeIntro={...content,theme:content.theme||pack.startup.theme,token};
++   introPlaying=true;introReady=false;introMedia=null;introVideoStarted=false;introVideoEnded=false;introHandoff=false;introDuration=content.seconds;introError=null;introAudioMuted=null;phase='intro';
++   try{
++     if(usesWorker())await backend.suspend();else window?.hide();
++     if(!introCurrent(token))return;
++     if(cinematic&&introWindow)introWindow.destroy();
++     if(!introWindow||introWindow.isDestroyed()){
++       const win=new BrowserWindow({...currentIntroBounds(),show:false,frame:false,acceptFirstMouse:true,transparent:cinematic,backgroundColor:cinematic?'#00000000':'#111827',hasShadow:!cinematic,resizable:false,minimizable:false,maximizable:false,fullscreenable:false,alwaysOnTop:true,skipTaskbar:true,webPreferences:{preload:join(root,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,backgroundThrottling:false,...(content.soundEnabled===true?{autoplayPolicy:'no-user-gesture-required'}:{})}});
++       introWindow=win;
++       win.setAlwaysOnTop(true,'screen-saver');if(process.platform==='darwin')win.setVisibleOnAllWorkspaces(true,{visibleOnFullScreen:true,skipTransformProcessType:true});
++       win.webContents.setWindowOpenHandler(()=>({action:'deny'}));win.webContents.on('will-navigate',event=>event.preventDefault());
++       win.webContents.on('render-process-gone',()=>{if(introWindow===win)cancelIntro('renderer-exited');if(launchMode==='launcher'&&ownerPid<1)openDsh(false);});
++       if(cinematic)win.webContents.on('before-input-event',(event,input)=>{
++         if(input.type!=='keyDown'||input.key!=='Escape'||!introCurrent(token))return;
++         event.preventDefault();void finishIntro('escape',token).catch(error=>eventError('intro-finish-failed',error));
++       });
++       win.on('closed',()=>{if(introWindow===win){introWindow=undefined;introReady=false;if(introCurrent(token))cancelIntro('window-closed');}});
++       event('intro-start',{hostReady:ownerPid>0,custom:content.custom,contentKey:content.contentKey,generation:content.generation,cinematic,ownerPid,bounds:win.getBounds()});
++       await win.loadURL('dsh-companion://app/startup.html');
++     }else{introWindow.setBounds(currentIntroBounds());event('intro-start',{hostReady:ownerPid>0,custom:content.custom,contentKey:content.contentKey});}
++     if(introCurrent(token))sendState();
++   }catch(error){if(!introCurrent(token))return;cancelIntro('load-error');throw error;}
+ }
+-function introAvailable(){return startup.declared?startup.canPlay():!!pack.animations[pack.startup.animation];}
++function introAvailable(){
++ if(!startup.declared)return !!pack.animations[pack.startup.animation];
++ if(!startup.canPlay())return false;
++ if(!startup.descriptor.handoffSeconds)return true;
++ const state=readJson(join(stateDir,'skin-state.json'),{});
++ return !state.pending&&!state.stopped&&state.generation===startup.generation&&state.selected?.contentKey===startup.descriptor.contentKey&&state.results?.startup?.status==='ready';
++}
+ function introCurrent(token){return introPlaying&&activeIntro?.token===token&&(!activeIntro.custom||startup.canPlay(activeIntro));}
++function dismissOpening(content){
++ if(introWindow&&!introWindow.isDestroyed()){
++   if(content?.soundEnabled===true)introWindow.webContents.setAudioMuted(true);
++   if(content?.handoffSeconds)introWindow.destroy();else introWindow.hide();
++ }
++}
+ function cancelIntro(reason){
+-  if(!introPlaying)return;introPlaying=false;introReady=false;introMedia=null;introWindow?.hide();phase=ready?(ownerPid>0?'ready':'waiting-host'):'starting';event('intro-cancelled',{reason});sendState();
++   if(['skin-stop','startup-disabled'].includes(reason))clearColdOpening();
++  if(!introPlaying){void releaseOpeningPet().catch(()=>{});return;}
++  const content=activeIntro;introPlaying=false;introReady=false;introMedia=null;activeIntro=null;dismissOpening(content);phase=desktopReady()?(ownerPid>0?'ready':'waiting-host'):'starting';
++  event('intro-cancelled',{reason,contentKey:content.contentKey,generation:content.generation});
++  // A new generation owns the old pet's exit and the new pet's visibility.
++  // Resuming the old backend here would race its /skin/exit request.
++  if(!content.handoffSeconds||!['generation-changed','module-exit','content-applied','skin-stop'].includes(reason))void releaseOpeningPet().catch(()=>{});
++  sendState();
+ }
+ function currentIntroBounds(){
+   const bounds=hostWindowBounds(readJson(join(stateDir,'host-window.json'),null)?.bounds);
+   const display=bounds?screen.getDisplayMatching(bounds):screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+   return introBounds(bounds,display.workArea,display.bounds);
+ }
+-function finishIntro(trigger='automatic'){
+-  if(!introCurrent(activeIntro?.token)||!introReady||!activeIntro.custom&&!ready||ownerPid<1)return;introPlaying=false;phase='ready';introCompletions++;introWindow?.hide();sendState();
+-  if(showPet()&&wantsPet)window.showInactive();event('intro-complete',{trigger,hostReady:true,media:introMedia,videoEnded:introVideoEnded});
+-  void shell.openExternal('dsh://open').catch(()=>openDsh(false));
+-  if(!wantsPet&&!skin.owned&&launchMode==='launcher'){setTimeout(()=>app.quit(),250);}launchMode='managed';
++function eventError(type,error){event(type,{code:error.message});}
++async function finishIntro(trigger='automatic',token=activeIntro?.token,mediaEndedAt=null){
++   if(!introCurrent(token)||!introReady||!activeIntro.custom&&!desktopReady()||ownerPid<1)return;
++   const content=activeIntro;
++   const audibleBeforeClose=openingAudioAudible();
++   introPlaying=false;introReturning=true;activeIntro=null;phase='ready';introCompletions++;
++   dismissOpening(content);sendState();
++   event('intro-complete',{trigger,hostReady:true,media:introMedia,videoEnded:introVideoEnded,handoff:introHandoff,contentKey:content.contentKey,generation:content.generation,
++     mediaEndedAt,audibleBeforeClose,audibleAfterClose:openingAudioAudible()});
++   try{await releaseOpeningPet();}finally{bringDsh();introReturning=false;}
++   if(!wantsPet&&!skin.owned&&launchMode==='launcher'){setTimeout(()=>app.quit(),250);}launchMode='managed';
+ }
++
++
+ function attach(value){
+   if(!Number.isSafeInteger(value.ownerPid)||value.ownerPid<1)throw new Error('INVALID_OWNER');
+   try{process.kill(value.ownerPid,0);}catch{throw new Error('INVALID_OWNER');}
+   if(!service.supportedDsh.includes(value.dshVersion))throw new Error('DSH_UNSUPPORTED_VERSION');
+   ownerPid=value.ownerPid;event('host-attached',{dshVersion:value.dshVersion});
+-  if(ready&&!introPlaying){phase='ready';if(showPet()&&wantsPet)window.showInactive();if(launchMode==='launcher'&&!wantsPet&&!skin.owned)setTimeout(()=>app.quit(),250);launchMode='managed';}
++  if(desktopReady()&&!introPlaying&&!coldIntroPending){phase='ready';if(showPet()&&wantsPet)void releaseOpeningPet().catch(()=>{});if(launchMode==='launcher'&&!wantsPet&&!skin.owned)setTimeout(()=>app.quit(),250);launchMode='managed';}
+   sendState();return status();
+ }
+ function updateMenu(){
+   if(!tray)return;
++  tray.setTitle(usesWorker()?'07':'鲸');
++  tray.setToolTip('DSH 陪伴 · '+pack.name);
++  if(usesWorker()){
++    const built=Menu.buildFromTemplate([
++      {label:'DSH 陪伴 · '+pack.name,enabled:false},
++      {label:'向左走',enabled:desktopReady()&&showPet(),click:()=>void runAction('walk').catch(error=>eventError('pet-action-failed',error))},
++      {label:'重播启动动画',enabled:introAvailable(),click:()=>void showIntro().catch(()=>{})},
++      {label:'回到 DSH',click:bringDsh},
++      {label:'停止皮肤效果',click:()=>void skin.requestStop().catch(()=>{})},
++    ]);
++    tray.setContextMenu(built);return built;
++  }
+   const built=Menu.buildFromTemplate([{label:'DSH 陪伴 · '+pack.name,enabled:false},...(skin.owned?[{label:'停止皮肤效果',click:()=>skin.requestStop()}]:[]),{label:settings.visible?'隐藏大肥鱼':'显示大肥鱼',enabled:!skin.owned,click:()=>applySettings({visible:!settings.visible})},{label:'重播启动动画',enabled:introAvailable(),click:()=>void showIntro().catch(()=>{})},{label:'相处模式',enabled:!skin.owned,submenu:Object.entries(pack.profiles).map(([id,profile])=>({label:profile.label,type:'radio',checked:settings.profile===id,click:()=>applySettings({profile:id})}))},{label:'自主活动',enabled:!skin.owned,type:'checkbox',checked:settings.autonomous,click:item=>applySettings({autonomous:item.checked})},{type:'separator'},...[[ 'react','摸摸头'],['eat','喂白饭'],['play','撸猫时间'],['stretch','伸懒腰'],['sleep-in','睡一会儿'],['wake','叫她起床']].filter(([action])=>readyActions.includes(action)).map(([action,label])=>({label,click:()=>perform(action)})),{type:'separator'},{label:'回到屏幕中间',click:()=>{model.dragging=false;model.falling=false;model.x=workArea.width*.6;model.y=workArea.height;model.perform('idle',5);positionWindow();persist();}},{label:'回到 DSH',click:()=>void shell.openExternal('dsh://open').catch(()=>{})},{label:'退出桌宠',click:()=>{if(skin.owned)skin.requestStop();app.quit();}}]);tray.setContextMenu(built);return built;
+ }
++function closeLegacyPet(){
++  if(window){
++    const win=window;window=undefined;
++    win.destroy();
++    model.dragging=false;model.falling=false;dragOffset=undefined;
++  }
++  ready=false;readyActions=[];lastPosition=null;
++}
++async function runAction(action){
++  if(!usesWorker())return perform(action);
++  authorization();
++  if(!showPet())throw new Error('ACTION_UNAVAILABLE');
++  await backend.act(action);
++  return status();
++}
++async function createLegacyPet(){
++  if(window)return;
++  const win=new BrowserWindow({width:534,height:350,show:false,frame:false,transparent:true,backgroundColor:'#00000000',hasShadow:false,resizable:false,maximizable:false,minimizable:false,fullscreenable:false,alwaysOnTop:true,skipTaskbar:true,focusable:false,acceptFirstMouse:true,webPreferences:{preload:join(root,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,backgroundThrottling:false,spellcheck:false}});
++  win.setAlwaysOnTop(true,'floating');win.setIgnoreMouseEvents(true,{forward:true});
++  if(process.platform==='darwin')win.setVisibleOnAllWorkspaces(true,{visibleOnFullScreen:false,skipTransformProcessType:true});
++  win.webContents.setWindowOpenHandler(()=>({action:'deny'}));win.webContents.on('will-navigate',event=>event.preventDefault());win.webContents.on('render-process-gone',()=>{errorCode='RENDERER_EXITED';phase='error';app.quit();});win.on('closed',()=>{if(window===win){window=undefined;if(!quitting)app.quit();}});
++  window=win;lastPosition=null;sizeWindow();
++  await win.loadURL('dsh-companion://app/pet.html');
++}
+ async function start(){
+   if(process.platform==='darwin')app.dock.hide();
+   if(launchMode==='launcher'&&(!profileGate(integration.profileDir||'').enabled||!settings.launcherEnabled)){openDsh(false);app.quit();return;}
+@@ -154,20 +313,30 @@
+   });
+   resolveDisplay();model=new PetBehavior({width:workArea.width,height:workArea.height,halfWidth:92,petHeight:235});model.profile={...pack.profiles[settings.profile]};model.autonomous=settings.autonomous;model.follow=settings.followMouse;
+   if(Number.isFinite(saved.position?.x))model.x=clamp(saved.position.x,model.halfWidth,workArea.width-model.halfWidth);
+-  window=new BrowserWindow({width:534,height:350,show:false,frame:false,transparent:true,backgroundColor:'#00000000',hasShadow:false,resizable:false,maximizable:false,minimizable:false,fullscreenable:false,alwaysOnTop:true,skipTaskbar:true,focusable:false,acceptFirstMouse:true,webPreferences:{preload:join(root,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,backgroundThrottling:false,spellcheck:false}});
+-  window.setAlwaysOnTop(true,'floating');window.setIgnoreMouseEvents(true,{forward:true});
+-  if(process.platform==='darwin')window.setVisibleOnAllWorkspaces(true,{visibleOnFullScreen:false,skipTransformProcessType:true});
+-  window.webContents.setWindowOpenHandler(()=>({action:'deny'}));window.webContents.on('will-navigate',event=>event.preventDefault());window.webContents.on('render-process-gone',()=>{errorCode='RENDERER_EXITED';phase='error';app.quit();});window.on('closed',()=>{window=undefined;if(!quitting)app.quit();});
+   const from=(event,target)=>target&&!target.isDestroyed()&&event.sender===target.webContents&&event.senderFrame===target.webContents.mainFrame;
+   ipcMain.on('companion:ready',(event,value)=>{if(!from(event,window)||value?.packId!==pack.id||value?.packToken!==packToken)return;readyActions=Array.isArray(value.availableActions)?value.availableActions.filter(id=>actions.has(id)&&pack.animations[id]):[];ready=readyActions.includes('idle');updateMenu();if(!introPlaying){phase=ownerPid>0?'ready':'waiting-host';if(showPet()&&ownerPid>0)window.showInactive();}sendState();});
+-  ipcMain.on('companion:intro-ready',(event,value)=>{
+-    if(!from(event,introWindow))return;if(value?.mounted){sendState();return;}if(!introCurrent(value?.token))return;
+-    const firstReady=!introReady;
+-    if(activeIntro.custom&&(firstReady||value.playing===true&&!introVideoStarted))introStartedAt=Date.now();
+-    if(value.playing===true)introVideoStarted=true;if(value.ended===true)introVideoEnded=true;
+-    if(value.media)introMedia=value.media;introReady=true;introWindow.showInactive();sendState();if(firstReady&&launchMode==='launcher'&&ownerPid<1)openDsh();
+-  });
+-  ipcMain.on('companion:intro-control',(event,value)=>{if(!from(event,introWindow)||!introCurrent(value?.token))return;if(value.action==='skip')finishIntro('enter-button');if(value.action==='open-dsh')openDsh(false);});
++ ipcMain.on('companion:intro-ready',(e,value)=>{
++   if(!from(e,introWindow))return;if(value?.mounted){sendState();return;}if(!introCurrent(value?.token))return;
++   const content=activeIntro,first=!introReady,cinematic=!!content.handoffSeconds;
++   if(cinematic&&value.handoff===true){
++     if(!introHandoff&&introVideoStarted&&Number.isFinite(value.mediaTime)&&Number.isFinite(value.mediaDuration)&&value.mediaTime>=value.mediaDuration-content.handoffSeconds&&value.mediaTime<=value.mediaDuration){
++       introHandoff=true;event('intro-handoff',{generation:content.generation,contentKey:content.contentKey,mediaTime:value.mediaTime,mediaDuration:value.mediaDuration});
++     }
++     return;
++   }
++   if(first||value.playing===true&&!introVideoStarted||cinematic&&value.fallback)introStartedAt=Date.now();
++   if(cinematic&&value.fallback){introDuration=content.stillSeconds;introVideoStarted=false;}
++   if(value.playing===true)introVideoStarted=true;if(value.ended===true)introVideoEnded=true;
++   if(typeof value.muted==='boolean')introAudioMuted=value.muted;
++   if(value.media)introMedia=value.media;introReady=true;
++   if(first){
++     if(cinematic)introWindow.show();else introWindow.showInactive();
++     if(launchMode==='launcher'&&ownerPid<1)openDsh();
++   }
++   if(cinematic&&(first||value.playing||value.fallback))event('intro-presented',{generation:content.generation,contentKey:content.contentKey,media:introMedia,fallback:value.fallback||null,seconds:introDuration,assetSha256:introMedia==='video'?content.videoSha:content.posterSha,muted:introAudioMuted});
++   if(cinematic&&value.ended===true)void finishIntro('media-ended',value.token,Number.isFinite(value.mediaTime)?value.mediaTime:null).catch(error=>eventError('intro-finish-failed',error));else sendState();
++ });
++ ipcMain.on('companion:intro-control',(e,value)=>{if(from(e,introWindow)&&introCurrent(value?.token)){if(value.action==='skip')void finishIntro('enter-button',value.token).catch(error=>eventError('intro-finish-failed',error));if(value.action==='open-dsh')openDsh();}});
+   ipcMain.on('companion:hit',(event,hit)=>{if(from(event,window)&&!model.dragging)window.setIgnoreMouseEvents(hit!==true,{forward:true});});
+   ipcMain.on('companion:action',(event,action)=>{
+     if(!from(event,window)||!actions.has(action))return;
+@@ -185,7 +354,7 @@
+   bridge=await createBridge({dispatch:async(route,input)=>{
+     if(route==='/status')return status();
+     if(route==='/shutdown'){event('shutdown-requested');setTimeout(()=>app.quit(),100);return {stopping:true};}
+-    if(route==='/skin/invalidate'){skin.invalidate(input.generation);return {generation:input.generation};}
++    if(route==='/skin/invalidate'){await skin.invalidate(input.generation);return {generation:input.generation};}
+     if(route==='/skin/exit')return skin.exit(input.generation);
+     if(route==='/skin/startup/invalidate'){startup.invalidate(input.generation);return {generation:input.generation};}
+     if(route==='/skin/startup/exit'){const result=startup.exit(input);updateMenu();return result;}
+@@ -195,42 +364,65 @@
+       const result=await dialog.showOpenDialog({title:'安装本地皮肤',buttonLabel:'选择 ZIP 皮肤包',properties:['openFile'],filters:[{name:'ZIP 皮肤包',extensions:['zip']}]});
+       return result.canceled?{canceled:true}:{canceled:false,file:result.filePaths[0]};
+     }
+-    if(route==='/skin/startup/apply'){const result=startup.activate(input);updateMenu();return result;}
+-    if(route==='/skin/apply'){const result=await skin.activate(input);skin.assertReady(result);if(showPet())window.showInactive();return result;}
++    if(route==='/skin/startup/apply'){const result=startup.activate(input);await maybeColdOpening();updateMenu();return result;}
++    if(route==='/skin/apply'){
++      const result=await skin.activate(input);skin.assertReady(result);if(!introPlaying)phase='ready';
++      await releaseOpeningPet();updateMenu();return result;
++    }
++    if(route==='/skin/work'){const result=await skin.work.deliver(input);event('work-feedback',result);return result;}
+     if(route==='/settings')return applySettings(input);
+     if(route==='/host-window'){
+       if(!hostWindowBounds(input.bounds))throw new Error('HOST_WINDOW_INVALID');
+-      if(introWindow&&!introWindow.isDestroyed())introWindow.setBounds(currentIntroBounds());return {saved:true};
++      if(introWindow&&!introWindow.isDestroyed())introWindow.setBounds(currentIntroBounds());
++      if(coldIntroPending)await maybeColdOpening();
++      return {saved:true};
+     }
++    if(route==='/intro/workspace-ready'){
++      if(coldIntroPending)await maybeColdOpening(input);
++      else if(startup.descriptor?.handoffSeconds&&startup.canPlay(input)&&introAvailable())await releaseOpeningPet();
++      return status();
++    }
++    if(route==='/backend/input'){
++      const config=skin.interactionSettings();
++      if(!usesWorker()||input.contentKey!==skin.contentKey||input.generation!==skin.generation||!config)throw new Error('SKIN_OPERATION_SUPERSEDED');
++      if(!config.allowActions)return {accepted:false,reason:'PET_ACTIONS_DISABLED'};
++      pendingInteraction={trigger:'click',text:'用户轻点了你。',generation:skin.generation,contentKey:skin.contentKey};
++      return {accepted:true};
++    }
+     if(route==='/interaction/poll'){const value=pendingInteraction;pendingInteraction=null;return {input:skin.canShow()&&value?.generation===skin.generation?value:null};}
+     if(route==='/interaction')return deliverInteraction(input);
+-    if(route==='/action')return perform(input.action);
++    if(route==='/action')return runAction(input.action);
+     if(route==='/attach')return attach(input);
+-    if(route==='/intro/replay'){await showIntro();return status();}
++    if(route==='/intro/replay'){if(introAvailable())clearColdOpening();await showIntro();return status();}
+     if(route==='/diagnostics'){
++      if(usesWorker())return {ownWindowOnly:true,backend:backend.status(),startup:status().startup,transitions};
+       if(!ready)throw new Error('DESKTOP_NOT_READY');const image=await window.webContents.capturePage(),bitmap=image.toBitmap();let transparent=0,opaque=0;
+       for(let i=3;i<bitmap.length;i+=4){if(bitmap[i]<10)transparent++;else if(bitmap[i]>245)opaque++;}
+       return {ownWindowOnly:true,width:image.getSize().width,height:image.getSize().height,transparentPixels:transparent,opaquePixels:opaque,totalPixels:bitmap.length/4,allMacSpaces:process.platform==='darwin'&&window.isVisibleOnAllWorkspaces(),singleInstance:app.hasSingleInstanceLock(),geometry,startup:status().startup,packId:pack.id,transitions};
+     }
+     throw new Error('UNKNOWN_ROUTE');
+   }});
+-  writeJson(bridgePath,{schemaVersion:1,pid:process.pid,port:bridge.port,token:bridge.token,version,skinProtocol:1,startupProtocol:1});sizeWindow();event('runtime-started',{launchMode});
+-  if(settings.startupEnabled&&(launchMode==='launcher'||process.env.DSH_COMPANION_PLAY_INTRO==='1')&&introAvailable())await showIntro();else if(launchMode==='launcher')openDsh();
+-  await window.loadURL('dsh-companion://app/pet.html');
++  backend=new WholePetBackend({stateDir,host:{origin:'http://127.0.0.1:'+bridge.port,token:bridge.token},event});
++  writeJson(bridgePath,{schemaVersion:1,pid:process.pid,port:bridge.port,token:bridge.token,version,skinProtocol:1,startupProtocol:1});
++  event('runtime-started',{launchMode});
++  if(cinematicCold){if(launchMode==='launcher')openDsh(false);await maybeColdOpening();}
++  else if(settings.startupEnabled&&coldRequested&&introAvailable())await showIntro();
++  else if(launchMode==='launcher')openDsh();
++  if(!skin.owned)await createLegacyPet();
+   let last=performance.now(),lastFollow=0;
+   timer=setInterval(()=>{
+-    if(!window||window.isDestroyed())return;const now=performance.now(),dt=(now-last)/1000;last=now;
++    const now=performance.now(),dt=(now-last)/1000;last=now;
+     if(introPlaying){
+       if(!introCurrent(activeIntro?.token)){cancelIntro('identity-invalid');return;}
+-      const elapsed=Date.now()-introStartedAt,duration=activeIntro.seconds*1000;
++      const elapsed=Date.now()-introStartedAt,duration=introDuration*1000;
+       // Give the final frame and its ended IPC time to arrive. A stalled
+       // renderer still hands off to DSH using the existing clock fallback.
+       const waitingForVideoEnd=activeIntro.custom&&introMedia==='video'&&introVideoStarted&&!introVideoEnded&&elapsed<duration+1000;
+-      if(ownerPid>0&&introReady&&elapsed>=duration&&!waitingForVideoEnd)finishIntro();
++      if(ownerPid>0&&introReady&&elapsed>=duration&&!waitingForVideoEnd)void finishIntro().catch(error=>eventError('intro-finish-failed',error));
+       else if(ownerPid<1&&elapsed>45000)introError='DSH_STARTUP_TIMEOUT';
+       sendState();return;
+     }
+-    if(skin.owned&&!skin.visible)return;
++    if(!window||window.isDestroyed()||skin.owned&&!skin.visible)return;
+     const cursor=screen.getCursorScreenPoint();
+     if(model.dragging&&dragOffset){model.dragTo(cursor.x-workArea.x-dragOffset.x,cursor.y-workArea.y-dragOffset.y);if(lastCursor){const interval=Math.max(.025,(Date.now()-lastCursor.at)/1000);lastCursor.vx=clamp((cursor.x-lastCursor.x)/interval,-700,700);lastCursor.vy=clamp((cursor.y-lastCursor.y)/interval,-650,800);}lastCursor={...cursor,vx:lastCursor?.vx||0,vy:lastCursor?.vy||0,at:Date.now()};}
+     else{if(model.follow&&now-lastFollow>700&&!model.falling&&Math.abs(cursor.x-workArea.x-model.x)>75){model.walkTo(cursor.x-workArea.x,'跟着你，慢慢走。');lastFollow=now;}model.step(dt);}
+@@ -243,8 +435,21 @@
+     persist();try{authorization();}catch(error){event('license-blocked',{errorCode:error.message});app.quit();return;}
+     if(integration.profileDir&&!profileGate(integration.profileDir).enabled){event('integration-disabled');app.quit();return;}
+     if(ownerPid){try{process.kill(ownerPid,0);}catch{event('owner-gone');app.quit();}}
++    if(coldIntroPending)void maybeColdOpening().catch(error=>eventError('cold-intro-failed',error));
+   },2000);
+   const displayChanged=()=>{resolveDisplay();model.setBounds(workArea.width,workArea.height);sizeWindow();if(introWindow&&!introWindow.isDestroyed())introWindow.setBounds(currentIntroBounds());};screen.on('display-removed',displayChanged);screen.on('display-metrics-changed',displayChanged);
+ }
+-app.on('before-quit',()=>{quitting=true;clearInterval(timer);clearInterval(monitor);try{persist();}catch{}try{if(JSON.parse(readFileSync(bridgePath,'utf8')).pid===process.pid)unlinkSync(bridgePath);}catch{}bridge?.server.close();tray?.destroy();});
+-app.on('window-all-closed',()=>app.quit());
++app.on('before-quit',e=>{
++  if(exitAllowed)return;
++  e.preventDefault();if(quitting)return;quitting=true;clearInterval(timer);clearInterval(monitor);
++  void (async()=>{
++    try{
++      try{persist();}catch{}
++      closeLegacyPet();await backend?.stop();introWindow?.destroy();
++      try{if(JSON.parse(readFileSync(bridgePath,'utf8')).pid===process.pid)unlinkSync(bridgePath);}catch{}
++      bridge?.server.close();tray?.destroy();
++    }finally{exitAllowed=true;app.quit();}
++  })().catch(error=>eventError('shutdown-failed',error));
++});
++app.on('window-all-closed',()=>{});
++process.on('SIGTERM',()=>app.quit());
+--- a/runtime-src/backend.mjs
++++ b/runtime-src/backend.mjs
+@@ -2,8 +2,8 @@
+ import path from 'node:path';
+ import {spawn} from 'node:child_process';
+ import {createHash} from 'node:crypto';
++import {fileURLToPath} from 'node:url';
+ import {createNativeLock} from './native-lock.mjs';
+-import {validateCandidateMap} from './candidate-map.mjs';
+ import {backendReadiness} from './compatibility.mjs';
+ 
+ const delay=ms=>new Promise(r=>setTimeout(r,ms));
+@@ -11,48 +11,48 @@
+ const alive=pid=>{try{process.kill(pid,0);return true;}catch{return false;}};
+ export class WholePetBackend {
+  constructor({stateDir,host,event}){
+-  this.lab=process.env.DSH_HOST_PET_LAB;
+-  if(!this.lab||!path.isAbsolute(this.lab))throw new Error('PRIVATE_BACKEND_REQUIRED');
++  this.root=fileURLToPath(new URL('pet-backend/',import.meta.url));
+   this.dir=path.join(stateDir,'whole-pet');fs.mkdirSync(this.dir,{recursive:true,mode:0o700});
+   this.host=host;this.event=event;this.revision=0;this.sequence=0;this.token=null;
+-  this.registry=validateCandidateMap(JSON.parse(fs.readFileSync(path.join(this.lab,'backend-template/runtime-candidates.json'))));
+-  this.lock=createNativeLock({acquire:ttl=>this.api('lock?pet=main',{ttl}),release:lockId=>this.api('lock/release?pet=main',{lockId})});
++  this.entry=JSON.parse(fs.readFileSync(path.join(this.root,'skin.json')));
+  }
++ supports(contentKey){return this.entry.contentKey===contentKey;}
+  snapshot(){try{return JSON.parse(fs.readFileSync(path.join(this.dir,'snapshot.json')));}catch{return {windows:[],errors:[]};}}
+- status(){const snap=this.snapshot(),live=!!this.child&&alive(this.child.pid),ready=backendReadiness({registered:this.ready,alive:live,suspended:this.suspended,held:this.visibilityHeld,snapshot:snap});return {engine:'dsh-pet',version:'0.4.1',pid:this.child?.pid||null,alive:live,ready,suspended:this.suspended===true,visibilityHeld:this.visibilityHeld===true,token:this.token,contentKey:this.contentKey,windows:snap.windows,errors:snap.errors||[],bodyInputs:snap.bodyInputs,lastAction:this.lastAction||null,oldPetBranchActive:false};}
++ status(){const live=!!this.child&&alive(this.child.pid),snap=live?this.snapshot():{windows:[]},ready=backendReadiness({registered:this.ready,alive:live,suspended:this.suspended,held:this.visibilityHeld,snapshot:snap});return {engine:'dsh-pet',version:'0.4.1',pid:live?this.child.pid:null,alive:live,ready,suspended:this.suspended===true,visibilityHeld:this.visibilityHeld===true,contentKey:live?this.entry.contentKey:null,windows:snap.windows,errors:snap.errors||[],lastAction:this.lastAction||null};}
+  async wait(predicate,code,timeout=12000){const end=Date.now()+timeout;while(Date.now()<end){if(predicate())return;await delay(60);}throw new Error(code);}
+  async api(route,body,method=body===undefined?'GET':'POST'){
+   const n=JSON.parse(fs.readFileSync(path.join(this.dir,'connection.json')));
++  const origin=new URL(n.origin);
++  if(origin.protocol!=='http:'||origin.hostname!=='127.0.0.1'||!origin.port||!n.token)throw new Error('BACKEND_CONNECTION_INVALID');
+   const r=await fetch(n.origin+'/dsh-pet-7340/'+route+(route.includes('?')?'&':'?')+'surface=desktop',{method,headers:{'content-type':'application/json','x-dsh-pet-token':n.token},...(body===undefined?{}:{body:JSON.stringify(body)}),signal:AbortSignal.timeout(4000)});
+   const value=r.status===204?{}:await r.json();if(!r.ok||value.ok===false)throw new Error('BACKEND_REQUEST_FAILED');return value;
+  }
+  async stop(){
+-  this.revision++;this.sequence++;this.ready=false;this.suspended=false;this.visibilityHeld=false;this.token=null;
++  if(this.stopping)return this.stopping;
++  this.revision++;this.sequence++;this.ready=false;this.suspended=false;this.visibilityHeld=false;this.token=null;this.lastAction=null;
+   const child=this.child;if(!child)return {cleared:true,windows:0};
+-  try{await this.lock.release();}catch{}
+-  try{await this.api('pet-display',{id:'main',display:'none'});await this.wait(()=>this.snapshot().windows.length===0,'BACKEND_WINDOWS_NOT_CLEARED',3000);}catch(error){this.event('backend-stop-notice',{code:error.message});}
+-  fs.writeFileSync(path.join(this.dir,'quit.json'),'{}');
+-  try{await this.wait(()=>!alive(child.pid),'BACKEND_EXIT_TIMEOUT',4000);}catch{
+-   child.kill('SIGTERM');await this.wait(()=>!alive(child.pid),'BACKEND_STILL_ALIVE',4000);
+-  }
+-  if(this.child===child)this.child=null;
+-  const windows=this.snapshot().windows?.length||0;
+-  if(windows)throw new Error('BACKEND_WINDOWS_NOT_CLEARED');
+-  this.event('backend-cleared',{pid:child.pid,windows:0});return {cleared:true,windows:0};
++  this.stopping=(async()=>{
++   child.kill('SIGTERM');
++   try{await this.wait(()=>!alive(child.pid),'BACKEND_EXIT_TIMEOUT',3000);}
++   catch{child.kill('SIGKILL');await this.wait(()=>!alive(child.pid),'BACKEND_STILL_ALIVE',2000);}
++   if(this.child===child)this.child=null;
++   this.event('backend-cleared',{pid:child.pid,windows:0});
++   return {cleared:true,windows:0};
++  })();
++  try{return await this.stopping;}finally{this.stopping=null;}
+  }
+- async apply({pack,config,token,resources,contentKey,generation,assertCurrent,holdVisibility=false}){
++ async apply({config,token,resources,contentKey,generation,assertCurrent,holdVisibility=false}){
+   await this.stop();const revision=++this.revision;
+   const current=()=>{assertCurrent();if(revision!==this.revision)throw new Error('SKIN_OPERATION_SUPERSEDED');};
+-  current();const entry=this.registry.contents[contentKey];if(!entry)throw new Error('BACKEND_CONTENT_NOT_REGISTERED');
+-  for(const [id,sha256]of Object.entries(entry.requiredAssets))if(!resources[id]||hash(resources[id].data)!==sha256)throw new Error('BACKEND_CONTENT_CHANGED');
++  current();if(!this.supports(contentKey))throw new Error('BACKEND_CONTENT_NOT_REGISTERED');
++  const entry=this.entry;
+   const home=path.join(this.dir,'home'),animation=path.join(home,'dsh-pet/main-animation/webm');fs.mkdirSync(animation,{recursive:true});
+-  const cfg=JSON.parse(fs.readFileSync(path.join(this.lab,'backend-template/config.json')));
+-  const names={idle:entry.group+'-idle',react:entry.group+'-react',...(entry.walk?{walk:'master-walk-left'}:{})};
+-  const mediaNames=entry.media.turnFront?{...names,turnFront:'master-turn-front'}:names;
+-  for(const [action,name]of Object.entries(mediaNames)){
+-   const f=path.join(this.lab,'backend-template',entry.media[action].file),data=fs.readFileSync(f);
+-   if(hash(data)!==entry.media[action].sha256)throw new Error('BACKEND_DERIVATIVE_CHANGED');
+-   fs.writeFileSync(path.join(animation,name+'.webm'),data);
++  const cfg=JSON.parse(fs.readFileSync(path.join(this.root,'config.json')));
++  const names={idle:entry.media.idle.id,react:entry.media.react.id,walk:entry.media.walk.id};
++  for(const {id,file,sha256}of Object.values(entry.media)){
++   const data=resources[id]?.data;
++   if(!data||hash(data)!==sha256)throw new Error('BACKEND_CONTENT_CHANGED');
++   fs.writeFileSync(path.join(animation,file),data);
+   }
+   cfg.pets=[{...cfg.pets[0],id:'main',name:entry.name,size:Math.round(entry.geometry.defaultSize*config.size/100),display:'desktop',workStatusEnabled:false}];
+   cfg.animations.idle=[names.idle];cfg.animations.clicks=[];cfg.animations.drag=[];cfg.animations.events={balance:[names.react],whisper:[names.react],workStatus:Array(6).fill(names.react)};
+@@ -64,30 +64,26 @@
+    cfg.pets[0].position={...cfg.pets[0].position,marginX:1100};
+   }
+   fs.writeFileSync(path.join(home,'dsh-pet/main-config.jsonc'),JSON.stringify(cfg,null,2));
+-  const profiles={[entry.group]:{...entry.geometry,id:entry.group,mirrorAllowed:false,props:entry.props}};
+-  const props={};const helper=path.join(this.lab,'dsh-pet/runtime/electron-helper');
+-  fs.mkdirSync(path.join(helper,'content-assets'),{recursive:true});
+-  for(const item of entry.props){const asset=resources[item.asset];fs.writeFileSync(path.join(helper,'content-assets',item.id+'.png'),asset.data);props[item.id]=item.geometry;}
+-  const animations=Object.fromEntries(Object.entries(mediaNames).map(([a,n])=>[n,{group:entry.group,loop:a==='idle',movement:a==='walk'}]));
+-  if(mediaNames.turnFront)animations[names.walk].turnFront=mediaNames.turnFront;
+-  const data={profiles,animations,props};
+-  fs.writeFileSync(path.join(helper,'content-profiles.js'),'globalThis.DshContentProfiles='+JSON.stringify(data)+';\n');
+-  fs.writeFileSync(path.join(helper,'content-context.js'),'globalThis.DshCompanionContent='+JSON.stringify({contentKey,group:entry.group,managedHost:true})+';\n');
+-  for(const file of ['connection.json','snapshot.json','quit.json','reveal.json'])fs.rmSync(path.join(this.dir,file),{force:true});
+-  current();this.contentKey=contentKey;this.visibilityHeld=holdVisibility;
+-  const env={...process.env,DSH_HOST_PET_STATE:this.dir,DSH_HOME:home,DSH_HOST_PET_PARENT:String(process.pid),DSH_HOST_PET_CONTENT_KEY:contentKey,DSH_HOST_PET_GENERATION:String(generation),DSH_HOST_PET_HOLD:holdVisibility?'1':'0',DSH_HOST_PET_HOST_ORIGIN:this.host.origin,DSH_HOST_PET_HOST_TOKEN:this.host.token};delete env.ELECTRON_RUN_AS_NODE;
+-  const out=fs.openSync(path.join(this.dir,'backend.log'),'a');
+-  const child=spawn(path.join(this.lab,'DshHostPetBackend.app/Contents/MacOS/Electron'),[path.join(this.lab,'backend-entry.cjs')],{cwd:this.lab,env,stdio:['ignore',out,out]});this.child=child;
++  for(const file of ['connection.json','snapshot.json','reveal.json'])fs.rmSync(path.join(this.dir,file),{force:true});
++  current();this.visibilityHeld=holdVisibility;this.releasing=null;
++  const env={HOME:process.env.HOME,PATH:process.env.PATH,TMPDIR:process.env.TMPDIR,LANG:process.env.LANG,
++   DSH_HOME:home,DSH_COMPANION_PET_WORKER:'1',DSH_COMPANION_PET_STATE:this.dir,DSH_COMPANION_PET_PARENT:String(process.pid),
++   DSH_COMPANION_PET_GENERATION:String(generation),DSH_COMPANION_PET_HOLD:holdVisibility?'1':'0',
++   DSH_COMPANION_PET_ORIGIN:this.host.origin,DSH_COMPANION_PET_TOKEN:this.host.token};
++  const child=spawn(process.execPath,[],{env,stdio:'ignore'});this.child=child;
++  child.on('error',()=>{if(this.child===child)this.ready=false;});
+   child.on('exit',()=>{if(this.child===child){this.ready=false;this.token=null;}});
++  this.lock=createNativeLock({acquire:ttl=>this.api('lock?pet=main',{ttl}),release:lockId=>this.api('lock/release?pet=main',{lockId})});
+   try{
+    await this.wait(()=>{current();if(!alive(child.pid))throw new Error('BACKEND_EXITED');const s=this.snapshot();return fs.existsSync(path.join(this.dir,'connection.json'))&&s.windows.length===1&&s.windows[0].renderer?.videos.some(v=>v.front&&v.source===names.idle+'.webm'&&v.loop&&!v.paused)&&s.windows[0].renderer.props.every(p=>p.complete)&&s.bodyInputs?.[0]?.rects>0;},'BACKEND_MEDIA_NOT_READY');
+-   current();this.token=token;this.ready=true;this.names=names;this.entry=entry;this.event('backend-ready',{pid:child.pid,contentKey,windows:1,size:cfg.pets[0].size,props:entry.props.length});
++   current();this.token=token;this.ready=true;this.names=names;this.event('backend-ready',{pid:child.pid,contentKey,windows:1,size:cfg.pets[0].size});
+   }catch(error){if(this.child===child)await this.stop();throw error;}
+  }
+  async suspend(){if(!this.child||this.suspended)return;this.suspended=true;try{await this.api('pet-display',{id:'main',display:'none'});await this.wait(()=>this.snapshot().windows.length===0,'BACKEND_SUSPEND_TIMEOUT',3000);}catch(error){this.suspended=false;throw error;}}
+  async releaseVisibility(){
+-  if(!this.child||!this.visibilityHeld)return;this.visibilityHeld=false;fs.writeFileSync(path.join(this.dir,'reveal.json'),'{}');
++  if(!this.child||!this.visibilityHeld)return;fs.writeFileSync(path.join(this.dir,'reveal.json'),'{}');
+   if(!this.suspended)await this.wait(()=>this.snapshot().windows[0]?.visible===true,'BACKEND_REVEAL_TIMEOUT',4000);
++  this.visibilityHeld=false;
+  }
+  async resume(){if(!this.child||!this.suspended)return;const revision=this.revision;await this.api('pet-display',{id:'main',display:'desktop'});await this.wait(()=>{if(revision!==this.revision)throw new Error('SKIN_OPERATION_SUPERSEDED');const w=this.snapshot().windows[0];return w?.visible===true&&w.renderer?.videos.some(v=>v.front&&v.source===this.names.idle+'.webm'&&!v.paused)&&w.renderer.props.every(p=>p.complete);},'BACKEND_RESUME_TIMEOUT',4000);this.suspended=false;}
+  async act(action,assertCurrent=()=>{}){
+@@ -100,13 +96,13 @@
+    const inside=x=>r.areas?.some(a=>x>=a.x&&x<=a.x+a.width&&s.center.y>=a.y&&s.center.y<=a.y+a.height);
+    if(!inside(target-halfBody-18)||!inside(target+halfBody+18))throw new Error('WALK_LEFT_SPACE_REQUIRED');
+   }
+-  const sequence=++this.sequence,revision=this.revision;
++  const sequence=++this.sequence,revision=this.revision,lock=this.lock;
+   const current=()=>{assertCurrent();if(sequence!==this.sequence||revision!==this.revision||!this.ready)throw new Error('SKIN_OPERATION_SUPERSEDED');};
+-  current();await this.releasing;current();const lockId=await this.lock.ensure();current();
++  current();await this.releasing;current();const lockId=await lock.ensure();current();
+   const receipt=await this.api('anim?pet=main&lock='+encodeURIComponent(lockId),{name:this.names[action],...(action==='walk'?{facing:'left'}:{})});current();
+   await this.wait(()=>{current();const r=this.snapshot().windows[0]?.renderer;return r?.sprites[0]?.playback===receipt.playbackId&&r.videos.some(v=>v.front&&v.source===this.names[action]+'.webm'&&!v.paused);},'BACKEND_ACTION_NOT_PLAYING',3000);
+   this.lastAction={action,playbackId:receipt.playbackId,status:'playing',at:Date.now()};this.event('backend-action',{...this.lastAction});
+-  void (async()=>{try{const polls=action==='walk'?240:180;for(let i=0;i<polls;i++){await delay(60);current();const r=await this.api('playback/'+receipt.playbackId);current();if(['ended','cancelled','failed'].includes(r.status)){this.releasing=this.lock.release();await this.releasing;current();this.lastAction={...this.lastAction,status:r.status};this.event('backend-action-terminal',{action,playbackId:receipt.playbackId,status:r.status});return;}}}catch{}})();
++  void (async()=>{try{const polls=action==='walk'?240:180;for(let i=0;i<polls;i++){await delay(60);current();const r=await this.api('playback/'+receipt.playbackId);current();if(['ended','cancelled','failed'].includes(r.status)){this.releasing=lock.release();await this.releasing;current();this.lastAction={...this.lastAction,status:r.status};this.event('backend-action-terminal',{action,playbackId:receipt.playbackId,status:r.status});return;}}}catch{}})();
+   return action;
+  }
+ }
+--- a/runtime-src/compatibility.mjs
++++ b/runtime-src/compatibility.mjs
+@@ -1,8 +1,13 @@
+-// Small private compatibility policies; skin identity/resources still use the
++// Native lifecycle policies. Skin identity and resources still use the
+ // existing manifest and effective-settings validation.
+-export function coldOpeningAllowed({requested,settings,state,hasStops=false}){
+- return requested===true&&settings.autoStart===true&&settings.startupEnabled===true&&!!state?.selected?.manifest?.modules?.startup&&!state.stopped&&!state.disabled?.startup&&!hasStops&&state.results?.startup?.status==='ready';
++export function coldOpeningAllowed({requested,explicitLauncher=false,settings,state,hasStops=false}){
++ return requested===true&&(explicitLauncher?settings.launcherEnabled===true:settings.autoStart===true)&&
++  settings.startupEnabled===true&&!!state?.selected?.manifest?.modules?.startup&&!state.stopped&&!state.disabled?.startup&&!hasStops&&state.results?.startup?.status==='ready';
+ }
++export function openingWorkspaceReady({workspace,state,contentKey,ownerPid,hostWindow,requestedAt,now=Date.now()}){
++ return !!workspace&&!state.pending&&workspace.contentKey===contentKey&&workspace.generation===state.generation&&
++  ownerPid>0&&hostWindow?.ownerPid===ownerPid&&hostWindow.updatedAt>=requestedAt&&now-hostWindow.updatedAt<5000;
++}
+ export function backendReadiness({registered,alive,suspended,held,snapshot}){
+  if(!registered||!alive)return false;
+  if(suspended)return true; // Explicit startup suspension is owned by Host.
+@@ -12,7 +17,3 @@
+  // over. That is not a lifecycle loss of the owned native window.
+  return snapshot?.windows?.length===1&&Array.isArray(w?.renderer?.props)&&w.renderer.props.every(p=>p.complete)&&(held||w.visible===true);
+ }
+-export async function chooseSkinFile({focus,showOpenDialog}){
+- focus();const result=await showOpenDialog({title:'安装本地皮肤',buttonLabel:'选择 ZIP 皮肤包',properties:['openFile'],filters:[{name:'ZIP 皮肤包',extensions:['zip']}]});
+- return result.canceled?{canceled:true}:{canceled:false,file:result.filePaths[0]};
+-}
+--- a/scripts/build-mac.mjs
++++ b/scripts/build-mac.mjs
+@@ -36,7 +36,7 @@
+ const pluginVersion = JSON.parse(fs.readFileSync(path.join(root, 'packages/dsh-companion/package.json'))).version;
+ const launchBin=path.join(root,'packages/dsh-companion/bin/darwin-arm64');fs.mkdirSync(launchBin,{recursive:true});
+ execFileSync('/usr/bin/clang',['-O2',path.join(root,'runtime-src/launcher.c'),'-o',path.join(launchBin,'companion-launch')],{stdio:'pipe'});
+-const settings = { CFBundleIdentifier: 'local.dsh.commander.coldstart.supervisor', CFBundleName: 'DSHCompanion', CFBundleDisplayName: 'DSH 陪伴', CFBundleShortVersionString: pluginVersion.split('-')[0], CFBundleVersion: pluginVersion.match(/dev\.(\d+)/)?.[1] || '1' };
++const settings = { CFBundleIdentifier: 'local.dsh.companion.development', CFBundleName: 'DSHCompanion', CFBundleDisplayName: 'DSH 陪伴', CFBundleShortVersionString: pluginVersion.split('-')[0], CFBundleVersion: pluginVersion.match(/dev\.(\d+)/)?.[1] || '1' };
+ for (const [key, value] of Object.entries(settings)) execFileSync('/usr/libexec/PlistBuddy', ['-c', `Set :${key} ${value}`, path.join(contents, 'Info.plist')]);
+ execFileSync('/usr/bin/codesign', ['--force', '--sign', '-', '--timestamp=none', target], { stdio: 'pipe' });
+ // This is a local developer bundle. A distributable release needs our own signing
+--- a/packages/dsh-companion/README.md
++++ b/packages/dsh-companion/README.md
+@@ -2,11 +2,11 @@
+ 
+ ## 当前本地评审候选
+ 
+-2026-11-03。本地构建仍为0.1.0-dev.11，未另定正式版本或发布新安装包。构建会从已审设计源同步内置`档案暖白 · 鲸鱼娘 / 0.7.1`（contentKey `4b643de142bb2770340cd56d7c2acd5bced3b09a69ddbf27cd3025d29639620b`），无需测试专用注册即可在「陪伴 → 皮肤」选择。
++2026-11-05。本地安装候选 0.1.0-dev.22 内置「冷启动 / 0.4.0」与「档案暖白 · 鲸鱼娘 / 0.7.1」。启用插件并完成统一授权后，可在「陪伴 → 皮肤」选择。已有选择和各套偏好由原 profile 保留。
+ 
+ 整套皮肤使用主题、桌宠和开场三个模块及8项公开参数。开场区域的「预览开场」与「启动时自动播放」复用已有动作/同一偏好；「启用本套开场内容」是单独的模块启停。停止后从「恢复本套皮肤」恢复，保留已调整参数和模块关闭选择。已选整套时，旧配置选择/控制由皮肤设置入口替代；未选整套的旧流程保留。
+ 
+-首套来源与使用范围以本套随附资源声明及设计交接为准，不能用旧角色ASSET-NOTICE代替新皮肤说明。目前只供本地隔离评审，真实客户端、外部模型、最终美术及公开分发条件仍分别确认。本地构建/复核见`../../docs/skin-foundation/m7-local-review-2026-11-03.md`，普通使用说明见`../../docs/first-skin-design/local-use-guide.md`。
++选中「冷启动」后，菜单栏「07」提供「向左走」。皮肤素材的使用范围见各自资源声明。旧素材 NOTICE 和 dsh-pet 上游 MIT 随桌面组件附带，本候选供 Mac 本地验证。
+ 
+ ## 旧配置入口
+ 
+--- a/packages/dsh-companion/src/controller.mjs
++++ b/packages/dsh-companion/src/controller.mjs
+@@ -29,7 +29,6 @@
+     this.stateDir=stateDir||join(process.env.DSH_HOME||join(homedir(),'.dsh'),'companion',createHash('sha256').update(profileDir).digest('hex').slice(0,16));
+     mkdirSync(this.stateDir,{recursive:true,mode:0o700});
+     this.bridgePath=join(this.stateDir,'bridge.json');this.settingsFile=join(this.stateDir,'settings.json');
+-    this.configRoot=join(packageRoot,'config');
+     this.config=config||readJson(join(packageRoot,'config/service.json'));
+     this.entitlement=new Entitlement({stateDir:this.stateDir,config:this.config,...(deviceId?{deviceId}:{}),...(fetcher?{fetcher}:{})});
+     this.packs=new PackStore(join(packageRoot,'packs'),this.stateDir);
+@@ -74,9 +73,10 @@
+       void this.interactions?.drainNative();
+       if(!license.active&&live.running)await this.stop();
+       else if(license.active&&live.running&&live.needsHost)await this.request('/attach',{ownerPid:process.pid,dshVersion:this.dshVersion});
++      if(license.active&&live.startup?.coldPending)await this.skins.syncColdOpening(live);
+     }finally{this.maintaining=false;}
+   }
+-  async start({playIntro=false,skinStandby=true}={}){
++  async start({playIntro=false,skinStandby=!!this.skins.core.state.selected}={}){
+     if(this.disposed)throw new Error('PLUGIN_DISPOSED');this.entitlement.require();
+     if(!this.config.supportedDsh.includes(this.dshVersion))throw new Error('DSH_UNSUPPORTED_VERSION');
+     if(this.pending)return this.pending;this.pending=this.launch({playIntro,skinStandby}).finally(()=>{this.pending=undefined;});await this.pending;return this.status();
+@@ -102,7 +102,7 @@
+     this.phase='starting';this.errorCode=null;this.integration.record(this.dshVersion);
+     let executable;try{executable=await this.executable();}catch(error){this.phase='error';this.errorCode=error.message;throw error;}
+     if(this.disposed)throw new Error('PLUGIN_DISPOSED');
+-    const child=spawn(executable,[],{env:childEnvironment(process.env,{DSH_COMPANION_STATE_DIR:this.stateDir,DSH_COMPANION_OWNER_PID:String(process.pid),DSH_HOST_PET_LAB:process.env.DSH_HOST_PET_LAB,DSH_COMPANION_MODE:'managed',DSH_COMPANION_PLAY_INTRO:playIntro||this.bootIntroRequested?'1':'0',DSH_COMPANION_SKIN_STANDBY:skinStandby?'1':'0'}),stdio:'ignore',windowsHide:true});this.child=child;this.bootIntroRequested=false;
++    const child=spawn(executable,[],{env:childEnvironment(process.env,{DSH_COMPANION_STATE_DIR:this.stateDir,DSH_COMPANION_OWNER_PID:String(process.pid),DSH_COMPANION_MODE:'managed',DSH_COMPANION_PLAY_INTRO:playIntro||this.bootIntroRequested?'1':'0',DSH_COMPANION_SKIN_STANDBY:skinStandby?'1':'0'}),stdio:'ignore',windowsHide:true});this.child=child;this.bootIntroRequested=false;
+     child.on('error',()=>{this.phase='error';this.errorCode='DESKTOP_LAUNCH_FAILED';});
+     child.on('exit',()=>{if(this.child===child){this.child=undefined;this.phase='stopped';}});
+     for(let i=0;i<100;i++){
+@@ -125,8 +125,7 @@
+   async replayIntro(){this.entitlement.require();if(!(await this.nativeStatus()).running)await this.start();await this.request('/intro/replay',{});return this.status();}
+   async syncHostWindow(value){
+     const bounds=hostWindowBounds(value);if(!bounds)throw new Error('HOST_WINDOW_INVALID');
+-    const file=join(this.stateDir,'host-window.json'),previous=readJson(file,null);
+-    if(JSON.stringify(previous?.bounds)!==JSON.stringify(bounds))writeJson(file,{format:1,bounds,updatedAt:Date.now()});
++    writeJson(join(this.stateDir,'host-window.json'),{format:1,bounds,ownerPid:process.pid,updatedAt:Date.now()});
+     if(this.credentials()&&this.entitlement.status().active)await this.request('/host-window',{bounds}).catch(()=>{});
+     return {saved:true};
+   }
+--- a/packages/dsh-companion/src/skins.mjs
++++ b/packages/dsh-companion/src/skins.mjs
+@@ -83,23 +83,19 @@
+     }
+     if(!current())return;
+     await this.core.restore();
+-    // The cinematic reveals the real shell. On an opted-in cold boot wait
+-    // for this page's ordinary committed restore before showing the overlay.
+-    const generationAfterRestore=this.core.state.generation;
+-    const committed=()=>{
+-      const state=this.core.state,ready=this.page.lastReady;
+-      const confirmed=state.results?.theme?.status!=='ready'||ready?.clientId===clientId&&ready.generation===generationAfterRestore&&ready.contentKey===contentKey;
+-      return this.page.client?.id===clientId&&confirmed&&this.core.phase==='ready'&&!state.stopped&&!state.pending&&
+-        state.generation===generationAfterRestore&&state.selected?.contentKey===contentKey&&state.results?.startup?.status==='ready'&&
+-        !!state.selected.manifest.modules.startup?.config.handoffSeconds;
+-    };
+-    if(!committed())return;
+-    // The native bridge may have started as part of this very restore.
+-    const boot=(await this.controller.nativeStatus()).startup;
+-    if(boot?.coldPending&&boot.workspaceHandoff&&boot.generation===generationAfterRestore&&boot.contentKey===contentKey&&committed()){
+-      await this.controller.request('/intro/workspace-ready',{generation:generationAfterRestore,contentKey});
+-    }
++    await this.syncColdOpening(await this.controller.nativeStatus(),clientId);
+   }
++  async syncColdOpening(live,clientId=this.page.client?.id){
++    const boot=live.startup,{state,phase}=this.core;
++    if(!boot?.coldPending||!boot.workspaceHandoff||!clientId||!this.page.available()||this.page.client?.id!==clientId||
++       phase!=='ready'||state.stopped||state.pending||this.core.pendingSelections||this.core.pendingUpdates||
++       this.core.store.hasStops()||state.results?.startup?.status!=='ready')return;
++    const {generation,selected}=state,contentKey=selected?.contentKey;
++    if(!selected?.manifest.modules.startup?.config.handoffSeconds||boot.generation!==generation||boot.contentKey!==contentKey)return;
++    const ready=this.page.lastReady;
++    if(state.results?.theme?.status==='ready'&&(ready?.clientId!==clientId||ready.generation!==generation||ready.contentKey!==contentKey))return;
++    await this.controller.request('/intro/workspace-ready',{generation,contentKey},6000);
++  }
+   async maintain(){
+     this.work.maintain();
+     if(this.core.store.consumeStops(this.core.state,{recoverPending:false}))await this.core.stop();
+--- a/packages/dsh-companion/src/client.template.js
++++ b/packages/dsh-companion/src/client.template.js
+@@ -20,13 +20,13 @@
+           const errorKey=error=>Object.keys(locales.zh).find(key=>/^[A-Z_]+$/.test(key)&&String(error?.message||'').includes(key))||'failed';
+           async function call(method,value){const result=await ctx.remote.dshCompanion[method](...(supplied.has(method)?[value]:[]));if(!result.ok)throw new Error(result.error?.message||'REQUEST_FAILED');return result.value;}
+           ctx.effect(()=>installSkinPage({ctx,React,call,setEntryMark}));
+-          let lastWindow='',syncingWindow;
++          let lastWindow='',lastWindowSync=0,syncingWindow;
+           async function syncWindow(){
+             if(syncingWindow)await syncingWindow;
+             const bounds={x:window.screenX,y:window.screenY,width:window.outerWidth,height:window.outerHeight};
+             if(bounds.width<320||bounds.height<240||document.visibilityState==='hidden')return;
+-            const key=JSON.stringify(bounds);if(key===lastWindow)return;
+-            syncingWindow=call('syncHostWindow',bounds).then(()=>{lastWindow=key;}).finally(()=>{syncingWindow=undefined;});
++            const key=JSON.stringify(bounds);if(key===lastWindow&&Date.now()-lastWindowSync<2500)return;
++            syncingWindow=call('syncHostWindow',bounds).then(()=>{lastWindow=key;lastWindowSync=Date.now();}).finally(()=>{syncingWindow=undefined;});
+             await syncingWindow;
+           }
+           ctx.effect(()=>{const sync=()=>void syncWindow().catch(()=>{});sync();window.addEventListener('resize',sync);const timer=setInterval(sync,750);return()=>{window.removeEventListener('resize',sync);clearInterval(timer);};});
+--- a/packages/dsh-skin-core/adapters/native.mjs
++++ b/packages/dsh-skin-core/adapters/native.mjs
+@@ -14,7 +14,6 @@
+   invalidate(generation){this.controller.interactions?.cancel();this.generation=generation;if(this.controller.credentials())void this.controller.request('/skin/invalidate',{generation}).catch(()=>{});}
+   prepare({skin,resources,config}){
+     this.controller.packs.get(config.builtinPack);
+-    const registry=JSON.parse(fs.readFileSync(path.join(this.controller.configRoot,'pet-backend-map.json')));if(!registry.contents[skin.contentKey])fail('BACKEND_CONTENT_NOT_REGISTERED');
+     const live=this.controller.credentials();
+     // A started legacy runtime must never be mistaken for a protocol-1 executor.
+     if(live&&live.skinProtocol!==1)fail('SKIN_NATIVE_UPDATE_REQUIRED');
+@@ -34,7 +33,7 @@
+   }
+   async exit(context){
+     if(!this.controller.credentials())return {cleared:true};
+-    const result=await this.controller.request('/skin/exit',{generation:context.generation});
++    const result=await this.controller.request('/skin/exit',{generation:context.generation},8000);
+     if(result.generation!==context.generation||!result.cleared)fail('SKIN_NATIVE_CLEANUP_FAILED');return result;
+   }
+ }
+--- a/runtime-src/pet-backend/dsh-pet/lib/app.js
++++ b/runtime-src/pet-backend/dsh-pet/lib/app.js
+@@ -61228,7 +61228,7 @@
+ 	log(`本机服务 ${origin}`);
+ 	process.env.DSH_PET_IN_PROCESS = "1";
+ 	process.env.DSH_PET_APP_MODE = "1";
+-	process.env.DSH_PET_OPEN_TARGET = "standalone";
++	process.env.DSH_PET_OPEN_TARGET = "desktop";
+ 	delete process.env.DSH_PET_HOST_PID;
+ 	process.env.DSH_PET_CONFIG_URL = `${origin}${ROUTE_SEGMENT}/config`;
+ 	process.env.DSH_PET_SITE_URL = security.authenticatedUrl(origin);
+@@ -61336,4 +61336,4 @@
+ 	})[ch] ?? ch);
+ }
+ 
+-//#endregion
+\ No newline at end of file
++//#endregion
+--- a/runtime-src/pet-backend/dsh-pet/runtime/electron-helper/main.js
++++ b/runtime-src/pet-backend/dsh-pet/runtime/electron-helper/main.js
+@@ -44,7 +44,6 @@
+ // 托盘的平台差异（模板图 / 左键是否自动弹菜单 / Dock）：规则住在模块里，main.js 只接线
+ const { trayPlatform } = require('./tray-platform.js');
+ const { buildDeskGeometry } = require('./desktop-geometry.js');
+-const { runSmokeCheck } = require('./main/smoke.js');
+ const { createDpi } = require('./main/dpi.js');
+ const { createBridge } = require('./main/bridge.js');
+ const { createTray } = require('./main/tray.js');
+@@ -304,16 +303,6 @@
+   registerIpc({ ipcMain, petWindows, shell, openTarget: OPEN_TARGET, petRoute: PET_ROUTE });
+   createDisplaySync({ screen, petWindows, dpi });
+ 
+-  // 冒烟自检（默认关闭）：DSH_PET_SMOKE=1 时延时截图到 DSH_PET_SMOKE_OUT 后退出，
+-  // 用于验证窗口/渲染/动画链路。
+-  if (process.env.DSH_PET_SMOKE === '1') {
+-    runSmokeCheck({
+-      app,
+-      windows: petWindows.state.windows,
+-      windowIgnore: petWindows.state.windowIgnore,
+-      setPointerFallbackPaused: petWindows.setPointerFallbackPaused,
+-    });
+-  }
+ });
+ 
+ // 退出时销毁托盘图标：不销毁会在 Windows 通知区留下「幽灵图标」（鼠标划过才消失）。
+--- a/runtime-src/pet-backend/dsh-pet/runtime/electron-helper/content-adapter.js
++++ b/runtime-src/pet-backend/dsh-pet/runtime/electron-helper/content-adapter.js
+@@ -41,14 +41,11 @@
+    for(let i=0;i<row.length;i+=2)if(px>=row[i]&&px<row[i+1])return true;return false;
+   };
+   stage.dataset.contentProfile=spec.group;
+-  // Read-only input evidence for native drag/click-through verification.
+-  const traceAbort=new AbortController();let traceMoves=0;
+-  const trace=e=>{if(e.target!==sprite.hit&&!sprite.dragState?.active)return;if((e.type==='pointermove'||e.type==='mousemove')&&traceMoves++>24)return;console.log('[pet-host-input] '+JSON.stringify({at:Date.now(),type:e.type,screenX:e.screenX,screenY:e.screenY,clientX:e.clientX,clientY:e.clientY,buttons:e.buttons,button:e.button,pointerId:e.pointerId,trusted:e.isTrusted,active:sprite.dragState?.active,dragging:sprite.dragState?.dragging}));};
+-  for(const type of ['pointerdown','pointermove','pointerup','pointercancel','mousemove'])window.addEventListener?.(type,trace,{capture:true,signal:traceAbort.signal});
++  const events=new AbortController();
+   const factor=sprite.size/profile.defaultSize,groundX=profile.ground[0]*unit,groundY=profile.ground[1]*unit;
+   const layer=document.createElement('div');layer.dataset.companionProps='true';Object.assign(layer.style,{position:'absolute',inset:'0',pointerEvents:'none',zIndex:'2'});
+   for(const item of profile.props||[]){const a=data.props[item.id],s=item.referenceHeight*factor/a.prepared_size[1],anchor=a.anchors.ground,img=document.createElement('img');img.dataset.prop=item.id;img.alt=item.id==='book'?'独立书本':'独立杯子';img.src='./content-assets/'+item.id+'.png';Object.assign(img.style,{position:'absolute',left:groundX+item.groundOffset[0]*factor-anchor[0]*s+'px',top:groundY+item.groundOffset[1]*factor-anchor[1]*s+'px',width:a.prepared_size[0]*s+'px',height:a.prepared_size[1]*s+'px',pointerEvents:'none'});layer.appendChild(img);}stage.appendChild(layer);
+-  sprite.hit.addEventListener('click',e=>{if(e.isTrusted&&!sprite.justDragged)window.petBridge.companionInteract();},{signal:traceAbort.signal});
+-  return {dispose(){traceAbort.abort();layer.remove();delete sprite.contentHitTest;delete sprite.contentBodyRects;delete sprite.contentProfile;delete stage.dataset.contentProfile;}};
++  sprite.hit.addEventListener('click',e=>{if(e.isTrusted&&!sprite.justDragged)window.petBridge.companionInteract();},{signal:events.signal});
++  return {dispose(){events.abort();layer.remove();delete sprite.contentHitTest;delete sprite.contentBodyRects;delete sprite.contentProfile;delete stage.dataset.contentProfile;}};
+  }
+ };
+--- a/runtime-src/pet-backend/dsh-pet/runtime/electron-helper/main/ipc.js
++++ b/runtime-src/pet-backend/dsh-pet/runtime/electron-helper/main/ipc.js
+@@ -178,6 +178,7 @@
+     if (openTarget === 'desktop') {
+       // 协议未注册（绿色版 / 注册表被清）时回落成打开站点，至少不是"点了没反应"
+       focusDesktopApp().catch((error) => {
++        if (process.env.DSH_COMPANION_PET_WORKER === '1') return;
+         console.error('[dsh-pet-desktop-helper] open dsh:// failed, falling back to site:', error);
+         openSite(url);
+       });
+@@ -199,6 +200,7 @@
+    * 不做流、不落盘；渲染端拿到后与上传图片走同一条预算编码。
+    */
+   ipcMain.handle('pet:capture-screen', async (event) => {
++    if (process.env.DSH_COMPANION_PET_WORKER === '1') return null;
+     const win = BrowserWindow.fromWebContents(event.sender);
+     const display = win ? screen.getDisplayMatching(win.getBounds()) : screen.getPrimaryDisplay();
+     const scale = display.scaleFactor || 1;
+--- a/runtime-src/pet-backend/dsh-pet/runtime/electron-helper/preload.js
++++ b/runtime-src/pet-backend/dsh-pet/runtime/electron-helper/preload.js
+@@ -10,6 +10,7 @@
+ 
+ contextBridge.exposeInMainWorld('petBridge', {
+   companionInteract() { ipcRenderer.send('companion:pet-input'); },
++  reportCompanionState(value) { ipcRenderer.send('companion:pet-state', value); },
+   // 宠物窗口逐帧跟随：x/y/width/height 是窗口内容区坐标（用于移动窗口），
+   // boxX/boxY 是宠物包围盒左上角的工作区坐标——碰撞站场必须用包围盒，窗口坐标差半只宠物宽。
+   // size/bottomPad 让静止宠物也登记进碰撞站场，vx/vy 是当前速度（静止/拖拽为 0）。
+--- a/runtime-src/pet-backend/dsh-pet/runtime/electron-helper/renderer.js
++++ b/runtime-src/pet-backend/dsh-pet/runtime/electron-helper/renderer.js
+@@ -155,3 +155,26 @@
+ 
+ injectAssets();
+ void boot();
++
++// The companion supervisor uses playback and geometry to acknowledge a skin.
++if (window.petBridge?.reportCompanionState) {
++  let lastState = '';
++  window.setInterval(() => {
++    const s = sprites[0];
++    if (!s) return;
++    const front = s.front === 0 ? s.videoA : s.videoB;
++    const state = {
++      areas: AREAS,
++      props: [],
++      sprites: [{ anim: s.anim, size: s.size, center: { x: s.currentCenterX(), y: s.currentCenterY() },
++        dragging: s.dragState.active, moving: s.moveRef !== null, positionFollow: s.posFollow !== null, playback: s.playback }],
++      videos: [{ front: true, source: front.currentSrc.split('/').pop(), loop: front.loop,
++        paused: front.paused, time: s.playback ? front.currentTime : null }],
++    };
++    const next = JSON.stringify(state);
++    if (next !== lastState) {
++      lastState = next;
++      window.petBridge.reportCompanionState(state);
++    }
++  }, 75);
++}

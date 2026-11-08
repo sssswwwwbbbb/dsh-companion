@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>本地皮肤库 · DSH 交互关键稿</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="r3-components.css">
+  <link rel="stylesheet" href="library.css">
+  <script src="library.js" defer></script>
+</head>
+<body>
+  <!-- Design context: local library → direct card selection → current-skin settings.
+       R3 tokens/components and existing assets are reused. All state is prototype-local. -->
+  <div class="review-bar">
+    <span><strong>DSH · 本地皮肤库</strong><span class="review-label">可操作关键稿 / 本地模拟</span></span>
+    <div class="review-actions"><button id="demo-install" type="button">预演本地安装</button><button id="demo-reset" type="button">重置演示</button></div>
+  </div>
+  <div class="prototype-frame">
+    <div class="dshc-r3" data-screen-label="本地皮肤库与本套设置">
+      <aside class="r3-settings-nav" aria-label="陪伴导航">
+        <h2>皮肤与陪伴</h2>
+        <button class="r3-sideitem selected" id="nav-library" type="button" aria-current="page"><svg class="r3-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>皮肤库</button>
+        <button class="r3-sideitem" id="nav-settings" type="button" disabled title="先选择一套已安装皮肤"><svg class="r3-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path><circle cx="9" cy="6" r="2"></circle><circle cx="16" cy="12" r="2"></circle><circle cx="8" cy="18" r="2"></circle></svg>本套设置</button>
+        <div class="nav-separator"></div>
+        <button class="r3-sideitem" id="nav-license" type="button"><svg class="r3-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 8 4v7c0 5-8 9-8 9s-8-4-8-9V6Z"></path><path d="m8 12 3 3 5-6"></path></svg>插件授权</button>
+        <button class="r3-sideitem r3-stop" id="stop-effects" type="button" disabled><svg class="r3-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"></path></svg><span id="stop-label">停止效果</span></button>
+        <div class="r3-navfooter license-summary"><span class="license-dot"></span><strong>插件已激活</strong><p>一份插件授权<br>所有本地皮肤共用</p></div>
+      </aside>
+      <main class="r3-settings-main">
+        <header class="r3-settings-head library-head">
+          <div><div class="r3-eyebrow" id="page-eyebrow">LIBRARY / LOCAL SKINS</div><h1 id="page-title">本地皮肤库</h1><p class="r3-caption" id="page-subtitle">装好一套，点一下就换上。偏好按每套皮肤保留。</p></div>
+          <button class="r3-button primary" id="install-local" type="button"><svg class="r3-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 15v5h16v-5"></path></svg>安装本地皮肤</button>
+          <span class="r3-pill" id="settings-state" hidden>本套默认</span>
+        </header>
+        <div class="r3-settings-tabs" id="settings-tabs" role="tablist" aria-label="本套设置层级" hidden><button type="button" role="tab" id="tab-common" aria-selected="true">常用</button><button type="button" role="tab" id="tab-more" aria-selected="false">更多</button></div>
+        <div class="r3-settings-body" id="page-scroll">
+          <section id="library-view" data-screen-label="01 本地皮肤库">
+            <ol class="usage-order" aria-label="使用顺序"><li><span class="order-check">✓</span>激活插件</li><li><span>02</span>安装皮肤</li><li><span>03</span>点卡片切换</li><li><span>04</span>调整本套参数</li></ol>
+            <div class="current-skin" aria-labelledby="current-label">
+              <div class="current-icon" id="current-thumb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM4 9h16M8 9v10"></path></svg></div>
+              <div class="current-copy"><span class="r3-eyebrow" id="current-label">当前使用</span><h2 id="current-name">DSH 默认外观</h2><p id="current-description">从已安装的皮肤中，选一套作为你的日常。</p></div>
+              <span class="r3-pill" id="current-status">尚未选择皮肤</span>
+              <button class="r3-button" id="open-current-settings" type="button" disabled>本套设置 <span aria-hidden="true">→</span></button>
+            </div>
+            <div class="section-heading"><div><h2>已安装<span class="installed-count" id="installed-count">1 套</span></h2><p>点击卡片直接使用；“本套设置”只调整当前这套。</p></div><span class="local-only"><svg class="r3-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h7l2 2h9v11H3zM3 7V4h7l2 3"></path></svg>本地皮肤</span></div>
+            <div class="skin-grid">
+              <button class="skin-card" id="archive-card" type="button" aria-pressed="false" aria-label="使用档案暖白·鲸鱼娘">
+                <span class="skin-cover"><span class="cover-kicker">ARCHIVE — 001</span><span class="cover-title">档案暖白<span>一张纸面，一位老朋友。</span></span><span class="atlas-portrait cover-pet"><img src="assets/character-atlas-r2.png" alt="" draggable="false"></span><span class="card-current" id="card-current" hidden><span aria-hidden="true">✓</span> 当前使用</span></span>
+                <span class="skin-card-body"><span class="skin-card-title">档案暖白 · 鲸鱼娘<span class="version">0.7.1</span></span><span class="skin-card-description">暖白工作区，银蓝色的安静陪伴。</span><span class="module-chips"><span>工作区主题</span><span>桌宠</span><span>开场</span></span><span class="skin-card-bottom"><span><span class="installed-dot"></span>已安装</span><span id="card-action">点击使用 <span aria-hidden="true">↗</span></span></span></span>
+              </button>
+              <div class="empty-library" id="empty-library" hidden><svg class="r3-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h7l2 2h9v11H3zM3 7V4h7l2 3"></path></svg><h3>从第一套皮肤开始</h3><p>安装本地皮肤后，它会出现在这里。</p><button class="r3-button" id="empty-install" type="button">安装本地皮肤</button></div>
+              <article class="placeholder-card" aria-label="第二套皮肤版式占位，不是真实已安装内容">
+                <div class="placeholder-cover"><span class="placeholder-label">设计占位</span><div class="placeholder-shapes" aria-hidden="true"><span></span><span></span><span></span></div><p>另一套日常，留在这里。</p></div>
+                <div class="skin-card-body"><h3>第二套皮肤 <span class="placeholder-label">版式示意</span></h3><p>仅说明多套卡片的排列。</p><div class="placeholder-caption">非真实已安装内容 · 不计入数量 · 不可切换</div></div>
+              </article>
+            </div>
+            <div class="library-note"><svg class="r3-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 8 4v7c0 5-8 9-8 9s-8-4-8-9V6Z"></path></svg><div><strong>皮肤装进库，授权留在插件。</strong><p>安装后随时切换，不用逐套激活。人设等可选偏好，随本套提供的能力显示。</p></div></div>
+          </section>
+          <section id="settings-view" data-screen-label="02 当前皮肤参数" hidden>
+            <button class="back-link" id="back-library" type="button">← 返回皮肤库</button>
+            <div class="r3-skin-banner"><div><div class="r3-eyebrow">ARCHIVE WARM / COMPANION</div><h2>档案暖白 · 鲸鱼娘</h2><p>这是当前皮肤的参数。换一套时，保留这一套的偏好。</p><div class="r3-actions"><span class="r3-pill">0.7.1</span><span class="r3-pill blue">当前选择</span></div></div><span class="r3-banner-pet"><img src="assets/character-atlas-r2.png" alt="鲸鱼娘·安静待机" draggable="false"></span></div>
+            <div id="common-panel" role="tabpanel" aria-labelledby="tab-common">
+              <section class="r3-setting-section"><header><h3>阅读与表面</h3></header><div class="r3-setting-row"><div class="r3-setting-copy"><strong>背景浓度</strong><p>0 为纯色，保留本套档案图案。</p></div><div class="r3-setting-control"><span class="r3-pill field-tag" data-tag="backgroundOpacity">默认</span><input type="range" id="background-opacity" data-field="backgroundOpacity" min="0" max="0.15" step="0.01" value="0.04" aria-label="背景浓度"><output for="background-opacity" data-output="backgroundOpacity">4%</output></div></div></section>
+              <section class="r3-setting-section"><header><h3>桌面陪伴</h3></header><div class="r3-setting-row"><div class="r3-setting-copy"><strong>角色大小</strong><p>按百分比调整，保持原有比例。</p></div><div class="r3-setting-control"><span class="r3-pill field-tag" data-tag="size">默认</span><input type="range" id="pet-size" data-field="size" min="70" max="140" step="1" value="100" aria-label="角色大小"><output for="pet-size" data-output="size">100%</output></div></div><div class="r3-setting-row"><div class="r3-setting-copy"><strong>智能互动</strong><p>点击或专属输入时回应，待机在本地运行。</p></div><div class="r3-setting-control"><span class="r3-pill field-tag" data-tag="smartEnabled">默认</span><button class="r3-toggle on" data-field="smartEnabled" type="button" role="switch" aria-label="智能互动" aria-checked="true"><span></span></button></div></div></section>
+            </div>
+            <div id="more-panel" role="tabpanel" aria-labelledby="tab-more" hidden>
+              <section class="r3-setting-section"><header><h3>本套人设</h3><span class="r3-pill blue">用于桌宠</span></header><p class="persona-note">这套皮肤为桌宠提供人设，工作助手继续使用原有设定。未提供的作用位置不显示。</p><div class="r3-setting-row"><div class="r3-setting-copy"><strong>角色与表达</strong><p>使用本套默认，也可按你的习惯修改。</p></div><div class="r3-setting-control"><span class="r3-pill field-tag" data-tag="persona">默认</span><textarea id="persona" data-field="persona" rows="4" maxlength="2000" aria-label="本套人设"></textarea></div></div><div class="r3-setting-row"><div class="r3-setting-copy"><strong>互动使用的模型</strong><p>沿用 DSH 已配置的模型。</p></div><div class="r3-setting-control"><span class="r3-pill">默认</span><select aria-label="互动使用的模型"><option>跟随 DSH 默认模型</option></select></div></div><div class="r3-setting-row"><div class="r3-setting-copy"><strong>最近互动轮数（本次运行）</strong><p>仅桌宠近期互动，重启后清空。</p></div><div class="r3-setting-control"><span class="r3-pill field-tag" data-tag="historyRounds">默认</span><input type="range" id="history-rounds" data-field="historyRounds" min="0" max="20" step="1" value="10" aria-label="最近互动轮数"><output for="history-rounds" data-output="historyRounds">10</output></div></div><div class="r3-setting-row"><div class="r3-setting-copy"><strong>允许说话</strong></div><div class="r3-setting-control"><span class="r3-pill field-tag" data-tag="allowSpeech">默认</span><button class="r3-toggle on" data-field="allowSpeech" type="button" role="switch" aria-label="允许说话" aria-checked="true"><span></span></button></div></div><div class="r3-setting-row"><div class="r3-setting-copy"><strong>允许动作</strong><p>仅使用本套已提供的待机与回应。</p></div><div class="r3-setting-control"><span class="r3-pill field-tag" data-tag="allowActions">默认</span><button class="r3-toggle on" data-field="allowActions" type="button" role="switch" aria-label="允许动作" aria-checked="true"><span></span></button></div></div></section>
+            </div>
+          </section>
+        </div>
+        <footer class="r3-settings-foot"><div><p id="footer-summary">1 套已安装 · 尚未选择皮肤</p><small id="footer-note">选择在皮肤库，参数在本套设置。</small></div><button class="r3-button" id="reset-preferences" type="button" hidden><svg class="r3-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a8 8 0 1 1 0 7M4 3v6h6"></path></svg>重置本套</button></footer>
+      </main>
+    </div>
+  </div>
+  <p class="review-footnote">独立设计演示：不会连接 DSH、读取包内内容或安装文件；占位卡不代表已安装皮肤。</p>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <dialog id="install-dialog" aria-labelledby="install-title"><form method="dialog"><button class="dialog-close" aria-label="关闭安装窗口">×</button></form><div class="r3-eyebrow">LOCAL INSTALL</div><h2 id="install-title">安装本地皮肤</h2><p class="dialog-intro">从电脑选择皮肤包。安装后加入皮肤库，当前选择保持不变。</p><label class="file-drop"><svg class="r3-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M4 16v5h16v-5"></path></svg><strong>选择本地文件</strong><span>皮肤资源与默认参数随包提供</span><input type="file" id="local-file" aria-label="选择本地皮肤文件"></label><div class="package-preview" id="package-preview" hidden><img src="assets/archive-poster.png" alt=""><div><strong>档案暖白 · 鲸鱼娘</strong><span id="package-filename">本地演示包</span><small>0.7.1 · 主题 / 桌宠 / 开场</small></div></div><div class="dialog-actions"><button class="r3-button" id="fill-demo" type="button">填入演示包</button><button class="r3-button primary" id="confirm-install" type="button" disabled>安装到皮肤库</button></div></dialog>
+  <dialog id="license-dialog" aria-labelledby="license-title"><form method="dialog"><button class="dialog-close" aria-label="关闭授权说明">×</button></form><div class="r3-eyebrow">PLUGIN LICENSE</div><h2 id="license-title">一份插件授权</h2><p class="dialog-intro">当前演示状态：插件已激活。安装或切换本地皮肤时，无需再次激活。</p><div class="license-detail"><svg class="r3-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 8 4v7c0 5-8 9-8 9s-8-4-8-9V6Z"></path><path d="m8 12 3 3 5-6"></path></svg><div><strong>授权给插件，皮肤共用。</strong><p>授权与更新由插件统一管理，皮肤卡片只负责选择内容。</p></div></div><form method="dialog" class="dialog-actions"><button class="r3-button primary">知道了</button></form></dialog>
+</body>
+</html>

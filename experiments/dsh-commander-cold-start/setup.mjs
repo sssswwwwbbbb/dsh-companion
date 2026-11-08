@@ -1,0 +1,10 @@
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+export const root=fileURLToPath(new URL('../../',import.meta.url));
+export const accepted=path.join(root,'.local/dsh-commander-startup-voice-b-20261105');
+export const acceptedReport=path.join(root,'reports/dsh-commander-startup-voice-b-2026-11-05');
+export const lab=path.join(root,'.local/dsh-commander-cold-start-20261105');
+export const stage=path.join(lab,'staging');
+export const report=path.join(root,'reports/dsh-commander-cold-start-2026-11-05');
+export const acceptedKey='ea18a15f4ba052817c3e89b2ed4531a21381a632bab60e34539a7dd94994cf43';
+export const comparisonKey='4b643de142bb2770340cd56d7c2acd5bced3b09a69ddbf27cd3025d29639620b';

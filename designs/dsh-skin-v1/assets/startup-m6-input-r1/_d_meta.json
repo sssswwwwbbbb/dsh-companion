@@ -1,0 +1,23 @@
+{
+  "type": "design",
+  "designSystems": [],
+  "primaryDesignSystem": null,
+  "assets": {
+    "档案开场 · 就绪后进入修订": {
+      "versions": [
+        {
+          "path": "archive-frame.html",
+          "createdAt": "2026-11-03T14:38:38.876Z",
+          "status": "needs-review",
+          "subtitle": "仅修文案；poster与片内同步，原版保留",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          }
+        }
+      ]
+    }
+  },
+  "createdAt": "2026-11-03T14:38:39.104Z",
+  "updatedAt": "2026-11-03T14:38:39.104Z"
+}

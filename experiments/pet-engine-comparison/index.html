@@ -1,0 +1,6 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>场景陪伴 · 引擎实验</title><link rel="stylesheet" href="/scene.css"></head><body>
+<header><h1 id="engine-name">场景陪伴 · 引擎实验</h1><p>同一组机制素材 · 同一段陪伴旅程 · 独立环境</p><nav aria-label="实验操作">
+<button id="journey">重播完整旅程</button><button id="walk">慢走</button><button id="run">小跑</button><button id="sit">坐下与书</button><button id="work">工作开始</button><button id="finish">工作结束</button><button id="interact">轻点回应</button><button id="extend">新增动作与杯子</button><button id="switch">换一套主题</button><button id="stop">停止与清理</button><button id="apply">重新应用</button></nav></header>
+<main><section class="desk" aria-label="工作场景"><div class="desk-label">档案工作台</div><h2>今天的研究记录</h2><p>整理参考，等待下一步。角色与道具在同一个工作场景内活动。</p><div class="paper-lines"></div><div id="work-note" role="status">空闲陪伴</div></section><div class="ground"></div><div id="actor-root"></div><img id="composed-prop" alt="可独立组合的小道具" hidden src="/book.svg"></main>
+<footer><p id="status" role="status">加载中</p><p class="fixture">机制占位：旧角色片段；坐姿来自睡眠序列。工作按钮注入本地状态，不调用聊天模型。独立书/杯为本实验自绘。</p><ol id="events" aria-label="运行回执"></ol></footer>
+<script type="module" src="/ui.mjs"></script></body></html>

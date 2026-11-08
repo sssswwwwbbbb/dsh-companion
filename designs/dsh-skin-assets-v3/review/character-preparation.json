@@ -1,0 +1,25 @@
+{
+  "sourceSize": [
+    1024,
+    1536
+  ],
+  "mode": "RGBA",
+  "alphaExtrema": [
+    0,
+    255
+  ],
+  "transparentPixels": 1118260,
+  "semiTransparentPixels": 3369,
+  "foregroundBounds": [
+    239,
+    6,
+    782,
+    1515
+  ],
+  "sourceTouchesCanvasEdge": false,
+  "nativeAlphaFromMoss": false,
+  "alphaMethod": "local chroma key and edge foreground recovery",
+  "hairFinishing": "masked luma-preserving silver-blue palette alignment; face and eye texture preserved",
+  "oldCharacterFramesUsed": false,
+  "masterSha256": "e133f8d7bcb60232414d725eb13951827f14c02d61a11b87cca6dddbba7fc11f"
+}

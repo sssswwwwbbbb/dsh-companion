@@ -1,0 +1,18 @@
+{
+  "id": "master-01",
+  "source": "MOSS text-to-image",
+  "model": "moss-image-sft-1.0-2026-10-09",
+  "request": "designs/dsh-skin-assets-v3/identity/master-01-request.json",
+  "seed": 20261104031,
+  "sizeRequested": "1024x1536",
+  "usage": {
+    "generated_images": 1,
+    "output_width": 1024,
+    "output_height": 1536
+  },
+  "image": "assets/character/master-01-source.png",
+  "sha256": "cd6e53645eaa2f6295e6e2ffd4e3daeb6a4e6ffe350e46bc4586ccdf5f8d160c",
+  "bytes": 4722460,
+  "referenceImageInput": false,
+  "nativeAlphaRequested": false
+}

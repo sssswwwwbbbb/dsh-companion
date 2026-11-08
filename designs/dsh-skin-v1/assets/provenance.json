@@ -1,0 +1,35 @@
+{
+  "date": "2026-11-03",
+  "referenceRepository": "https://github.com/LeeRolling/dsh-boot-suite",
+  "referenceCommit": "34b892eae168abf14fc9623cb109d6806ffeacf2",
+  "scan": {
+    "gitBlobSha1": "8848daf137c2e87c258957502c74ae0d87b8a550",
+    "actualSha256": "3756348dfc0fc2fa9fb138d1cc8d5f571c4b448c0c73a0cb46802d650f15a1e8",
+    "noticeMismatch": true,
+    "use": "local reference only"
+  },
+  "pet": {
+    "repository": "https://github.com/PC2005-cloud/dsh-pet",
+    "commit": "2265f24a941e6d6736d8a069cc06cf4216df4539",
+    "selected": [
+      "idle",
+      "look",
+      "greet",
+      "react",
+      "stretch",
+      "sleep",
+      "wake"
+    ],
+    "localReuse": true
+  },
+  "hostReadOnlyDocs": {
+    "version": "0.2.1-rc.5",
+    "packages": [
+      "dsh-client-ui-chat",
+      "dsh-client-ui-layout",
+      "dsh-client-ui-session"
+    ],
+    "scope": "layout and conversation architecture; no user profile"
+  },
+  "runtimeContract": "docs/skin-runtime-contract-v0.1.md"
+}

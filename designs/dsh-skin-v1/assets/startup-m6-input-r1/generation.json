@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-03",
+  "revision": "0.7.1 ready-caption-only",
+  "source": "../startup-m6-input/; original0.7.0 preserved",
+  "change": "poster/footer and baked prelude: 随时跳过 → 就绪后进入",
+  "script": "reports/first-skin/build-startup-m6-input.py --ready-copy",
+  "actual": {
+    "path": "designs/dsh-skin-v1/assets/startup-m6-input-r1/archive-whale-silent.webm",
+    "dimensions": [
+      1280,
+      720
+    ],
+    "durationSeconds": 8.2,
+    "frameCount": 205,
+    "fps": 25,
+    "audioPresent": false,
+    "codec": "vp9",
+    "alpha": false,
+    "archiveFrameStableMeanRgbDifference": 0.0006550202546296296,
+    "archivePosterMeanRgbDifferenceAfterEncoding": 2.3378
+  },
+  "posterDifferenceBoundsAgainstOriginal": [
+    197,
+    614,
+    253,
+    626
+  ],
+  "files": {
+    "archive-poster.png": {
+      "bytes": 40294,
+      "sha256": "127acf1fc440abc17d1085fe8f9599496e1f19e4942f25bb0d1da75030ddd907"
+    },
+    "archive-whale-silent.webm": {
+      "bytes": 1717995,
+      "sha256": "0d72a74da24759759f7637d67050c77147f8316e5b8395d3249b268def42c9b0"
+    },
+    "archive-frame.html": {
+      "bytes": 2031,
+      "sha256": "43eae50b0863dfbec37a08ba3da1c50e652b9a90edf878abe528b7fe1eca6f2f"
+    }
+  },
+  "runtimeStatus": "content only; exact-key native verification pending"
+}

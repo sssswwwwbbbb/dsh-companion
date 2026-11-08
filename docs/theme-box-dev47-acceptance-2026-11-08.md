@@ -15,10 +15,10 @@
 
 | 平台 | 文件 | SHA-256 |
 | --- | --- | --- |
-| Mac ARM64 | [dev.47](<<本机路径>/dist/dsh-plugin-companion-0.1.0-dev.47.tgz>) | `e7f0e456ff107c56caa1c2d57e034dc5b12c07bd3774d20a6ffca31e4b18ab4b` |
-| Windows x64 | [dev.47](<<本机路径>/dist/dsh-plugin-companion-0.1.0-dev.47-win32-x64.tgz>) | `01e4df74b65d7145fabf5c8b02675b6345a2aea8a435d4d01f149f0355d0aca9` |
+| Mac ARM64 | [dev.47](<本机路径>/dist/dsh-plugin-companion-0.1.0-dev.47.tgz>) | `e7f0e456ff107c56caa1c2d57e034dc5b12c07bd3774d20a6ffca31e4b18ab4b` |
+| Windows x64 | [dev.47](<本机路径>/dist/dsh-plugin-companion-0.1.0-dev.47-win32-x64.tgz>) | `01e4df74b65d7145fabf5c8b02675b6345a2aea8a435d4d01f149f0355d0aca9` |
 
-作者合同与校验工具：[dev.47 离线包](<<本机路径>/dist/dsh-skin-author-kit-0.1.0-dev.47.zip>)。新配置接口见 [制作与校验说明](<<本机路径>/docs/skin-author-reference.md>)。
+作者合同与校验工具：[dev.47 离线包](<本机路径>/dist/dsh-skin-author-kit-0.1.0-dev.47.zip>)。新配置接口见 [制作与校验说明](<本机路径>/docs/skin-author-reference.md>)。
 
 ## 一次集中验证
 
@@ -34,4 +34,4 @@
 
 隔离界面使用官方模型服务与本地确定性模型，桌面桥接在该界面中模拟；真实桌宠播放另在独立进程验证。两平台安装包的同源代码、运行时摘要和仅内置冷启动均已核对。Windows 实机表现、实际外部模型的角色表达质量仍由本次用户集中验收确认。
 
-验收明细：[机器记录](<<本机路径>/reports/shared-character-milestone-2026-11-08.json>)。后续 P3 的坐靠、道具和窗口边栖息仍依赖相应素材与平台能力验证，不属于本节点已完成范围。
+验收明细：[机器记录](<本机路径>/reports/shared-character-milestone-2026-11-08.json>)。后续 P3 的坐靠、道具和窗口边栖息仍依赖相应素材与平台能力验证，不属于本节点已完成范围。

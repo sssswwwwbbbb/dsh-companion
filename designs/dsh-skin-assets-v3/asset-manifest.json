@@ -1,0 +1,760 @@
+{
+  "status": "design-material-candidates; visual/native-composition-review-pending",
+  "created_at": "2026-11-04T11:06:47.212766+00:00",
+  "selected_master": "identity/selected-master.json",
+  "product_platform": "desktop only",
+  "runtime_target": "dsh-pet 0.4.1; foundation-owned adapter",
+  "runtime_pack": false,
+  "source_originals_preserved": true,
+  "assets": [
+    {
+      "id": "master-04",
+      "source": "designs/dsh-skin-assets-v3/assets/character/jimeng-flash-master-04-source.png",
+      "alpha_input": "designs/dsh-skin-assets-v3/assets/character/jimeng-flash-master-04-cutout-candidate.png",
+      "full_alpha": "designs/dsh-skin-assets-v3/assets/prepared/master-04-full.png",
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/master-04.png",
+      "role": "character-base",
+      "source_size": [
+        1664,
+        2496
+      ],
+      "source_alpha_bounds": [
+        295,
+        39,
+        1440,
+        2457
+      ],
+      "source_crop": [
+        263,
+        7,
+        1472,
+        2489
+      ],
+      "prepared_size": [
+        499,
+        1024
+      ],
+      "mode": "RGBA",
+      "sha256": "3f731127d27c1109e4d965f4e193ec3c7bc1cce5b1782a65b90f807b85253766",
+      "bytes": 541255,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "semi_transparent_pixels": 34732,
+      "matte_pixels_refined": 86952,
+      "rgb_pixels_repainted": false,
+      "anchors": {
+        "ground": [
+          235.99,
+          1007.91
+        ]
+      },
+      "anchor_basis": "visual placement estimates; native fit pending",
+      "facing": "front",
+      "mirror_safety": "unreviewed; asymmetric headpiece",
+      "animation": {
+        "kind": "static_keypose",
+        "loop": false,
+        "cycle_frames": null
+      },
+      "visual_status": "composition-review-candidate",
+      "contains_support": null
+    },
+    {
+      "id": "sit-01",
+      "source": "designs/dsh-skin-assets-v3/assets/character/jimeng-sit-01-source.png",
+      "alpha_input": "designs/dsh-skin-assets-v3/assets/character/jimeng-sit-01-cutout-candidate.png",
+      "full_alpha": "designs/dsh-skin-assets-v3/assets/prepared/sit-01-full.png",
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/sit-01.png",
+      "role": "pose-with-stool",
+      "source_size": [
+        1664,
+        2496
+      ],
+      "source_alpha_bounds": [
+        344,
+        50,
+        1585,
+        2465
+      ],
+      "source_crop": [
+        312,
+        18,
+        1617,
+        2497
+      ],
+      "prepared_size": [
+        539,
+        1024
+      ],
+      "mode": "RGBA",
+      "sha256": "831f2b5117d34a12dfdcc25daab043560bbbccb0a73cc92e4839b4bb13060753",
+      "bytes": 652379,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "semi_transparent_pixels": 38503,
+      "matte_pixels_refined": 54239,
+      "rgb_pixels_repainted": false,
+      "anchors": {
+        "ground": [
+          139.62,
+          1004.59
+        ],
+        "lap": [
+          133.42,
+          579.12
+        ],
+        "hand_left": [
+          85.92,
+          552.27
+        ],
+        "hand_right": [
+          156.14,
+          554.34
+        ]
+      },
+      "anchor_basis": "visual placement estimates; native fit pending",
+      "facing": "left-three-quarter",
+      "mirror_safety": "unreviewed; asymmetric headpiece",
+      "animation": {
+        "kind": "static_keypose",
+        "loop": false,
+        "cycle_frames": null
+      },
+      "visual_status": "composition-review-candidate",
+      "contains_support": "stool"
+    },
+    {
+      "id": "walk-a",
+      "source": "designs/dsh-skin-assets-v3/assets/character/jimeng-walk-a-source.png",
+      "alpha_input": "designs/dsh-skin-assets-v3/assets/character/jimeng-walk-a-cutout-candidate.png",
+      "full_alpha": "designs/dsh-skin-assets-v3/assets/prepared/walk-a-full.png",
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/walk-a.png",
+      "role": "action-keypose",
+      "source_size": [
+        1664,
+        2496
+      ],
+      "source_alpha_bounds": [
+        335,
+        38,
+        1488,
+        2464
+      ],
+      "source_crop": [
+        303,
+        6,
+        1520,
+        2496
+      ],
+      "prepared_size": [
+        500,
+        1024
+      ],
+      "mode": "RGBA",
+      "sha256": "0ad8e1fce6151f7bdd3c37e579ce951526d342fee6af3a92b5f3dea9b7062ade",
+      "bytes": 524163,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "semi_transparent_pixels": 35805,
+      "matte_pixels_refined": 76262,
+      "rgb_pixels_repainted": false,
+      "anchors": {
+        "ground": [
+          196.16,
+          1009.2
+        ]
+      },
+      "anchor_basis": "visual placement estimates; native fit pending",
+      "facing": "left-three-quarter",
+      "mirror_safety": "unreviewed; asymmetric headpiece",
+      "animation": {
+        "kind": "static_keypose",
+        "loop": false,
+        "cycle_frames": "pending"
+      },
+      "visual_status": "composition-review-candidate",
+      "contains_support": null
+    },
+    {
+      "id": "climb-a",
+      "source": "designs/dsh-skin-assets-v3/assets/character/jimeng-climb-a-source.png",
+      "alpha_input": "designs/dsh-skin-assets-v3/assets/character/jimeng-climb-a-cutout-candidate.png",
+      "full_alpha": "designs/dsh-skin-assets-v3/assets/prepared/climb-a-full.png",
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/climb-a.png",
+      "role": "action-keypose",
+      "source_size": [
+        1664,
+        2496
+      ],
+      "source_alpha_bounds": [
+        387,
+        0,
+        1533,
+        2496
+      ],
+      "source_crop": [
+        355,
+        -32,
+        1565,
+        2528
+      ],
+      "prepared_size": [
+        484,
+        1024
+      ],
+      "mode": "RGBA",
+      "sha256": "83c15654b7f8fbcdad3839f9fd3bee50e0727dd3132e5eef02d7aa6d5982316b",
+      "bytes": 529590,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "semi_transparent_pixels": 35611,
+      "matte_pixels_refined": 40029,
+      "rgb_pixels_repainted": false,
+      "anchors": {
+        "support_top_grip": [
+          80.0,
+          92.8
+        ],
+        "support_low_grip": [
+          80.0,
+          300.8
+        ],
+        "support_raised_foot": [
+          92.0,
+          758.8
+        ],
+        "support_low_foot": [
+          92.0,
+          952.8
+        ]
+      },
+      "anchor_basis": "visual placement estimates; native fit pending",
+      "facing": "left-three-quarter",
+      "mirror_safety": "unreviewed; asymmetric headpiece",
+      "animation": {
+        "kind": "static_keypose",
+        "loop": false,
+        "cycle_frames": "pending"
+      },
+      "visual_status": "composition-review-candidate",
+      "contains_support": "vertical edge guide"
+    },
+    {
+      "id": "run-a",
+      "source": "designs/dsh-skin-assets-v3/assets/character/jimeng-run-a-source.png",
+      "alpha_input": "designs/dsh-skin-assets-v3/assets/character/jimeng-run-a-cutout-candidate.png",
+      "full_alpha": "designs/dsh-skin-assets-v3/assets/prepared/run-a-full.png",
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/run-a.png",
+      "role": "action-keypose",
+      "source_size": [
+        1664,
+        2496
+      ],
+      "source_alpha_bounds": [
+        270,
+        64,
+        1483,
+        2362
+      ],
+      "source_crop": [
+        238,
+        32,
+        1515,
+        2502
+      ],
+      "prepared_size": [
+        529,
+        1024
+      ],
+      "mode": "RGBA",
+      "sha256": "ffb47057173aa06f5985ccb70fc8f53bf3ba3c5d4873b86ac936ae2c3a43080b",
+      "bytes": 551647,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "semi_transparent_pixels": 40592,
+      "matte_pixels_refined": 66575,
+      "rgb_pixels_repainted": false,
+      "anchors": {
+        "ground": [
+          257.87,
+          1010.73
+        ]
+      },
+      "anchor_basis": "visual placement estimates; native fit pending",
+      "facing": "left-three-quarter",
+      "mirror_safety": "unreviewed; asymmetric headpiece",
+      "animation": {
+        "kind": "static_keypose",
+        "loop": false,
+        "cycle_frames": "pending"
+      },
+      "visual_status": "composition-review-candidate",
+      "contains_support": null
+    },
+    {
+      "id": "lie-a",
+      "source": "designs/dsh-skin-assets-v3/assets/character/jimeng-lie-a-source.png",
+      "alpha_input": "designs/dsh-skin-assets-v3/assets/character/jimeng-lie-a-cutout-candidate.png",
+      "full_alpha": "designs/dsh-skin-assets-v3/assets/prepared/lie-a-full.png",
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/lie-a.png",
+      "role": "action-keypose",
+      "source_size": [
+        2496,
+        1664
+      ],
+      "source_alpha_bounds": [
+        31,
+        424,
+        2475,
+        1259
+      ],
+      "source_crop": [
+        -1,
+        392,
+        2507,
+        1291
+      ],
+      "prepared_size": [
+        1024,
+        367
+      ],
+      "mode": "RGBA",
+      "sha256": "444334481ce5d42eecbc1b36b3b5035b1556e5f729bd6c508c2728257a690378",
+      "bytes": 451331,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "semi_transparent_pixels": 21194,
+      "matte_pixels_refined": 0,
+      "rgb_pixels_repainted": false,
+      "anchors": {},
+      "anchor_basis": "visual placement estimates; native fit pending",
+      "facing": "left",
+      "mirror_safety": "unreviewed; asymmetric headpiece",
+      "animation": {
+        "kind": "static_keypose",
+        "loop": false,
+        "cycle_frames": null
+      },
+      "visual_status": "style-drift-reported",
+      "contains_support": null
+    },
+    {
+      "id": "book",
+      "source": "designs/dsh-skin-assets-v3/assets/theme/jimeng-book-source-crop.png",
+      "alpha_input": "designs/dsh-skin-assets-v3/assets/theme/jimeng-book-cutout-candidate.png",
+      "full_alpha": "designs/dsh-skin-assets-v3/assets/prepared/book-full.png",
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/book.png",
+      "role": "independent-prop",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_alpha_bounds": [
+        124,
+        168,
+        931,
+        924
+      ],
+      "source_crop": [
+        104,
+        148,
+        951,
+        944
+      ],
+      "prepared_size": [
+        512,
+        481
+      ],
+      "mode": "RGBA",
+      "sha256": "115400ad8f896f9181d7956f4cd524a42fe295ccc270889d26712a8878c6fee1",
+      "bytes": 308042,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "semi_transparent_pixels": 11579,
+      "matte_pixels_refined": 0,
+      "rgb_pixels_repainted": false,
+      "anchors": {
+        "ground": [
+          256.0,
+          469
+        ],
+        "grip": [
+          368.64,
+          336.7
+        ]
+      },
+      "anchor_basis": "visual placement estimates; native fit pending",
+      "facing": null,
+      "mirror_safety": null,
+      "animation": {
+        "kind": "prop",
+        "loop": false,
+        "cycle_frames": null
+      },
+      "visual_status": "composition-review-candidate",
+      "contains_support": null
+    },
+    {
+      "id": "cup",
+      "source": "designs/dsh-skin-assets-v3/assets/theme/jimeng-cup-source-crop.png",
+      "alpha_input": "designs/dsh-skin-assets-v3/assets/theme/jimeng-cup-cutout-candidate.png",
+      "full_alpha": "designs/dsh-skin-assets-v3/assets/prepared/cup-full.png",
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/cup.png",
+      "role": "independent-prop",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_alpha_bounds": [
+        227,
+        298,
+        881,
+        796
+      ],
+      "source_crop": [
+        207,
+        278,
+        901,
+        816
+      ],
+      "prepared_size": [
+        512,
+        397
+      ],
+      "mode": "RGBA",
+      "sha256": "56b4c82e839ef29d9625176608c3c939eeab5fcf0aff730d5e0a10bf1fc7a4b9",
+      "bytes": 194829,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "semi_transparent_pixels": 14237,
+      "matte_pixels_refined": 0,
+      "rgb_pixels_repainted": false,
+      "anchors": {
+        "ground": [
+          256.0,
+          382
+        ],
+        "grip": [
+          450.56,
+          190.56
+        ]
+      },
+      "anchor_basis": "visual placement estimates; native fit pending",
+      "facing": null,
+      "mirror_safety": null,
+      "animation": {
+        "kind": "prop",
+        "loop": false,
+        "cycle_frames": null
+      },
+      "visual_status": "composition-review-candidate",
+      "contains_support": null
+    },
+    {
+      "id": "cushion",
+      "source": "designs/dsh-skin-assets-v3/assets/theme/jimeng-cushion-source-crop.png",
+      "alpha_input": "designs/dsh-skin-assets-v3/assets/theme/jimeng-cushion-cutout-candidate.png",
+      "full_alpha": "designs/dsh-skin-assets-v3/assets/prepared/cushion-full.png",
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/cushion.png",
+      "role": "independent-prop",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_alpha_bounds": [
+        96,
+        229,
+        942,
+        794
+      ],
+      "source_crop": [
+        76,
+        209,
+        962,
+        814
+      ],
+      "prepared_size": [
+        512,
+        350
+      ],
+      "mode": "RGBA",
+      "sha256": "20b9b2861175f321fbb03719a62801ab4f04ac22fa3606e1a35998ae24631feb",
+      "bytes": 279532,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "semi_transparent_pixels": 12469,
+      "matte_pixels_refined": 0,
+      "rgb_pixels_repainted": false,
+      "anchors": {
+        "ground": [
+          256.0,
+          338
+        ]
+      },
+      "anchor_basis": "visual placement estimates; native fit pending",
+      "facing": null,
+      "mirror_safety": null,
+      "animation": {
+        "kind": "prop",
+        "loop": false,
+        "cycle_frames": null
+      },
+      "visual_status": "composition-review-candidate",
+      "contains_support": null
+    },
+    {
+      "id": "blanket",
+      "source": "designs/dsh-skin-assets-v3/assets/theme/jimeng-blanket-source-crop.png",
+      "alpha_input": "designs/dsh-skin-assets-v3/assets/theme/jimeng-blanket-cutout-candidate.png",
+      "full_alpha": "designs/dsh-skin-assets-v3/assets/prepared/blanket-full.png",
+      "file": "designs/dsh-skin-assets-v3/assets/prepared/blanket.png",
+      "role": "independent-prop",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_alpha_bounds": [
+        85,
+        247,
+        939,
+        793
+      ],
+      "source_crop": [
+        65,
+        227,
+        959,
+        813
+      ],
+      "prepared_size": [
+        512,
+        336
+      ],
+      "mode": "RGBA",
+      "sha256": "ec106821fe6575eb5e9ef71b1a3734db785e4959f65e090c5337820ccbcd2716",
+      "bytes": 225282,
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "corner_alphas": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "semi_transparent_pixels": 9531,
+      "matte_pixels_refined": 0,
+      "rgb_pixels_repainted": false,
+      "anchors": {
+        "ground": [
+          256.0,
+          325
+        ]
+      },
+      "anchor_basis": "visual placement estimates; native fit pending",
+      "facing": null,
+      "mirror_safety": null,
+      "animation": {
+        "kind": "prop",
+        "loop": false,
+        "cycle_frames": null
+      },
+      "visual_status": "composition-review-candidate",
+      "contains_support": null
+    }
+  ],
+  "portrait": "assets/prepared/portrait.png",
+  "avatar": "assets/prepared/avatar.png",
+  "open_work": [
+    "review real walk cycle splice and native stride/facing/foot contact",
+    "complete run/climb cycles and action transitions",
+    "authored read/drink use poses; keep unrelated idle/movement props absent",
+    "side-lying style/shoe candidate review",
+    "startup visual candidate and separate native lifecycle acceptance"
+  ],
+  "rights_basis": "user-provided generated originals; public distribution review not performed",
+  "motions": [
+    {
+      "id": "idle-breathe",
+      "file": "designs/dsh-skin-assets-v3/assets/motion/idle-breathe.webm",
+      "source": "designs/dsh-skin-assets-v3/assets/prepared/master-04.png",
+      "source_sha256": "3f731127d27c1109e4d965f4e193ec3c7bc1cce5b1782a65b90f807b85253766",
+      "size": [
+        499,
+        1024
+      ],
+      "fps": 24,
+      "frames": 60,
+      "duration_seconds": 2.5,
+      "loop": true,
+      "bytes": 592045,
+      "sha256": "4c6ee078da5bbcc73581a705e2b1a758d56bce7111c7d629b334e9fb59c3cb98",
+      "method": "bounded local image-space deformation; chest/shoulder breath, hair sway, neck-centered head attitude",
+      "feet_unchanged": true,
+      "decoded_alpha_extrema": [
+        0,
+        255
+      ],
+      "visual_review": "sampled frame sequences reviewed; continuous playback/native DSH acceptance pending",
+      "native_dsh_tested": false,
+      "does_not_claim": [
+        "blink",
+        "wave",
+        "walk cycle",
+        "run cycle",
+        "new skeletal pose"
+      ]
+    },
+    {
+      "id": "react-tilt",
+      "file": "designs/dsh-skin-assets-v3/assets/motion/react-tilt.webm",
+      "source": "designs/dsh-skin-assets-v3/assets/prepared/master-04.png",
+      "source_sha256": "3f731127d27c1109e4d965f4e193ec3c7bc1cce5b1782a65b90f807b85253766",
+      "size": [
+        499,
+        1024
+      ],
+      "fps": 24,
+      "frames": 36,
+      "duration_seconds": 1.5,
+      "loop": false,
+      "bytes": 414575,
+      "sha256": "0a27d0c79608cd40b6a8c91f5bb08c688ed3f5a9751166fee27110f2169af184",
+      "method": "bounded local image-space deformation; chest/shoulder breath, hair sway, neck-centered head attitude",
+      "feet_unchanged": true,
+      "decoded_alpha_extrema": [
+        0,
+        255
+      ],
+      "visual_review": "sampled frame sequences reviewed; continuous playback/native DSH acceptance pending",
+      "native_dsh_tested": false,
+      "does_not_claim": [
+        "blink",
+        "wave",
+        "walk cycle",
+        "run cycle",
+        "new skeletal pose"
+      ],
+      "source_first_last_rgba_identical": true,
+      "endpoint_equality_basis": "uncompressed generated source RGBA before lossy VP9 encoding",
+      "decoded_endpoint_identity_claimed": false
+    },
+    {
+      "id": "walk-loop-01",
+      "file": "designs/dsh-skin-assets-v3/assets/motion/walk-loop-01.webm",
+      "source": "designs/dsh-skin-assets-v3/assets/motion/source/walk-loop-01-source.mp4",
+      "source_sha256": "9eaae207c29a9706e42cebdc3849e6b9b97a9ac475c97f17dadbc4b2b87276ac",
+      "size": [
+        720,
+        960
+      ],
+      "fps": 24,
+      "frames": 45,
+      "duration_seconds": 1.875,
+      "loop_candidate": true,
+      "readiness": "real-gait alpha candidate; primary visual and native fitting pending",
+      "sha256": "f7a64c9d56306d34ff82d236a34eef812fcacb4237fb5bee59e847fbab91c6a8",
+      "bytes": 2250767,
+      "ground_anchor": [
+        360,
+        940
+      ],
+      "facing": "left-three-quarter",
+      "horizontal_displacement_baked": false,
+      "native_dsh_tested": false,
+      "review": "review/walk-loop-01-review.json",
+      "method": "actual user video cycle; local per-frame matting, restrained temporal edge stabilization and vertical sole alignment"
+    }
+  ],
+  "motion_parameters": {
+    "source_crop": [
+      263,
+      7,
+      1472,
+      2489
+    ],
+    "source_factor": 0.4125705076551168,
+    "neck_pivot": [
+      235.9903303787268,
+      211.64867042707493
+    ],
+    "torso_center": [
+      235.9903303787268,
+      368.42546333601933
+    ],
+    "source_original_preserved": true,
+    "not_a_runtime_rig_framework": true
+  }
+}

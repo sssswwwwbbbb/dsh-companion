@@ -1,0 +1,58 @@
+<!-- 冷启动 · 工作台图标集 v1
+     24px 画布 / 1.5px 线宽 / currentColor
+     用法：<svg class="i"><use href="assets/icons.svg#i-send"/></svg>
+     外部引用 use 在部分浏览器受限，生产时建议内联注入 symbol 或打成 sprite。 -->
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor"
+     stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <symbol id="i-plus" viewBox="0 0 24 24">
+    <path d="M12 5v14M5 12h14"/>
+  </symbol>
+  <symbol id="i-search" viewBox="0 0 24 24">
+    <circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 4.5 4.5"/>
+  </symbol>
+  <symbol id="i-panel" viewBox="0 0 24 24">
+    <rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><path d="M9 4.5v15"/>
+  </symbol>
+  <symbol id="i-send" viewBox="0 0 24 24">
+    <path d="M4.5 12 20 5l-4 15-5.5-6L4.5 12Z"/><path d="M10.5 14 20 5"/>
+  </symbol>
+  <symbol id="i-attach" viewBox="0 0 24 24">
+    <path d="M19 11.5 12 18.5a4.2 4.2 0 0 1-6-6l7.5-7.5a2.8 2.8 0 0 1 4 4L10 16.5a1.4 1.4 0 0 1-2-2L15 7.5"/>
+  </symbol>
+  <symbol id="i-model" viewBox="0 0 24 24">
+    <rect x="7" y="7" width="10" height="10" rx="1.5"/>
+    <path d="M10 3.5v3M14 3.5v3M10 17.5v3M14 17.5v3M3.5 10h3M3.5 14h3M17.5 10h3M17.5 14h3"/>
+  </symbol>
+  <symbol id="i-focus" viewBox="0 0 24 24">
+    <path d="M9 4H5.5A1.5 1.5 0 0 0 4 5.5V9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15M15 20h3.5a1.5 1.5 0 0 0 1.5-1.5V15"/>
+  </symbol>
+  <symbol id="i-close" viewBox="0 0 24 24">
+    <path d="m6 6 12 12M18 6 6 18"/>
+  </symbol>
+  <symbol id="i-file" viewBox="0 0 24 24">
+    <path d="M13 3.5H7a1.5 1.5 0 0 0-1.5 1.5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V9L13 3.5Z"/>
+    <path d="M13 3.5V9h5.5"/>
+  </symbol>
+  <symbol id="i-cite" viewBox="0 0 24 24">
+    <path d="M9.5 6.5v11M14.5 6.5v11M6 9.5h4M14 9.5h4M6 14.5h4M14 14.5h4"/>
+  </symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24">
+    <rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><path d="m7.5 9 3 3-3 3M13 15h3.5"/>
+  </symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/>
+  </symbol>
+  <symbol id="i-check" viewBox="0 0 24 24">
+    <path d="m5 12.5 4.5 4.5L19 7.5"/>
+  </symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24">
+    <path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.2"/>
+  </symbol>
+  <symbol id="i-power" viewBox="0 0 24 24">
+    <path d="M12 4v7"/><path d="M7.5 6.6a7 7 0 1 0 9 0"/>
+  </symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24">
+    <path d="M4 7.5h7M15 7.5h5M4 16.5h3M11 16.5h9"/>
+    <circle cx="13" cy="7.5" r="2"/><circle cx="9" cy="16.5" r="2"/>
+  </symbol>
+</svg>

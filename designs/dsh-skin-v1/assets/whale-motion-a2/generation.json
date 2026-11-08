@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-03",
+  "type": "derived-video-matte-cleanup",
+  "tool": "existing imageio-ffmpeg / libvpx-vp9 / libwebp_anim",
+  "newImageGeneration": false,
+  "newDrawnFrames": 0,
+  "source": "../whale-motion-a1/{idle,react}-a1.webm; original imagegen provenance retained there",
+  "method": "alpha<=24 removed; one source-pixel alpha erosion; sigma0.35 alpha feather; color planes/12 frames/timing unchanged",
+  "script": "reports/first-skin/encode-motion-a2.py",
+  "validation": "reports/first-skin/a2-media-validation.json",
+  "colorOrTimingChanged": false,
+  "status": "one A2 media candidate, needs main visual review; not yet runtime content",
+  "files": {
+    "idle-a2.webm": {
+      "bytes": 631561,
+      "sha256": "f764087a1fc87df815a113985a8ffedce33666d9d05ae4c12b9345351a5d21d9"
+    },
+    "idle-a2.webp": {
+      "bytes": 766150,
+      "sha256": "fa3ad7b3cd5835f14e4c2b6a81a63f30046c2358178a869ba3533868174781c4"
+    },
+    "react-a2.webp": {
+      "bytes": 760416,
+      "sha256": "9d3efeec2a937892eb19124e4f8f78d5afe5f561cd7dd7b78a4100fc6f5a6c0b"
+    },
+    "react-a2.webm": {
+      "bytes": 627772,
+      "sha256": "d8b0a67f6e8a1c48e3dce59a440a4d53aaa5938c82e7fdf3fa3e6709c95ed9c4"
+    }
+  },
+  "limits": [
+    "Only alpha edge/noise is addressed; underlying redrawn hair/body variation and low frame cadence remain",
+    "White/dark180px visual comparison must judge whether thinner strands are acceptable",
+    "A1 source and accepted0.5.2 are not overwritten"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "type": "design",
+  "designSystems": [],
+  "primaryDesignSystem": null,
+  "assets": {
+    "本地皮肤库": {
+      "versions": [
+        {
+          "path": "index.html",
+          "createdAt": "2026-11-04T03:13:25.544Z",
+          "status": "needs-review",
+          "subtitle": "单张交互关键稿：入库不自动应用、点卡切换、当前标记、本套参数",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          }
+        }
+      ]
+    }
+  },
+  "createdAt": "2026-11-04T03:13:25.551Z",
+  "updatedAt": "2026-11-04T03:18:05.299Z"
+}

@@ -1,0 +1,138 @@
+diff --git a/dsh-pet/src/client/pet/card/motion.ts b/dsh-pet/src/client/pet/card/motion.ts
+index 9b2d3d9..9c11297 100644
+--- a/dsh-pet/src/client/pet/card/motion.ts
++++ b/dsh-pet/src/client/pet/card/motion.ts
+@@ -130,9 +130,9 @@ export function createCardMotion(rt: CardMotionRuntime) {
+       facing: () => card.facingRef.current,
+       viewport: () => ({ width: window.innerWidth, height: window.innerHeight }),
+       isFlying: () => flightRef.current?.isFlying() ?? false,
+-      play: (name) => {
+-        setOnce(true);
+-        setAnim(name);
++      play: (name, playbackId) => {
++        // 沿用 CardState → OwnAnimation 的首帧/结束/取消回执；同名点播也须重新开始。
++        card.actions.play(name, { once: true, replay: true, cue: playbackId });
+       },
+       setBox: (box) => {
+         boxRef.current = box;
+diff --git a/dsh-pet/src/client/pet/menu-actions.test.ts b/dsh-pet/src/client/pet/menu-actions.test.ts
+index a6cd8d6..55a318b 100644
+--- a/dsh-pet/src/client/pet/menu-actions.test.ts
++++ b/dsh-pet/src/client/pet/menu-actions.test.ts
+@@ -30,7 +30,7 @@ function harness(overrides: Partial<MenuActionDeps> = {}) {
+     animations: () => animations,
+     isFacingRight: () => true,
+     faceLeft: () => calls.push('faceLeft'),
+-    tryMove: () => 'walk1',
++    tryMove: (name, id) => { calls.push(`tryMove:${name}:${id ?? 'null'}`); return 'walk1'; },
+     stopMove: () => calls.push('stopMove'),
+     stopThrow: () => calls.push('stopThrow'),
+     playOnce: (anim, playbackId) => calls.push(`playOnce:${anim}:${playbackId ?? 'null'}`),
+@@ -78,16 +78,16 @@ describe('createMenuActions —— 点播动画', () => {
+     assert.deepEqual(calls, ['stopMove', 'playOnce:idle1:pb-1']);
+   });
+ 
+-  test('移动动画：走位接管，不换视频源；点播如实回 failed/busy', () => {
++  test('移动动画：成功接管时传递播放编号，不提前伪造生命周期回执', () => {
+     const { actions, calls } = harness();
+     actions.run({ label: 'walk1', anim: 'walk1' } as MenuLeaf, 'pb-1');
+-    assert.deepEqual(calls, ['report:pb-1:failed:busy'], '走位在跑，这段点播不可能真的播起来');
++    assert.deepEqual(calls, ['tryMove:walk1:pb-1']);
+   });
+ 
+   test('移动动画 + 自播（无点播编号）：什么都不额外做', () => {
+     const { actions, calls } = harness();
+     actions.run({ label: 'walk1', anim: 'walk1' } as MenuLeaf);
+-    assert.deepEqual(calls, []);
++    assert.deepEqual(calls, ['tryMove:walk1:null']);
+   });
+ 
+   test('移动动画挪不动：退化成纯播放', () => {
+diff --git a/dsh-pet/src/client/pet/menu-actions.ts b/dsh-pet/src/client/pet/menu-actions.ts
+index 5ae7fee..829f9a8 100644
+--- a/dsh-pet/src/client/pet/menu-actions.ts
++++ b/dsh-pet/src/client/pet/menu-actions.ts
+@@ -22,7 +22,7 @@ export interface MenuActionDeps {
+   /** 把朝向改成左，并同步给换源用的事实值。 */
+   faceLeft: () => void;
+   /** 试发起一次走位；`true` = 占用中，`false` = 无法移动，字符串 = 动作名。 */
+-  tryMove: (preferredName?: string) => boolean | string;
++  tryMove: (preferredName?: string, playbackId?: string | null) => boolean | string;
+   /** 停掉走位与位置跟随。 */
+   stopMove: () => void;
+   /** 停掉抛掷飞行。 */
+@@ -185,11 +185,12 @@ export function createMenuActions(deps: MenuActionDeps): MenuActions {
+     // 点播移动动画：走真实位移，仅「选哪个动画」由菜单决定；边界内挪不动时退化为纯播放。
+     const movies = deps.animations().moves.actions;
+     if (movies.some((action) => action.name === leaf.anim)) {
+-      if (deps.tryMove(leaf.anim) === false) {
++      const moved = deps.tryMove(leaf.anim, cuePlaybackId);
++      if (moved === false) {
+         deps.stopMove();
+         deps.playOnce(leaf.anim, cuePlaybackId);
+-      } else if (cuePlaybackId !== null) {
+-        // 移动系统接管，不换视频源，本段点播不会真的播起来，如实回 failed。
++      } else if (moved === true && cuePlaybackId !== null) {
++        // true 表示占用；成功的动作名已将编号交给实际视频生命周期。
+         deps.report(cuePlaybackId, 'failed', 'busy');
+       }
+       return;
+diff --git a/dsh-pet/src/client/pet/motion/walk.test.ts b/dsh-pet/src/client/pet/motion/walk.test.ts
+index 9753bea..fe59276 100644
+--- a/dsh-pet/src/client/pet/motion/walk.test.ts
++++ b/dsh-pet/src/client/pet/motion/walk.test.ts
+@@ -79,6 +79,14 @@ function harness(extra: Partial<WalkDeps> = {}) {
+ }
+ 
+ describe('createWalk —— 规划与占用', () => {
++  test('成功走位将点播编号传入实际播放；忙碌不重复启动', () => {
++    const plays: Array<[string, string | null]> = [];
++    const { walk } = harness({ play: (anim, id) => plays.push([anim, id]) });
++    assert.equal(typeof walk.tryMove('walk1', 'pb-move'), 'string');
++    assert.deepEqual(plays, [['walk1', 'pb-move']]);
++    assert.equal(walk.tryMove('walk1', 'pb-busy'), true);
++    assert.equal(plays.length, 1);
++  });
+   test('没有可用走位动作：tryMove 返回 false，且不占用', () => {
+     const frames = withFakeFrames();
+     try {
+diff --git a/dsh-pet/src/client/pet/motion/walk.ts b/dsh-pet/src/client/pet/motion/walk.ts
+index 5455c3f..be8e442 100644
+--- a/dsh-pet/src/client/pet/motion/walk.ts
++++ b/dsh-pet/src/client/pet/motion/walk.ts
+@@ -38,7 +38,7 @@ export interface WalkDeps {
+   /** 抛掷是否在飞：飞行中不发起新的走位。 */
+   isFlying(): boolean;
+   /** 换成走路动作并播一次。 */
+-  play(anim: string): void;
++  play(anim: string, playbackId: string | null): void;
+   /** 每帧回写包围盒：抛掷起点与宠物互撞都优先读它。 */
+   setBox(box: BoxPoint): void;
+   /** 走位结束提交归一化中心，交给 React 重排。 */
+@@ -52,7 +52,7 @@ export interface Walk {
+   /** 视频就绪后开跑；没有排队的动作时立即返回。 */
+   start(el: HTMLVideoElement): void;
+   /** 尝试发起一次走位：占用中返回 `true`，无法移动返回 `false`，成功返回动作名。 */
+-  tryMove(preferredName?: string): boolean | string;
++  tryMove(preferredName?: string, playbackId?: string | null): boolean | string;
+   /** 停走：作废已排队的动作并取消在跑的帧。 */
+   stop(): void;
+ }
+@@ -113,7 +113,7 @@ export function createWalk(deps: WalkDeps): Walk {
+     frame = requestAnimationFrame(step);
+   };
+ 
+-  const tryMove = (preferredName?: string): boolean | string => {
++  const tryMove = (preferredName?: string, playbackId: string | null = null): boolean | string => {
+     // 占用中返回 true：调用方据此知道宠物没空，不必再挑原地动作。
+     if (frame !== null || pending !== null || deps.isFlying()) return true;
+     const metrics = deps.metrics();
+@@ -130,7 +130,7 @@ export function createWalk(deps: WalkDeps): Walk {
+     });
+     if (action === null) return false;
+     pending = action.pending;
+-    deps.play(action.anim);
++    deps.play(action.anim, playbackId);
+     return action.anim;
+   };
+ 

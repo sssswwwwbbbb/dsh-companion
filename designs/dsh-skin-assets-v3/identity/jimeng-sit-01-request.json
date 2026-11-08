@@ -1,0 +1,32 @@
+{
+  "candidate_id": "jimeng-sit-01",
+  "status": "user-generated-original-received; transparent-candidate-prepared; primary/native acceptance pending",
+  "parent_master": "assets/character/jimeng-flash-master-04-source.png",
+  "parent_sha256": "53609dd32af4f43cac034e4f16ab0106ea48a405284f41068a62665afbb8fc62",
+  "reference_mode": "linked child image node; selected master 04 is the sole character reference",
+  "model": "Seedream 5.0 Flash",
+  "resolution": "2K",
+  "ratio": "2:3",
+  "generate_num": 1,
+  "observed_credit_cost": 3,
+  "submission_by_agent": false,
+  "generation_state": "success confirmed by user and valid original file",
+  "handoff_reason": "用户要求自己操作网页生成并发送原图；停止代理网页操作。",
+  "pose": "自然并膝坐在简洁深蓝软凳上；双手轻放膝上、鞋底触地，保持第四张脸/发色/头饰/白围裙/整套服装与CG画风",
+  "updated_at": "2026-11-04T11:24:35.431713+00:00",
+  "user_source": "素材/图片+1.png",
+  "output": "designs/dsh-skin-assets-v3/assets/character/jimeng-sit-01-source.png",
+  "output_sha256": "6d43e4fea2838fd6db4ff89067a1098e457b59b608d9830ac7dd44bdb5a920b2",
+  "output_size": [
+    1664,
+    2496
+  ],
+  "output_mode": "RGB",
+  "source_brand_mark_preserved": true,
+  "generation_by": "user in official web UI",
+  "alpha_status": "RGBA candidate prepared; foreground and edge samples reviewed on light/dark backgrounds; stool remains embedded",
+  "visual_review": "same face family, hair/headpieces/white apron and costume retained; natural hand placement, knee bend, weighted skirt and grounded shoes; no obvious severe limb defects",
+  "aesthetic_note": "shoe heel appears slightly taller in seated perspective; preserve master shoe shape in later poses; no automatic redesign/regeneration",
+  "prepared_output": "designs/dsh-skin-assets-v3/assets/prepared/sit-01.png",
+  "preparation_review": "designs/dsh-skin-assets-v3/review/material-preparation-review.json"
+}

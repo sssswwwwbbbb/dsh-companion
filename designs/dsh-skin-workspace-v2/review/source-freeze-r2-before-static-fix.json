@@ -1,0 +1,88 @@
+{
+  "date": "2026-11-04",
+  "scope": "UI source/resource freeze; documentation and review status updated separately",
+  "files": [
+    {
+      "path": "designs/dsh-skin-workspace-v2/index.html",
+      "sha256": "cbb6b6733d2f796354bb98794be4913c3f8c7dbaf8cedb41e461325441654a3c",
+      "bytes": 15254
+    },
+    {
+      "path": "designs/dsh-skin-workspace-v2/workspace.css",
+      "sha256": "eb227259dc1e2008759657b07fd490f3a48ac157ca00c9ecabbac95522b3a34a",
+      "bytes": 33082
+    },
+    {
+      "path": "designs/dsh-skin-workspace-v2/tokens.css",
+      "sha256": "eab7e42877969b27934b796c2a690a0702184e00dbf7b1a35b53876f0e72d972",
+      "bytes": 1590
+    },
+    {
+      "path": "designs/dsh-skin-workspace-v2/app.js",
+      "sha256": "2b14d2ba01fc293b882173fcfbb3530d2cf357958dbcf5cd0f1c72d91a44f665",
+      "bytes": 38394
+    },
+    {
+      "path": "designs/dsh-skin-workspace-v2/motion.js",
+      "sha256": "2ada8e8df2ac6e943687891357b544a8e1f740630c1cc77c9154470d7b0f5a4d",
+      "bytes": 6645
+    },
+    {
+      "path": "designs/dsh-skin-workspace-v2/icons.json",
+      "sha256": "fdd7b19a623926a4504238850a61b04be40004913deabfb97f188c0e9701ac00",
+      "bytes": 11408
+    },
+    {
+      "path": "designs/dsh-skin-workspace-v2/icons-manifest.json",
+      "sha256": "0bd5308fe3b7bfc4672532cf44c5f8d3dfc5b60492a13f4454ad1a6ba6894300",
+      "bytes": 35044
+    },
+    {
+      "path": "designs/dsh-skin-workspace-v2/assets/icons.svg",
+      "sha256": "f5db1ebac57b1aa6177024a2e85a6b662dd258b71d6b23139fa8333470f6db77",
+      "bytes": 8678
+    },
+    {
+      "path": "designs/dsh-skin-workspace-v2/assets/export-icons.html",
+      "sha256": "adea41d449d881956e14a34b5ad30b6d844a30262fe15c19eb825b1dc8792acc",
+      "bytes": 2105
+    },
+    {
+      "path": "designs/dsh-skin-workspace-v2/archive-warm-icons-v2.zip",
+      "sha256": "dcb734067b9b33b92a85515de48a35daf299365a4fe425b44a465c039b9ad89d",
+      "bytes": 222510
+    },
+    {
+      "path": "designs/dsh-skin-workspace-v2/performance.js",
+      "sha256": "3a94c63822a35d8422c26637aaf7d71841f372eca981ad3d5d2f4bb38c0ec339",
+      "bytes": 11546
+    },
+    {
+      "path": "designs/dsh-skin-workspace-v2/performance.css",
+      "sha256": "662f486ab4708dff6d365b63ab742e5ad01c012b8d6b810ac6ecde71eaaf0b1b",
+      "bytes": 7369
+    }
+  ],
+  "sharedMedia": [
+    {
+      "path": "designs/dsh-skin-v1/assets/whale-unified-r2/character-atlas-r2.png",
+      "sha256": "81633deff56754df5f2e1c8361ccd00d36e2abdc1b583824f772591bb68ecdbd",
+      "bytes": 1554309,
+      "referenceOnly": true
+    },
+    {
+      "path": "designs/dsh-skin-v1/assets/whale-motion-a2/idle-a2.webm",
+      "sha256": "f764087a1fc87df815a113985a8ffedce33666d9d05ae4c12b9345351a5d21d9",
+      "bytes": 631561,
+      "referenceOnly": true
+    },
+    {
+      "path": "designs/dsh-skin-v1/assets/whale-motion-a2/react-a2.webm",
+      "sha256": "d8b0a67f6e8a1c48e3dce59a440a4d53aaa5938c82e7fdf3fa3e6709c95ed9c4",
+      "bytes": 627772,
+      "referenceOnly": true
+    }
+  ],
+  "capturedFor": "R2 visible authored performance; old quiet snapshot retained under review/r1-quiet",
+  "frozenAt": "2026-11-04T07:43:00.014012+00:00"
+}

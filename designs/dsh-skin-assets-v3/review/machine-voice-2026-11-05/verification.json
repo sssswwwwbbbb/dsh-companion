@@ -1,0 +1,22 @@
+{
+  "files": [
+    {
+      "file": "machine-report.wav",
+      "bytes": 677478,
+      "sha256": "7209675981f1f940f8779f5d87881bc0cbdd6ac969c23d577949f6b380c4495c",
+      "full_decode_exit": 0,
+      "input_lufs": "-17.00",
+      "input_true_peak_dbtp": "-6.96"
+    },
+    {
+      "file": "sound-scene-candidate.wav",
+      "bytes": 2880102,
+      "sha256": "1fb11a56de837bf5e0a368aff8a4104f3f0e1ac2707db17291bd8000d4a095c9",
+      "full_decode_exit": 0,
+      "input_lufs": "-17.00",
+      "input_true_peak_dbtp": "-3.76"
+    }
+  ],
+  "ear_review_completed": false,
+  "scope": "full decode and loudness; voice expression and reference similarity require listening"
+}

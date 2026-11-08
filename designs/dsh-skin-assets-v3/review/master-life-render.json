@@ -1,0 +1,70 @@
+{
+  "motions": [
+    {
+      "id": "idle-breathe",
+      "file": "designs/dsh-skin-assets-v3/assets/motion/idle-breathe.webm",
+      "source": "designs/dsh-skin-assets-v3/assets/prepared/master-04.png",
+      "source_sha256": "3f731127d27c1109e4d965f4e193ec3c7bc1cce5b1782a65b90f807b85253766",
+      "size": [
+        499,
+        1024
+      ],
+      "fps": 24,
+      "frames": 60,
+      "duration_seconds": 2.5,
+      "loop": true,
+      "bytes": 592045,
+      "sha256": "4c6ee078da5bbcc73581a705e2b1a758d56bce7111c7d629b334e9fb59c3cb98",
+      "method": "bounded local image-space deformation; chest/shoulder breath, hair sway, neck-centered head attitude",
+      "feet_unchanged": true,
+      "decoded_alpha_extrema": [
+        0,
+        255
+      ],
+      "visual_review": "sampled frame sequences reviewed; continuous playback/native DSH acceptance pending",
+      "native_dsh_tested": false,
+      "does_not_claim": [
+        "blink",
+        "wave",
+        "walk cycle",
+        "run cycle",
+        "new skeletal pose"
+      ]
+    },
+    {
+      "id": "react-tilt",
+      "file": "designs/dsh-skin-assets-v3/assets/motion/react-tilt.webm",
+      "source": "designs/dsh-skin-assets-v3/assets/prepared/master-04.png",
+      "source_sha256": "3f731127d27c1109e4d965f4e193ec3c7bc1cce5b1782a65b90f807b85253766",
+      "size": [
+        499,
+        1024
+      ],
+      "fps": 24,
+      "frames": 36,
+      "duration_seconds": 1.5,
+      "loop": false,
+      "bytes": 414575,
+      "sha256": "0a27d0c79608cd40b6a8c91f5bb08c688ed3f5a9751166fee27110f2169af184",
+      "method": "bounded local image-space deformation; chest/shoulder breath, hair sway, neck-centered head attitude",
+      "feet_unchanged": true,
+      "decoded_alpha_extrema": [
+        0,
+        255
+      ],
+      "visual_review": "sampled frame sequences reviewed; continuous playback/native DSH acceptance pending",
+      "native_dsh_tested": false,
+      "does_not_claim": [
+        "blink",
+        "wave",
+        "walk cycle",
+        "run cycle",
+        "new skeletal pose"
+      ],
+      "source_first_last_rgba_identical": true,
+      "endpoint_equality_basis": "uncompressed generated source RGBA before lossy VP9 encoding",
+      "decoded_endpoint_identity_claimed": false
+    }
+  ],
+  "stationary_motion_only": true
+}

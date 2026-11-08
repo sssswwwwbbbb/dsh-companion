@@ -1,0 +1,44 @@
+{
+  "text": "外型程序啟动",
+  "segments": [
+    {
+      "id": 0,
+      "seek": 0,
+      "start": 0.0,
+      "end": 1.28,
+      "text": "外型程序",
+      "tokens": [
+        50364,
+        12022,
+        39823,
+        29649,
+        6346,
+        237,
+        50428
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.5581386272723858,
+      "compression_ratio": 0.6666666666666666,
+      "no_speech_prob": 0.17668648064136505
+    },
+    {
+      "id": 1,
+      "seek": 0,
+      "start": 1.6,
+      "end": 2.48,
+      "text": "啟动",
+      "tokens": [
+        50444,
+        3284,
+        253,
+        34961,
+        50488
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.5581386272723858,
+      "compression_ratio": 0.6666666666666666,
+      "no_speech_prob": 0.17668648064136505
+    }
+  ],
+  "language": "zh"
+}

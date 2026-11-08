@@ -1,0 +1,44 @@
+{
+  "text": "只灰关我已救位",
+  "segments": [
+    {
+      "id": 0,
+      "seek": 0,
+      "start": 0.0,
+      "end": 2.0,
+      "text": "只灰关",
+      "tokens": [
+        50364,
+        14003,
+        13290,
+        108,
+        28053,
+        50464
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.8644281534048227,
+      "compression_ratio": 0.65625,
+      "no_speech_prob": 0.26605361700057983
+    },
+    {
+      "id": 1,
+      "seek": 0,
+      "start": 2.0,
+      "end": 4.0,
+      "text": "我已救位",
+      "tokens": [
+        50464,
+        1654,
+        15701,
+        39716,
+        11160,
+        50564
+      ],
+      "temperature": 0,
+      "avg_logprob": -0.8644281534048227,
+      "compression_ratio": 0.65625,
+      "no_speech_prob": 0.26605361700057983
+    }
+  ],
+  "language": "zh"
+}

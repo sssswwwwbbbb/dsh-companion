@@ -1,0 +1,100 @@
+{
+  "status": "design-plan-only; authored transition frames and native fitting pending",
+  "product_platform": "desktop",
+  "runtime_contract": false,
+  "target_runtime": "foundation-owned dsh-pet 0.4.1 adapter",
+  "root_motion_owner": "desktop host, exactly once",
+  "units": "H = common authored character height, not per-frame alpha bounding-box height",
+  "coupling": {
+    "cycle_distance_H": "profile.stride",
+    "cycle_duration_seconds": "profile.period",
+    "nominal_speed_H_per_second": "profile.stride / profile.period",
+    "rate_change": "scale cycle progression and desktop displacement together; never speed up only the window",
+    "contact_frame": "world foot anchor = root position + local sole point; locked for the stance interval",
+    "ground": "author common floor and left/right sole/heel/toe anchors; never recalculate ground from loose hair or crop bottom"
+  },
+  "transitions": [
+    {
+      "id": "idle-to-walk",
+      "suggested_seconds": [0.18, 0.28],
+      "required_art": ["weight shift onto support foot", "free-foot first step", "first gait contact"],
+      "rule": "Start displacement with the free leg's first step; retain support foot world position until lift.",
+      "provided": false
+    },
+    {
+      "id": "walk-to-idle",
+      "suggested_seconds": [0.18, 0.32],
+      "entry_phase": "next near or far contact, keep lead-foot parity",
+      "required_art": ["finish current step", "collect free foot", "settled standing silhouette"],
+      "rule": "Finish weight transfer, then collect the trailing foot; settle hair/apron after body stops.",
+      "provided": false
+    },
+    {
+      "id": "walk-to-run",
+      "suggested_seconds": [0.16, 0.24],
+      "entry_phase": "same leading-foot contact in both gaits",
+      "required_art": ["slight forward anticipation", "shortened support", "first run push and flight"],
+      "rule": "Match shared height, camera and planted sole before the first flight phase. Do not dissolve two faces over each other.",
+      "provided": false
+    },
+    {
+      "id": "run-to-walk",
+      "suggested_seconds": [0.20, 0.32],
+      "entry_phase": "next run landing",
+      "required_art": ["landing compression", "reduced arm swing", "walking double support"],
+      "rule": "Reduce cadence and displacement together after landing; keep the landing sole anchored.",
+      "provided": false
+    },
+    {
+      "id": "turn-left-to-right",
+      "suggested_seconds": [0.28, 0.44],
+      "entry_phase": "planted double support or authored brake pose",
+      "required_art": ["brake/plant", "body and head turn", "opposite-view settle", "opposite-view first step"],
+      "rule": "Turn around an established support foot. Preserve the anatomical side of asymmetric headpieces; simple mirroring remains unreviewed.",
+      "provided": false
+    },
+    {
+      "id": "movement-interruption",
+      "priority": "stop/disable/drag/work interruption overrides choreography",
+      "rule": "For a hard interruption, cancel movement immediately and let the existing runtime own cleanup. For a normal authored stop, finish the nearest safe contact transition. Do not delay disable or authorization changes for an animation.",
+      "provided": false
+    }
+  ],
+  "secondary_motion": {
+    "head": "stable identity and gaze; small translation/rotation follows weight transfer",
+    "hair": "root follows skull; ends lag body by a few authored frames, never move feet or define floor",
+    "apron_and_skirt": "small speed-dependent lag and compression; hem stays a consistent construction and coverage",
+    "theme": "quiet cloth/hair weight; no default neon trails, speed-line overlays or unrelated magic"
+  },
+  "props": {
+    "default_visible": false,
+    "book_and_cup": "source props ready; matching authored take/use/put-away poses not provided; do not use as permanent floor decoration",
+    "lifecycle": "Appear when the authored hand reaches and grips the prop; stay attached with correct foreground/background occlusion during use; leave with the authored put-away motion. Cancel/disable/skin change clears the whole action and its props.",
+    "read_book": {
+      "status": "action art missing; not a ready autonomous/model capability",
+      "source_prop": "book",
+      "required_art": ["matching open book", "same-character seated or standing two-hand support/grip", "eyes/head directed to pages", "close/put-away transition"],
+      "usage": "Book is supported by hands/lap, with fingers correctly covering its edge; torso and gaze follow reading. It does not float beside the legs."
+    },
+    "drink_tea": {
+      "status": "action art missing; not a ready autonomous/model capability",
+      "source_prop": "cup",
+      "required_art": ["closed handle grip", "forearm lifts the cup", "cup lip meets mouth with correct overlap", "lower and put-away transition"],
+      "usage": "Cup scale matches the hand and face; grip and liquid/cup orientation remain plausible. Tea cup is absent from unrelated idle, response and movement."
+    },
+    "availability": "An independent prop image does not make a use action available. Existing local/model selectors should offer read/drink only after matching action art is ready; this file is design guidance, not a new runtime configuration contract.",
+    "moving_with_prop": "requires authored grip and corresponding reduced arm swing; no cup glued to the current open hand",
+    "run_with_hot_cup": "not a proposed autonomous default",
+    "stool": "embedded in current sit image; no claim of independent stool placement",
+    "climb_guide": "retain current support guide and contact estimates; no new climbing physics platform"
+  },
+  "final_art_acceptance": [
+    "same fourth-master face/hair/headpieces, white apron, navy dress, socks and laced low heels in every frame",
+    "both halves of the step cycle authored; mirroring one pose does not produce the opposite step",
+    "stable camera and body proportions; shared canvas floor with per-foot contact metadata",
+    "no world-space drift during support; walk always has support, run has intentional flight",
+    "no frame-edge crop, added limb, shoe morph, cloth penetration or opacity flicker",
+    "loop endpoint pose and velocity continuity; no duplicate final-frame hold",
+    "native contact and hit geometry at multiple sizes and aspect ratios reviewed separately"
+  ]
+}

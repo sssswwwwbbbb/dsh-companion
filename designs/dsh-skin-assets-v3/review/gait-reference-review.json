@@ -1,0 +1,88 @@
+{
+  "status": "geometric-reference-author-checks-passed; character/native acceptance pending",
+  "created_at": "2026-11-04T11:32:15.317017+00:00",
+  "profiles": [
+    {
+      "id": "walk-slow",
+      "samples": 2401,
+      "cycles": 2,
+      "max_stance_world_drift_H": 1.1102230246251565e-16,
+      "max_leg_length_error_H": 8.326672684688674e-17,
+      "loop_endpoint_error_H": 0.0,
+      "min_support_feet": 1,
+      "flight_fraction": 0.0,
+      "double_support_fraction": 0.36151603498542273
+    },
+    {
+      "id": "walk-normal",
+      "samples": 2401,
+      "cycles": 2,
+      "max_stance_world_drift_H": 1.1102230246251565e-16,
+      "max_leg_length_error_H": 8.326672684688674e-17,
+      "loop_endpoint_error_H": 0.0,
+      "min_support_feet": 1,
+      "flight_fraction": 0.0,
+      "double_support_fraction": 0.24031653477717618
+    },
+    {
+      "id": "walk-brisk",
+      "samples": 2401,
+      "cycles": 2,
+      "max_stance_world_drift_H": 1.1102230246251565e-16,
+      "max_leg_length_error_H": 8.326672684688674e-17,
+      "loop_endpoint_error_H": 0.0,
+      "min_support_feet": 1,
+      "flight_fraction": 0.0,
+      "double_support_fraction": 0.16034985422740525
+    },
+    {
+      "id": "run-jog",
+      "samples": 2401,
+      "cycles": 2,
+      "max_stance_world_drift_H": 2.220446049250313e-16,
+      "max_leg_length_error_H": 8.326672684688674e-17,
+      "loop_endpoint_error_H": 0.0,
+      "min_support_feet": 0,
+      "flight_fraction": 0.19866722199083714,
+      "double_support_fraction": 0.0
+    },
+    {
+      "id": "run-quick",
+      "samples": 2401,
+      "cycles": 2,
+      "max_stance_world_drift_H": 1.1102230246251565e-16,
+      "max_leg_length_error_H": 8.326672684688674e-17,
+      "loop_endpoint_error_H": 0.0,
+      "min_support_feet": 0,
+      "flight_fraction": 0.27946688879633486,
+      "double_support_fraction": 0.0
+    }
+  ],
+  "outputs": [
+    {
+      "file": "designs/dsh-skin-assets-v3/review/gait-keyframes-walk.png",
+      "sha256": "36c42852626b130f61020ce4c675d38dc41b1dee804f3f5f99649a9165c0aad9"
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/review/gait-keyframes-run.png",
+      "sha256": "60e9e876e58a1f2ac0954536a4540951eabddcd2327903ec060175cd87afc8bc"
+    },
+    {
+      "file": "designs/dsh-skin-assets-v3/review/gait-pace-reference.mp4",
+      "sha256": "35576dd011f2c3e5f61847ce0f541d48115e1f002b77af66bc2db0b4269c9dde"
+    }
+  ],
+  "checks_scope": "analytic geometry only; not selected-character skeleton fitting or rendered pet acceptance",
+  "unchanged": [
+    "selected character pixels",
+    "raw user originals",
+    "R2 sources",
+    "installed runtime"
+  ],
+  "limitations": [
+    "abstract side-view joints, not a registered CG character rig",
+    "no toe/heel roll, cloth, depth occlusion or facial animation in this diagram",
+    "source art lacks complete alternate-step keyframes and start/stop poses",
+    "entry/exit/turn plans need actual art frames before final animation"
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "scope": "Sole material fix from independent-review-r2.md",
+  "method": "Unchanged 1254x1254 atlas: square 2x2 cell, uniform scaling and centering",
+  "checks": {
+    "navigationFallback": {
+      "fallbackVisible": true,
+      "idleHidden": true,
+      "image": [
+        78,
+        78
+      ],
+      "imageRect": {
+        "bottom": 778,
+        "height": 78,
+        "left": 12,
+        "right": 90,
+        "top": 700,
+        "width": 78,
+        "x": 12,
+        "y": 700
+      },
+      "natural": [
+        1254,
+        1254
+      ],
+      "slot": [
+        39,
+        53
+      ],
+      "slotRect": {
+        "bottom": 746,
+        "height": 53,
+        "left": 12,
+        "right": 51,
+        "top": 693,
+        "width": 39,
+        "x": 12,
+        "y": 693
+      }
+    },
+    "navigationCollapsed": {
+      "fallbackVisible": true,
+      "image": [
+        66,
+        66
+      ],
+      "imageRect": {
+        "bottom": 776.5,
+        "height": 66,
+        "left": 15,
+        "right": 81,
+        "top": 710.5,
+        "width": 66,
+        "x": 15,
+        "y": 710.5
+      },
+      "slot": [
+        33,
+        46
+      ],
+      "slotRect": {
+        "bottom": 750,
+        "height": 46,
+        "left": 15,
+        "right": 48,
+        "top": 704,
+        "width": 33,
+        "x": 15,
+        "y": 704
+      }
+    },
+    "reduced": {
+      "allMediaPaused": true,
+      "attachment": true,
+      "draft": "演出中继续补充；原问题仍需我确认。",
+      "image": [
+        464,
+        464
+      ],
+      "pending": true,
+      "staticCell": [
+        232,
+        232
+      ],
+      "staticScene": true
+    },
+    "roleEchoOff": {
+      "cell": [
+        232,
+        232
+      ],
+      "draft": "演出中继续补充；原问题仍需我确认。",
+      "image": [
+        464,
+        464
+      ],
+      "pending": true,
+      "staticVisible": true,
+      "videoPaused": true,
+      "videoReady": 4
+    },
+    "mediaProbeRestored": {
+      "blockedURLs": [],
+      "cacheDisabled": false,
+      "note": "Temporary local WebM media blocking exercised the actual fallback; cleared before normal recaptures"
+    },
+    "finalRestored": {
+      "idleError": null,
+      "idleReady": 4,
+      "overflow": false,
+      "stageHidden": true,
+      "theme": "light",
+      "viewport": [
+        1218,
+        760
+      ]
+    },
+    "consoleAfterProbes": []
+  }
+}

@@ -1,0 +1,140 @@
+--- a/runtime-src/main.mjs
++++ b/runtime-src/main.mjs
+@@ -16,7 +16,7 @@
+ import { profileGate } from './integration.mjs';
+ import { hostWindowBounds, introBounds } from './host-window.mjs';
+ import { WholePetBackend } from './backend.mjs';
+-import { coldOpeningAllowed, openingWorkspaceReady } from './compatibility.mjs';
++import { attachedLauncherAction, coldOpeningAllowed, currentHostWindow, openingWorkspaceReady } from './compatibility.mjs';
+ import { stopRequests } from './skin-core/src/state.mjs';
+ 
+ const version=JSON.parse(readFileSync(new URL('./package.json',import.meta.url),'utf8')).version,root=dirname(fileURLToPath(import.meta.url));
+@@ -45,7 +45,7 @@
+ let coldIntroPending=cinematicCold&&(!coldState.pending||sameContentRestore)&&coldOpeningAllowed({
+  requested:coldRequested,explicitLauncher,settings,state:coldState,hasStops:stopRequests(stateDir).length>0,
+ });
+-let coldAutoStarted=false;
++let coldAutoStarted=false,attachedLauncher=false;
+ const startup=new NativeStartupRuntime({stateDir,dshVersion:integration.dshVersion,onCancel:reason=>{if(activeIntro?.custom)cancelIntro(reason);}});
+ const usesWorker=()=>backend?.supports(skin.contentKey)===true;
+ const desktopReady=()=>usesWorker()?backend.status().ready:ready;
+@@ -79,17 +79,24 @@
+ else{
+   app.on('second-instance',(_event,_args,_directory,data)=>{
+     if(data?.mode==='launcher'){
+-      if(!settings.launcherEnabled||!profileGate(integration.profileDir||'').enabled){openDsh(false);return;}
+       const state=readJson(join(stateDir,'skin-state.json'),{});
+-      if(state.selected?.manifest.modules.startup?.config?.handoffSeconds||startup.descriptor?.handoffSeconds){
+-        bringDsh();
+-        if(!introPlaying&&!introReturning&&!coldIntroPending&&!state.pending&&
+-           coldOpeningAllowed({requested:true,explicitLauncher:true,settings,state,hasStops:stopRequests(stateDir).length>0})){
++      const cinematic=state.selected?.manifest.modules.startup?.config?.handoffSeconds||startup.descriptor?.handoffSeconds;
++      const busy=introPlaying||introReturning||coldIntroPending;
++      const launcherAllowed=settings.launcherEnabled&&profileGate(integration.profileDir||'').enabled;
++      if(cinematic){
++        const hostWindow=readJson(join(stateDir,'host-window.json'),null);
++        const eligible=launcherAllowed&&!state.pending&&coldOpeningAllowed({requested:true,explicitLauncher:true,settings,state,hasStops:stopRequests(stateDir).length>0});
++        const action=attachedLauncherAction({busy,eligible,hostWindow,ownerPid});
++        if(action==='ignore')return;
++        if(!launcherAllowed){openDsh(false);return;}
++        bringDsh();
++        if(action==='queue'){
+           coldKey=state.selected.contentKey;coldRequested=true;explicitLauncher=true;
+-          coldRequestedAt=Date.now();coldIntroPending=true;coldAutoStarted=false;
++          coldRequestedAt=Date.now();coldIntroPending=true;coldAutoStarted=false;attachedLauncher=true;
+         }
+         return;
+       }
++      if(!launcherAllowed){openDsh(false);return;}
+       if(settings.startupEnabled&&introAvailable())void showIntro().catch(()=>openDsh(false));else openDsh(false);
+     }else if(desktopReady()&&showPet())void releaseOpeningPet().catch(()=>{});
+   });
+@@ -167,14 +174,19 @@
+   else if(ready&&wantsPet)window?.showInactive();
+   updateMenu();
+ }
+-function clearColdOpening(){coldIntroPending=false;}
++function clearColdOpening(){coldIntroPending=false;attachedLauncher=false;}
+ async function maybeColdOpening(workspace){
+  if(!coldIntroPending||!backend)return;
+  const state=readJson(join(stateDir,'skin-state.json'),{});
+  if(!coldOpeningAllowed({requested:true,explicitLauncher,settings,state,hasStops:stopRequests(stateDir).length>0})||state.selected?.contentKey!==coldKey||state.pending&&state.pending.contentKey!==coldKey){clearColdOpening();await releaseOpeningPet();return;}
+- if(!startup.canPlay()||startup.descriptor.contentKey!==coldKey)return;
+  const hostWindow=readJson(join(stateDir,'host-window.json'),null);
++ if(attachedLauncher&&(Date.now()-coldRequestedAt>=5000||
++    currentHostWindow(hostWindow,ownerPid,coldRequestedAt)&&hostWindow.workspaceVisible!==true)){
++  clearColdOpening();await releaseOpeningPet();return;
++ }
++ if(!startup.canPlay()||startup.descriptor.contentKey!==coldKey)return;
+  if(!openingWorkspaceReady({workspace,state,contentKey:coldKey,ownerPid,hostWindow,requestedAt:coldRequestedAt})||
++    attachedLauncher&&hostWindow.workspaceVisible!==true||
+     !hostWindowBounds(hostWindow.bounds)||!startup.canPlay(workspace))return;
+  event('cold-workspace-ready',{generation:workspace.generation,contentKey:workspace.contentKey,boundsReady:true});
+  clearColdOpening();coldAutoStarted=true;event('cold-intro-request',{contentKey:coldKey,generation:startup.generation,workspaceCommitted:true,explicitLauncher});
+--- a/runtime-src/compatibility.mjs
++++ b/runtime-src/compatibility.mjs
+@@ -6,8 +6,16 @@
+ }
+ export function openingWorkspaceReady({workspace,state,contentKey,ownerPid,hostWindow,requestedAt,now=Date.now()}){
+  return !!workspace&&!state.pending&&workspace.contentKey===contentKey&&workspace.generation===state.generation&&
+-  ownerPid>0&&hostWindow?.ownerPid===ownerPid&&hostWindow.updatedAt>=requestedAt&&now-hostWindow.updatedAt<5000;
++  currentHostWindow(hostWindow,ownerPid,requestedAt,now);
+ }
++export function currentHostWindow(hostWindow,ownerPid,requestedAt=0,now=Date.now()){
++ return ownerPid>0&&hostWindow?.ownerPid===ownerPid&&hostWindow.updatedAt>=requestedAt&&
++  hostWindow.updatedAt<=now&&now-hostWindow.updatedAt<5000;
++}
++export function attachedLauncherAction({busy,eligible,hostWindow,ownerPid,now}){
++ if(busy)return 'ignore';
++ return eligible&&currentHostWindow(hostWindow,ownerPid,0,now)&&hostWindow.workspaceVisible===true?'queue':'focus';
++}
+ export function backendReadiness({registered,alive,suspended,held,snapshot}){
+  if(!registered||!alive)return false;
+  if(suspended)return true; // Explicit startup suspension is owned by Host.
+--- a/packages/dsh-companion/src/client.template.js
++++ b/packages/dsh-companion/src/client.template.js
+@@ -23,13 +23,20 @@
+           let lastWindow='',lastWindowSync=0,syncingWindow;
+           async function syncWindow(){
+             if(syncingWindow)await syncingWindow;
+-            const bounds={x:window.screenX,y:window.screenY,width:window.outerWidth,height:window.outerHeight};
++            const bounds={x:window.screenX,y:window.screenY,width:window.outerWidth,height:window.outerHeight,
++              workspaceVisible:ctx.layout.panelInfo.getSnapshot().activePanelId===null};
+             if(bounds.width<320||bounds.height<240||document.visibilityState==='hidden')return;
+             const key=JSON.stringify(bounds);if(key===lastWindow&&Date.now()-lastWindowSync<2500)return;
+             syncingWindow=call('syncHostWindow',bounds).then(()=>{lastWindow=key;lastWindowSync=Date.now();}).finally(()=>{syncingWindow=undefined;});
+             await syncingWindow;
+           }
+-          ctx.effect(()=>{const sync=()=>void syncWindow().catch(()=>{});sync();window.addEventListener('resize',sync);const timer=setInterval(sync,750);return()=>{window.removeEventListener('resize',sync);clearInterval(timer);};});
++          ctx.effect(()=>{
++            const sync=()=>void syncWindow().catch(()=>{});
++            const offPanel=ctx.layout.panelInfo.subscribe(sync);
++            sync();window.addEventListener('resize',sync);document.addEventListener('visibilitychange',sync);
++            const timer=setInterval(sync,750);
++            return()=>{offPanel();window.removeEventListener('resize',sync);document.removeEventListener('visibilitychange',sync);clearInterval(timer);};
++          });
+           function download(filename,text){const url=URL.createObjectURL(new Blob([text],{type:'application/json;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=filename;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+           function Page(){
+             const [state,setState]=React.useState(null),[tab,setTab]=React.useState('library'),[skinView,setSkinView]=React.useState('common'),[busy,setBusy]=React.useState(false),[stopping,setStopping]=React.useState(false),[error,setError]=React.useState(''),[notice,setNotice]=React.useState(''),[code,setCode]=React.useState(''),[confirmUnbind,setConfirmUnbind]=React.useState(false),[petText,setPetText]=React.useState(''),[petReply,setPetReply]=React.useState(null),[modelDirectory,setModelDirectory]=React.useState({current:null,models:[]}),[selection,setSelection]=React.useState(null);
+--- a/packages/dsh-companion/src/controller.mjs
++++ b/packages/dsh-companion/src/controller.mjs
+@@ -125,7 +125,7 @@
+   async replayIntro(){this.entitlement.require();if(!(await this.nativeStatus()).running)await this.start();await this.request('/intro/replay',{});return this.status();}
+   async syncHostWindow(value){
+     const bounds=hostWindowBounds(value);if(!bounds)throw new Error('HOST_WINDOW_INVALID');
+-    writeJson(join(this.stateDir,'host-window.json'),{format:1,bounds,ownerPid:process.pid,updatedAt:Date.now()});
++    writeJson(join(this.stateDir,'host-window.json'),{format:1,bounds,ownerPid:process.pid,updatedAt:Date.now(),workspaceVisible:value.workspaceVisible===true});
+     if(this.credentials()&&this.entitlement.status().active)await this.request('/host-window',{bounds}).catch(()=>{});
+     return {saved:true};
+   }
+--- a/packages/dsh-companion/README.md
++++ b/packages/dsh-companion/README.md
+@@ -2,7 +2,7 @@
+ 
+ ## 当前本地评审候选
+ 
+-2026-11-05。本地安装候选 0.1.0-dev.22 内置「冷启动 / 0.4.0」与「档案暖白 · 鲸鱼娘 / 0.7.1」。启用插件并完成统一授权后，可在「陪伴 → 皮肤」选择。已有选择和各套偏好由原 profile 保留。
++2026-11-05。本地安装候选 0.1.0-dev.23 内置「冷启动 / 0.4.0」与「档案暖白 · 鲸鱼娘 / 0.7.1」。启用插件并完成统一授权后，可在「陪伴 → 皮肤」选择。已有选择和各套偏好由原 profile 保留。
+ 
+ 整套皮肤使用主题、桌宠和开场三个模块及8项公开参数。开场区域的「预览开场」与「启动时自动播放」复用已有动作/同一偏好；「启用本套开场内容」是单独的模块启停。停止后从「恢复本套皮肤」恢复，保留已调整参数和模块关闭选择。已选整套时，旧配置选择/控制由皮肤设置入口替代；未选整套的旧流程保留。
+ 

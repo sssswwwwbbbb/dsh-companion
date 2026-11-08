@@ -1,0 +1,120 @@
+--- a/packages/dsh-companion/package.json
++++ b/packages/dsh-companion/package.json
+@@ -4,12 +4,12 @@
+   "description": "DSH 陪伴：激活授权、配置包、启动动画与 Mac 桌宠完整流程验证版",
+   "type": "module",
+   "engines": {
+-    "dsh": "0.2.1-rc.5"
++    "dsh": "0.2.1-rc.5 || 0.2.2-rc.1"
+   },
+   "peerDependencies": {
+     "@deepseek-ai/dsh-typert-protocol": "*",
+-    "@deepseek-ai/dsh-llm": "0.2.1-rc.5",
+-    "@deepseek-ai/dsh-http-proxy": "0.2.1-rc.5"
++    "@deepseek-ai/dsh-llm": "0.2.1-rc.5 || 0.2.2-rc.1",
++    "@deepseek-ai/dsh-http-proxy": "0.2.1-rc.5 || 0.2.2-rc.1"
+   },
+   "dependencies": {
+     "undici": "8.11.2",
+--- a/packages/dsh-companion/config/service.json
++++ b/packages/dsh-companion/config/service.json
+@@ -5,7 +5,8 @@
+   "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAEEtg3ygnBE//tDx37S/Cf98V1l8ZeQT4rZMjCfU3MUg=\n-----END PUBLIC KEY-----\n",
+   "channel": "private",
+   "supportedDsh": [
+-    "0.2.1-rc.5"
++    "0.2.1-rc.5",
++    "0.2.2-rc.1"
+   ],
+   "mode": "private-cloud"
+ }
+--- /dev/null
++++ b/packages/dsh-skin-core/src/host-compatibility.mjs
+@@ -0,0 +1,11 @@
++// These immutable built-ins were validated against both DSH releases. Keep
++// their content keys stable so existing selections and native routing survive.
++const builtInSkins = new Set([
++  '3f86c237a24259a617753802eb22d16bd5e47f7e0657961780fa80fdab583c16',
++  '4b643de142bb2770340cd56d7c2acd5bced3b09a69ddbf27cd3025d29639620b',
++]);
++
++export function supportsSkinHost(manifest, contentKey, dshVersion) {
++  return manifest.dshVersions.includes(dshVersion) ||
++    dshVersion === '0.2.2-rc.1' && builtInSkins.has(contentKey);
++}
+--- a/packages/dsh-skin-core/src/coordinator.mjs
++++ b/packages/dsh-skin-core/src/coordinator.mjs
+@@ -1,3 +1,4 @@
++import {supportsSkinHost} from './host-compatibility.mjs';
+ import {randomUUID} from 'node:crypto';
+ import {clone,fail,definitions,resolveSettings} from './schema.mjs';
+ import {prepareResources} from './resources.mjs';
+@@ -34,7 +35,7 @@
+       this.phase='preparing';
+       try{
+         context.assertCurrent();
+-        if(!skin.manifest.dshVersions.includes(this.dshVersion))fail('SKIN_HOST_UNSUPPORTED');
++        if(!supportsSkinHost(skin.manifest,skin.contentKey,this.dshVersion))fail('SKIN_HOST_UNSUPPORTED');
+         const config=resolveSettings(skin.manifest,candidate,this.available()),resources=prepareResources(skin),prepared={};
+         for(const [key,value] of Object.entries(config))if(value.status==='enabled'){
+           try{prepared[key]=await bounded(Promise.resolve(this.adapters[key].prepare({...context,config:value.values,resources})),this.timeout);}
+--- a/runtime-src/startup-skin.mjs
++++ b/runtime-src/startup-skin.mjs
+@@ -1,3 +1,4 @@
++import {supportsSkinHost} from './skin-core/src/host-compatibility.mjs';
+ import fs from 'node:fs';
+ import path from 'node:path';
+ import {validateManifest,resolveSettings,fail} from './skin-core/src/schema.mjs';
+@@ -40,7 +41,7 @@
+   register(operation){
+     const manifest=validateManifest(operation.manifest),contentKey=operation.contentKey;
+     if(!/^[a-f0-9]{64}$/.test(contentKey||'')||digest(JSON.stringify(manifest))!==contentKey)fail('SKIN_CONTENT_CHANGED');
+-    if(!manifest.dshVersions.includes(this.dshVersion))fail('SKIN_HOST_UNSUPPORTED');
++    if(!supportsSkinHost(manifest,contentKey,this.dshVersion))fail('SKIN_HOST_UNSUPPORTED');
+     if(!manifest.modules.startup)fail('SKIN_CONFIG_MISSING','startup');
+     const effective=structuredClone(manifest);effective.modules.startup.config=operation.config;effective.modules.startup.settings={};validateManifest(effective);
+     const resolved=resolveSettings(effective,{},{startup:true},{strictRequired:false}).startup;
+--- a/packages/dsh-companion/src/desktop-opening.mjs
++++ b/packages/dsh-companion/src/desktop-opening.mjs
+@@ -1,3 +1,4 @@
++import {supportsSkinHost} from '../skin-core/src/host-compatibility.mjs';
+ import fs from 'node:fs';
+ import path from 'node:path';
+ import {execFileSync} from 'node:child_process';
+@@ -9,7 +10,7 @@
+ 
+ function desktopLaunchId(controller) {
+   // The official Mac Desktop shell forks this Host and sets DSH_CLIENT_VERSION.
+-  if(process.platform!=='darwin'||process.arch!=='arm64'||controller.dshVersion!=='0.2.1-rc.5'||
++  if(process.platform!=='darwin'||process.arch!=='arm64'||!['0.2.1-rc.5','0.2.2-rc.1'].includes(controller.dshVersion)||
+      !process.connected||!process.env.DSH_CLIENT_VERSION||path.basename(controller.profileDir)!=='desktop')return null;
+   const pid=process.ppid;
+   const born=execFileSync('/bin/ps',['-p',String(pid),'-o','lstart='],{encoding:'utf8',timeout:400}).trim();
+@@ -22,6 +23,7 @@
+   if(!controller.settings().startupEnabled||!controller.entitlement.status().active||state.stopped||state.pending||
+      state.disabled.startup||store.hasStops()||state.results.startup?.status!=='ready'||
+      !snapshot?.manifest.modules.startup?.config.handoffSeconds)return null;
++  if(!supportsSkinHost(snapshot.manifest,snapshot.contentKey,controller.dshVersion))return null;
+   const {values}=resolveSettings(snapshot.manifest,state,{startup:true},{strictRequired:false}).startup;
+   return {snapshot,values};
+ }
+--- a/packages/dsh-companion/README.md
++++ b/packages/dsh-companion/README.md
+@@ -2,7 +2,7 @@
+ 
+ ## 当前本地评审候选
+ 
+-2026-11-05。本地修复候选 0.1.0-dev.26 内置「冷启动 / 0.4.0」与「档案暖白 · 鲸鱼娘 / 0.7.1」。启用插件并完成统一授权后，可在「陪伴 → 皮肤」选择。已有选择和各套偏好由原 profile 保留。
++2026-11-06。本地兼容候选 0.1.0-dev.27 内置「冷启动 / 0.4.0」与「档案暖白 · 鲸鱼娘 / 0.7.1」。启用插件并完成统一授权后，可在「陪伴 → 皮肤」选择。已有选择和各套偏好由原 profile 保留。
+ 
+ 整套皮肤使用主题、桌宠和开场三个模块及8项公开参数。开场区域的「预览开场」与「启动时自动播放」复用已有动作/同一偏好；「启用本套开场内容」是单独的模块启停。停止后从「恢复本套皮肤」恢复，保留已调整参数和模块关闭选择。已选整套时，旧配置选择/控制由皮肤设置入口替代；未选整套的旧流程保留。
+ 
+@@ -10,7 +10,7 @@
+ 
+ ## 旧配置入口
+ 
+-当前包名为 `dsh-plugin-companion`，适配 Mac ARM64、DSH 0.2.1-rc.5。插件内自带桌面组件，所有安装后的操作都从 DSH 侧栏「陪伴」进入。
++当前包名为 `dsh-plugin-companion`，适配 Mac ARM64、DSH 0.2.1-rc.5 或 0.2.2-rc.1。插件内自带桌面组件，所有安装后的操作都从 DSH 侧栏「陪伴」进入。
+ 
+ 1. 在 DSH「添加插件」中输入发放者提供的 HTTPS `.tgz` 安装链接，安装源可选内置的中国大陆镜像。安装并启用后，在「陪伴」→「开始使用」→「统一授权」输入激活码，点击「激活本机」。启动动画和桌宠共用一份设备授权。
+ 2. 选择配置包；配置同时影响启动动画、动作素材和相处节奏。示例中提供日间与月色两套配置，支持导入、导出 JSON 配置文件。

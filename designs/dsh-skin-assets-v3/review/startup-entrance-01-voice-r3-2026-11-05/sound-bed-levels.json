@@ -1,0 +1,48 @@
+{
+  "status": "independent FX-only preparation; new reference voice pending; not bound to current preview",
+  "source_raw_mix": "designs/dsh-skin-assets-v3/review/startup-entrance-01-2026-11-05/sound-scene-raw.wav",
+  "known_old_voice_gain_removed": 0.9999697931600112,
+  "whole_bed_peak_dbfs": -3.1,
+  "clipped_samples": 0,
+  "boundary_crossfade_seconds": 0.2,
+  "segments": [
+    {
+      "start": 0,
+      "end": 3,
+      "old_full_mix_rms_dbfs": -42.88,
+      "new_fx_only_rms_dbfs": -30.66,
+      "new_fx_only_peak_dbfs": -3.38,
+      "requested_rms_dbfs": -28
+    },
+    {
+      "start": 3,
+      "end": 7,
+      "old_full_mix_rms_dbfs": -37.19,
+      "new_fx_only_rms_dbfs": -28.66,
+      "new_fx_only_peak_dbfs": -3.1,
+      "requested_rms_dbfs": -26
+    },
+    {
+      "start": 7,
+      "end": 9.22,
+      "old_full_mix_rms_dbfs": -44.65,
+      "new_fx_only_rms_dbfs": -31.67,
+      "new_fx_only_peak_dbfs": -6.56,
+      "requested_rms_dbfs": -29
+    },
+    {
+      "start": 9.22,
+      "end": 12,
+      "old_full_mix_rms_dbfs": -20.3,
+      "new_fx_only_rms_dbfs": -54.06,
+      "new_fx_only_peak_dbfs": -23.78,
+      "requested_rms_dbfs": -34
+    }
+  ],
+  "voice_original": "designs/dsh-skin-assets-v3/review/machine-voice-2026-11-05/machine-report.wav",
+  "reference_recording_used_in_fx": false,
+  "full_film_remixed": false,
+  "existing_bound_media_sha256": "4d3ed205fa1b0a9dc9fb0f5e68c7eb2ef251ee76030509cd2f154ef2eb83113b",
+  "auditory_acceptance": false,
+  "note": "old full-mix column includes old narration after 9.22s; new column is FX only, not a claim that final dialogue is quieter"
+}

@@ -1,0 +1,23 @@
+{
+  "type": "design",
+  "designSystems": [],
+  "primaryDesignSystem": null,
+  "assets": {
+    "档案暖白 · 开场底板输入": {
+      "versions": [
+        {
+          "path": "archive-frame.html",
+          "createdAt": "2026-11-03T14:12:39.267Z",
+          "status": "needs-review",
+          "subtitle": "复用R3文案与主题；用于单段开场片前1.2秒",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          }
+        }
+      ]
+    }
+  },
+  "createdAt": "2026-11-03T14:12:39.268Z",
+  "updatedAt": "2026-11-03T14:12:39.268Z"
+}

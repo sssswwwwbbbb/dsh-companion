@@ -1,0 +1,17 @@
+{
+  "dshPet": {
+    "version": "0.4.1",
+    "commit": "51c3395d9e175d80fd7e29c6864da3747ebfe209",
+    "repository": "https://github.com/PC2005-cloud/dsh-pet",
+    "codeLicense": "MIT",
+    "upstreamMedia": "Excluded from the previews; upstream README restricts media commercial use and requests derivative attribution"
+  },
+  "phaser": {
+    "version": "4.2.1",
+    "commit": "41be1e462bc600064e498cba370bfa8c5c055a22",
+    "repository": "https://github.com/phaserjs/phaser",
+    "npmIntegrity": "sha512-WUNwCPJpdjvZiuT6SgCfYVW8Qw/3j0jJ4ws7P2QkhFLFu74sbGuyHJcbFueGkY/AYO4Pi47bNQXn1OCJeLX//w==",
+    "license": "MIT"
+  },
+  "common": {"electron": "45.2.1", "node": "24.14.0", "react": "18.3.1", "esbuild": "0.25.12", "Pillow": "11.3.0", "imageio-ffmpeg": "0.6.0"}
+}

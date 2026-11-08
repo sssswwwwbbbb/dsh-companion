@@ -1,0 +1,38 @@
+{
+  "checked_on": "2026-11-04",
+  "binary": "<本机路径>
+  "version": "1.4.22",
+  "skill": "<本机路径>
+  "skill_read": true,
+  "oauth_login": "success",
+  "credit_read": "success",
+  "observed_credit_balance": 40,
+  "cli_creation_access": "denied",
+  "cli_access_message": "仅限会员用户使用",
+  "account_membership_level_returned": "",
+  "generation_submitted": true,
+  "credits_consumed_by_this_validation": 12,
+  "web_fallback": {
+    "status": "generation-completed",
+    "model": "Seedream 5.0 Flash",
+    "reference_upload_completed": true,
+    "only_opening_reference_used": true,
+    "generation_submitted": true,
+    "generation_via": "official web UI; user adjusted Flash and batch size",
+    "completed_images_observed": 4,
+    "observed_credits_per_image": 3,
+    "observed_batch_credit_delta": 12,
+    "balance_after": 28,
+    "user_selected_image": 4,
+    "selected_source": "designs/dsh-skin-assets-v3/assets/character/jimeng-flash-master-04-source.png",
+    "receipt": "designs/dsh-skin-assets-v3/identity/selected-master.json"
+  },
+  "boundaries": [
+    "OAuth成功与命令行创作权限分开记录",
+    "未购买会员、积分或订阅",
+    "未把帮助命令、授权成功或读取积分说成生图验证通过",
+    "未改动原R2素材、引擎合同或正式皮肤安装包",
+    "不在公开记录中保留用户标识、device_code、token或私有登录日志"
+  ],
+  "generation_channel": "official web UI; CLI creation remains denied"
+}

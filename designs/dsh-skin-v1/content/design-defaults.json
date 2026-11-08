@@ -1,0 +1,461 @@
+{
+  "kind": "design-intent",
+  "version": "0.3.0",
+  "runtimeLoadable": false,
+  "skinIdProposal": "archive-warm-whale",
+  "note": "R3 design declaration and per-skin overrides; prototype only. R3 contract candidate exposes five supported fields using the historical builtin pet, not the R2 new character.",
+  "defaults": {
+    "theme": "light",
+    "accent": "copper",
+    "background": true,
+    "backgroundStyle": "grid",
+    "backgroundOpacity": 0.04,
+    "pet": true,
+    "petScale": 100,
+    "profile": "gentle",
+    "motion": "system",
+    "autonomous": false,
+    "followMouse": false,
+    "activityFrequency": 90,
+    "clickResponse": true,
+    "clickAction": "react",
+    "clickText": "嗯，我在。",
+    "clickCooldown": 2,
+    "completion": true,
+    "needsFeedback": true,
+    "bubbles": true,
+    "cooldown": 30,
+    "completionAction": "greet",
+    "completionText": "这件事，做好了。",
+    "needsText": "有一项事情需要你看看。",
+    "mappingEnabled": false,
+    "eventRules": [
+      {
+        "id": "sample-deepseek-complete",
+        "enabled": true,
+        "model": "example-deepseek",
+        "event": "completed",
+        "action": "stretch",
+        "text": "这一项，已经整理好了。"
+      }
+    ],
+    "startup": true,
+    "startupStyle": "scan",
+    "startupPolicy": "cold"
+  },
+  "fixed": {
+    "sound": false,
+    "idleAction": "idle",
+    "activeSessionOnly": true,
+    "needsUserTreatment": "static-label",
+    "decorativeSignalChangesBusinessState": false,
+    "character": "scan-whale-r2",
+    "posePreviewDurationsMs": {
+      "react": 1800,
+      "greet": 2600,
+      "stretch": 3000
+    },
+    "poseAsset": "assets/whale-unified-r2/character-atlas-r2.png",
+    "canvasSizePx": 200,
+    "duplicateClick": "coalesce",
+    "attentionLifetime": "until-explicit-simulated-resolution",
+    "ruleScope": "current-visible-example-session",
+    "rulePrecedence": "exact model, wildcard model, skin default",
+    "arbitraryScripts": false
+  },
+  "controls": {
+    "theme": {
+      "label": "阅读配色",
+      "type": "enum",
+      "default": "light",
+      "group": "常用",
+      "decision": "首版设计（待复审）",
+      "dependency": "主题模块/明暗 token",
+      "display": "始终",
+      "fallback": "使用本套默认",
+      "runtime": "明暗 token 已有；原型手动模式不写宿主偏好",
+      "values": [
+        "light",
+        "dark"
+      ]
+    },
+    "accent": {
+      "label": "强调色方案",
+      "type": "enum",
+      "default": "copper",
+      "group": "常用",
+      "decision": "待验证",
+      "dependency": "主题预设选择能力；需扩展模块",
+      "display": "始终",
+      "fallback": "使用本套默认",
+      "runtime": "仅本地设计模拟",
+      "values": [
+        "copper",
+        "marine"
+      ]
+    },
+    "background": {
+      "label": "自带档案背景",
+      "type": "boolean",
+      "default": true,
+      "group": "常用",
+      "decision": "首版设计（待复审）",
+      "dependency": "主题背景模块",
+      "display": "始终",
+      "fallback": "纯色底",
+      "runtime": "运行包用浓度 0 关闭；原型单独开关"
+    },
+    "backgroundStyle": {
+      "label": "背景图案",
+      "type": "enum",
+      "default": "grid",
+      "group": "常用",
+      "decision": "待验证",
+      "dependency": "两套原创几何方案；背景选择能力待扩展",
+      "display": "背景启用",
+      "fallback": "档案网格",
+      "runtime": "仅本地设计模拟",
+      "values": [
+        "grid",
+        "contour"
+      ]
+    },
+    "backgroundOpacity": {
+      "label": "背景浓度",
+      "type": "number",
+      "default": 0.04,
+      "group": "常用",
+      "decision": "首版设计（待复审）",
+      "dependency": "theme.backgroundOpacity",
+      "display": "背景启用",
+      "fallback": "0 为纯色底",
+      "runtime": "当前合同已支持；R3 配置候选已声明，未做新宿主行为实测",
+      "min": 0,
+      "max": 0.15,
+      "step": 0.01
+    },
+    "pet": {
+      "label": "鲸鱼娘桌宠",
+      "type": "boolean",
+      "default": true,
+      "group": "常用",
+      "decision": "首版设计（待复审）",
+      "dependency": "pet 模块与可用能力",
+      "display": "始终",
+      "fallback": "保留启用入口/不可用原因；保留参数",
+      "runtime": "模块开关由底座管理；R2 角色未接入"
+    },
+    "petScale": {
+      "label": "角色大小",
+      "type": "number",
+      "default": 100,
+      "group": "常用",
+      "decision": "首版设计（待复审）",
+      "dependency": "pet.size 百分比，原生几何待验证",
+      "display": "桌宠已启用且能力可用",
+      "fallback": "使用本套默认",
+      "runtime": "当前合同已支持；R3 配置候选已声明，未做新宿主行为实测",
+      "min": 70,
+      "max": 140,
+      "step": 5
+    },
+    "profile": {
+      "label": "行为风格",
+      "type": "enum",
+      "default": "gentle",
+      "group": "常用",
+      "decision": "首版设计（待复审）",
+      "dependency": "pet.profile，已有角色行为状态机",
+      "display": "桌宠已启用且能力可用",
+      "fallback": "使用本套默认",
+      "runtime": "当前合同已支持；R3 配置候选已声明，未做新宿主行为实测",
+      "values": [
+        "free",
+        "gentle",
+        "lively"
+      ]
+    },
+    "motion": {
+      "label": "动态效果",
+      "type": "enum",
+      "default": "system",
+      "group": "常用",
+      "decision": "首版设计（待复审）",
+      "dependency": "系统减少动态与静态资源能力",
+      "display": "始终",
+      "fallback": "静态 idle 与状态文字",
+      "runtime": "仅本地设计模拟",
+      "values": [
+        "system",
+        "reduced"
+      ]
+    },
+    "autonomous": {
+      "label": "自主活动",
+      "type": "boolean",
+      "default": false,
+      "group": "更多",
+      "decision": "首版设计（待复审）",
+      "dependency": "pet.autonomous，R2 完整动作待制作",
+      "display": "桌宠已启用且能力可用",
+      "fallback": "使用本套默认",
+      "runtime": "当前合同已支持；R3 配置候选已声明，未做新宿主行为实测"
+    },
+    "followMouse": {
+      "label": "跟随鼠标",
+      "type": "boolean",
+      "default": false,
+      "group": "更多",
+      "decision": "首版设计（待复审）",
+      "dependency": "pet.followMouse，原生行为待核对",
+      "display": "桌宠已启用且能力可用",
+      "fallback": "使用本套默认",
+      "runtime": "当前合同已支持；R3 配置候选已声明，未做新宿主行为实测"
+    },
+    "activityFrequency": {
+      "label": "自主活动间隔",
+      "type": "enum",
+      "default": 90,
+      "group": "更多",
+      "decision": "待验证",
+      "dependency": "本地状态机频率字段未开放",
+      "display": "自主活动开启且可表演",
+      "fallback": "使用本套默认",
+      "runtime": "仅本地设计模拟",
+      "values": [
+        30,
+        60,
+        90
+      ]
+    },
+    "clickResponse": {
+      "label": "点击回应",
+      "type": "boolean",
+      "default": true,
+      "group": "更多",
+      "decision": "首版设计（待复审）",
+      "dependency": "点击反馈模块与 react/greet 等动作",
+      "display": "桌宠已启用且能力可用",
+      "fallback": "使用本套默认",
+      "runtime": "仅本地设计模拟"
+    },
+    "clickAction": {
+      "label": "点击动作",
+      "type": "enum",
+      "default": "react",
+      "group": "更多",
+      "decision": "待验证",
+      "dependency": "仅选择已提供的同角色姿态；需点击模块参数",
+      "display": "点击回应开启",
+      "fallback": "使用本套默认",
+      "runtime": "仅本地设计模拟",
+      "values": [
+        "react",
+        "greet",
+        "idle"
+      ]
+    },
+    "clickText": {
+      "label": "点击短句",
+      "type": "text",
+      "default": "嗯，我在。",
+      "group": "更多",
+      "decision": "待验证",
+      "dependency": "纯文本气泡字段；不解释模板或脚本",
+      "display": "点击回应与气泡开启",
+      "fallback": "空白则不显示可选气泡",
+      "runtime": "仅本地设计模拟",
+      "maxLength": 40
+    },
+    "clickCooldown": {
+      "label": "点击冷却",
+      "type": "number",
+      "default": 2,
+      "group": "更多",
+      "decision": "待验证",
+      "dependency": "点击调度去重字段；活动中重复触发固定合并",
+      "display": "点击回应开启",
+      "fallback": "使用本套默认",
+      "runtime": "仅本地设计模拟",
+      "min": 0,
+      "max": 10,
+      "step": 1
+    },
+    "completion": {
+      "label": "任务完成反馈",
+      "type": "boolean",
+      "default": true,
+      "group": "更多",
+      "decision": "待验证",
+      "dependency": "当前会话已验证事件桥接；尚未接入",
+      "display": "始终",
+      "fallback": "只保留原会话结果",
+      "runtime": "仅本地设计模拟"
+    },
+    "needsFeedback": {
+      "label": "需要处理提示",
+      "type": "boolean",
+      "default": true,
+      "group": "更多",
+      "decision": "待验证",
+      "dependency": "当前会话需处理/解除事件",
+      "display": "本套声明工作反馈",
+      "fallback": "原会话需处理状态仍保留",
+      "runtime": "仅本地设计模拟"
+    },
+    "bubbles": {
+      "label": "显示短气泡",
+      "type": "boolean",
+      "default": true,
+      "group": "更多",
+      "decision": "首版设计（待复审）",
+      "dependency": "可选文案层，与反馈状态独立",
+      "display": "本套声明反馈或点击",
+      "fallback": "省略气泡；需处理状态仍冻结且有固定提示",
+      "runtime": "仅本地设计模拟"
+    },
+    "cooldown": {
+      "label": "完成提醒间隔",
+      "type": "number",
+      "default": 30,
+      "group": "更多",
+      "decision": "待验证",
+      "dependency": "完成事件去重和冷却字段",
+      "display": "任务完成反馈开启",
+      "fallback": "使用本套默认",
+      "runtime": "仅本地设计模拟",
+      "min": 5,
+      "max": 300,
+      "step": 5
+    },
+    "completionAction": {
+      "label": "完成动作",
+      "type": "enum",
+      "default": "greet",
+      "group": "更多",
+      "decision": "待验证",
+      "dependency": "同角色 greet/stretch/idle 姿态；完整动画待制作",
+      "display": "任务完成反馈开启",
+      "fallback": "使用本套默认",
+      "runtime": "仅本地设计模拟",
+      "values": [
+        "greet",
+        "stretch",
+        "idle"
+      ]
+    },
+    "completionText": {
+      "label": "完成短句",
+      "type": "text",
+      "default": "这件事，做好了。",
+      "group": "更多",
+      "decision": "待验证",
+      "dependency": "完成气泡纯文本",
+      "display": "完成反馈与气泡开启",
+      "fallback": "空白则不显示可选气泡",
+      "runtime": "仅本地设计模拟",
+      "maxLength": 60
+    },
+    "needsText": {
+      "label": "处理短句",
+      "type": "text",
+      "default": "有一项事情需要你看看。",
+      "group": "更多",
+      "decision": "待验证",
+      "dependency": "需处理气泡纯文本；不替代原始会话",
+      "display": "需处理提示与气泡开启",
+      "fallback": "空白不显示气泡，固定状态提示保留",
+      "runtime": "仅本地设计模拟",
+      "maxLength": 60
+    },
+    "mappingEnabled": {
+      "label": "启用专属规则",
+      "type": "boolean",
+      "default": false,
+      "group": "更多",
+      "decision": "待验证",
+      "dependency": "已验证模型/事件 ID 与映射模块；尚未接入",
+      "display": "本套声明工作反馈",
+      "fallback": "回本套默认动作和文案",
+      "runtime": "仅本地设计模拟"
+    },
+    "eventRules": {
+      "label": "模型与状态规则",
+      "type": "rules",
+      "default": [
+        {
+          "id": "sample-deepseek-complete",
+          "enabled": true,
+          "model": "example-deepseek",
+          "event": "completed",
+          "action": "stretch",
+          "text": "这一项，已经整理好了。"
+        }
+      ],
+      "group": "更多",
+      "decision": "待验证",
+      "dependency": "示例 ID 只用于模拟；真实模型/会话/状态信号待底座验证",
+      "display": "启用专属规则",
+      "fallback": "无匹配/规则关闭回本套默认；需处理动作限定静态 idle",
+      "runtime": "仅本地设计模拟",
+      "maxRules": 8
+    },
+    "startup": {
+      "label": "启动开场",
+      "type": "boolean",
+      "default": true,
+      "group": "更多",
+      "decision": "待验证",
+      "dependency": "启动生命周期；扫描原片仅参考",
+      "display": "始终",
+      "fallback": "立即进入工作区",
+      "runtime": "仅本地设计模拟"
+    },
+    "startupStyle": {
+      "label": "开场方案",
+      "type": "enum",
+      "default": "scan",
+      "group": "更多",
+      "decision": "待验证",
+      "dependency": "档案底板与扫描参考；新模块未开放",
+      "display": "启动开场开启",
+      "fallback": "纯档案或直接进入工作区",
+      "runtime": "仅本地设计模拟",
+      "values": [
+        "scan",
+        "archive"
+      ]
+    },
+    "startupPolicy": {
+      "label": "自动播放条件",
+      "type": "enum",
+      "default": "cold",
+      "group": "更多",
+      "decision": "待验证",
+      "dependency": "已确认冷启动/运行中启用规则与新开场模块",
+      "display": "启动开场开启",
+      "fallback": "只允许手动预览",
+      "runtime": "仅本地设计模拟",
+      "values": [
+        "cold",
+        "manual"
+      ]
+    }
+  },
+  "unsupportedHidden": [
+    "character-costume-selector",
+    "sound-volume",
+    "arbitrary-colors",
+    "font-family-upload",
+    "real-model-character-mapping",
+    "input-monitor",
+    "external-wallpaper",
+    "market",
+    "creator-editor"
+  ],
+  "globalPreviewDefaults": {
+    "stopped": false,
+    "muted": true
+  },
+  "scope": "Local design preview. No user DSH data, credentials, or external requests."
+}

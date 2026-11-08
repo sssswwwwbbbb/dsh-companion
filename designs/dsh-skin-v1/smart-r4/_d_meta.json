@@ -1,0 +1,23 @@
+{
+  "type": "design",
+  "designSystems": [],
+  "primaryDesignSystem": null,
+  "assets": {
+    "鲸鱼娘 · 智能互动 R4": {
+      "versions": [
+        {
+          "path": "index.html",
+          "createdAt": "2026-11-03T12:41:02.386Z",
+          "status": "needs-review",
+          "subtitle": "独立配置与连续互动预演；真实模型待接入",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          }
+        }
+      ]
+    }
+  },
+  "createdAt": "2026-11-03T12:41:02.387Z",
+  "updatedAt": "2026-11-03T12:41:02.387Z"
+}

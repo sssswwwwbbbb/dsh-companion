@@ -1,0 +1,13 @@
+{
+  "model": "moss-image-sft-1.0-2026-10-09",
+  "prompt": "制作四个彼此分开的精细3D动漫风小道具，供银蓝发深蓝白制服的档案室桌面陪伴角色使用。2乘2整齐排布，每个道具间距宽，互不遮挡，每个道具四周有纯绿背景。左上：一册小巧的暖白封面档案书，深蓝布书脊、铜色书签夹和简洁的无文字封面。右上：一只珍珠白陶瓷小杯，深蓝细口沿与小把手，杯中有温茶，没有水汽。左下：深蓝柔软小坐垫与一角浅银蓝毯子叠放，织物细腻，边缘整洁。右下：一叠暖白便笺与一枚铜色回形针，空白无文字。材质与高精度3D动漫数字人物一致，柔和冷白光，精致但没有复杂花纹，没有发光、品牌、字母、数字或额外道具。整个背景均匀纯绿色#00FF00，没有地面、阴影、渐变和其他场景，绿色只用于背景，道具本身无绿色反光。",
+  "negative_prompt": "person, human, character, hands, text, letters, logo, watermark, floor, cast shadow, gradient background, merged objects, extra objects, green objects",
+  "prompt_enhance": false,
+  "size": "1024x1024",
+  "n": 1,
+  "seed": 20261104041,
+  "response_format": "url",
+  "output_watermark": {
+    "enabled": false
+  }
+}

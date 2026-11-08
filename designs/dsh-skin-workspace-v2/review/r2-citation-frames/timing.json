@@ -1,0 +1,64 @@
+{
+  "origin": "Live CUA screenshots after a UI action; no synthetic interpolation",
+  "viewport": [
+    1218,
+    760
+  ],
+  "deviceScaleFactor": 1,
+  "action": "citation",
+  "sourceFreeze": "../source-freeze.json",
+  "frames": [
+    {
+      "file": "frame-0000.jpg",
+      "t": 0.0205
+    },
+    {
+      "file": "frame-0001.jpg",
+      "t": 0.0935
+    },
+    {
+      "file": "frame-0002.jpg",
+      "t": 0.198
+    },
+    {
+      "file": "frame-0003.jpg",
+      "t": 0.304
+    },
+    {
+      "file": "frame-0004.jpg",
+      "t": 0.391
+    },
+    {
+      "file": "frame-0005.jpg",
+      "t": 0.443
+    },
+    {
+      "file": "frame-0006.jpg",
+      "t": 0.5115
+    },
+    {
+      "file": "frame-0007.jpg",
+      "t": 0.5875
+    },
+    {
+      "file": "frame-0008.jpg",
+      "t": 0.64
+    },
+    {
+      "file": "frame-0009.jpg",
+      "t": 0.72
+    },
+    {
+      "file": "frame-0010.jpg",
+      "t": 0.783
+    },
+    {
+      "file": "frame-0011.jpg",
+      "t": 0.8355
+    },
+    {
+      "file": "frame-0012.jpg",
+      "t": 0.902
+    }
+  ]
+}

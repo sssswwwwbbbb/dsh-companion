@@ -1,0 +1,45 @@
+import fs from 'node:fs';import path from 'node:path';import {createHash} from 'node:crypto';import {root,lab,stage,report} from './setup.mjs';
+const accepted=path.join(root,'.local/dsh-walk-native-20261105/staging'),source=path.join(root,'experiments/dsh-commander-native/client');
+const read=p=>fs.readFileSync(p,'utf8'),put=(p,t)=>fs.writeFileSync(p,t);
+const original=p=>read(path.join(accepted,p)),target=p=>path.join(stage,p);
+const adapters='packages/dsh-skin-core/adapters/';
+let page=original(adapters+'page-client.mjs');
+page=page.replace("import {installWorkspaceR2} from './workspace-r2.mjs';","import {installWorkspaceR2} from './workspace-r2.mjs';\nimport {installWorkspaceCommander} from './workspace-commander.mjs';");
+page=page.replace('  const clientId=',"  const installWorkspace=options=>options.config.preset==='commander-v1'?installWorkspaceCommander(options):installWorkspaceR2(options);\n  const clientId=");
+page=page.replaceAll('installWorkspaceR2({ctx','installWorkspace({ctx').replace('onChange:value=>','onChange:(value,detail)=>').replace('workspaceRuntime?.work(value)','workspaceRuntime?.work(value,detail)');put(target(adapters+'page-client.mjs'),page);
+let mailbox=original(adapters+'page-mailbox.mjs');mailbox=mailbox.replace('opening:resumeStop===true','opening:config.workspacePreset===\'archive-warm-r2\'&&resumeStop===true,feedback:config.workFeedbackEnabled===true');mailbox=mailbox.replace('payload.workspace.opening=false;','payload.workspace.opening=false;payload.workspace.feedback=config.workFeedbackEnabled===true;');put(target(adapters+'page-mailbox.mjs'),mailbox);
+let feedback=original(adapters+'session-feedback.mjs');
+feedback=feedback.replace("phase='idle',completionSeq=-1,run=0;","phase='idle',completionSeq=-1,run=0,terminalReason=null;");
+feedback=feedback.replace('onChange(packet);','onChange(packet,{reason:terminalReason});').replace("ended=false;completionSeq=-1;phase='idle';refresh();","ended=false;completionSeq=-1;terminalReason=null;phase='idle';refresh();").replace("if(e.type==='turn/start'){ended=false;completionSeq=-1;","if(e.type==='turn/start'){ended=false;completionSeq=-1;terminalReason=null;").replace("ended=true;publish(attention()","ended=true;terminalReason=e.data.reason?.kind||null;publish(attention()");put(target(adapters+'session-feedback.mjs'),feedback);
+for(const [from,to]of [['commander.mjs','workspace-commander.mjs'],['commander-state.mjs','commander-state.mjs'],['commander.css','workspace-commander.css']])put(target(adapters+to),read(path.join(source,from)));
+let ui=original('packages/dsh-companion/src/skin-settings-ui.mjs');
+ui=ui.replace("const Icon=({name})=>h('svg',","const Icon=({name})=>{const pair=assets.workspace?.controlIcons?.[name];return pair?h('span',{className:'r3-icon r3-semantic-icon','aria-hidden':true},h('img',{className:'r3-icon-light',src:pair.light,alt:''}),h('img',{className:'r3-icon-dark',src:pair.dark,alt:''})):h('svg',").replace("h('path',{d:paths[name]||paths.settings}));","h('path',{d:paths[name]||paths.settings}));};");
+ui=ui.replace("'data-screen-label':'皮肤与陪伴'","'data-screen-label':'皮肤与陪伴','data-skin-preset':skin?.selected?.contentKey===assets.workspace?.contentKey?assets.workspace.preset:undefined");
+ui=ui.replace("h('style',null,skinSettingsCss)","h('style',null,skinSettingsCss+commanderSettingsCss)");
+ui=ui.replace("r2=candidate?.contentKey===assets.workspace?.contentKey;","r2=candidate?.contentKey===assets.workspace?.contentKey,commander=r2&&assets.workspace.preset==='commander-v1';");
+ui=ui.replace("'aria-label':'鲸鱼娘 · 安静待机'","'aria-label':commander?'机械姬 · 母版04':'鲸鱼娘 · 安静待机'");
+ui=ui.replace("'成套图标、纸面与导航陪伴。'","commander?'成套图标、指挥链路与导航陪伴。':'成套图标、纸面与导航陪伴。'");
+ui=ui.replace("'开卷与归档演出可随时跳过；系统减少动态优先。'","commander?'完成回应留在陪伴位；输入、停止或切换会话会取消，系统减少动态优先。':'开卷与归档演出可随时跳过；系统减少动态优先。'");
+ui=ui.replace("r2=row.contentKey===assets.workspace?.contentKey;","r2=row.contentKey===assets.workspace?.contentKey,commander=r2&&assets.workspace.preset==='commander-v1';");
+ui=ui.replace("className:'r3-library-cover'+(whale?' whale':'')","className:'r3-library-cover'+(commander?' commander':whale?' whale':'')");
+ui=ui.replace("h('span',{className:'r3-library-cover-title'},whale?'档案暖白':row.name)","commander&&h('img',{className:'commander-cover',src:assets.workspace.cover,alt:'机械姬 × 指挥官主题封面'}),row.contentKey===assets.contentKey&&h('span',{className:'commander-legacy-tag'},'旧版对照'),h('span',{className:'r3-library-cover-title'},whale?'档案暖白':row.name)");
+ui+='\nexport const commanderSettingsCss='+JSON.stringify(read(path.join(source,'settings.css')))+';\n';put(target('packages/dsh-companion/src/skin-settings-ui.mjs'),ui);
+let build=original('scripts/build-client.mjs');
+build=build.replace(".replace('export function installSkinPage'", ".replace(/^import \\{installWorkspaceCommander\\} from '\\.\\/workspace-commander\\.mjs';\\n/m,'').replace('export function installSkinPage'");
+build=build.replace('const sessionFeedback=',"const commanderCode='const WORKSPACE_COMMANDER_STYLE='+JSON.stringify(readFileSync(new URL('workspace-commander.css',workspaceBase),'utf8'))+';\\n'+readFileSync(new URL('commander-state.mjs',workspaceBase),'utf8').replace(/^export /gm,'')+'\\n'+readFileSync(new URL('workspace-commander.mjs',workspaceBase),'utf8').replace(/^import \\{commanderState\\} from '\\.\\/commander-state\\.mjs';\\n/m,'').replace('export function installWorkspaceCommander','function installWorkspaceCommander');\nconst sessionFeedback=");
+build=build.replace("()=>workspaceCode+'\\n'+sessionFeedback","()=>workspaceCode+'\\n'+commanderCode+'\\n'+sessionFeedback");
+const settingsExtra=`
+settingsAssets.workspace.preset=workspaceSkin.manifest.modules.theme.config.workspacePreset;
+const cover=workspaceSkin.manifest.assets['workspace-cover'];
+settingsAssets.workspace.cover='data:image/png;base64,'+readFileSync(new URL('skins/archive-workspace-r2-private/'+cover.path,base)).toString('base64');
+settingsAssets.workspace.controlIcons={};
+for(const [control,key]of Object.entries({library:'archive',install:'download',settings:'sliders',more:'more',shield:'shield',pause:'pause',play:'play',reset:'retry',arrow:'chevron-right'})){
+ settingsAssets.workspace.controlIcons[control]=Object.fromEntries(Object.entries(workspaceSkin.manifest.modules.theme.config.semanticIcons[key]).map(([mode,id])=>[mode,'data:image/png;base64,'+readFileSync(new URL('skins/archive-workspace-r2-private/'+workspaceSkin.manifest.assets[id].path,base)).toString('base64')]));
+}
+`;
+build=build.replace("writeFileSync(new URL('client.js',base)",settingsExtra+"writeFileSync(new URL('client.js',base)");put(target('scripts/build-client.mjs'),build);
+const buildInputs=[...['commander.mjs','commander-state.mjs','commander.css','settings.css'].map(f=>path.join(source,f)),target('packages/dsh-companion/src/skin-settings-ui.mjs'),target('packages/dsh-companion/skins/archive-workspace-r2-private/skin.json')].map(p=>({path:path.relative(root,p),sha256:createHash('sha256').update(fs.readFileSync(p)).digest('hex'),bytes:fs.statSync(p).size}));
+const presentationSha=createHash('sha256').update(JSON.stringify(buildInputs)).digest('hex');
+build=build.replace("const commanderCode='const WORKSPACE_COMMANDER_STYLE='","const commanderCode='const WORKSPACE_COMMANDER_BUILD='+JSON.stringify('"+presentationSha+"')+';\\nconst WORKSPACE_COMMANDER_STYLE='");put(target('scripts/build-client.mjs'),build);
+put(path.join(report,'presentation-build.json'),JSON.stringify({presentationSha,files:buildInputs,formula:'sha256 compact JSON array in existing order, path/sha256/bytes keys'},null,2)+'\n');
+console.log(JSON.stringify({preparedClient:true,originalSessionAndControls:true,simulatedDesignScriptCopied:false,automaticOpening:false}));
