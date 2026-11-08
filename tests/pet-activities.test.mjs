@@ -9,7 +9,7 @@ import {PetActivities} from '../packages/dsh-companion/src/pet-activities.mjs';
 import {PetInteraction} from '../packages/dsh-companion/src/pet-interaction.mjs';
 import {WorkFeedback} from '../packages/dsh-companion/src/work-feedback.mjs';
 import {NativeWorkFeedback} from '../runtime-src/work-feedback.mjs';
-const source=new URL('../packages/dsh-companion/skins/archive-workspace-r2-private',import.meta.url);
+const source=new URL('./fixtures/archive-workspace-r2-private',import.meta.url);
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 function system(){
   const selected=loadSkin(fileURLToPath(source)),state={selected,overrides:{},disabled:{},stopped:false,pending:null,results:{pet:{status:'ready'}}};

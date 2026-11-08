@@ -9,7 +9,7 @@ import {PetActivities} from '../packages/dsh-companion/src/pet-activities.mjs';
 import {loadSkin} from '../packages/dsh-skin-core/src/resources.mjs';
 import {validateManifest,resolveSettings} from '../packages/dsh-skin-core/src/schema.mjs';
 import {petMemorySettings} from '../packages/dsh-skin-core/src/pet-memory.mjs';
-const source=fileURLToPath(new URL('../packages/dsh-companion/skins/archive-workspace-r2-private',import.meta.url));
+const source=fileURLToPath(new URL('./fixtures/archive-workspace-r2-private',import.meta.url));
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 function system(t){
  const stateDir=fs.mkdtempSync(path.join(os.tmpdir(),'dsh-pet-memory-'));t.after(()=>fs.rmSync(stateDir,{recursive:true,force:true}));

@@ -4,16 +4,21 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import {createRequire} from 'node:module';
-import {SkinLibrary} from '../packages/dsh-companion/src/skin-library.mjs';
+import {fileURLToPath} from 'node:url';
+import {SkinLibrary,unavailableSkin} from '../packages/dsh-companion/src/skin-library.mjs';
 import {CompanionSkins} from '../packages/dsh-companion/src/skins.mjs';
 import {CompanionController} from '../packages/dsh-companion/src/controller.mjs';
-import {digest,atomicJson} from '../packages/dsh-skin-core/src/index.mjs';
+import {digest,atomicJson,loadSkin} from '../packages/dsh-skin-core/src/index.mjs';
 const {zipSync}=createRequire(new URL('../packages/dsh-companion/package.json',import.meta.url))('fflate');
+const fixtureSkin=fileURLToPath(new URL('./fixtures/archive-workspace-r2-private',import.meta.url));
 const temp=t=>{const dir=fs.mkdtempSync(path.join(os.tmpdir(),'dsh-skin-library-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));return dir;};
 const fixtureManifest=(id='library-synthetic',version='1.0.0')=>({formatVersion:2,id,version,name:'隔离合成 · '+id,description:'仅用于隔离验证，不是正式皮肤',dshVersions:['0.2.1-rc.5'],assets:{},modules:{theme:{interfaceVersion:1,configVersion:1,required:true,config:{tokens:{'--dsw-alias-bg-base':{light:'#faf5ee',dark:'#232423'}}},settings:{backgroundOpacity:{label:'背景浓度',default:.02}}}}});
 function zip(dir,manifest,extra={}){const file=path.join(dir,'fixture-'+Math.random().toString(16).slice(2)+'.zip');fs.writeFileSync(file,zipSync({'skin.json':Buffer.from(JSON.stringify(manifest)),...extra}));return file;}
-function service(dir){
-  const controller={stateDir:dir,dshVersion:'0.2.1-rc.5',entitlement:{require(){},status:()=>({active:true})},nativeStatus:async()=>({})},skins=new CompanionSkins(controller);controller.status=()=>({skin:skins.status()});
+function service(dir,{fixture=fixtureSkin}={}){
+  const controller={stateDir:dir,dshVersion:'0.2.1-rc.5',entitlement:{require(){},status:()=>({active:true})},nativeStatus:async()=>({})},skins=new CompanionSkins(controller);
+  // The package ships no bundled skin any more; tests register the fixture skin.
+  if(!skins.snapshots.size){try{skins.registerDirectory(fixture);}catch(error){skins.unavailable.push(unavailableSkin(error));}}
+  controller.status=()=>({skin:skins.status()});
   const adapters=Object.fromEntries(['theme','pet','startup'].map(module=>[module,{visible:null,available:()=>true,invalidate(){},prepare:()=>({}),async apply(c){c.assertCurrent();this.visible=c.skin.contentKey;return {ready:true};},async exit(){this.visible=null;return {cleared:true};}}]));skins.core.adapters=adapters;return {skins,controller,adapters};
 }
 test('real ZIP imports exact bundled skin bytes, is idempotent, persists and never applies or resets',async t=>{
@@ -68,11 +73,14 @@ test('missing and corrupt installed snapshots stay visible without blocking heal
   for(const key of [missing,broken.contentKey]){const row=status.catalog.find(r=>r.contentKey===key);assert.equal(row.status,'unavailable');assert.equal(row.reason,'SKIN_RESOURCE_MISSING');await assert.rejects(skins.select({contentKey:key}),/SKIN_INSTALLED_UNAVAILABLE/);}
   await skins.select({contentKey:healthy.contentKey});await skins.stop();await skins.select({contentKey:healthy.contentKey});assert.equal(skins.status().phase,'ready');assert.equal(skins.core.state.overrides[manifest.id].theme.backgroundOpacity,.07);assert.equal(fs.readFileSync(skins.library.file,'utf8'),index);
 });
-test('a corrupt bundled cache and a broken index cannot abort management initialization',async t=>{
-  const dir=temp(t),stateDir=path.join(dir,'profile'),first=service(stateDir),bundled=first.skins.snapshots.values().next().value;
-  const healthy=await first.skins.install(zip(dir,fixtureManifest('healthy-synthetic')));fs.unlinkSync(path.join(bundled.root,Object.values(bundled.manifest.assets)[0].path));
-  const next=service(stateDir);assert.equal(next.skins.status().catalog.find(r=>r.contentKey===bundled.contentKey).status,'unavailable');await next.skins.select({contentKey:healthy.contentKey});
-  fs.writeFileSync(next.skins.library.file,'{"formatVersion":99,"contentKeys":[]}');const reopened=service(stateDir);assert.equal(reopened.skins.status().selected.contentKey,healthy.contentKey);assert.ok(reopened.skins.status().catalog.some(r=>r.status==='unavailable'&&r.reason==='SKIN_LIBRARY_INVALID'));assert.equal(fs.readFileSync(reopened.skins.library.file,'utf8'),'{"formatVersion":99,"contentKeys":[]}');
+test('a corrupt fixture skin and a broken index cannot abort management initialization',async t=>{
+  const dir=temp(t),stateDir=path.join(dir,'profile'),first=service(stateDir),fixture=first.skins.snapshots.values().next().value;
+  const healthy=await first.skins.install(zip(dir,fixtureManifest('healthy-synthetic')));
+  // Register a damaged copy of the same skin next time; management must still start.
+  const damaged=path.join(dir,'damaged-skin');fs.cpSync(fixtureSkin,damaged,{recursive:true});
+  const asset=Object.values(loadSkin(damaged).manifest.assets)[0];fs.unlinkSync(path.join(damaged,asset.path));
+  const next=service(stateDir,{fixture:damaged});assert.equal(next.skins.status().catalog.filter(r=>r.contentKey===healthy.contentKey).length,1);await next.skins.select({contentKey:healthy.contentKey});
+  fs.writeFileSync(next.skins.library.file,'{"formatVersion":99,"contentKeys":[]}');const reopened=service(stateDir,{fixture:damaged});assert.equal(reopened.skins.status().selected.contentKey,healthy.contentKey);assert.ok(reopened.skins.status().catalog.some(r=>r.status==='unavailable'&&r.reason==='SKIN_LIBRARY_INVALID'));assert.equal(fs.readFileSync(reopened.skins.library.file,'utf8'),'{"formatVersion":99,"contentKeys":[]}');
 });
 
 test('retired bundled MVP selection is cleared without altering current skin preferences or deliberate imports',async t=>{

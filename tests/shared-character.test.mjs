@@ -9,7 +9,7 @@ import {validateManifest,resolveSettings} from '../packages/dsh-skin-core/src/sc
 import {loadSkin} from '../packages/dsh-skin-core/src/resources.mjs';
 import {fileURLToPath} from 'node:url';
 const declared={name:'领航员',identity:'你是实验室领航员，耐心协助同伴。',workContext:'在工作区准确处理任务。',petContext:'在桌面安静陪伴。',petEnabledDefault:false};
-const source=fileURLToPath(new URL('../packages/dsh-companion/skins/archive-workspace-r2-private',import.meta.url));
+const source=fileURLToPath(new URL('./fixtures/archive-workspace-r2-private',import.meta.url));
 function system(){
  const selected=loadSkin(source);selected.manifest={...selected.manifest,character:declared};
  const stateDir=fs.mkdtempSync(path.join(os.tmpdir(),'dsh-shared-character-'));
