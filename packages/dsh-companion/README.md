@@ -2,7 +2,7 @@
 
 ## 当前本地评审候选
 
-2026-11-08。主题盒子 1.1.2（构建号 10015）增加最近三个 RC 的兼容，并包含独立下载队列与分页皮肤库。插件不内置皮肤：皮肤以 ZIP 导入本机，未导入时不播放开机动画。覆盖升级保留授权、已选皮肤和各套设置。Windows 用户已验收 1.1.2-dev.3；dev.5 的本地、官方 Host 和线上服务验证分别见项目验收记录。
+2026-11-08。主题盒子 1.1.3（构建号 10016）增加最近三个 RC 的兼容，并包含独立下载队列与分页皮肤库。插件不内置皮肤：皮肤以 ZIP 导入本机，未导入时不播放开机动画。覆盖升级保留授权、已选皮肤和各套设置。Windows 用户已验收 1.1.3-dev.3；dev.5 的本地、官方 Host 和线上服务验证分别见项目验收记录。
 
 整套皮肤使用主题、桌宠和开场三个模块及8项公开参数。开场区域的「预览开场」与「启动时自动播放」复用已有动作/同一偏好；「启用本套开场内容」是单独的模块启停。停止后从「恢复本套皮肤」恢复，保留已调整参数和模块关闭选择。已选整套时，旧配置选择/控制由皮肤设置入口替代；未选整套的旧流程保留。
 
@@ -44,6 +44,6 @@ DSH 已在运行时，可用「预览开场」手动播放。从系统恢复窗�
 
 ## English
 
-Theme Box 1.1.2 (build 10015) is a DeepSeek Harness plugin for startup animation, desktop pet, skins and local licensing. No skin is bundled: import a skin ZIP, otherwise the startup animation does not play.
+Theme Box 1.1.3 (build 10016) is a DeepSeek Harness plugin for startup animation, desktop pet, skins and local licensing. No skin is bundled: import a skin ZIP, otherwise the startup animation does not play.
 
 Build with `npm run package:mac` on macOS. The plugin is licensed under AGPL-3.0-or-later (see `LICENSE`); a commercial license is available if you cannot meet the AGPL obligations (see `NOTICE.md`). Skin and character assets are licensed separately.

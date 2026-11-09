@@ -189,5 +189,7 @@
   "SKIN_DOWNLOAD_PAUSED": "正在切换授权，请稍后重新添加下载。",
   "SKIN_DOWNLOAD_LICENSE_CHANGED": "授权已改变，请重新添加此下载。",
   "permanentActive": "Permanent license · device activated",
-  "permanentNote": "Installed content works offline; the market and updates need a connection."
+  "permanentNote": "Installed content works offline; the market and updates need a connection.",
+  "communityActive": "Community edition · local use",
+  "communityNote": "No activation required. Bundled skins work out of the box; this build does not connect to the licensing service."
 }

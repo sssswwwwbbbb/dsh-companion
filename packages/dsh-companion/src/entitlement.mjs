@@ -36,12 +36,14 @@ async function receiveDownload(response,file,release,{signal,onProgress}={}){
 
 export class Entitlement {
   constructor({stateDir,config,deviceId=deviceIdentity(),now=Date.now,fetcher=globalThis.fetch,releasePlatform=process.platform==='win32'?'win32-x64':'darwin-arm64'}) {
+    this.community=config?.channel==='community';
     this.stateDir=stateDir;this.config=config;this.deviceId=deviceId;this.now=now;this.fetcher=fetcher;this.releasePlatform=releasePlatform;this.file=path.join(stateDir,'license.json');this.pending=undefined;this.catalogRequest=0;try{const revision=readJson(path.join(stateDir,'skin-catalog.json'),{}).revision;if(Number.isSafeInteger(revision)&&revision>=0)this.catalogRequest=revision;}catch{}
     const url=new URL(config.serviceUrl);
     if(url.protocol!=='https:'&&!(url.protocol==='http:'&&['127.0.0.1','localhost','[::1]'].includes(url.hostname)))throw new Error('LICENSE_ENDPOINT_INVALID');
   }
   record(){return readJson(this.file,null);}
   status(){
+    if(this.community)return {active:true,state:'community',channel:'community',licenseId:'community-local',permanent:true,expiresAt:null,offlineUntil:null,lastCheckedAt:null,errorCode:null};
     const record=this.record();
     if(!record)return {active:false,state:'unactivated'};
     if(record.blocked)return {active:false,state:'blocked',errorCode:record.blocked};
@@ -52,6 +54,7 @@ export class Entitlement {
     }catch(error){return {active:false,state:'renew-required',errorCode:error.message};}
   }
   require(){const state=this.status();if(!state.active)throw new Error(state.errorCode||'LICENSE_REQUIRED');return state;}
+  async communityNoop(){if(!this.community)throw new Error('LICENSE_REQUIRED');return this.status();}
   diagnostic(route,errorCode,{requestId,transportCode}={}){
     try{
       const file=path.join(this.stateDir,'license-diagnostics.json'),previous=readJson(file,{events:[]});
@@ -67,8 +70,9 @@ export class Entitlement {
   }
   clearSkinCatalog(){this.catalogRequest++;this.quotaRequest=(this.quotaRequest||0)+1;this.quotaSavedRequest=this.quotaRequest;for(const name of ['skin-catalog.json','skin-quota.json'])fs.rmSync(path.join(this.stateDir,name),{force:true});}
   save(receipt){const claims=verifyLicense(receipt,{publicKey:this.config.publicKey,deviceId:this.deviceId,now:this.now()});let previousId;try{previousId=verifiedEnvelope(this.record()?.receipt,this.config.publicKey).licenseId;}catch{}if(previousId!==claims.licenseId)this.clearSkinCatalog();writeJson(this.file,{receipt,checkedAt:this.now(),lastSeenAt:this.now(),lastError:null});}
-  async activate(code){if(typeof code!=='string'||code.length>150)throw new Error('ACTIVATION_CODE_INVALID');const result=await this.post('/v1/activate',{code,deviceId:this.deviceId,licenseFormats:[1,2]});this.save(result.receipt);return this.status();}
+  async activate(code){if(this.community)return this.communityNoop();if(typeof code!=='string'||code.length>150)throw new Error('ACTIVATION_CODE_INVALID');const result=await this.post('/v1/activate',{code,deviceId:this.deviceId,licenseFormats:[1,2]});this.save(result.receipt);return this.status();}
   async refresh(force=false){
+    if(this.community)return this.status();
     const record=this.record();if(!record)return this.status();
     if(!force&&record.checkedAt>this.now()-300000)return this.status();
     if(this.pending)return this.pending;
@@ -81,7 +85,7 @@ export class Entitlement {
       return this.status();
     })().finally(()=>{this.pending=undefined;});return this.pending;
   }
-  async deactivate(){const record=this.record();if(record)await this.post('/v1/deactivate',{receipt:record.receipt,deviceId:this.deviceId});if(fs.existsSync(this.file))fs.unlinkSync(this.file);this.clearSkinCatalog();return this.status();}
+  async deactivate(){if(this.community)return this.status();const record=this.record();if(record)await this.post('/v1/deactivate',{receipt:record.receipt,deviceId:this.deviceId});if(fs.existsSync(this.file))fs.unlinkSync(this.file);this.clearSkinCatalog();return this.status();}
   skinCatalog(){
     try{
       const saved=readJson(path.join(this.stateDir,'skin-catalog.json'),null);if(!saved)return null;
@@ -97,7 +101,7 @@ export class Entitlement {
       return value;
     }catch{return null;}
   }
-  async refreshSkinCatalog(query={}){
+  async refreshSkinCatalog(query={}){if(this.community)throw new Error('COMMUNITY_MARKET_DISABLED');
     this.require();const requestId=this.catalogRequest=(this.catalogRequest||0)+1;
     const result=await this.post('/v1/skins/catalog',{...query,receipt:this.record().receipt,deviceId:this.deviceId}),value=catalogValue(result.catalog,this.config.publicKey),checkedAt=this.now();
     if(requestId!==this.catalogRequest)return {...value,checkedAt};
@@ -121,7 +125,7 @@ export class Entitlement {
     if(result.image!==null&&(typeof result.image!=='string'||!/^data:image\/(png|jpeg|webp);base64,/.test(result.image)))throw new Error('SKIN_CATALOG_INVALID');
     return result.image;
   }
-  async downloadSkin({releaseId,dshVersion,signal,onProgress}){
+  async downloadSkin({releaseId,dshVersion,signal,onProgress}){if(this.community)throw new Error('COMMUNITY_MARKET_DISABLED');
     const licenseId=this.require().licenseId,receipt=this.record().receipt;const requestSignal=signal?AbortSignal.any([signal,AbortSignal.timeout(5*60*1000)]):AbortSignal.timeout(5*60*1000);
     const {skin:entry}=await this.skinDetail(releaseId,{signal:requestSignal});
     if(this.require().licenseId!==licenseId)throw new Error('SKIN_DOWNLOAD_LICENSE_CHANGED');

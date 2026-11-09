@@ -24,7 +24,7 @@ const configured=fs.existsSync(serviceUrlFile)?fs.readFileSync(serviceUrlFile,'u
 const endpoint=profile==='community'?'https://license-host.invalid/dsh-companion':configured;
 if(profile!=='community'&&(!endpoint||endpoint.includes('license-host.invalid')))throw new Error('OFFICIAL_BUILD_REQUIRES_REAL_ENDPOINT');
 if(!['official','community'].includes(profile))throw new Error('UNKNOWN_BUILD_PROFILE');
-{const original=fs.readFileSync(configFile,'utf8'),cfg=JSON.parse(original);cfg.serviceUrl=endpoint;fs.writeFileSync(configFile,JSON.stringify(cfg,null,2)+'\n');fs.mkdirSync(path.join(root,'.local/cloud'),{recursive:true});fs.writeFileSync(path.join(root,'.local/cloud/service-config.orig.json'),original);}
+{const original=fs.readFileSync(configFile,'utf8'),cfg=JSON.parse(original);cfg.serviceUrl=endpoint;cfg.channel=profile==='community'?'community':'private';fs.writeFileSync(configFile,JSON.stringify(cfg,null,2)+'\n');fs.mkdirSync(path.join(root,'.local/cloud'),{recursive:true});fs.writeFileSync(path.join(root,'.local/cloud/service-config.orig.json'),original);}
 const target = path.join(root, 'packages/dsh-companion/runtime/darwin-arm64/DSHCompanion.app');
 fs.rmSync(target, { recursive: true, force: true });
 fs.mkdirSync(path.dirname(target), { recursive: true });

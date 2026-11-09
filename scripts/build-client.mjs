@@ -1,8 +1,11 @@
-import { readFileSync, writeFileSync, cpSync, rmSync, mkdirSync, existsSync } from 'node:fs';
+import fs, { readFileSync, writeFileSync, cpSync, rmSync, mkdirSync, existsSync } from 'node:fs';
+import path from 'node:path';
 import {loadSkin,prepareResources} from '../packages/dsh-skin-core/src/resources.mjs';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 const base = new URL('../packages/dsh-companion/', import.meta.url);
+const projectRoot = fileURLToPath(new URL('..', import.meta.url));
+const CoverBuffer = value => Buffer.from(value);
 const inputs=new URL('../tests/fixtures/',import.meta.url);
 const workspaceSource=new URL('archive-workspace-r2-private/',inputs);
 if(!existsSync(new URL('skin.json',workspaceSource)))throw new Error('Missing fixture skin in tests/fixtures');
@@ -10,6 +13,33 @@ if(!existsSync(new URL('skin.json',workspaceSource)))throw new Error('Missing fi
 // profile. The source skin here only supplies settings-page artwork and the
 // defaults baked into client.js.
 rmSync(new URL('skins/',base),{recursive:true,force:true});
+const buildProfile=process.env.DSH_BUILD_PROFILE||'official';
+const packageFile=fileURLToPath(new URL('package.json',base));
+{const original=readFileSync(packageFile,'utf8'),metadata=JSON.parse(original);const files=metadata.files||[];const without=files.filter(name=>name!=='skins');metadata.files=buildProfile==='community'?[...without,'skins']:without;writeFileSync(packageFile,JSON.stringify(metadata,null,2)+'\n');mkdirSync(path.join(projectRoot,'.local/cloud'),{recursive:true});writeFileSync(path.join(projectRoot,'.local/cloud/package-json.orig.json'),original);}
+
+if(buildProfile==='community'){
+  const {unzipSync}=await import('fflate');
+  const skinsDir=path.resolve(fileURLToPath(new URL('skins/',base)));
+  const bundledSkins=[
+    ['designs/dsh-skin-assets-v3/review/cold-start-icons-v2-2026-11-06/commander-workspace-private-1.0.1.zip'],
+    ['designs/dsh-black-flame-v1/black-flame-0.2.4.zip'],
+    ['designs/dsh-sky-dragon-v1/duelist-sky-dragon-1.1.0.zip']
+  ];
+  for(const [relative] of bundledSkins){
+    const file=path.join(projectRoot,relative);
+    if(!existsSync(file))throw new Error('MISSING_BUNDLED_SKIN: '+relative);
+    const entries=unzipSync(new Uint8Array(readFileSync(file)));
+    const manifest=JSON.parse(Buffer.from(entries['skin.json']).toString('utf8'));
+    if(!/^[a-z][a-z0-9-]{2,63}$/.test(manifest.id))throw new Error('BUNDLED_SKIN_ID_INVALID');
+    for(const [name,data] of Object.entries(entries)){
+      if(name.endsWith('/'))continue;
+      const target=path.join(skinsDir,manifest.id,name);
+      if(!target.startsWith(skinsDir+path.sep))continue;
+      fs.mkdirSync(path.dirname(target),{recursive:true});
+      fs.writeFileSync(target,CoverBuffer(data));
+    }
+  }
+}
 if(!readFileSync(new URL('../runtime-src/settings.mjs',import.meta.url)).equals(readFileSync(new URL('src/settings.mjs',base))))throw new Error('PLUGIN_RUNTIME_SETTINGS_MISMATCH');
 const workspaceSkin=loadSkin(fileURLToPath(workspaceSource));prepareResources(workspaceSkin);
 mkdirSync(new URL('../reports/',import.meta.url),{recursive:true});

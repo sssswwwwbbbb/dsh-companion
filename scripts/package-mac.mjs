@@ -33,8 +33,10 @@ fs.writeFileSync(path.join(root, 'reports/mac-package.json'), JSON.stringify({ a
 // The packaged endpoint must match the build profile: official -> real endpoint,
 // community -> placeholder. Never ship one under the other's name.
 const packedConfig=JSON.parse(fs.readFileSync(path.join(packageDir,'config/service.json'),'utf8'));
-if(profile==='community'){if(!packedConfig.serviceUrl.includes('license-host.invalid'))throw new Error('COMMUNITY_BUILD_HAS_REAL_ENDPOINT');}
+if(profile==='community'){if(!packedConfig.serviceUrl.includes('license-host.invalid'))throw new Error('COMMUNITY_BUILD_HAS_REAL_ENDPOINT');if(packedConfig.channel!=='community')throw new Error('COMMUNITY_BUILD_CHANNEL_MISMATCH');}
 else{const endpoint=fs.readFileSync(path.join(root,'.local/cloud/service-url.txt'),'utf8').trim();if(packedConfig.serviceUrl!==endpoint)throw new Error('SERVICE_ENDPOINT_NOT_INJECTED');}
+const originalPackageFile=path.join(root,'.local/cloud/package-json.orig.json');
+if(fs.existsSync(originalPackageFile)){fs.copyFileSync(originalPackageFile,path.join(packageDir,'package.json'));fs.rmSync(originalPackageFile,{force:true});}
 const originalConfig=path.join(root,'.local/cloud/service-config.orig.json');
 if(fs.existsSync(originalConfig)){fs.copyFileSync(originalConfig,path.join(packageDir,'config/service.json'));fs.rmSync(originalConfig,{force:true});}
 console.log(output);
